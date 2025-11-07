@@ -1,21 +1,28 @@
-// game.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+﻿#include "engine/core/Application.h"
+// Nie potrzebujemy już SFMLWindow.h
+#include "engine/rendering/SFMLRenderer.h" // <-- Ta klasa robi teraz wszystko
+#include <iostream> // Dla obsługi wyjątków
 
-#include "../engine/engine.h"
+int main() {
+    try {
+        // 1. Instancjonujemy naszą jedną, konkretną klasę implementacyjną
+        SFMLRenderer renderer; // <-- ZMIENIONE
 
-int main()
-{
-    Engine engine;
-    engine.run();
+        // 2. Tworzymy okno
+        renderer.create("Game Window", 1280, 720); // <-- ZMIENIONE
+
+        // 3. Wstrzykujemy 'renderer' jako *oba* wymagane interfejsy
+        // Application będzie widzieć 'renderer' raz jako IWindow, a raz jako IRenderer
+        Application app(renderer, renderer); // <-- ZMIENIONE
+
+        // 4. Uruchamiamy aplikację
+        app.run();
+
+    }
+    catch (const std::exception& e) {
+        std::cerr << "An unhandled exception occurred: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
