@@ -1,6 +1,6 @@
-﻿#include "Application.h"
-#include "engine/core/IWindow.h"
-#include "engine/rendering/IRenderer.h"
+﻿#include "Application.hpp"
+#include "engine/core/IWindow.hpp"
+#include "engine/rendering/IRenderer.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include <chrono> // For high-resolution clock and delta time

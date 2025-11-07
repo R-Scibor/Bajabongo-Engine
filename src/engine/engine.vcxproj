@@ -150,16 +150,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="core\Application.h" />
-    <ClInclude Include="core\IWindow.h" />
+    <ClInclude Include="core\Application.hpp" />
+    <ClInclude Include="core\IWindow.hpp" />
     <ClInclude Include="core\ILogger.hpp" />
     <ClInclude Include="core\ILoggerManager.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="logging\SpdlogLogger.hpp" />
     <ClInclude Include="logging\SpdlogManager.hpp" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="rendering\IRenderer.h" />
-    <ClInclude Include="rendering\SFMLRenderer.h" />
+    <ClInclude Include="rendering\IRenderer.hpp" />
+    <ClInclude Include="rendering\SFMLRenderer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Application.cpp" />

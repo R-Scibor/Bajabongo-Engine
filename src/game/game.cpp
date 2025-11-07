@@ -1,5 +1,5 @@
-﻿#include "engine/core/Application.h"
-#include "engine/rendering/SFMLRenderer.h"
+﻿#include "engine/core/Application.hpp"
+#include "engine/rendering/SFMLRenderer.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include <iostream>

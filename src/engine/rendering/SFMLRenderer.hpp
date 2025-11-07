@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "engine/rendering/IRenderer.h"
-#include "engine/core/IWindow.h"
+#include "engine/rendering/IRenderer.hpp"
+#include "engine/core/IWindow.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <memory> // Dla std::unique_ptr

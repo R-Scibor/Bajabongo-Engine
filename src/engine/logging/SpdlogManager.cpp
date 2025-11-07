@@ -1,4 +1,4 @@
-#include "SpdlogManager.hpp"
+﻿#include "SpdlogManager.hpp"
 #include "SpdlogLogger.hpp"
 
 #include <spdlog/spdlog.h>

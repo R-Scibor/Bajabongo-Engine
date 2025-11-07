@@ -1,5 +1,5 @@
-﻿#include "SFMLRenderer.h"
-#include "engine/core/IWindow.h"
+﻿#include "SFMLRenderer.hpp"
+#include "engine/core/IWindow.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/WindowHandle.hpp>

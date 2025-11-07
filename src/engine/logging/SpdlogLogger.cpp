@@ -1,4 +1,4 @@
-#include "SpdlogLogger.hpp"
+﻿#include "SpdlogLogger.hpp"
 #include <spdlog/logger.h>
 
 namespace Bajabongo

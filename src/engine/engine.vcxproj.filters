@@ -21,16 +21,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\IWindow.h">
+    <ClInclude Include="core\IWindow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\IRenderer.h">
+    <ClInclude Include="rendering\IRenderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\SFMLRenderer.h">
+    <ClInclude Include="core\Application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\ILogger.hpp">
@@ -43,6 +40,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logging\SpdlogManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\SFMLRenderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
