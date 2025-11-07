@@ -1,21 +1,15 @@
 ﻿#include "engine/core/Application.h"
-// Nie potrzebujemy już SFMLWindow.h
-#include "engine/rendering/SFMLRenderer.h" // <-- Ta klasa robi teraz wszystko
-#include <iostream> // Dla obsługi wyjątków
+#include "engine/rendering/SFMLRenderer.h" 
+#include <iostream> 
 
 int main() {
     try {
-        // 1. Instancjonujemy naszą jedną, konkretną klasę implementacyjną
-        SFMLRenderer renderer; // <-- ZMIENIONE
+        SFMLRenderer renderer; 
 
-        // 2. Tworzymy okno
-        renderer.create("Game Window", 1280, 720); // <-- ZMIENIONE
+        renderer.create("Game Window", 1280, 720); 
 
-        // 3. Wstrzykujemy 'renderer' jako *oba* wymagane interfejsy
-        // Application będzie widzieć 'renderer' raz jako IWindow, a raz jako IRenderer
-        Application app(renderer, renderer); // <-- ZMIENIONE
+        Application app(renderer, renderer); 
 
-        // 4. Uruchamiamy aplikację
         app.run();
 
     }

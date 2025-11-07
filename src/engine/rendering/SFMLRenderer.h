@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "engine/rendering/IRenderer.h"
-#include "engine/core/IWindow.h" // <-- DOŁOŻONE
+#include "engine/core/IWindow.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <memory> // Dla std::unique_ptr
@@ -11,14 +11,14 @@
  * Ponieważ sf::RenderWindow łączy w sobie obsługę okna i renderowania,
  * ta jedna klasa implementuje oba abstrakcyjne interfejsy.
  */
-class SFMLRenderer : public IRenderer, public IWindow { // <-- ZMIENIONE
+class SFMLRenderer : public IRenderer, public IWindow {
 public:
     /**
      * @brief Konstruktor.
      * Przekazuje 'this' do konstruktora bazy IRenderer, ponieważ
      * ta klasa jest teraz również IWindow.
      */
-    SFMLRenderer(); // <-- ZMIENIONE
+    SFMLRenderer();
     ~SFMLRenderer() override;
 
     // --- Implementacja interfejsu IWindow ---

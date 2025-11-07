@@ -3,15 +3,12 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/WindowHandle.hpp>
-#include <SFML/Window/Event.hpp>     // <-- DOŁOŻONE
-#include <SFML/Window/VideoMode.hpp> // <-- DOŁOŻONE
-#include <optional>                  // <-- DOŁOŻONE
+#include <SFML/Window/Event.hpp>     
+#include <SFML/Window/VideoMode.hpp> 
+#include <optional>                 
 
-// Konstruktor: przekazuje 'this' do bazy IRenderer, ponieważ ta klasa jest IWindow
 SFMLRenderer::SFMLRenderer()
     : IRenderer(*this) {
-    // Inicjalizacja kształtu jest teraz tutaj,
-    // tworzenie okna jest w metodzie create().
     m_shape.setRadius(50.f);
     m_shape.setFillColor(sf::Color::Red);
     m_shape.setPosition(sf::Vector2f(100.f, 100.f));
@@ -38,7 +35,6 @@ bool SFMLRenderer::isOpen() const {
 }
 
 void SFMLRenderer::pollEvents() {
-    // Ta sama pętla zdarzeń co poprzednio, ale teraz na m_renderWindow
     while (std::optional<sf::Event> event = m_renderWindow.pollEvent()) {
         if (event->is<sf::Event::Closed>()) {
             close();
