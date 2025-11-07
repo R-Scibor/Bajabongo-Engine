@@ -1,11 +1,17 @@
 ﻿#include "Application.h"
 #include "engine/core/IWindow.h"
 #include "engine/rendering/IRenderer.h"
+#include "engine/core/ILoggerManager.hpp"
+#include "engine/core/ILogger.hpp"
 #include <chrono> // For high-resolution clock and delta time
 
-Application::Application(IWindow& window, IRenderer& renderer)
-    : m_window(window), m_renderer(renderer) {
-    // Dependencies are injected and stored as references
+Application::Application(IWindow& window, IRenderer& renderer, Bajabongo::ILoggerManager& logManager)
+    : m_window(window)
+    , m_renderer(renderer)
+    , m_logManager(logManager)
+{
+    m_logger = m_logManager.GetLogger("Core");
+    m_logger->info("Application starting up.");
 }
 
 Application::~Application() {
@@ -13,8 +19,7 @@ Application::~Application() {
 }
 
 void Application::run() {
-    // Note: m_window.create() is now called in main.cpp *before* this.
-
+    m_logger->info("Starting main loop.");
     auto lastTime = std::chrono::high_resolution_clock::now();
 
     // The main game loop
@@ -32,17 +37,20 @@ void Application::run() {
 }
 
 void Application::processInput() {
+    m_logger->trace("Processing input.");
     // Delegate event processing to the window
     m_window.pollEvents();
 }
 
 void Application::update(float deltaTime) {
+    m_logger->trace("Updating game state.");
     // (void)deltaTime; // Suppress unused parameter warning
     // In Phase 1, there is no game state to update.
     // This will be filled in later (e.g., physics, AI).
 }
 
 void Application::render() {
+    m_logger->trace("Rendering frame.");
     // Orchestrate the rendering process via the abstract interface
     m_renderer.beginFrame();
     m_renderer.clear({ 0, 0, 25, 255 }); // Dark blue background

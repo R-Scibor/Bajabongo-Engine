@@ -173,6 +173,9 @@
     </ClCompile>
     <ClCompile Include="rendering\SFMLRenderer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\config\logging.ini" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

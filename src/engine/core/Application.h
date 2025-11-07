@@ -1,8 +1,17 @@
 ﻿#pragma once
 
 // Forward declarations of the interfaces to avoid including headers
+#include <memory>
+
+// Forward declarations to avoid including headers
 class IWindow;
 class IRenderer;
+
+namespace Bajabongo
+{
+    class ILoggerManager;
+    class ILogger;
+}
 
 /**
  * @brief The main Application class.
@@ -15,8 +24,9 @@ public:
      * @brief Constructs the Application, injecting its core service dependencies.
      * @param window A reference to an IWindow implementation.
      * @param renderer A reference to an IRenderer implementation.
+     * @param logManager A reference to an ILoggerManager implementation.
      */
-    Application(IWindow& window, IRenderer& renderer);
+    Application(IWindow& window, IRenderer& renderer, Bajabongo::ILoggerManager& logManager);
     ~Application();
 
     /**
@@ -44,4 +54,8 @@ private:
     // References to the abstract interfaces for core services.
     IWindow& m_window;
     IRenderer& m_renderer;
+    Bajabongo::ILoggerManager& m_logManager;
+
+    // The application's own logger instance.
+    std::shared_ptr<Bajabongo::ILogger> m_logger;
 };

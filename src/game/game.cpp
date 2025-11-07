@@ -1,19 +1,33 @@
 ﻿#include "engine/core/Application.h"
-#include "engine/rendering/SFMLRenderer.h" 
-#include <iostream> 
+#include "engine/rendering/SFMLRenderer.h"
+#include "engine/logging/SpdlogManager.hpp"
+#include "engine/core/ILogger.hpp"
+#include <iostream>
 
 int main() {
     try {
-        SFMLRenderer renderer; 
+        Bajabongo::SpdlogManager logManager("config/logging.ini");
+        auto gameLogger = logManager.GetLogger("Game");
 
-        renderer.create("Game Window", 1280, 720); 
+        gameLogger->info("Game is initializing...");
+        gameLogger->trace("This is a detailed trace message from the game.");
+        gameLogger->debug("This is a debug message, useful for development.");
 
-        Application app(renderer, renderer); 
+        SFMLRenderer renderer;
+        auto rendererLogger = logManager.GetLogger("Renderer");
+        rendererLogger->warn("SFML Renderer is being created. This is a warning.");
+
+        renderer.create("Game Window", 1280, 720);
+        gameLogger->info("Window created successfully.");
+
+        Application app(renderer, renderer, logManager);
 
         app.run();
 
+        gameLogger->error("This is a fake error message after the game loop finishes.");
     }
     catch (const std::exception& e) {
+        // In a real scenario, we would get a logger and log the exception.
         std::cerr << "An unhandled exception occurred: " << e.what() << std::endl;
         return 1;
     }
