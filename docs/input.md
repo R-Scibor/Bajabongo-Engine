@@ -26,9 +26,10 @@ This is the platform-specific code that implements the `IInputManager` interface
 
 *   **[`SFMLInputManager.hpp`](../src/engine/input/SFMLInputManager.hpp:0) / [`SFMLInputManager.cpp`](../src/engine/input/SFMLInputManager.cpp:0)**: This is the implementation for SFML.
     *   It inherits from `engine::IInputManager`.
+    *   It now accepts an `ILoggerManager` in its constructor to create its own "Input" logger.
     *   The `.cpp` file is the **only place in the engine** that should include SFML's input headers (`<SFML/Window/Keyboard.hpp>`, `<SFML/Window/Mouse.hpp>`).
     *   It contains a mapping function (`toSFMLKey`) that translates an `engine::KeyCode` to the corresponding `sf::Keyboard::Key`.
-    *   The implemented methods call the underlying SFML functions (e.g., `sf::Keyboard::isKeyPressed`).
+    *   The implemented methods call the underlying SFML functions and log input events for debugging purposes.
 
 ## 3. Usage (Dependency Injection)
 
@@ -46,7 +47,7 @@ int main() {
     // ... other initializations
     
     SFMLRenderer renderer;
-    engine::SFMLInputManager inputManager; // 2. Create an instance of the concrete manager
+    engine::SFMLInputManager inputManager(logManager); // 2. Create an instance, injecting the log manager
 
     renderer.create("Game Window", 1280, 720);
 
@@ -59,17 +60,4 @@ int main() {
 }
 ```
 
-Any system inside the `Application` can now access the input manager through its member variable (`m_inputManager`) and check for input in a platform-agnostic way.
-
-**Example from [`Application.cpp`](../src/engine/core/Application.cpp:0):**
-
-```cpp
-void Application::processInput() {
-    m_window.pollEvents();
-
-    // Check for input using the abstract interface and our engine's key codes
-    if (m_inputManager.isKeyPressed(engine::KeyCode::W))
-    {
-        m_logger->info("W key is pressed!");
-    }
-}
+Any system inside the `Application` can now access the input manager through its member variable (`m_inputManager`) and check for input in a platform-agnostic way. The concrete implementation (`SFMLInputManager`) now handles its own logging for input events, so the `Application` no longer needs to.

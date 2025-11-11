@@ -1,6 +1,9 @@
-#include "SFMLInputManager.hpp"
+﻿#include "SFMLInputManager.hpp"
+#include "engine/core/ILoggerManager.hpp"
+#include "engine/core/ILogger.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
+#include <sstream>
 
 namespace {
     sf::Keyboard::Key toSFMLKey(engine::KeyCode key) {
@@ -50,13 +53,30 @@ namespace {
 
 namespace engine {
 
+    SFMLInputManager::SFMLInputManager(Bajabongo::ILoggerManager& logManager)
+    {
+        m_logger = logManager.GetLogger("Input");
+        m_logger->info("SFMLInputManager initialized.");
+    }
+
     bool SFMLInputManager::isKeyPressed(engine::KeyCode key) const {
-        return sf::Keyboard::isKeyPressed(toSFMLKey(key));
+        bool isPressed = sf::Keyboard::isKeyPressed(toSFMLKey(key));
+        if (isPressed)
+        {
+            std::stringstream ss;
+            ss << "Key " << static_cast<int>(key) << " is pressed.";
+            m_logger->debug(ss.str());
+        }
+        return isPressed;
     }
 
     engine::Vector2i SFMLInputManager::getMousePosition() const {
         sf::Vector2i sfmlPosition = sf::Mouse::getPosition();
-        return {sfmlPosition.x, sfmlPosition.y};
+        engine::Vector2i position = { sfmlPosition.x, sfmlPosition.y };
+        std::stringstream ss;
+        ss << "Mouse position: (" << position.x << ", " << position.y << ")";
+        m_logger->debug(ss.str());
+        return position;
     }
 
 } // namespace engine

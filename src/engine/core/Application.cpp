@@ -17,7 +17,7 @@ Application::Application(IWindow& window, IRenderer& renderer, Bajabongo::ILogge
 }
 
 Application::~Application() {
-    // No explicit cleanup needed here, services are owned by the composition root
+    m_logger->info("Application shutting down.");
 }
 
 void Application::run() {
@@ -36,6 +36,7 @@ void Application::run() {
         update(deltaTime);
         render();
     }
+    m_logger->info("Main loop finished.");
 }
 
 void Application::processInput() {
@@ -43,10 +44,6 @@ void Application::processInput() {
     // Delegate event processing to the window
     m_window.pollEvents();
 
-    if (m_inputManager.isKeyPressed(engine::KeyCode::W))
-    {
-        m_logger->info("W key is pressed!");
-    }
 }
 
 void Application::update(float deltaTime) {
