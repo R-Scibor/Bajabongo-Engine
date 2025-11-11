@@ -32,13 +32,6 @@ bool SFMLRenderer::isOpen() const {
     return m_renderWindow.isOpen();
 }
 
-void SFMLRenderer::pollEvents() {
-    while (std::optional<sf::Event> event = m_renderWindow.pollEvent()) {
-        if (event->is<sf::Event::Closed>()) {
-            close();
-        }
-    }
-}
 
 void* SFMLRenderer::getNativeHandle() const {
     return reinterpret_cast<void*>(m_renderWindow.getNativeHandle());
@@ -65,4 +58,10 @@ void SFMLRenderer::drawShape(engine::Vector2f position, float radius) {
 
 void SFMLRenderer::endFrame() {
     m_renderWindow.display();
+}
+
+// --- SFML Specific ---
+
+sf::RenderWindow& SFMLRenderer::getNativeRenderWindow() {
+    return m_renderWindow;
 }

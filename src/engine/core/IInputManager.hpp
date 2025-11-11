@@ -9,6 +9,7 @@ namespace engine {
     public:
         virtual ~IInputManager() = default;
 
+        virtual void processEvents() = 0;
         virtual bool isKeyPressed(engine::KeyCode key) const = 0;
         virtual engine::Vector2i getMousePosition() const = 0;
     };

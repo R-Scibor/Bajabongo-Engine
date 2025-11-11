@@ -26,7 +26,6 @@ public:
     void create(const std::string& title, unsigned int width, unsigned int height) override;
     void close() override;
     bool isOpen() const override;
-    void pollEvents() override;
     void* getNativeHandle() const override;
 
     // --- Implementacja interfejsu IRenderer ---
@@ -34,6 +33,9 @@ public:
     void clear(Color color) override;
     void drawShape(engine::Vector2f position, float radius) override;
     void endFrame() override;
+
+    // --- SFML Specific ---
+    sf::RenderWindow& getNativeRenderWindow();
 
 private:
     // Mamy teraz tylko jeden obiekt okna, który robi wszystko.

@@ -16,7 +16,7 @@ int main() {
         renderer.create("Game Window", 1280, 720);
         gameLogger->info("Window created successfully.");
 
-        engine::SFMLInputManager inputManager(logManager);
+        engine::SFMLInputManager inputManager(logManager, renderer.getNativeRenderWindow());
 
         Application app(renderer, renderer, logManager, inputManager);
 

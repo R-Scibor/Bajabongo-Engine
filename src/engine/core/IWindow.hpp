@@ -30,11 +30,6 @@ public:
     virtual bool isOpen() const = 0;
 
     /**
-     * @brief Processes all pending window events (input, close, resize, etc.).
-     */
-    virtual void pollEvents() = 0;
-
-    /**
      * @brief Provides a native, platform-specific handle to the window.
      * This is used by the rendering backend to attach to the window.
      * @return A void pointer to the native window handle (e.g., HWND on Windows).

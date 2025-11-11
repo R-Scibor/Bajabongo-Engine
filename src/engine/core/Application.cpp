@@ -41,8 +41,8 @@ void Application::run() {
 
 void Application::processInput() {
     m_logger->trace("Processing input.");
-    // Delegate event processing to the window
-    m_window.pollEvents();
+    // Delegate event processing to the input manager
+    m_inputManager.processEvents();
 
 }
 

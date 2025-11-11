@@ -3,6 +3,8 @@
 #include "engine/core/ILogger.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <sstream>
 
 namespace {
@@ -53,10 +55,19 @@ namespace {
 
 namespace engine {
 
-    SFMLInputManager::SFMLInputManager(Bajabongo::ILoggerManager& logManager)
+    SFMLInputManager::SFMLInputManager(Bajabongo::ILoggerManager& logManager, sf::RenderWindow& window)
+        : m_window(window)
     {
         m_logger = logManager.GetLogger("Input");
         m_logger->info("SFMLInputManager initialized.");
+    }
+
+    void SFMLInputManager::processEvents() {
+        while (std::optional<sf::Event> event = m_window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                m_window.close();
+            }
+        }
     }
 
     bool SFMLInputManager::isKeyPressed(engine::KeyCode key) const {
