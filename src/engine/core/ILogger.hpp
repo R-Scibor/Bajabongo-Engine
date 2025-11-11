@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace Bajabongo
+namespace engine
 {
     class ILogger
     {

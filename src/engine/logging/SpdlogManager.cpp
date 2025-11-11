@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string>
 
-namespace Bajabongo
+namespace engine
 {
     // Helper function to trim whitespace from a string
     std::string trim(const std::string& str)

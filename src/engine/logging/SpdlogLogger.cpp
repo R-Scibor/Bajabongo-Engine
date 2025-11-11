@@ -1,7 +1,7 @@
 ﻿#include "SpdlogLogger.hpp"
 #include <spdlog/logger.h>
 
-namespace Bajabongo
+namespace engine
 {
     SpdlogLogger::SpdlogLogger(std::shared_ptr<spdlog::logger> logger)
         : m_logger(std::move(logger))

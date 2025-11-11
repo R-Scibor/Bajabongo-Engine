@@ -11,7 +11,7 @@ namespace spdlog
     class logger;
 }
 
-namespace Bajabongo
+namespace engine
 {
     class SpdlogManager : public ILoggerManager
     {

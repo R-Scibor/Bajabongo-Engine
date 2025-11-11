@@ -7,18 +7,18 @@
 
 int main() {
     try {
-        Bajabongo::SpdlogManager logManager("config/logging.ini");
+        engine::SpdlogManager logManager("config/logging.ini");
         auto gameLogger = logManager.GetLogger("Game");
 
         gameLogger->info("Game is initializing...");
-        SFMLRenderer renderer;
+        engine::SFMLRenderer renderer;
 
         renderer.create("Game Window", 1280, 720);
         gameLogger->info("Window created successfully.");
 
         engine::SFMLInputManager inputManager(logManager, renderer.getNativeRenderWindow());
 
-        Application app(renderer, renderer, logManager, inputManager);
+        engine::Application app(renderer, renderer, logManager, inputManager);
 
         app.run();
 

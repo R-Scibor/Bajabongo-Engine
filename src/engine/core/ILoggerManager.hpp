@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-namespace Bajabongo
+namespace engine
 {
     class ILogger;
 

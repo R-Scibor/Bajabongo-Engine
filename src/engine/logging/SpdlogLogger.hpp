@@ -9,7 +9,7 @@ namespace spdlog
     class logger;
 }
 
-namespace Bajabongo
+namespace engine
 {
     class SpdlogLogger : public ILogger
     {

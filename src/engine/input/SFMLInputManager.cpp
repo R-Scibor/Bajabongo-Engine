@@ -55,7 +55,7 @@ namespace {
 
 namespace engine {
 
-    SFMLInputManager::SFMLInputManager(Bajabongo::ILoggerManager& logManager, sf::RenderWindow& window)
+    SFMLInputManager::SFMLInputManager(ILoggerManager& logManager, sf::RenderWindow& window)
         : m_window(window)
     {
         m_logger = logManager.GetLogger("Input");
