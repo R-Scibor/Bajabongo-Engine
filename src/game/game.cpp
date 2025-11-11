@@ -1,5 +1,6 @@
 ﻿#include "engine/core/Application.hpp"
 #include "engine/rendering/SFMLRenderer.hpp"
+#include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include <iostream>
@@ -10,21 +11,18 @@ int main() {
         auto gameLogger = logManager.GetLogger("Game");
 
         gameLogger->info("Game is initializing...");
-        gameLogger->trace("This is a detailed trace message from the game.");
-        gameLogger->debug("This is a debug message, useful for development.");
-
         SFMLRenderer renderer;
-        auto rendererLogger = logManager.GetLogger("Renderer");
-        rendererLogger->warn("SFML Renderer is being created. This is a warning.");
 
         renderer.create("Game Window", 1280, 720);
         gameLogger->info("Window created successfully.");
 
-        Application app(renderer, renderer, logManager);
+        engine::SFMLInputManager inputManager;
+
+        Application app(renderer, renderer, logManager, inputManager);
 
         app.run();
 
-        gameLogger->error("This is a fake error message after the game loop finishes.");
+        gameLogger->info("Game shutting down.");
     }
     catch (const std::exception& e) {
         // In a real scenario, we would get a logger and log the exception.

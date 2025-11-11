@@ -3,12 +3,14 @@
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/core/IInputManager.hpp"
 #include <chrono> // For high-resolution clock and delta time
 
-Application::Application(IWindow& window, IRenderer& renderer, Bajabongo::ILoggerManager& logManager)
+Application::Application(IWindow& window, IRenderer& renderer, Bajabongo::ILoggerManager& logManager, engine::IInputManager& inputManager)
     : m_window(window)
     , m_renderer(renderer)
     , m_logManager(logManager)
+    , m_inputManager(inputManager)
 {
     m_logger = m_logManager.GetLogger("Core");
     m_logger->info("Application starting up.");
@@ -40,6 +42,11 @@ void Application::processInput() {
     m_logger->trace("Processing input.");
     // Delegate event processing to the window
     m_window.pollEvents();
+
+    if (m_inputManager.isKeyPressed(engine::KeyCode::W))
+    {
+        m_logger->info("W key is pressed!");
+    }
 }
 
 void Application::update(float deltaTime) {

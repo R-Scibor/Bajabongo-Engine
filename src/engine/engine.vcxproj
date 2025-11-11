@@ -151,10 +151,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="core\Application.hpp" />
+    <ClInclude Include="core\IInputManager.hpp" />
+    <ClInclude Include="core\input\KeyCode.hpp" />
     <ClInclude Include="core\IWindow.hpp" />
     <ClInclude Include="core\ILogger.hpp" />
     <ClInclude Include="core\ILoggerManager.hpp" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="input\SFMLInputManager.hpp" />
     <ClInclude Include="logging\SpdlogLogger.hpp" />
     <ClInclude Include="logging\SpdlogManager.hpp" />
     <ClInclude Include="pch.h" />
@@ -163,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Application.cpp" />
+    <ClCompile Include="input\SFMLInputManager.cpp" />
     <ClCompile Include="logging\SpdlogLogger.cpp" />
     <ClCompile Include="logging\SpdlogManager.cpp" />
     <ClCompile Include="pch.cpp">

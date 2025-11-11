@@ -7,6 +7,10 @@
 class IWindow;
 class IRenderer;
 
+namespace engine {
+    class IInputManager;
+}
+
 namespace Bajabongo
 {
     class ILoggerManager;
@@ -26,7 +30,7 @@ public:
      * @param renderer A reference to an IRenderer implementation.
      * @param logManager A reference to an ILoggerManager implementation.
      */
-    Application(IWindow& window, IRenderer& renderer, Bajabongo::ILoggerManager& logManager);
+    Application(IWindow& window, IRenderer& renderer, Bajabongo::ILoggerManager& logManager, engine::IInputManager& inputManager);
     ~Application();
 
     /**
@@ -55,6 +59,7 @@ private:
     IWindow& m_window;
     IRenderer& m_renderer;
     Bajabongo::ILoggerManager& m_logManager;
+    engine::IInputManager& m_inputManager;
 
     // The application's own logger instance.
     std::shared_ptr<Bajabongo::ILogger> m_logger;
