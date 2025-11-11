@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "engine/core/math/MathAliases.hpp"
 #include <cstdint> // For uint8_t
 
 // Forward declaration to avoid circular includes
@@ -40,7 +41,7 @@ public:
      * @brief Temporary method for the Phase 1 milestone.
      * This will be replaced by a proper RenderSystem.
      */
-    virtual void drawShape() = 0;
+    virtual void drawShape(engine::Vector2f position, float radius) = 0;
 
     /**
      * @brief Finalizes the frame and displays it on the screen.

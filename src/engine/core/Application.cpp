@@ -54,6 +54,6 @@ void Application::render() {
     // Orchestrate the rendering process via the abstract interface
     m_renderer.beginFrame();
     m_renderer.clear({ 0, 0, 25, 255 }); // Dark blue background
-    m_renderer.drawShape(); // The Phase 1 milestone
+    m_renderer.drawShape({100.0f, 100.0f}, 50.0f); // The Phase 1 milestone
     m_renderer.endFrame();
 }

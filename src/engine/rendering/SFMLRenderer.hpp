@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "engine/core/math/MathAliases.hpp"
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/core/IWindow.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -31,7 +32,7 @@ public:
     // --- Implementacja interfejsu IRenderer ---
     void beginFrame() override;
     void clear(Color color) override;
-    void drawShape() override;
+    void drawShape(engine::Vector2f position, float radius) override;
     void endFrame() override;
 
 private:

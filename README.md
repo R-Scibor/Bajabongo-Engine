@@ -39,3 +39,4 @@ The current codebase provides a solid and stable foundation for future developme
 ## Documentation
 
 *   [Logging System Architecture](docs/logging.md)
+*   [Core Math Library](docs/math.md)

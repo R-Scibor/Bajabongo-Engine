@@ -9,9 +9,7 @@
 
 SFMLRenderer::SFMLRenderer()
     : IRenderer(*this) {
-    m_shape.setRadius(50.f);
     m_shape.setFillColor(sf::Color::Red);
-    m_shape.setPosition(sf::Vector2f(100.f, 100.f));
 }
 
 SFMLRenderer::~SFMLRenderer() {
@@ -56,7 +54,12 @@ void SFMLRenderer::clear(Color color) {
     m_renderWindow.clear(sf::Color(color.r, color.g, color.b, color.a));
 }
 
-void SFMLRenderer::drawShape() {
+void SFMLRenderer::drawShape(engine::Vector2f position, float radius) {
+    // Adapter Pattern: Convert engine type to SFML type
+    sf::Vector2f sfmlPosition(position.x, position.y);
+
+    m_shape.setPosition(sfmlPosition);
+    m_shape.setRadius(radius);
     m_renderWindow.draw(m_shape);
 }
 
