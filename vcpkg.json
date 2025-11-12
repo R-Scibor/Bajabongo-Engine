@@ -1,6 +1,10 @@
 {
 "name": "bajabongo",
 "version-string": "0.1.0",
-"dependencies": ["sfml",
-"spdlog"]
+"dependencies": [
+	"sfml",
+	"spdlog",
+	"entt",
+    "box2d"
+	]
 }

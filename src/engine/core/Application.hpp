@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-// Forward declarations of the interfaces to avoid including headers
 #include <memory>
+#include <entt/fwd.hpp> // Forward declaration dla registry
+#include <box2d/id.h>   // MUST include: b2WorldId cannot be forward-declared (C++ struct with layout)
 
-// Forward declarations to avoid including headers
 namespace engine {
     class IWindow;
     class IRenderer;
@@ -13,18 +13,29 @@ namespace engine {
 
     /**
      * @brief The main Application class.
-     * This class owns all major engine services and orchestrates the main game loop.
-     * It is decoupled from concrete implementations via abstract interfaces.
+     * Orchestrates the main game loop and owns references to core engine services.
+     * All dependencies are injected via constructor (Dependency Injection).
      */
     class Application {
     public:
         /**
-         * @brief Constructs the Application, injecting its core service dependencies.
-         * @param window A reference to an IWindow implementation.
-         * @param renderer A reference to an IRenderer implementation.
-         * @param logManager A reference to an ILoggerManager implementation.
+         * @brief Constructs the Application, injecting core service dependencies.
+         * @param window Reference to IWindow implementation.
+         * @param renderer Reference to IRenderer implementation.
+         * @param logManager Reference to ILoggerManager implementation.
+         * @param inputManager Reference to IInputManager implementation.
+         * @param registry Reference to EnTT registry (ECS core).
+         * @param physicsWorld Box2D world ID (Box2D 3.0 uses opaque handles).
          */
-        Application(IWindow& window, IRenderer& renderer, ILoggerManager& logManager, IInputManager& inputManager);
+        Application(
+            IWindow& window,
+            IRenderer& renderer,
+            ILoggerManager& logManager,
+            IInputManager& inputManager,
+            entt::registry& registry,
+            b2WorldId physicsWorld
+        );
+
         ~Application();
 
         /**
@@ -49,13 +60,17 @@ namespace engine {
          */
         void render();
 
-        // References to the abstract interfaces for core services.
+        // References to abstract interfaces for core services
         IWindow& m_window;
         IRenderer& m_renderer;
         ILoggerManager& m_logManager;
         IInputManager& m_inputManager;
 
-        // The application's own logger instance.
+        // ECS and Physics (injected dependencies)
+        entt::registry& m_registry;
+        b2WorldId m_physicsWorld; // Box2D 3.0: lightweight opaque handle (pass by value)
+
+        // The application's own logger instance
         std::shared_ptr<ILogger> m_logger;
     };
 }
