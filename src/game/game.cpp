@@ -5,6 +5,7 @@
 #include "engine/core/ILogger.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
+#include "engine/components/TransformComponent.hpp"
 
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
@@ -43,6 +44,7 @@ int main() {
             engine::Vector2f{ 20.f, 20.f },   // rozmiar
             false, 0.5f                     // nie-statyczny, gęstość
         );
+        registry.emplace<engine::TransformComponent>(box);
 
         app.run();
 

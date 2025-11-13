@@ -27,22 +27,26 @@ namespace engine
         
         m_logger->trace("Syncing transforms for physics bodies.");
 
-        for (auto entity : view)
+        view.each([this](auto entity, auto& transform, const auto& physicsBody)
         {
-            auto& transform = view.get<TransformComponent>(entity);
-            const auto& physicsBody = view.get<const PhysicsBodyComponent>(entity);
-
             if (!b2Body_IsValid(physicsBody.bodyId)) {
                 std::stringstream err_ss;
                 err_ss << "Attempted to sync transform for an invalid bodyId on entity " << entt::to_integral(entity);
                 m_logger->warn(err_ss.str());
-                continue;
+                return; // Use return in a lambda
             }
 
-            b2Vec2 position = b2Body_GetPosition(physicsBody.bodyId);
-            transform.position.x = position.x;
-            transform.position.y = position.y;
-        }
+            b2Transform bodyTransform = b2Body_GetTransform(physicsBody.bodyId);
+            b2Vec2 position = bodyTransform.p;
+            float angle = b2Rot_GetAngle(bodyTransform.q);
+
+            transform.position = { position.x, position.y };
+            transform.rotation = angle;
+
+            std::stringstream log_ss;
+            log_ss << "Synced entity " << entt::to_integral(entity) << ": transform.position.y = " << transform.position.y;
+            m_logger->trace(log_ss.str());
+        });
     }
 
 } // namespace engine
