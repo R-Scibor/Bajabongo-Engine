@@ -3,6 +3,8 @@
 #include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/components/PendingPhysicsBodyComponent.hpp"
+#include "engine/core/math/Vector2.hpp"
 
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
@@ -34,6 +36,13 @@ int main() {
 
         // Inject all dependencies into Application
         engine::Application app(renderer, renderer, logManager, inputManager, registry, physicsWorldId);
+
+        auto box = registry.create();
+        registry.emplace<engine::PendingPhysicsBodyComponent>(box,
+            engine::Vector2f{ 100.f, 100.f }, // pozycja
+            engine::Vector2f{ 20.f, 20.f },   // rozmiar
+            false, 0.5f                     // nie-statyczny, gęstość
+        );
 
         app.run();
 

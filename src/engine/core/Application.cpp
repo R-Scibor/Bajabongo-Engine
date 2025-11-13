@@ -25,8 +25,8 @@ namespace engine
         , m_inputManager(inputManager)
         , m_registry(registry)
         , m_physicsWorld(physicsWorld)
-        , m_physicsBodyCreationSystem(registry, physicsWorld)
-        , m_physicsSyncSystem(registry)
+        , m_physicsBodyCreationSystem(registry, physicsWorld, logManager)
+        , m_physicsSyncSystem(registry, logManager)
     {
         m_logger = m_logManager.GetLogger("Core");
         m_logger->info("Application starting up.");
