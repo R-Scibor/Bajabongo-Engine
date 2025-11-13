@@ -4,6 +4,9 @@
 #include <entt/fwd.hpp> // Forward declaration dla registry
 #include <box2d/id.h>   // MUST include: b2WorldId cannot be forward-declared (C++ struct with layout)
 
+#include "engine/physics/PhysicsBodyCreationSystem.hpp"
+#include "engine/physics/PhysicsSyncSystem.hpp"
+
 namespace engine {
     class IWindow;
     class IRenderer;
@@ -72,5 +75,9 @@ namespace engine {
 
         // The application's own logger instance
         std::shared_ptr<ILogger> m_logger;
+
+        // Physics Systems
+        PhysicsBodyCreationSystem m_physicsBodyCreationSystem;
+        PhysicsSyncSystem m_physicsSyncSystem;
     };
 }

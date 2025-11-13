@@ -25,6 +25,8 @@ namespace engine
         , m_inputManager(inputManager)
         , m_registry(registry)
         , m_physicsWorld(physicsWorld)
+        , m_physicsBodyCreationSystem(registry, physicsWorld)
+        , m_physicsSyncSystem(registry)
     {
         m_logger = m_logManager.GetLogger("Core");
         m_logger->info("Application starting up.");
@@ -61,6 +63,8 @@ namespace engine
     void Application::update(float deltaTime) {
         m_logger->trace("Updating game state.");
 
+        m_physicsBodyCreationSystem.update();
+
         // === PHYSICS INTEGRATION ===
         // Box2D 3.0: Step the world using the C API
         // Parameters:
@@ -72,8 +76,7 @@ namespace engine
         // See: https://box2d.org/posts/2024/02/solver/
         b2World_Step(m_physicsWorld, deltaTime, 8);
 
-        // Future: Systems will query m_registry and update components here
-        // Example: PhysicsSystem::update(m_registry, m_physicsWorld, deltaTime);
+        m_physicsSyncSystem.update();
     }
 
     void Application::render() {

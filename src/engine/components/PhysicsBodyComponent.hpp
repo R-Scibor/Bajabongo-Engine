@@ -1,11 +1,11 @@
 #pragma once
 
-class b2Body;
+#include <box2d/id.h>
 
 namespace engine
 {
     struct PhysicsBodyComponent
     {
-        b2Body* body = nullptr;
+        b2BodyId bodyId;
     };
 }
