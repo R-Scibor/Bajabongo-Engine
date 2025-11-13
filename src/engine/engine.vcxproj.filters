@@ -54,6 +54,15 @@
     <ClInclude Include="input\SFMLInputManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="components\PendingPhysicsBodyComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\PhysicsBodyComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\TransformComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

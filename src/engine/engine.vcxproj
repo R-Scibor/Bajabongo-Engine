@@ -150,6 +150,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="components\PendingPhysicsBodyComponent.hpp" />
+    <ClInclude Include="components\PhysicsBodyComponent.hpp" />
+    <ClInclude Include="components\TransformComponent.hpp" />
     <ClInclude Include="core\Application.hpp" />
     <ClInclude Include="core\IInputManager.hpp" />
     <ClInclude Include="core\input\KeyCode.hpp" />
