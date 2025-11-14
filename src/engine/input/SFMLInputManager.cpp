@@ -5,7 +5,6 @@
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <sstream>
 
 namespace {
     sf::Keyboard::Key toSFMLKey(engine::KeyCode key) {
@@ -74,9 +73,7 @@ namespace engine {
         bool isPressed = sf::Keyboard::isKeyPressed(toSFMLKey(key));
         if (isPressed)
         {
-            std::stringstream ss;
-            ss << "Key " << static_cast<int>(key) << " is pressed.";
-            m_logger->debug(ss.str());
+            m_logger->debug("Key {} is pressed.", static_cast<int>(key));
         }
         return isPressed;
     }
@@ -84,9 +81,7 @@ namespace engine {
     engine::Vector2i SFMLInputManager::getMousePosition() const {
         sf::Vector2i sfmlPosition = sf::Mouse::getPosition();
         engine::Vector2i position = { sfmlPosition.x, sfmlPosition.y };
-        std::stringstream ss;
-        ss << "Mouse position: (" << position.x << ", " << position.y << ")";
-        m_logger->debug(ss.str());
+        m_logger->debug("Mouse position: ({}, {})", position.x, position.y);
         return position;
     }
 

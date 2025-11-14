@@ -10,6 +10,8 @@ The Bajabongo Engine features a robust, dependency-injection-based logging syste
 
 3.  **Runtime Configuration**: Log verbosity is controlled externally via the `config/logging.ini` file. This allows developers to adjust the log output for different modules at runtime without needing to recompile the engine.
 
+4.  **High-Performance Formatted Logging**: The logger uses the `{fmt}` library for fast, type-safe, and compile-time-checked string formatting, avoiding the runtime overhead of `std::stringstream`.
+
 ## How It Works
 
 ### System Integration
@@ -34,31 +36,46 @@ If a logger is requested that is not defined in the `.ini` file, it automaticall
 
 ## How to Use
 
+The logger provides a modern, type-safe formatting API. This is the preferred way to log messages with variables.
+
 To add logging to a new system:
 
-1.  Modify the system's constructor to accept a reference to `Bajabongo::ILoggerManager&`.
+1.  Modify the system's constructor to accept a reference to `engine::ILoggerManager&`.
 2.  In the constructor, request a logger with a unique name for that system.
-3.  Use the logger instance to write messages with the appropriate severity level.
+3.  Use the logger instance to write messages with `{}` placeholders for variables.
 
 ```cpp
 // Example in a hypothetical PhysicsSystem
+#include "engine/core/ILoggerManager.hpp"
+#include "engine/core/ILogger.hpp"
+
 class PhysicsSystem
 {
 public:
-    PhysicsSystem(Bajabongo::ILoggerManager& logManager)
+    PhysicsSystem(engine::ILoggerManager& logManager)
     {
         // Request a logger named "Physics"
         m_logger = logManager.GetLogger("Physics");
         m_logger->info("PhysicsSystem initialized.");
     }
 
-    void Update()
+    void Update(float deltaTime)
     {
-        // This message will only appear if the "Physics" level is set to 'trace'
-        m_logger->trace("Running physics simulation step.");
+        int rigidBodyCount = 120;
+        // Use formatted logging for variables. It's clean and type-safe.
+        m_logger->debug("Running physics simulation step for {} rigid bodies with dt = {:.4f}s.", rigidBodyCount, deltaTime);
         // ...
     }
 
 private:
-    std::shared_ptr<Bajabongo::ILogger> m_logger;
+    std::shared_ptr<engine::ILogger> m_logger;
 };
+```
+
+### Backwards Compatibility
+
+For simplicity or compatibility with older code, you can still pass a single string or string view. This is useful for static messages without variables.
+
+```cpp
+// This is still valid for messages without variables.
+m_logger->trace("Running physics simulation step.");

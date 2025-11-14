@@ -17,11 +17,7 @@ namespace engine
         explicit SpdlogLogger(std::shared_ptr<spdlog::logger> logger);
         ~SpdlogLogger() override = default;
 
-        void trace(std::string_view message) override;
-        void debug(std::string_view message) override;
-        void info(std::string_view message) override;
-        void warn(std::string_view message) override;
-        void error(std::string_view message) override;
+        void log(spdlog::level::level_enum level, std::string_view message) override;
 
     private:
         std::shared_ptr<spdlog::logger> m_logger;

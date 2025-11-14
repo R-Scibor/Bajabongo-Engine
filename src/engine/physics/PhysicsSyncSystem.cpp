@@ -1,7 +1,6 @@
 #include "engine/pch.h"
 #include "PhysicsSyncSystem.hpp"
 
-#include <sstream>
 #include <entt/entt.hpp>
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
@@ -30,9 +29,7 @@ namespace engine
         view.each([this](auto entity, auto& transform, const auto& physicsBody)
         {
             if (!b2Body_IsValid(physicsBody.bodyId)) {
-                std::stringstream err_ss;
-                err_ss << "Attempted to sync transform for an invalid bodyId on entity " << entt::to_integral(entity);
-                m_logger->warn(err_ss.str());
+                m_logger->warn("Attempted to sync transform for an invalid bodyId on entity {}", entt::to_integral(entity));
                 return; // Use return in a lambda
             }
 
@@ -43,9 +40,7 @@ namespace engine
             transform.position = { position.x, position.y };
             transform.rotation = angle;
 
-            std::stringstream log_ss;
-            log_ss << "Synced entity " << entt::to_integral(entity) << ": transform.position.y = " << transform.position.y;
-            m_logger->trace(log_ss.str());
+            m_logger->trace("Synced entity {}: transform.position.y = {}", entt::to_integral(entity), transform.position.y);
         });
     }
 

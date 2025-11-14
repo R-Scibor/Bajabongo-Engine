@@ -8,28 +8,8 @@ namespace engine
     {
     }
 
-    void SpdlogLogger::trace(std::string_view message)
+    void SpdlogLogger::log(spdlog::level::level_enum level, std::string_view message)
     {
-        m_logger->trace(message);
-    }
-
-    void SpdlogLogger::debug(std::string_view message)
-    {
-        m_logger->debug(message);
-    }
-
-    void SpdlogLogger::info(std::string_view message)
-    {
-        m_logger->info(message);
-    }
-
-    void SpdlogLogger::warn(std::string_view message)
-    {
-        m_logger->warn(message);
-    }
-
-    void SpdlogLogger::error(std::string_view message)
-    {
-        m_logger->error(message);
+        m_logger->log(level, message);
     }
 }
