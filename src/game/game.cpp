@@ -39,17 +39,33 @@ int main() {
         // Inject all dependencies into Application
         engine::Application app(renderer, renderer, logManager, inputManager, registry, physicsWorldId);
 
-        // Test entity: box
+        // === Test entities ===
+
+        // Pudełko – dynamic body, startuje na górze ekranu
         auto box = registry.create();
         registry.emplace<engine::PendingPhysicsBodyComponent>(
             box,
-            engine::Vector2f{ 100.f, 100.f },
-            engine::Vector2f{ 20.f, 20.f },
-            false,
-            0.5f
+            engine::Vector2f{ 100.f, 100.f },   // pozycja (góra ekranu, w pikselach/Twoich jednostkach)
+            engine::Vector2f{ 20.f, 20.f },     // rozmiar (używany przez PhysicsBodyCreationSystem)
+            false,                              // isStatic = false → dynamic body
+            0.5f                                // density
         );
         registry.emplace<engine::TransformComponent>(box);
-        registry.emplace<engine::RenderableComponent>(box, 20.0f); // prosty promień
+        registry.emplace<engine::RenderableComponent>(box, 20.0f); // promień kółka
+
+        // Ziemia – statyczne body, na dole ekranu
+        auto ground = registry.create();
+        registry.emplace<engine::PendingPhysicsBodyComponent>(
+            ground,
+            engine::Vector2f{ 100.f, 600.f },   // pozycja (dół ekranu)
+            engine::Vector2f{ 400.f, 20.f },    // rozmiar: szeroka platforma
+            true,                               // isStatic = true → static body
+            0.0f                                // density nieistotna dla statycznego
+        );
+        registry.emplace<engine::TransformComponent>(ground);
+        registry.emplace<engine::RenderableComponent>(ground, 200.0f); // duży „promień”, jako pasek
+
+
 
 
         // Run the game loop (we'll add timed destruction next)

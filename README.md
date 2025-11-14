@@ -40,3 +40,4 @@ The current codebase provides a solid and stable foundation for future developme
 
 *   [Logging System Architecture](docs/logging.md)
 *   [Core Math Library](docs/math.md)
+*   [Physics System Architecture](docs/physics.md)
