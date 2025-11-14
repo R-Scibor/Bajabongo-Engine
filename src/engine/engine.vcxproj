@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="components\PendingPhysicsBodyComponent.hpp" />
     <ClInclude Include="components\PhysicsBodyComponent.hpp" />
+    <ClInclude Include="components\RenderableComponent.hpp" />
     <ClInclude Include="components\TransformComponent.hpp" />
     <ClInclude Include="core\Application.hpp" />
     <ClInclude Include="core\IInputManager.hpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="physics\PhysicsBodyCreationSystem.hpp" />
     <ClInclude Include="physics\PhysicsSyncSystem.hpp" />
     <ClInclude Include="rendering\IRenderer.hpp" />
+    <ClInclude Include="rendering\RenderSystem.hpp" />
     <ClInclude Include="rendering\SFMLRenderer.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -185,6 +187,7 @@
     </ClCompile>
     <ClCompile Include="physics\PhysicsBodyCreationSystem.cpp" />
     <ClCompile Include="physics\PhysicsSyncSystem.cpp" />
+    <ClCompile Include="rendering\RenderSystem.cpp" />
     <ClCompile Include="rendering\SFMLRenderer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

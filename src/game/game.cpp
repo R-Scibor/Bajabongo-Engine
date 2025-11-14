@@ -6,6 +6,7 @@
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 #include "engine/components/TransformComponent.hpp"
+#include "engine/components/RenderableComponent.hpp"
 
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
@@ -38,14 +39,20 @@ int main() {
         // Inject all dependencies into Application
         engine::Application app(renderer, renderer, logManager, inputManager, registry, physicsWorldId);
 
+        // Test entity: box
         auto box = registry.create();
-        registry.emplace<engine::PendingPhysicsBodyComponent>(box,
-            engine::Vector2f{ 100.f, 100.f }, // pozycja
-            engine::Vector2f{ 20.f, 20.f },   // rozmiar
-            false, 0.5f                     // nie-statyczny, gęstość
+        registry.emplace<engine::PendingPhysicsBodyComponent>(
+            box,
+            engine::Vector2f{ 100.f, 100.f },
+            engine::Vector2f{ 20.f, 20.f },
+            false,
+            0.5f
         );
         registry.emplace<engine::TransformComponent>(box);
+        registry.emplace<engine::RenderableComponent>(box, 20.0f); // prosty promień
 
+
+        // Run the game loop (we'll add timed destruction next)
         app.run();
 
         // Cleanup Box2D world
@@ -59,3 +66,4 @@ int main() {
 
     return 0;
 }
+

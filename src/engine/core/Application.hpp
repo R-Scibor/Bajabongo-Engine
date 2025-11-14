@@ -6,6 +6,7 @@
 
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
+#include "engine/rendering/RenderSystem.hpp"
 
 namespace engine {
     class IWindow;
@@ -63,6 +64,13 @@ namespace engine {
          */
         void render();
 
+        /**
+         * @brief Hook called when a PhysicsBodyComponent is destroyed.
+         * Cleans up the associated Box2D body from the physics world.
+         * @param entity The entity whose PhysicsBodyComponent was destroyed.
+		 */
+        void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
+
         // References to abstract interfaces for core services
         IWindow& m_window;
         IRenderer& m_renderer;
@@ -79,5 +87,8 @@ namespace engine {
         // Physics Systems
         PhysicsBodyCreationSystem m_physicsBodyCreationSystem;
         PhysicsSyncSystem m_physicsSyncSystem;
+
+        // Rendering System
+        RenderSystem              m_renderSystem;
     };
 }

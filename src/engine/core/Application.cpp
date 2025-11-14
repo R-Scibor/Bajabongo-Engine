@@ -4,6 +4,8 @@
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/IInputManager.hpp"
+#include "engine/components/PhysicsBodyComponent.hpp"
+
 
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
@@ -27,9 +29,18 @@ namespace engine
         , m_physicsWorld(physicsWorld)
         , m_physicsBodyCreationSystem(registry, physicsWorld, logManager)
         , m_physicsSyncSystem(registry, logManager)
+        , m_renderSystem(registry, renderer)
     {
         m_logger = m_logManager.GetLogger("Core");
         m_logger->info("Application starting up.");
+
+        // === HOOK: lifecycle cleanup for physics bodies ===
+        auto physicsLogger = m_logManager.GetLogger("Physics");
+
+        m_registry.on_destroy<engine::PhysicsBodyComponent>()
+            .connect<&Application::onPhysicsBodyDestroyed>(this);
+
+        physicsLogger->info("on_destroy hook for PhysicsBodyComponent registered.");
     }
 
     Application::~Application() {
@@ -83,7 +94,40 @@ namespace engine
         m_logger->trace("Rendering frame.");
         m_renderer.beginFrame();
         m_renderer.clear({ 0, 0, 25, 255 }); // Dark blue background
-        m_renderer.drawShape({ 100.0f, 100.0f }, 50.0f); // Phase 1 milestone
+
+        // Stary twardy kod:
+        // m_renderer.drawShape({ 100.0f, 100.0f }, 50.0f);
+
+        // Nowy, ECS‑owy render
+        m_renderSystem.update();
+
         m_renderer.endFrame();
     }
+
+    void Application::onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity)
+    {
+        // Komponent w on_destroy jest jeszcze dostępny
+        auto& physicsBody = registry.get<PhysicsBodyComponent>(entity);
+
+        if (!b2Body_IsValid(physicsBody.bodyId)) {
+            if (m_logger) {
+                m_logger->warn(
+                    "on_destroy: physics body already invalid for entity {}",
+                    entt::to_integral(entity)
+                );
+            }
+            return;
+        }
+
+        // Box2D 3.0: niszczymy ciało po samym bodyId, BEZ worldId
+        b2DestroyBody(physicsBody.bodyId);
+
+        if (m_logger) {
+            m_logger->trace(
+                "Destroyed Box2D body for entity {}",
+                entt::to_integral(entity)
+            );
+        }
+    }
+
 }
