@@ -3,15 +3,16 @@
 
 #include <entt/entt.hpp>
 
+#include "engine/core/EngineContext.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/rendering/IRenderer.hpp"
 
 namespace engine
 {
-    RenderSystem::RenderSystem(entt::registry& registry, IRenderer& renderer)
-        : m_registry(registry)
-        , m_renderer(renderer)
+    RenderSystem::RenderSystem(const EngineContext& context)
+        : m_registry(*context.registry)
+        , m_renderer(*context.renderer)
     {
     }
 

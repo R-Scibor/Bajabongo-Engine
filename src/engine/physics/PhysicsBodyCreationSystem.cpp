@@ -1,7 +1,7 @@
 #include "engine/pch.h"
 #include "PhysicsBodyCreationSystem.hpp"
 
-#include <entt/entt.hpp>
+#include "engine/core/EngineContext.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -12,11 +12,11 @@
 namespace engine
 {
 
-    PhysicsBodyCreationSystem::PhysicsBodyCreationSystem(entt::registry& registry, b2WorldId worldId, ILoggerManager& logManager)
-        : m_registry(registry)
-        , m_worldId(worldId)
+    PhysicsBodyCreationSystem::PhysicsBodyCreationSystem(const EngineContext& context)
+        : m_registry(*context.registry)
+        , m_worldId(context.physicsWorld)
     {
-        m_logger = logManager.GetLogger("Physics");
+        m_logger = context.loggerManager->GetLogger("Physics");
         m_logger->info("PhysicsBodyCreationSystem initialized.");
     }
 

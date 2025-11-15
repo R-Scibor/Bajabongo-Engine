@@ -5,12 +5,12 @@
 
 namespace engine
 {
-    class ILoggerManager;
+    struct EngineContext;
     class ILogger;
 
     class PhysicsSyncSystem {
     public:
-        PhysicsSyncSystem(entt::registry& registry, ILoggerManager& logManager);
+        PhysicsSyncSystem(const EngineContext& context);
         void update();
 
     private:

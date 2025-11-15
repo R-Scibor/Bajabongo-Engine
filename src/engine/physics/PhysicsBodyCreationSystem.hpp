@@ -6,12 +6,12 @@
 
 namespace engine
 {
-    class ILoggerManager;
+    struct EngineContext;
     class ILogger;
 
     class PhysicsBodyCreationSystem {
     public:
-        PhysicsBodyCreationSystem(entt::registry& registry, b2WorldId worldId, ILoggerManager& logManager);
+        PhysicsBodyCreationSystem(const EngineContext& context);
         void update();
 
     private:

@@ -4,6 +4,7 @@
 #include <entt/fwd.hpp> // Forward declaration dla registry
 #include <box2d/id.h>   // MUST include: b2WorldId cannot be forward-declared (C++ struct with layout)
 
+#include "engine/core/EngineContext.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
@@ -31,14 +32,7 @@ namespace engine {
          * @param registry Reference to EnTT registry (ECS core).
          * @param physicsWorld Box2D world ID (Box2D 3.0 uses opaque handles).
          */
-        Application(
-            IWindow& window,
-            IRenderer& renderer,
-            ILoggerManager& logManager,
-            IInputManager& inputManager,
-            entt::registry& registry,
-            b2WorldId physicsWorld
-        );
+        Application(const EngineContext& context);
 
         ~Application();
 

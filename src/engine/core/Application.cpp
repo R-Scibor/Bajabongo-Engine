@@ -1,4 +1,6 @@
-﻿#include "Application.hpp"
+﻿#include "engine/pch.h"
+#include "Application.hpp"
+#include "engine/core/EngineContext.hpp"
 #include "engine/core/IWindow.hpp"
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -6,30 +8,21 @@
 #include "engine/core/IInputManager.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 
-
-#include <entt/entt.hpp>
 #include <box2d/box2d.h>
 #include <chrono>
 
 namespace engine
 {
-    Application::Application(
-        IWindow& window,
-        IRenderer& renderer,
-        ILoggerManager& logManager,
-        IInputManager& inputManager,
-        entt::registry& registry,
-        b2WorldId physicsWorld
-    )
-        : m_window(window)
-        , m_renderer(renderer)
-        , m_logManager(logManager)
-        , m_inputManager(inputManager)
-        , m_registry(registry)
-        , m_physicsWorld(physicsWorld)
-        , m_physicsBodyCreationSystem(registry, physicsWorld, logManager)
-        , m_physicsSyncSystem(registry, logManager)
-        , m_renderSystem(registry, renderer)
+    Application::Application(const EngineContext& context)
+        : m_window(*context.window)
+        , m_renderer(*context.renderer)
+        , m_logManager(*context.loggerManager)
+        , m_inputManager(*context.inputManager)
+        , m_registry(*context.registry)
+        , m_physicsWorld(context.physicsWorld)
+        , m_physicsBodyCreationSystem(context)
+        , m_physicsSyncSystem(context)
+        , m_renderSystem(context)
     {
         m_logger = m_logManager.GetLogger("Core");
         m_logger->info("Application starting up.");

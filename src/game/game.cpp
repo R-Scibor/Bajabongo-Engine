@@ -1,4 +1,6 @@
-﻿#include "engine/core/Application.hpp"
+﻿#include "engine/pch.h"
+#include "engine/core/Application.hpp"
+#include "engine/core/EngineContext.hpp"
 #include "engine/rendering/SFMLRenderer.hpp"
 #include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
@@ -8,7 +10,6 @@
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 
-#include <entt/entt.hpp>
 #include <box2d/box2d.h>
 #include <iostream>
 
@@ -36,8 +37,17 @@ int main() {
 
         engine::SFMLInputManager inputManager(logManager, renderer.getNativeRenderWindow());
 
-        // Inject all dependencies into Application
-        engine::Application app(renderer, renderer, logManager, inputManager, registry, physicsWorldId);
+        // Create the engine context object
+        engine::EngineContext context;
+        context.loggerManager = &logManager;
+        context.registry = &registry;
+        context.physicsWorld = physicsWorldId;
+        context.renderer = &renderer;
+        context.inputManager = &inputManager;
+        context.window = &renderer;
+
+        // Inject all dependencies into Application via the context
+        engine::Application app(context);
 
         // === Test entities ===
 

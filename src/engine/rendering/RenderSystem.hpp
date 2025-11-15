@@ -4,12 +4,13 @@
 
 namespace engine
 {
+    struct EngineContext;
     class IRenderer;
 
     class RenderSystem
     {
     public:
-        RenderSystem(entt::registry& registry, IRenderer& renderer);
+        RenderSystem(const EngineContext& context);
 
         void update();
 

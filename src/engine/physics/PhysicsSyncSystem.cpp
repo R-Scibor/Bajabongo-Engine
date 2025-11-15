@@ -1,7 +1,7 @@
 #include "engine/pch.h"
 #include "PhysicsSyncSystem.hpp"
 
-#include <entt/entt.hpp>
+#include "engine/core/EngineContext.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
@@ -13,10 +13,10 @@
 namespace engine
 {
 
-    PhysicsSyncSystem::PhysicsSyncSystem(entt::registry& registry, ILoggerManager& logManager)
-        : m_registry(registry)
+    PhysicsSyncSystem::PhysicsSyncSystem(const EngineContext& context)
+        : m_registry(*context.registry)
     {
-        m_logger = logManager.GetLogger("Physics");
+        m_logger = context.loggerManager->GetLogger("Physics");
         m_logger->info("PhysicsSyncSystem initialized.");
     }
 
