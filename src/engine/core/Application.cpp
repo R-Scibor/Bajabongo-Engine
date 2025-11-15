@@ -53,14 +53,21 @@ namespace engine
 
         // Main game loop
         while (m_window.isOpen()) {
-            // Calculate delta time
             auto currentTime = std::chrono::high_resolution_clock::now();
             float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
             lastTime = currentTime;
 
-            // Execute frame logic
+            m_accumulator += deltaTime;
+
             processInput();
-            update(deltaTime);
+
+            while (m_accumulator >= m_physicsTimeStep)
+            {
+                fixedUpdate();
+                m_accumulator -= m_physicsTimeStep;
+            }
+
+            update();
             render();
         }
         m_logger->info("Main loop finished.");
@@ -71,8 +78,14 @@ namespace engine
         m_inputManager.processEvents();
     }
 
-    void Application::update(float deltaTime) {
+    void Application::update() {
         m_logger->trace("Updating game state.");
+        // Non-physics game logic goes here
+    }
+
+    void Application::fixedUpdate()
+    {
+        m_logger->trace("Performing fixed update (physics).");
 
         m_physicsBodyCreationSystem.update();
 
@@ -85,7 +98,7 @@ namespace engine
         //
         // NOTE: Box2D 3.0 removed velocity/position iterations - now it uses subStepCount
         // See: https://box2d.org/posts/2024/02/solver/
-        b2World_Step(m_physicsWorld, deltaTime, 8);
+        b2World_Step(m_physicsWorld, m_physicsTimeStep, 8);
 
         m_physicsSyncSystem.update();
     }
@@ -94,9 +107,6 @@ namespace engine
         m_logger->trace("Rendering frame.");
         m_renderer.beginFrame();
         m_renderer.clear({ 0, 0, 25, 255 }); // Dark blue background
-
-        // Stary twardy kod:
-        // m_renderer.drawShape({ 100.0f, 100.0f }, 50.0f);
 
         // Nowy, ECS‑owy render
         m_renderSystem.update();

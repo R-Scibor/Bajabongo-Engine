@@ -55,9 +55,14 @@ namespace engine {
 
         /**
          * @brief Updates the game state for the current frame.
-         * @param deltaTime The time elapsed since the last frame, in seconds.
+         * @param deltaTime The time elapsed since the last frame, in seconds. (NO LONGER USED)
          */
-        void update(float deltaTime);
+        void update();
+
+        /**
+         * @brief Updates the physics simulation with a fixed time step.
+        */
+        void fixedUpdate();
 
         /**
          * @brief Renders the game state for the current frame.
@@ -90,5 +95,9 @@ namespace engine {
 
         // Rendering System
         RenderSystem              m_renderSystem;
+
+        // Fixed-step game loop
+        const float m_physicsTimeStep = 1.0f / 60.0f;
+        float m_accumulator = 0.0f;
     };
 }
