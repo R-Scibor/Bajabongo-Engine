@@ -1,0 +1,1 @@
+Decouple state machine from SFML by introducing engine::InputEvent and translating from backend events in IInputManager.

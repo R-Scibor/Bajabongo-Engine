@@ -29,6 +29,7 @@ namespace engine
         void close() override;
         bool isOpen() const override;
         void* getNativeHandle() const override;
+        std::optional<sf::Event> pollEvent() override;
 
         // --- Implementacja interfejsu IRenderer ---
         void beginFrame() override;

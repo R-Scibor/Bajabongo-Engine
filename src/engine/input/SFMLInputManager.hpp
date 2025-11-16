@@ -3,9 +3,9 @@
 #include "engine/core/IInputManager.hpp"
 #include <memory>
 
-namespace sf
-{
+namespace sf {
     class RenderWindow;
+    class Event;
 }
 
 namespace engine {
@@ -15,7 +15,7 @@ namespace engine {
     class SFMLInputManager : public IInputManager {
     public:
         SFMLInputManager(ILoggerManager& logManager, sf::RenderWindow& window);
-        void processEvents() override;
+        void processEvent(const sf::Event& event) override;
         bool isKeyPressed(engine::KeyCode key) const override;
         engine::Vector2i getMousePosition() const override;
     private:

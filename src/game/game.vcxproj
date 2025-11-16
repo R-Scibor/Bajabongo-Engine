@@ -139,6 +139,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="states\GameplayState.cpp" />
+    <ClCompile Include="states\MainMenuState.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="states\GameplayState.hpp" />
+    <ClInclude Include="states\MainMenuState.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

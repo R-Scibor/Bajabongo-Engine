@@ -10,6 +10,9 @@
 #include "engine/core/math/Vector2.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
+#include "game/states/MainMenuState.hpp"
+#include "game/states/GameplayState.hpp"
+#include "engine/core/StateManager.hpp"
 
 #include <box2d/box2d.h>
 #include <iostream>
@@ -55,37 +58,24 @@ int main() {
         context.m_window = renderer;
 
         // Phase 4 services (not used yet)
-        // context.m_dispatcher   = std::make_shared<entt::dispatcher>();
+        context.m_dispatcher   = std::make_shared<entt::dispatcher>();
         // context.m_stateManager = nullptr;
 
         // Inject all dependencies into Application via the context
         engine::Application app(context);
 
-        // === Test entities ===
+        // === State Registration ===
+        context.m_stateManager->registerState<game::MainMenuState>("MainMenu");
+        context.m_stateManager->registerState<game::GameplayState>("Gameplay");
 
-        // Box – dynamic body, starts at the top of the screen
-        auto box = registry->create();
-        registry->emplace<engine::PendingPhysicsBodyComponent>(
-            box,
-            engine::Vector2f{ 100.f, 100.f },   // position (top of the screen)
-            engine::Vector2f{ 20.f, 20.f },     // size (used by PhysicsBodyCreationSystem)
-            false,                              // isStatic = false → dynamic body
-            0.5f                                // density
-        );
-        registry->emplace<engine::TransformComponent>(box);
-        registry->emplace<engine::RenderableComponent>(box, 20.0f); // circle radius
+        // === Initial State ===
+        // Push the first state and process transitions once to ensure it's active
+        // before the main loop begins.
+        context.m_stateManager->requestPush("MainMenu");
+        context.m_stateManager->processTransitions();
 
-        // Ground – static body at the bottom of the screen
-        auto ground = registry->create();
-        registry->emplace<engine::PendingPhysicsBodyComponent>(
-            ground,
-            engine::Vector2f{ 100.f, 600.f },   // position (bottom of the screen)
-            engine::Vector2f{ 400.f, 20.f },    // size: wide platform
-            true,                               // isStatic = true → static body
-            0.0f                                // density not relevant for static body
-        );
-        registry->emplace<engine::TransformComponent>(ground);
-        registry->emplace<engine::RenderableComponent>(ground, 200.0f); // large "radius", as a bar
+        // The test entities will be moved into the GameplayState's onEnter method.
+        // For now, they are removed from here to avoid clutter.
 
         // Run the game loop
         app.run();

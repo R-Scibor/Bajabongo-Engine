@@ -39,6 +39,10 @@ namespace engine
         return reinterpret_cast<void*>(m_renderWindow.getNativeHandle());
     }
 
+    std::optional<sf::Event> SFMLRenderer::pollEvent() {
+        return m_renderWindow.pollEvent();
+    }
+
     // --- Implementacja IRenderer ---
 
     void SFMLRenderer::beginFrame() {

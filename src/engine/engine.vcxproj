@@ -156,14 +156,17 @@
     <ClInclude Include="components\TransformComponent.hpp" />
     <ClInclude Include="core\Application.hpp" />
     <ClInclude Include="core\EngineContext.hpp" />
+    <ClInclude Include="core\IGameState.hpp" />
     <ClInclude Include="core\IInputManager.hpp" />
     <ClInclude Include="core\input\KeyCode.hpp" />
     <ClInclude Include="core\IWindow.hpp" />
+    <ClInclude Include="core\StateManager.hpp" />
     <ClInclude Include="core\ILogger.hpp" />
     <ClInclude Include="core\ILoggerManager.hpp" />
     <ClInclude Include="core\math\MathAliases.hpp" />
     <ClInclude Include="core\math\Rect.hpp" />
     <ClInclude Include="core\math\Vector2.hpp" />
+    <ClInclude Include="events\StateEvents.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="input\SFMLInputManager.hpp" />
     <ClInclude Include="logging\SpdlogLogger.hpp" />
@@ -177,6 +180,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Application.cpp" />
+    <ClCompile Include="core\StateManager.cpp" />
     <ClCompile Include="input\SFMLInputManager.cpp" />
     <ClCompile Include="logging\SpdlogLogger.cpp" />
     <ClCompile Include="logging\SpdlogManager.cpp" />

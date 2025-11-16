@@ -1,5 +1,11 @@
 ﻿#pragma once
 #include <string>
+#include <optional>
+
+// Forward declaration for the event type
+namespace sf {
+    class Event;
+}
 
 namespace engine
 {
@@ -30,6 +36,12 @@ namespace engine
          * @return true if the window is open, false otherwise.
          */
         virtual bool isOpen() const = 0;
+
+        /**
+         * @brief Polls for a pending event.
+         * @return An optional containing the event if one is pending, otherwise an empty optional.
+         */
+        virtual std::optional<sf::Event> pollEvent() = 0;
 
         /**
          * @brief Provides a native, platform-specific handle to the window.

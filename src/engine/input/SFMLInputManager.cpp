@@ -61,12 +61,13 @@ namespace engine {
         m_logger->info("SFMLInputManager initialized.");
     }
 
-    void SFMLInputManager::processEvents() {
-        while (std::optional<sf::Event> event = m_window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                m_window.close();
-            }
-        }
+    void SFMLInputManager::processEvent(const sf::Event& event) {
+        // The new design forwards single events here.
+        // For now, this class's responsibility is mainly to provide
+        // state polling functions like isKeyPressed, which don't need
+        // to react to specific events.
+        // The window closing event is handled in Application::processInput.
+        (void)event; // Mark event as unused for now.
     }
 
     bool SFMLInputManager::isKeyPressed(engine::KeyCode key) const {

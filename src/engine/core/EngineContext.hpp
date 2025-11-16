@@ -37,7 +37,7 @@ namespace engine {
          * @brief The central event bus for asynchronous communication.
          *
          */
-        //std::shared_ptr<entt::dispatcher> m_dispatcher;
+        std::shared_ptr<entt::dispatcher> m_dispatcher;
 
         /**
          * @brief A non-owning pointer to the StateManager.
@@ -46,7 +46,7 @@ namespace engine {
          * this pointer to request transitions.
          *
          */
-        //StateManager* m_stateManager = nullptr;
+        StateManager* m_stateManager = nullptr;
     };
 
 } // namespace engine

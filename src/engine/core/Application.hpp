@@ -8,6 +8,7 @@
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
+#include "engine/core/StateManager.hpp"
 
 namespace engine {
 
@@ -70,11 +71,17 @@ namespace engine {
          */
         void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
 
+        // Core context reference
+        EngineContext& m_context;
+
         // Core services (shared from EngineContext)
         std::shared_ptr<IWindow>        m_window;
         std::shared_ptr<IRenderer>      m_renderer;
         std::shared_ptr<ILoggerManager> m_logManager;
         std::shared_ptr<IInputManager>  m_inputManager;
+
+        // State Management (owned by Application)
+        StateManager m_stateManager;
 
         // ECS and Physics
         std::shared_ptr<entt::registry> m_registry;
@@ -83,12 +90,7 @@ namespace engine {
         // The application's own logger instance
         std::shared_ptr<ILogger>        m_logger;
 
-        // Physics Systems
-        PhysicsBodyCreationSystem       m_physicsBodyCreationSystem;
-        PhysicsSyncSystem               m_physicsSyncSystem;
-
-        // Rendering System
-        RenderSystem                    m_renderSystem;
+        // Physics and rendering systems are now managed within the active game state.
 
         // Fixed-step game loop
         const float m_physicsTimeStep = 1.0f / 60.0f;
