@@ -50,6 +50,12 @@ namespace engine {
         void processTransitions();
 
         /**
+         * @brief Checks if the state stack is empty.
+         * @return True if there are no active states.
+         */
+        bool isEmpty() const;
+
+        /**
          * @brief Registers a state with the factory.
          *
          * @tparam T The concrete state class (must inherit from IGameState).
@@ -57,9 +63,11 @@ namespace engine {
          */
         template<typename T>
         void registerState(const std::string& stateName) {
-            static_assert(std::is_base_of<IGameState, T>::value, "T must be a descendant of IGameState");
-            m_stateFactory[stateName] = [this]() {
-                // Check if the type T has a constructor that accepts EngineContext&
+            static_assert(std::is_base_of_v<IGameState, T>, "T must be a descendant of IGameState");
+            static_assert(std::is_constructible_v<T, EngineContext&> || std::is_constructible_v<T>,
+                "State must be constructible with EngineContext& or default constructible.");
+
+            m_stateFactory[stateName] = [this]() -> std::unique_ptr<IGameState> {
                 if constexpr (std::is_constructible_v<T, EngineContext&>) {
                     return std::make_unique<T>(m_context);
                 } else {
@@ -83,7 +91,7 @@ namespace engine {
         };
 
         EngineContext& m_context;
-        std::vector<std::unique_ptr<IGameState>> m_states;
+        std::vector<std::unique_ptr<IGameState>> m_states; // Defines the active state stack
         std::vector<PendingAction> m_pendingActions;
         std::map<std::string, std::function<std::unique_ptr<IGameState>()>> m_stateFactory;
     };

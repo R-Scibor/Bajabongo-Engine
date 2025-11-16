@@ -80,6 +80,10 @@ namespace engine {
             // 4. Process all queued state transitions at a safe point
             m_stateManager.processTransitions();
 
+            if (m_stateManager.isEmpty()) {
+                m_window->close();
+            }
+
             // 5. Render the final state stack
             render();
         }

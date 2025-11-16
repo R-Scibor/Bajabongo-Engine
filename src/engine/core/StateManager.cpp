@@ -94,8 +94,8 @@ namespace engine {
                 if (m_stateFactory.count(action.stateName)) {
                     auto newState = m_stateFactory.at(action.stateName)();
                     logger->info("Pushing state: {}", action.stateName);
-                    newState->onEnter(m_context);
                     m_states.push_back(std::move(newState));
+                    m_states.back()->onEnter(m_context);
                 } else {
                     logger->error("Unknown state requested for push: {}", action.stateName);
                 }
@@ -128,8 +128,8 @@ namespace engine {
                     // Then push the new one
                     auto newState = m_stateFactory.at(action.stateName)();
                     logger->info("Pushing swapped state: {}", action.stateName);
-                    newState->onEnter(m_context);
                     m_states.push_back(std::move(newState));
+                    m_states.back()->onEnter(m_context);
                 } else {
                     logger->error("Unknown state requested for swap: {}", action.stateName);
                 }
@@ -147,6 +147,10 @@ namespace engine {
             }
             }
         }
+    }
+
+    bool StateManager::isEmpty() const {
+        return m_states.empty();
     }
 
 } // namespace engine
