@@ -155,6 +155,7 @@
     <ClInclude Include="components\RenderableComponent.hpp" />
     <ClInclude Include="components\TransformComponent.hpp" />
     <ClInclude Include="core\Application.hpp" />
+    <ClInclude Include="core\EngineContext.hpp" />
     <ClInclude Include="core\IInputManager.hpp" />
     <ClInclude Include="core\input\KeyCode.hpp" />
     <ClInclude Include="core\IWindow.hpp" />

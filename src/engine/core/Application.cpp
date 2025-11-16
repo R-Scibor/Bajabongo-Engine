@@ -1,5 +1,7 @@
 ﻿#include "engine/pch.h"
+
 #include "Application.hpp"
+
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/IWindow.hpp"
 #include "engine/rendering/IRenderer.hpp"
@@ -11,51 +13,59 @@
 #include <box2d/box2d.h>
 #include <chrono>
 
-namespace engine
-{
-    Application::Application(const EngineContext& context)
-        : m_window(*context.window)
-        , m_renderer(*context.renderer)
-        , m_logManager(*context.loggerManager)
-        , m_inputManager(*context.inputManager)
-        , m_registry(*context.registry)
-        , m_physicsWorld(context.physicsWorld)
-        , m_physicsBodyCreationSystem(context)
-        , m_physicsSyncSystem(context)
-        , m_renderSystem(context)
+namespace engine {
+
+    Application::Application(EngineContext& context)
+        : m_window{ context.m_window }
+        , m_renderer{ context.m_renderer }
+        , m_logManager{ context.m_logManager }
+        , m_inputManager{ context.m_inputManager }
+        , m_registry{ context.m_registry }
+        , m_physicsWorld{ context.m_physicsWorld }
+        , m_physicsBodyCreationSystem{ context }
+        , m_physicsSyncSystem{ context }
+        , m_renderSystem{ context }
     {
-        m_logger = m_logManager.GetLogger("Core");
+        // NOTE: dispatcher and stateManager are present in EngineContext
+        // but not yet used in this phase.
+
+        m_logger = m_logManager->GetLogger("Core");
         m_logger->info("Application starting up.");
 
         // === HOOK: lifecycle cleanup for physics bodies ===
-        auto physicsLogger = m_logManager.GetLogger("Physics");
+        auto physicsLogger = m_logManager->GetLogger("Physics");
 
-        m_registry.on_destroy<engine::PhysicsBodyComponent>()
+        m_registry->on_destroy<engine::PhysicsBodyComponent>()
             .connect<&Application::onPhysicsBodyDestroyed>(this);
 
         physicsLogger->info("on_destroy hook for PhysicsBodyComponent registered.");
     }
 
-    Application::~Application() {
-        m_logger->info("Application shutting down.");
+    Application::~Application()
+    {
+        if (m_logger) {
+            m_logger->info("Application shutting down.");
+        }
     }
 
-    void Application::run() {
+    void Application::run()
+    {
         m_logger->info("Starting main loop.");
+
         auto lastTime = std::chrono::high_resolution_clock::now();
 
         // Main game loop
-        while (m_window.isOpen()) {
+        while (m_window->isOpen()) {
             auto currentTime = std::chrono::high_resolution_clock::now();
-            float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
+            float deltaTime =
+                std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
             lastTime = currentTime;
 
             m_accumulator += deltaTime;
 
             processInput();
 
-            while (m_accumulator >= m_physicsTimeStep)
-            {
+            while (m_accumulator >= m_physicsTimeStep) {
                 fixedUpdate();
                 m_accumulator -= m_physicsTimeStep;
             }
@@ -63,15 +73,18 @@ namespace engine
             update();
             render();
         }
+
         m_logger->info("Main loop finished.");
     }
 
-    void Application::processInput() {
+    void Application::processInput()
+    {
         m_logger->trace("Processing input.");
-        m_inputManager.processEvents();
+        m_inputManager->processEvents();
     }
 
-    void Application::update() {
+    void Application::update()
+    {
         m_logger->trace("Updating game state.");
         // Non-physics game logic goes here
     }
@@ -90,26 +103,27 @@ namespace engine
         //   - subStepCount: Number of sub-steps (default: 4, we use 8 for more precision)
         //
         // NOTE: Box2D 3.0 removed velocity/position iterations - now it uses subStepCount
-        // See: https://box2d.org/posts/2024/02/solver/
         b2World_Step(m_physicsWorld, m_physicsTimeStep, 8);
 
         m_physicsSyncSystem.update();
     }
 
-    void Application::render() {
+    void Application::render()
+    {
         m_logger->trace("Rendering frame.");
-        m_renderer.beginFrame();
-        m_renderer.clear({ 0, 0, 25, 255 }); // Dark blue background
 
-        // Nowy, ECS‑owy render
+        m_renderer->beginFrame();
+        m_renderer->clear({ 0, 0, 25, 255 }); // Dark blue background
+
+        // ECS‑driven rendering
         m_renderSystem.update();
 
-        m_renderer.endFrame();
+        m_renderer->endFrame();
     }
 
     void Application::onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity)
     {
-        // Komponent w on_destroy jest jeszcze dostępny
+        // Component is still valid in on_destroy
         auto& physicsBody = registry.get<PhysicsBodyComponent>(entity);
 
         if (!b2Body_IsValid(physicsBody.bodyId)) {
@@ -122,7 +136,7 @@ namespace engine
             return;
         }
 
-        // Box2D 3.0: niszczymy ciało po samym bodyId, BEZ worldId
+        // Box2D 3.0: destroy body using only bodyId (no worldId needed)
         b2DestroyBody(physicsBody.bodyId);
 
         if (m_logger) {
@@ -133,4 +147,4 @@ namespace engine
         }
     }
 
-}
+} // namespace engine

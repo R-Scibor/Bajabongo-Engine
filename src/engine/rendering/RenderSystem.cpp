@@ -11,14 +11,13 @@
 namespace engine
 {
     RenderSystem::RenderSystem(const EngineContext& context)
-        : m_registry(*context.registry)
-        , m_renderer(*context.renderer)
+        : m_registry{ *context.m_registry }
+        , m_renderer{ *context.m_renderer }
     {
     }
 
     void RenderSystem::update()
     {
-        // Wszystkie encje, które mają pozycję i są renderowalne
         auto view = m_registry.view<TransformComponent, RenderableComponent>();
 
         for (auto entity : view)
@@ -26,7 +25,6 @@ namespace engine
             auto& transform = view.get<TransformComponent>(entity);
             auto& renderable = view.get<RenderableComponent>(entity);
 
-            // Wykorzystujemy abstrakcyjny renderer
             m_renderer.drawShape(transform.position, renderable.radius);
         }
     }

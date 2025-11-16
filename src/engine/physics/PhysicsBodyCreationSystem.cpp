@@ -1,4 +1,4 @@
-#include "engine/pch.h"
+﻿#include "engine/pch.h"
 #include "PhysicsBodyCreationSystem.hpp"
 
 #include "engine/core/EngineContext.hpp"
@@ -13,10 +13,10 @@ namespace engine
 {
 
     PhysicsBodyCreationSystem::PhysicsBodyCreationSystem(const EngineContext& context)
-        : m_registry(*context.registry)
-        , m_worldId(context.physicsWorld)
+        : m_registry{ *context.m_registry }
+        , m_worldId{ context.m_physicsWorld }
     {
-        m_logger = context.loggerManager->GetLogger("Physics");
+        m_logger = context.m_logManager->GetLogger("Physics");
         m_logger->info("PhysicsBodyCreationSystem initialized.");
     }
 
@@ -36,10 +36,13 @@ namespace engine
             b2BodyDef bodyDef = b2DefaultBodyDef();
             bodyDef.type = pending.isStatic ? b2_staticBody : b2_dynamicBody;
             bodyDef.position = { pending.position.x, pending.position.y };
-            
+
             b2BodyId bodyId = b2CreateBody(m_worldId, &bodyDef);
             if (!b2Body_IsValid(bodyId)) {
-                m_logger->error("Failed to create physics body for entity {}", entt::to_integral(entity));
+                m_logger->error(
+                    "Failed to create physics body for entity {}",
+                    entt::to_integral(entity)
+                );
                 continue;
             }
             b2Body_SetUserData(bodyId, (void*)(uintptr_t)entity);
@@ -50,15 +53,21 @@ namespace engine
             b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &box);
 
             if (!b2Shape_IsValid(shapeId)) {
-                m_logger->error("Failed to create shape for physics body on entity {}", entt::to_integral(entity));
-                b2DestroyBody(bodyId); // Clean up the created body
+                m_logger->error(
+                    "Failed to create shape for physics body on entity {}",
+                    entt::to_integral(entity)
+                );
+                b2DestroyBody(bodyId);
                 continue;
             }
 
             m_registry.emplace<PhysicsBodyComponent>(entity, bodyId);
             m_registry.remove<PendingPhysicsBodyComponent>(entity);
 
-            m_logger->trace("Created physics body for entity {}", entt::to_integral(entity));
+            m_logger->trace(
+                "Created physics body for entity {}",
+                entt::to_integral(entity)
+            );
         }
     }
 

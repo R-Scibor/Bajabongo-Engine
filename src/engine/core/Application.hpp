@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <memory>
-#include <entt/fwd.hpp> // Forward declaration dla registry
-#include <box2d/id.h>   // MUST include: b2WorldId cannot be forward-declared (C++ struct with layout)
+#include <entt/fwd.hpp> // Forward declaration for registry
+#include <box2d/id.h>   // MUST include: b2WorldId cannot be forward-declared
 
 #include "engine/core/EngineContext.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
@@ -10,6 +10,7 @@
 #include "engine/rendering/RenderSystem.hpp"
 
 namespace engine {
+
     class IWindow;
     class IRenderer;
     class IInputManager;
@@ -25,14 +26,11 @@ namespace engine {
     public:
         /**
          * @brief Constructs the Application, injecting core service dependencies.
-         * @param window Reference to IWindow implementation.
-         * @param renderer Reference to IRenderer implementation.
-         * @param logManager Reference to ILoggerManager implementation.
-         * @param inputManager Reference to IInputManager implementation.
-         * @param registry Reference to EnTT registry (ECS core).
-         * @param physicsWorld Box2D world ID (Box2D 3.0 uses opaque handles).
+         *
+         * All dependencies are supplied through EngineContext, which is created
+         * in the composition root (game module) and passed by reference.
          */
-        Application(const EngineContext& context);
+        explicit Application(EngineContext& context);
 
         ~Application();
 
@@ -49,13 +47,14 @@ namespace engine {
 
         /**
          * @brief Updates the game state for the current frame.
-         * @param deltaTime The time elapsed since the last frame, in seconds. (NO LONGER USED)
+         *
+         * Currently used for non-physics game logic.
          */
         void update();
 
         /**
          * @brief Updates the physics simulation with a fixed time step.
-        */
+         */
         void fixedUpdate();
 
         /**
@@ -65,33 +64,35 @@ namespace engine {
 
         /**
          * @brief Hook called when a PhysicsBodyComponent is destroyed.
+         *
          * Cleans up the associated Box2D body from the physics world.
          * @param entity The entity whose PhysicsBodyComponent was destroyed.
-		 */
+         */
         void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
 
-        // References to abstract interfaces for core services
-        IWindow& m_window;
-        IRenderer& m_renderer;
-        ILoggerManager& m_logManager;
-        IInputManager& m_inputManager;
+        // Core services (shared from EngineContext)
+        std::shared_ptr<IWindow>        m_window;
+        std::shared_ptr<IRenderer>      m_renderer;
+        std::shared_ptr<ILoggerManager> m_logManager;
+        std::shared_ptr<IInputManager>  m_inputManager;
 
-        // ECS and Physics (injected dependencies)
-        entt::registry& m_registry;
-        b2WorldId m_physicsWorld; // Box2D 3.0: lightweight opaque handle (pass by value)
+        // ECS and Physics
+        std::shared_ptr<entt::registry> m_registry;
+        b2WorldId                       m_physicsWorld; // Box2D 3.0: lightweight opaque handle
 
         // The application's own logger instance
-        std::shared_ptr<ILogger> m_logger;
+        std::shared_ptr<ILogger>        m_logger;
 
         // Physics Systems
-        PhysicsBodyCreationSystem m_physicsBodyCreationSystem;
-        PhysicsSyncSystem m_physicsSyncSystem;
+        PhysicsBodyCreationSystem       m_physicsBodyCreationSystem;
+        PhysicsSyncSystem               m_physicsSyncSystem;
 
         // Rendering System
-        RenderSystem              m_renderSystem;
+        RenderSystem                    m_renderSystem;
 
         // Fixed-step game loop
         const float m_physicsTimeStep = 1.0f / 60.0f;
-        float m_accumulator = 0.0f;
+        float       m_accumulator = 0.0f;
     };
-}
+
+} // namespace engine
