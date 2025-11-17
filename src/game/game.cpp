@@ -6,10 +6,6 @@
 #include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
-#include "engine/components/PendingPhysicsBodyComponent.hpp"
-#include "engine/core/math/Vector2.hpp"
-#include "engine/components/TransformComponent.hpp"
-#include "engine/components/RenderableComponent.hpp"
 #include "game/states/MainMenuState.hpp"
 #include "game/states/GameplayState.hpp"
 #include "engine/core/StateManager.hpp"
@@ -62,21 +58,19 @@ int main() {
         auto stateManager = std::make_unique<engine::StateManager>(*context);
 
         // Inject all dependencies into Application
-        engine::Application app(context, std::move(stateManager));
+        // === State Registration & Initial State ===
+        // Register states directly with the local manager before it's moved.
+        stateManager->registerState<game::MainMenuState>("MainMenu");
+        stateManager->registerState<game::GameplayState>("Gameplay");
 
-        // === State Registration ===
-        // The context now holds the pointer to the state manager owned by the app
-        context->m_stateManager->registerState<game::MainMenuState>("MainMenu");
-        context->m_stateManager->registerState<game::GameplayState>("Gameplay");
-
-        // === Initial State ===
-        // Push the first state and process transitions once to ensure it's active
+        // Push the first state and process transitions to ensure it's active
         // before the main loop begins.
-        context->m_stateManager->requestPush("MainMenu");
-        context->m_stateManager->processTransitions();
+        stateManager->requestPush("MainMenu");
+        stateManager->processTransitions();
 
-        // The test entities will be moved into the GameplayState's onEnter method.
-        // For now, they are removed from here to avoid clutter.
+        // Inject all dependencies into Application.
+        // After this, `stateManager` is a nullptr; use `context->m_stateManager`.
+        engine::Application app(context, std::move(stateManager));
 
         // Run the game loop
         app.run();
