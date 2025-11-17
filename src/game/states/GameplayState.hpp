@@ -5,6 +5,13 @@
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
 
+#include <entt/fwd.hpp>
+#include <memory>
+
+namespace engine {
+class ILogger;
+} // namespace engine
+
 namespace game {
 
     /**
@@ -24,9 +31,14 @@ namespace game {
         void render(engine::EngineContext& context) override;
 
     private:
+        void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
+
         engine::PhysicsBodyCreationSystem m_physicsBodyCreationSystem;
         engine::PhysicsSyncSystem m_physicsSyncSystem;
         engine::RenderSystem m_renderSystem;
+
+        std::shared_ptr<engine::ILogger> m_logger;
+        entt::connection m_physicsCleanupHook;
     };
 
 } // namespace game

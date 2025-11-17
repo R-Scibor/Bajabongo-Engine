@@ -4,7 +4,9 @@
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
+#include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
+#include "engine/events/StateEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
@@ -21,10 +23,11 @@ namespace game {
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
     {
+        m_logger = context.m_logManager->GetLogger("GameplayState");
     }
 
     void GameplayState::onEnter(engine::EngineContext& context) {
-        context.m_logManager->GetLogger("Game")->info("Entering GameplayState.");
+        if (m_logger) m_logger->info("Entering GameplayState.");
         
         auto& registry = *context.m_registry;
 
@@ -51,20 +54,28 @@ namespace game {
         );
         registry.emplace<engine::TransformComponent>(ground);
         registry.emplace<engine::RenderableComponent>(ground, 200.0f); // large "radius", as a bar
+
+        m_physicsCleanupHook =
+            registry.on_destroy<engine::PhysicsBodyComponent>()
+                    .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
+        if (m_logger) m_logger->info("Physics cleanup hook registered.");
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {
-        context.m_logManager->GetLogger("Game")->info("Exiting GameplayState.");
-        // In the future, game entities should be cleaned up here.
+        if (m_logger) m_logger->info("Exiting GameplayState.");
+        
+        if (m_physicsCleanupHook) {
+            context.m_registry->on_destroy<engine::PhysicsBodyComponent>().disconnect(this);
+            if (m_logger) m_logger->info("Physics cleanup hook disconnected.");
+        }
+        // Optional: context.m_registry->clear();
     }
 
     void GameplayState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
-        // Handle gameplay-specific input, e.g., pausing the game.
         if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
             if (keyPressed->code == sf::Keyboard::Key::Escape) {
-                // Placeholder for pushing a "Pause" state
-                context.m_logManager->GetLogger("Game")->info("Escape key pressed, requesting to push 'Pause' state (not implemented yet).");
-                // context.m_stateManager->requestPush("Pause");
+                if (m_logger) m_logger->info("Escape key pressed. Requesting pop to previous state.");
+                context.m_dispatcher->enqueue<engine::RequestStatePopEvent>();
             }
         }
     }
@@ -79,6 +90,18 @@ namespace game {
 
     void GameplayState::render(engine::EngineContext& context) {
         m_renderSystem.update();
+    }
+
+    void GameplayState::onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity) {
+        if (!m_logger) return;
+
+        const auto& bodyComp = registry.get<engine::PhysicsBodyComponent>(entity);
+        if (b2Body_IsValid(bodyComp.bodyId)) {
+            m_logger->info("Destroying physics body for entity {}", static_cast<uint32_t>(entity));
+            b2DestroyBody(bodyComp.bodyId);
+        } else {
+            m_logger->warn("Attempted to destroy an invalid physics body for entity {}", static_cast<uint32_t>(entity));
+        }
     }
 
 } // namespace game
