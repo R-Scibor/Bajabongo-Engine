@@ -49,30 +49,31 @@ int main() {
         );
 
         // Create the engine context object (DI container)
-        engine::EngineContext context;
-        context.m_logManager = logManager;
-        context.m_registry = registry;
-        context.m_physicsWorld = physicsWorldId;
-        context.m_renderer = renderer;
-        context.m_inputManager = inputManager;
-        context.m_window = renderer;
+        auto context = std::make_shared<engine::EngineContext>();
+        context->m_logManager = logManager;
+        context->m_registry = registry;
+        context->m_physicsWorld = physicsWorldId;
+        context->m_renderer = renderer;
+        context->m_inputManager = inputManager;
+        context->m_window = renderer;
+        context->m_dispatcher   = std::make_shared<entt::dispatcher>();
 
-        // Phase 4 services (not used yet)
-        context.m_dispatcher   = std::make_shared<entt::dispatcher>();
-        // context.m_stateManager = nullptr;
+        // Create the state manager, which requires a reference to the context
+        auto stateManager = std::make_unique<engine::StateManager>(*context);
 
-        // Inject all dependencies into Application via the context
-        engine::Application app(context);
+        // Inject all dependencies into Application
+        engine::Application app(context, std::move(stateManager));
 
         // === State Registration ===
-        context.m_stateManager->registerState<game::MainMenuState>("MainMenu");
-        context.m_stateManager->registerState<game::GameplayState>("Gameplay");
+        // The context now holds the pointer to the state manager owned by the app
+        context->m_stateManager->registerState<game::MainMenuState>("MainMenu");
+        context->m_stateManager->registerState<game::GameplayState>("Gameplay");
 
         // === Initial State ===
         // Push the first state and process transitions once to ensure it's active
         // before the main loop begins.
-        context.m_stateManager->requestPush("MainMenu");
-        context.m_stateManager->processTransitions();
+        context->m_stateManager->requestPush("MainMenu");
+        context->m_stateManager->processTransitions();
 
         // The test entities will be moved into the GameplayState's onEnter method.
         // For now, they are removed from here to avoid clutter.
