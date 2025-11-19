@@ -367,3 +367,4 @@ FodyWeavers.xsd
 # Vcpkg directory
 vcpkg_installed/
 /src/game/assets/player.png
+/assets/textures
