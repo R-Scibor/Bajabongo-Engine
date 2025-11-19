@@ -33,32 +33,6 @@ namespace game {
 
         // Box – dynamic body, starts at the top of the screen
         auto box = registry.create();
-        registry.emplace<engine::PendingPhysicsBodyComponent>(
-            box,
-            engine::Vector2f{ 100.f, 100.f },   // position (top of the screen)
-            engine::Vector2f{ 20.f, 20.f },     // size (used by PhysicsBodyCreationSystem)
-            false,                              // isStatic = false → dynamic body
-            0.5f                                // density
-        );
-        registry.emplace<engine::TransformComponent>(box);
-        registry.emplace<engine::RenderableComponent>(box, 20.0f); // circle radius
-
-        // Ground – static body at the bottom of the screen
-        auto ground = registry.create();
-        registry.emplace<engine::PendingPhysicsBodyComponent>(
-            ground,
-            engine::Vector2f{ 100.f, 600.f },   // position (bottom of the screen)
-            engine::Vector2f{ 400.f, 20.f },    // size: wide platform
-            true,                               // isStatic = true → static body
-            0.0f                                // density not relevant for static body
-        );
-        registry.emplace<engine::TransformComponent>(ground);
-        registry.emplace<engine::RenderableComponent>(ground, 200.0f); // large "radius", as a bar
-
-        m_physicsCleanupHook =
-            registry.on_destroy<engine::PhysicsBodyComponent>()
-                    .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
-        if (m_logger) m_logger->info("Physics cleanup hook registered.");
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {

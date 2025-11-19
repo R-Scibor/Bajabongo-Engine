@@ -179,6 +179,7 @@
     <ClInclude Include="rendering\RenderSystem.hpp" />
     <ClInclude Include="rendering\SFMLRenderer.hpp" />
     <ClInclude Include="rendering\SFMLResourceManager.hpp" />
+    <ClInclude Include="rendering\Sprite.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Application.cpp" />

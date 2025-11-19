@@ -25,7 +25,8 @@ namespace engine
             auto& transform = view.get<TransformComponent>(entity);
             auto& renderable = view.get<RenderableComponent>(entity);
 
-            m_renderer.drawShape(transform.position, renderable.radius);
+            // Cycle 2: radius is removed. Rendering logic will be updated in Cycle 3.
+            // m_renderer.drawShape(transform.position, renderable.radius);
         }
     }
 }
