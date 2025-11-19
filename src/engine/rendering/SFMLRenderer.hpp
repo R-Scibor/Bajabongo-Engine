@@ -4,47 +4,40 @@
 #include "engine/core/IWindow.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
-#include <memory> // Dla std::unique_ptr
+#include <memory>
+#include <optional>
 
 namespace engine
 {
     /**
-     * @brief Konkretna implementacja interfejsów IRenderer i IWindow używająca SFML.
-     *
-     * Ponieważ sf::RenderWindow łączy w sobie obsługę okna i renderowania,
-     * ta jedna klasa implementuje oba abstrakcyjne interfejsy.
+     * @brief Concrete implementation of IRenderer and IWindow using SFML.
      */
     class SFMLRenderer : public IRenderer, public IWindow {
     public:
-        /**
-         * @brief Konstruktor.
-         * Przekazuje 'this' do konstruktora bazy IRenderer, ponieważ
-         * ta klasa jest teraz również IWindow.
-         */
         SFMLRenderer();
         ~SFMLRenderer() override;
 
-        // --- Implementacja interfejsu IWindow ---
+        // --- IWindow Implementation ---
         void create(const std::string& title, unsigned int width, unsigned int height) override;
         void close() override;
         bool isOpen() const override;
         void* getNativeHandle() const override;
         std::optional<sf::Event> pollEvent() override;
 
-        // --- Implementacja interfejsu IRenderer ---
+        // --- IRenderer Implementation ---
         void beginFrame() override;
         void clear(Color color) override;
         void drawShape(engine::Vector2f position, float radius) override;
+        void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform) override;
         void endFrame() override;
 
         // --- SFML Specific ---
+        void setResourceManager(std::shared_ptr<class IResourceManager> resourceManager);
         sf::RenderWindow& getNativeRenderWindow();
 
     private:
-        // Mamy teraz tylko jeden obiekt okna, który robi wszystko.
         sf::RenderWindow m_renderWindow;
-
-        // Tymczasowy kształt dla kamienia milowego Fazy 1
+        std::shared_ptr<class IResourceManager> m_resourceManager;
         sf::CircleShape m_shape;
     };
 }

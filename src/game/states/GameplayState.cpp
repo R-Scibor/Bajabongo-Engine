@@ -3,16 +3,18 @@
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
+#include "engine/core/IResourceManager.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/components/TransformComponent.hpp"
+#include "engine/components/RenderableComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 #include "engine/events/StateEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
+#include "engine/rendering/Sprite.hpp"
 #include <box2d/box2d.h>
-#include "engine/components/TransformComponent.hpp"
-#include "engine/components/RenderableComponent.hpp"
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
 
@@ -29,10 +31,58 @@ namespace game {
     void GameplayState::onEnter(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Entering GameplayState.");
         
+        // --- Phase 5A: Load Resources & Register Sprites ---
+        if (context.m_resourceManager) {
+            context.m_resourceManager->loadTexture("box_texture", "../../assets/textures/box.png");
+            context.m_resourceManager->loadTexture("ground_texture", "../../assets/textures/ground.png");
+        }
+
+        if (context.m_spriteManager) {
+            // Register "box_sprite"
+            engine::SpriteDesc boxSprite;
+            boxSprite.textureId = "box_texture";
+            boxSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
+            boxSprite.origin = sf::Vector2f(16.f, 16.f);
+            context.m_spriteManager->registerSprite("box_sprite", boxSprite);
+
+            // Register "ground_sprite"
+            engine::SpriteDesc groundSprite;
+            groundSprite.textureId = "ground_texture";
+            groundSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
+            groundSprite.origin = sf::Vector2f(16.f, 16.f);
+            context.m_spriteManager->registerSprite("ground_sprite", groundSprite);
+        }
+
         auto& registry = *context.m_registry;
 
-        // Box – dynamic body, starts at the top of the screen
+        // Box – dynamic body
         auto box = registry.create();
+        registry.emplace<engine::PendingPhysicsBodyComponent>(
+            box,
+            engine::Vector2f{ 100.f, 100.f },
+            engine::Vector2f{ 20.f, 20.f },
+            false,
+            0.5f
+        );
+        registry.emplace<engine::TransformComponent>(box);
+        registry.emplace<engine::RenderableComponent>(box, "box_sprite", 1, sf::Color::White);
+
+        // Ground – static body
+        auto ground = registry.create();
+        registry.emplace<engine::PendingPhysicsBodyComponent>(
+            ground,
+            engine::Vector2f{ 400.f, 600.f },
+            engine::Vector2f{ 800.f, 40.f },
+            true,
+            0.0f
+        );
+        registry.emplace<engine::TransformComponent>(ground);
+        registry.emplace<engine::RenderableComponent>(ground, "ground_sprite", 0, sf::Color::White);
+
+        m_physicsCleanupHook =
+            registry.on_destroy<engine::PhysicsBodyComponent>()
+                    .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
+        if (m_logger) m_logger->info("Physics cleanup hook registered.");
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {
@@ -42,7 +92,6 @@ namespace game {
             context.m_registry->on_destroy<engine::PhysicsBodyComponent>().disconnect(this);
             if (m_logger) m_logger->info("Physics cleanup hook disconnected.");
         }
-        // Optional: context.m_registry->clear();
     }
 
     void GameplayState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
@@ -56,9 +105,7 @@ namespace game {
 
     void GameplayState::update(engine::EngineContext& context, float fixedDeltaTime) {
         m_physicsBodyCreationSystem.update();
-
         b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
-
         m_physicsSyncSystem.update();
     }
 

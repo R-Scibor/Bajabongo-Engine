@@ -1,10 +1,14 @@
 ﻿#include "SFMLRenderer.hpp"
 #include "engine/core/IWindow.hpp"
+#include "engine/core/IResourceManager.hpp"
+#include "engine/rendering/Sprite.hpp"
+#include "engine/components/TransformComponent.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/WindowHandle.hpp>
 #include <SFML/Window/Event.hpp>     
 #include <SFML/Window/VideoMode.hpp> 
+#include <SFML/Graphics/Sprite.hpp>
 #include <optional>                 
 
 namespace engine
@@ -46,7 +50,8 @@ namespace engine
     // --- Implementacja IRenderer ---
 
     void SFMLRenderer::beginFrame() {
-        m_renderWindow.setActive(true);
+        // Cast to void to suppress [[nodiscard]] warning
+        (void)m_renderWindow.setActive(true);
     }
 
     void SFMLRenderer::clear(Color color) {
@@ -62,11 +67,32 @@ namespace engine
         m_renderWindow.draw(m_shape);
     }
 
+    void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform) {
+        if (!m_resourceManager) return;
+
+        auto texture = m_resourceManager->getTexture(spriteDesc.textureId);
+        if (!texture) return; // Or draw a placeholder
+
+        sf::Sprite sprite(*texture);
+        sprite.setTextureRect(spriteDesc.uvRect);
+        sprite.setOrigin(spriteDesc.origin);
+        // Fix: Explicitly construct sf::Vector2f to avoid ambiguity or mismatch
+        sprite.setPosition(sf::Vector2f(transform.position.x, transform.position.y));
+        // sprite.setRotation(transform.rotation); // If we had rotation
+        // sprite.setScale(transform.scale.x, transform.scale.y); // If we had scale
+
+        m_renderWindow.draw(sprite);
+    }
+
     void SFMLRenderer::endFrame() {
         m_renderWindow.display();
     }
 
     // --- SFML Specific ---
+
+    void SFMLRenderer::setResourceManager(std::shared_ptr<IResourceManager> resourceManager) {
+        m_resourceManager = std::move(resourceManager);
+    }
 
     sf::RenderWindow& SFMLRenderer::getNativeRenderWindow() {
         return m_renderWindow;

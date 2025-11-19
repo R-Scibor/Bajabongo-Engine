@@ -17,5 +17,6 @@ namespace engine
     private:
         entt::registry& m_registry;
         IRenderer& m_renderer;
+        class SpriteManager& m_spriteManager;
     };
 }

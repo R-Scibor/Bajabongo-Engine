@@ -2,7 +2,11 @@
 
 #include "engine/core/Application.hpp"
 #include "engine/core/EngineContext.hpp"
+#include "engine/core/Application.hpp"
+#include "engine/core/EngineContext.hpp"
 #include "engine/rendering/SFMLRenderer.hpp"
+#include "engine/rendering/SFMLResourceManager.hpp"
+#include "engine/rendering/Sprite.hpp"
 #include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
@@ -39,6 +43,14 @@ int main() {
         renderer->create("Game Window", 1280, 720);
         gameLogger->info("Window created successfully.");
 
+        // Phase 5A: Create Resource Manager
+        auto resourceManager = std::make_shared<engine::SFMLResourceManager>(logManager);
+        renderer->setResourceManager(resourceManager);
+        gameLogger->info("Resource Manager created.");
+
+        auto spriteManager = std::make_shared<engine::SpriteManager>();
+        gameLogger->info("Sprite Manager created.");
+
         auto inputManager = std::make_shared<engine::SFMLInputManager>(
             *logManager,
             renderer->getNativeRenderWindow()
@@ -52,6 +64,8 @@ int main() {
         context->m_renderer = renderer;
         context->m_inputManager = inputManager;
         context->m_window = renderer;
+        context->m_resourceManager = resourceManager;
+        context->m_spriteManager = spriteManager;
         context->m_dispatcher   = std::make_shared<entt::dispatcher>();
 
         // Create the state manager, which requires a reference to the context

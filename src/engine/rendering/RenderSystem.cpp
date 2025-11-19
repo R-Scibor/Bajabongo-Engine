@@ -7,12 +7,14 @@
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/rendering/IRenderer.hpp"
+#include "engine/rendering/Sprite.hpp"
 
 namespace engine
 {
     RenderSystem::RenderSystem(const EngineContext& context)
         : m_registry{ *context.m_registry }
         , m_renderer{ *context.m_renderer }
+        , m_spriteManager{ *context.m_spriteManager }
     {
     }
 
@@ -20,13 +22,22 @@ namespace engine
     {
         auto view = m_registry.view<TransformComponent, RenderableComponent>();
 
+        // Sort by layer (ascending)
+        m_registry.sort<RenderableComponent>([](const auto& lhs, const auto& rhs) {
+            return lhs.layer < rhs.layer;
+        });
+
         for (auto entity : view)
         {
             auto& transform = view.get<TransformComponent>(entity);
             auto& renderable = view.get<RenderableComponent>(entity);
 
-            // Cycle 2: radius is removed. Rendering logic will be updated in Cycle 3.
-            // m_renderer.drawShape(transform.position, renderable.radius);
+            // Fetch sprite description
+            const auto* spriteDesc = m_spriteManager.getSprite(renderable.spriteId);
+            if (spriteDesc) {
+                // Draw using the renderer
+                m_renderer.drawSprite(*spriteDesc, transform);
+            }
         }
     }
 }
