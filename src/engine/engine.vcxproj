@@ -159,6 +159,7 @@
     <ClInclude Include="core\IGameState.hpp" />
     <ClInclude Include="core\IInputManager.hpp" />
     <ClInclude Include="core\input\KeyCode.hpp" />
+    <ClInclude Include="core\IResourceManager.hpp" />
     <ClInclude Include="core\IWindow.hpp" />
     <ClInclude Include="core\StateManager.hpp" />
     <ClInclude Include="core\ILogger.hpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="rendering\IRenderer.hpp" />
     <ClInclude Include="rendering\RenderSystem.hpp" />
     <ClInclude Include="rendering\SFMLRenderer.hpp" />
+    <ClInclude Include="rendering\SFMLResourceManager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Application.cpp" />
@@ -194,6 +196,7 @@
     <ClCompile Include="physics\PhysicsSyncSystem.cpp" />
     <ClCompile Include="rendering\RenderSystem.cpp" />
     <ClCompile Include="rendering\SFMLRenderer.cpp" />
+    <ClCompile Include="rendering\SFMLResourceManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

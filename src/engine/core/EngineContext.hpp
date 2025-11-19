@@ -11,7 +11,8 @@ namespace engine {
     class IRenderer;
     class ILoggerManager;
     class IInputManager;
-    class StateManager; // Fwd-decl of the new manager
+    class StateManager;
+    class IResourceManager; // Phase 5A
 
     /**
      * @brief A central DI container for all major engine services.
@@ -47,6 +48,9 @@ namespace engine {
          *
          */
         StateManager* m_stateManager = nullptr;
+
+        // --- Phase 5A Services ---
+        std::shared_ptr<IResourceManager> m_resourceManager;
     };
 
 } // namespace engine

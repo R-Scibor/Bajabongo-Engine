@@ -96,6 +96,12 @@
     <ClInclude Include="core\StateManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\IResourceManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\SFMLResourceManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -127,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="core\StateManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\SFMLResourceManager.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
