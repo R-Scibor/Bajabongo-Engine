@@ -48,14 +48,14 @@ namespace game {
             engine::SpriteDesc boxSprite;
             boxSprite.textureId = "box_texture";
             boxSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
-            boxSprite.origin = sf::Vector2f(16.f, 16.f);
+            boxSprite.origin = sf::Vector2f(16.f, 32.f);
             context.m_spriteManager->registerSprite("box_sprite", boxSprite);
 
             // Register "ground_sprite"
             engine::SpriteDesc groundSprite;
             groundSprite.textureId = "ground_texture";
             groundSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
-            groundSprite.origin = sf::Vector2f(16.f, 16.f);
+            groundSprite.origin = sf::Vector2f(16.f, 32.f);
             context.m_spriteManager->registerSprite("ground_sprite", groundSprite);
 
             // Register 10 animation frames (each frame is 600x250, stacked vertically)
@@ -63,7 +63,7 @@ namespace game {
                 engine::SpriteDesc frameSprite;
                 frameSprite.textureId = "testanim_texture";
                 frameSprite.uvRect = sf::IntRect(sf::Vector2i(0, i * 250), sf::Vector2i(600, 250));
-                frameSprite.origin = sf::Vector2f(300.f, 125.f);
+                frameSprite.origin = sf::Vector2f(300.f, 250.f);
                 context.m_spriteManager->registerSprite("testanim_frame_" + std::to_string(i), frameSprite);
             }
         } else if (m_logger) {
