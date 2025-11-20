@@ -105,6 +105,15 @@
     <ClInclude Include="rendering\Sprite.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="components\AnimationComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\AnimationSystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\AnimationClip.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -138,7 +147,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rendering\SFMLResourceManager.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\AnimationSystem.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

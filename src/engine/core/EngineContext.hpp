@@ -12,6 +12,7 @@ namespace engine {
     class StateManager;
     class IResourceManager;
     class SpriteManager;
+    class AnimationLibrary;
 
     /**
      * @brief A central DI container for all major engine services.
@@ -36,6 +37,7 @@ namespace engine {
         // --- Phase 5A Services ---
         std::shared_ptr<IResourceManager> m_resourceManager;
         std::shared_ptr<SpriteManager> m_spriteManager;
+        std::shared_ptr<AnimationLibrary> m_animationLibrary;
     };
 
 } // namespace engine
