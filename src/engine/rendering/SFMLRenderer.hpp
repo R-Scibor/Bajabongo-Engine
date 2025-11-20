@@ -30,7 +30,7 @@ namespace engine
         void clear(Color color) override;
         void drawCircle(engine::Vector2f position, float radius) override;
         void drawRect(engine::Vector2f position, engine::Vector2f size) override;
-        void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform) override;
+        void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform, const Color& color) override;
         void endFrame() override;
 
         // --- SFML Specific ---

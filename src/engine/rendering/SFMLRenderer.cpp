@@ -82,7 +82,7 @@ namespace engine
         m_renderWindow.draw(m_rectShape);
     }
 
-    void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform) {
+    void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
         if (!m_resourceManager) return;
 
         auto texture = m_resourceManager->getTexture(spriteDesc.textureId);
@@ -96,6 +96,7 @@ namespace engine
         
         sprite.setRotation(sf::radians(transform.rotation));
         sprite.setScale({transform.scale.x, transform.scale.y});
+        sprite.setColor(sf::Color(color.r, color.g, color.b, color.a));
 
         m_renderWindow.draw(sprite);
     }

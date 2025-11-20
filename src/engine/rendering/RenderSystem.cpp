@@ -58,7 +58,7 @@ namespace engine
             const auto* spriteDesc = m_spriteManager.getSprite(renderable.spriteId);
             if (spriteDesc) {
                 // Draw using the renderer
-                m_renderer.drawSprite(*spriteDesc, transform);
+                m_renderer.drawSprite(*spriteDesc, transform, { renderable.color.r, renderable.color.g, renderable.color.b, renderable.color.a });
             }
         }
 
