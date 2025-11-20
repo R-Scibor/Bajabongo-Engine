@@ -1,14 +1,21 @@
 #include "AnimationSystem.hpp"
 #include "engine/core/EngineContext.hpp"
+#include "engine/core/ILogger.hpp"
+#include "engine/core/ILoggerManager.hpp"
 #include "engine/rendering/AnimationClip.hpp"
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include <entt/entt.hpp>
+#include <unordered_set>
 
 namespace engine {
 
     AnimationSystem::AnimationSystem(EngineContext& context)
-        : m_context(context) {}
+        : m_context(context) {
+        if (context.m_logManager) {
+            m_logger = context.m_logManager->GetLogger("AnimationSystem");
+        }
+    }
 
     void AnimationSystem::update(float deltaTime) {
         if (!m_context.m_animationLibrary) return;
@@ -19,7 +26,16 @@ namespace engine {
             if (!anim.isPlaying || anim.isFinished) return;
 
             const auto* clip = m_context.m_animationLibrary->getClip(anim.currentClipId);
-            if (!clip) return;
+            if (!clip) {
+                static std::unordered_set<std::string> missingClips;
+                if (missingClips.find(anim.currentClipId) == missingClips.end()) {
+                    if (m_logger) {
+                        m_logger->warn("Missing animation clip: {}", anim.currentClipId);
+                    }
+                    missingClips.insert(anim.currentClipId);
+                }
+                return;
+            }
 
             // Update timer
             anim.timer += deltaTime;

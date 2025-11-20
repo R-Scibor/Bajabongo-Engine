@@ -42,6 +42,7 @@ With the core architectural patterns (DI, ECS, State Management) in place, the n
 ## Documentation
 
 *   [State Management System](docs/state_management.md)
+*   [Rendering & Animation Systems](docs/rendering_animation.md)
 *   [Logging System Architecture](docs/logging.md)
 *   [Core Math Library](docs/math.md)
 *   [Physics System Architecture](docs/physics.md)

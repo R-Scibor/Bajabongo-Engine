@@ -10,6 +10,11 @@
 
 namespace engine
 {
+    class ILogger;
+}
+
+namespace engine
+{
     /**
      * @brief Concrete implementation of IRenderer and IWindow using SFML.
      */
@@ -35,6 +40,7 @@ namespace engine
 
         // --- SFML Specific ---
         void setResourceManager(std::shared_ptr<class IResourceManager> resourceManager);
+        void setLogger(std::shared_ptr<ILogger> logger) { m_logger = logger; }
         sf::RenderWindow& getNativeRenderWindow();
 
     private:
@@ -42,5 +48,6 @@ namespace engine
         std::shared_ptr<class IResourceManager> m_resourceManager;
         sf::CircleShape m_circleShape;
         sf::RectangleShape m_rectShape;
+        std::shared_ptr<ILogger> m_logger;
     };
 }

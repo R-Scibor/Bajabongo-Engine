@@ -11,6 +11,9 @@
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/rendering/Sprite.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/core/ILoggerManager.hpp"
+#include "engine/core/ILogger.hpp"
+#include <unordered_set>
 
 #include <box2d/box2d.h>
 
@@ -21,6 +24,9 @@ namespace engine
         , m_renderer{ *context.m_renderer }
         , m_spriteManager{ *context.m_spriteManager }
     {
+        if (context.m_logManager) {
+            m_logger = context.m_logManager->GetLogger("RenderSystem");
+        }
     }
 
     void RenderSystem::update()
@@ -59,6 +65,14 @@ namespace engine
             if (spriteDesc) {
                 // Draw using the renderer
                 m_renderer.drawSprite(*spriteDesc, transform, { renderable.color.r, renderable.color.g, renderable.color.b, renderable.color.a });
+            } else {
+                static std::unordered_set<std::string> missingSprites;
+                if (missingSprites.find(renderable.spriteId) == missingSprites.end()) {
+                    if (m_logger) {
+                        m_logger->warn("Missing sprite definition: {}", renderable.spriteId);
+                    }
+                    missingSprites.insert(renderable.spriteId);
+                }
             }
         }
 

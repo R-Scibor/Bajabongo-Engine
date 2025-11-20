@@ -3,6 +3,7 @@
 
 namespace engine {
     struct EngineContext;
+    class ILogger;
 
     class AnimationSystem {
     public:
@@ -12,5 +13,6 @@ namespace engine {
 
     private:
         EngineContext& m_context;
+        std::shared_ptr<ILogger> m_logger;
     };
 }

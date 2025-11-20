@@ -3,6 +3,7 @@
 #include "engine/core/IResourceManager.hpp"
 #include "engine/rendering/Sprite.hpp"
 #include "engine/components/TransformComponent.hpp"
+#include "engine/core/ILogger.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/WindowHandle.hpp>
@@ -83,10 +84,18 @@ namespace engine
     }
 
     void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
-        if (!m_resourceManager) return;
+        if (!m_resourceManager) {
+            if (m_logger) m_logger->error("SFMLRenderer: ResourceManager is not set. Cannot draw sprite.");
+            return;
+        }
 
         auto texture = m_resourceManager->getTexture(spriteDesc.textureId);
-        if (!texture) return; // Or draw a placeholder
+        if (!texture) {
+            // Texture loading failure already logged by ResourceManager,
+            // but we might want to log that drawing failed too, or just return.
+            // ResourceManager logs error on getTexture failure, so we can just return.
+            return;
+        }
 
         sf::Sprite sprite(*texture);
         sprite.setTextureRect(spriteDesc.uvRect);

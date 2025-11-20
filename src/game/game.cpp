@@ -41,6 +41,7 @@ int main() {
 
         // Create rendering and input
         auto renderer = std::make_shared<engine::SFMLRenderer>();
+        renderer->setLogger(logManager->GetLogger("SFMLRenderer"));
         renderer->create("Game Window", 1280, 720);
         gameLogger->info("Window created successfully.");
 

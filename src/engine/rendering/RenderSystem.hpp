@@ -1,11 +1,13 @@
 ﻿#pragma once
 
 #include <entt/fwd.hpp>
+#include <memory>
 
 namespace engine
 {
     struct EngineContext;
     class IRenderer;
+    class ILogger;
 
     class RenderSystem
     {
@@ -21,5 +23,6 @@ namespace engine
         entt::registry& m_registry;
         IRenderer& m_renderer;
         class SpriteManager& m_spriteManager;
+        std::shared_ptr<ILogger> m_logger;
     };
 }

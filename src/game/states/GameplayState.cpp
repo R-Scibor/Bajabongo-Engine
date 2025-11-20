@@ -39,6 +39,8 @@ namespace game {
             context.m_resourceManager->loadTexture("box_texture", "../../assets/textures/box.png");
             context.m_resourceManager->loadTexture("ground_texture", "../../assets/textures/ground.png");
             context.m_resourceManager->loadTexture("testanim_texture", "../../assets/textures/testanim.png");
+        } else if (m_logger) {
+             m_logger->error("ResourceManager is missing in EngineContext! Textures will not be loaded.");
         }
 
         if (context.m_spriteManager) {
@@ -64,6 +66,8 @@ namespace game {
                 frameSprite.origin = sf::Vector2f(300.f, 125.f);
                 context.m_spriteManager->registerSprite("testanim_frame_" + std::to_string(i), frameSprite);
             }
+        } else if (m_logger) {
+            m_logger->error("SpriteManager is missing in EngineContext! Sprites cannot be registered.");
         }
 
         // --- Animation Setup ---
@@ -77,6 +81,8 @@ namespace game {
             testAnimClip.frameDuration = 0.1f;
             testAnimClip.loop = true;
             context.m_animationLibrary->registerClip("test_anim", testAnimClip);
+        } else if (m_logger) {
+            m_logger->error("AnimationLibrary is missing in EngineContext! Animations cannot be registered.");
         }
 
         auto& registry = *context.m_registry;
