@@ -26,18 +26,22 @@ namespace engine
 
         struct RenderItem {
             int layer;
+            float y;
             entt::entity entity;
         };
 
         std::vector<RenderItem> items;
         items.reserve(view.size_hint());
 
-        view.each([&](auto entity, const auto&, const auto& renderable) {
-            items.push_back({ renderable.layer, entity });
+        view.each([&](auto entity, const auto& transform, const auto& renderable) {
+            items.push_back({ renderable.layer, transform.position.y, entity });
         });
 
         std::sort(items.begin(), items.end(), [](const RenderItem& a, const RenderItem& b) {
-            return a.layer < b.layer;
+            if (a.layer != b.layer) {
+                return a.layer < b.layer;
+            }
+            return a.y < b.y;
         });
 
         for (const auto& item : items)
