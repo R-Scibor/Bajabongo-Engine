@@ -7,6 +7,7 @@
 #include "engine/rendering/SFMLRenderer.hpp"
 #include "engine/rendering/SFMLResourceManager.hpp"
 #include "engine/rendering/Sprite.hpp"
+#include "engine/rendering/AnimationClip.hpp"
 #include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
@@ -51,6 +52,9 @@ int main() {
         auto spriteManager = std::make_shared<engine::SpriteManager>();
         gameLogger->info("Sprite Manager created.");
 
+        auto animationLibrary = std::make_shared<engine::AnimationLibrary>();
+        gameLogger->info("Animation Library created.");
+
         auto inputManager = std::make_shared<engine::SFMLInputManager>(
             *logManager,
             renderer->getNativeRenderWindow()
@@ -66,6 +70,7 @@ int main() {
         context->m_window = renderer;
         context->m_resourceManager = resourceManager;
         context->m_spriteManager = spriteManager;
+        context->m_animationLibrary = animationLibrary;
         context->m_dispatcher   = std::make_shared<entt::dispatcher>();
 
         // Create the state manager, which requires a reference to the context

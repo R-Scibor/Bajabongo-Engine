@@ -14,6 +14,8 @@
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
 #include "engine/rendering/Sprite.hpp"
+#include "engine/rendering/AnimationClip.hpp"
+#include "engine/components/AnimationComponent.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
@@ -24,6 +26,7 @@ namespace game {
         : m_physicsBodyCreationSystem(context)
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
+        , m_animationSystem(context)
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
     }
@@ -35,6 +38,7 @@ namespace game {
         if (context.m_resourceManager) {
             context.m_resourceManager->loadTexture("box_texture", "../../assets/textures/box.png");
             context.m_resourceManager->loadTexture("ground_texture", "../../assets/textures/ground.png");
+            context.m_resourceManager->loadTexture("testanim_texture", "../../assets/textures/testanim.png");
         }
 
         if (context.m_spriteManager) {
@@ -51,11 +55,33 @@ namespace game {
             groundSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
             groundSprite.origin = sf::Vector2f(16.f, 16.f);
             context.m_spriteManager->registerSprite("ground_sprite", groundSprite);
+
+            // Register 10 animation frames (each frame is 600x250, stacked vertically)
+            for (int i = 0; i < 10; ++i) {
+                engine::SpriteDesc frameSprite;
+                frameSprite.textureId = "testanim_texture";
+                frameSprite.uvRect = sf::IntRect(sf::Vector2i(0, i * 250), sf::Vector2i(600, 250));
+                frameSprite.origin = sf::Vector2f(300.f, 125.f);
+                context.m_spriteManager->registerSprite("testanim_frame_" + std::to_string(i), frameSprite);
+            }
+        }
+
+        // --- Animation Setup ---
+        if (context.m_animationLibrary) {
+            engine::AnimationClip testAnimClip;
+            testAnimClip.name = "test_anim";
+            testAnimClip.spriteIds = {
+                "testanim_frame_0", "testanim_frame_1", "testanim_frame_2", "testanim_frame_3", "testanim_frame_4",
+                "testanim_frame_5", "testanim_frame_6", "testanim_frame_7", "testanim_frame_8", "testanim_frame_9"
+            };
+            testAnimClip.frameDuration = 0.1f;
+            testAnimClip.loop = true;
+            context.m_animationLibrary->registerClip("test_anim", testAnimClip);
         }
 
         auto& registry = *context.m_registry;
 
-        // Box – dynamic body
+        // Box – dynamic body (static sprite, no animation)
         auto box = registry.create();
         registry.emplace<engine::PendingPhysicsBodyComponent>(
             box,
@@ -66,6 +92,18 @@ namespace game {
         );
         registry.emplace<engine::TransformComponent>(box);
         registry.emplace<engine::RenderableComponent>(box, "box_sprite", 1, sf::Color::White);
+
+        // Animated test entity
+        auto animatedEntity = registry.create();
+        engine::TransformComponent animTransform;
+        animTransform.position = engine::Vector2f{ 400.f, 300.f };
+        registry.emplace<engine::TransformComponent>(animatedEntity, animTransform);
+        registry.emplace<engine::RenderableComponent>(animatedEntity, "testanim_frame_0", 2, sf::Color::White);
+        
+        engine::AnimationComponent animComp;
+        animComp.currentClipId = "test_anim";
+        animComp.isPlaying = true;
+        registry.emplace<engine::AnimationComponent>(animatedEntity, animComp);
 
         // Ground – static body
         auto ground = registry.create();
@@ -107,6 +145,7 @@ namespace game {
         m_physicsBodyCreationSystem.update();
         b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
         m_physicsSyncSystem.update();
+        m_animationSystem.update(fixedDeltaTime);
     }
 
     void GameplayState::render(engine::EngineContext& context) {
