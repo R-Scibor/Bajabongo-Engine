@@ -34,6 +34,9 @@ namespace engine {
             (void)texture->loadFromImage(fallbackImage);
         }
 
+        // Force nearest-neighbor interpolation for crisp pixel art
+        texture->setSmooth(false);
+
         // Cache and return
         m_textures[id] = texture;
         
