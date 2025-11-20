@@ -149,6 +149,7 @@ namespace game {
     }
 
     void GameplayState::render(engine::EngineContext& context) {
+        m_renderSystem.setDebugDraw(true);
         m_renderSystem.update();
     }
 

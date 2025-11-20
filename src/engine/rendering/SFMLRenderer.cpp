@@ -15,7 +15,13 @@ namespace engine
 {
     SFMLRenderer::SFMLRenderer()
         : IRenderer(*this) {
-        m_shape.setFillColor(sf::Color::Red);
+        m_circleShape.setFillColor(sf::Color::Transparent);
+        m_circleShape.setOutlineColor(sf::Color::Red);
+        m_circleShape.setOutlineThickness(1.0f);
+
+        m_rectShape.setFillColor(sf::Color::Transparent);
+        m_rectShape.setOutlineColor(sf::Color::Green);
+        m_rectShape.setOutlineThickness(1.0f);
     }
 
     SFMLRenderer::~SFMLRenderer() {
@@ -58,13 +64,22 @@ namespace engine
         m_renderWindow.clear(sf::Color(color.r, color.g, color.b, color.a));
     }
 
-    void SFMLRenderer::drawShape(engine::Vector2f position, float radius) {
-        // Adapter Pattern: Convert engine type to SFML type
+    void SFMLRenderer::drawCircle(engine::Vector2f position, float radius) {
         sf::Vector2f sfmlPosition(position.x, position.y);
+        m_circleShape.setPosition(sfmlPosition);
+        m_circleShape.setRadius(radius);
+        m_circleShape.setOrigin({radius, radius}); // Center the circle
+        m_renderWindow.draw(m_circleShape);
+    }
 
-        m_shape.setPosition(sfmlPosition);
-        m_shape.setRadius(radius);
-        m_renderWindow.draw(m_shape);
+    void SFMLRenderer::drawRect(engine::Vector2f position, engine::Vector2f size) {
+        sf::Vector2f sfmlPosition(position.x, position.y);
+        sf::Vector2f sfmlSize(size.x, size.y);
+
+        m_rectShape.setPosition(sfmlPosition);
+        m_rectShape.setSize(sfmlSize);
+        m_rectShape.setOrigin({sfmlSize.x * 0.5f, sfmlSize.y * 0.5f}); // Center the rect
+        m_renderWindow.draw(m_rectShape);
     }
 
     void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform) {

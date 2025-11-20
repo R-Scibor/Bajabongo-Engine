@@ -4,6 +4,7 @@
 #include "engine/core/IWindow.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
 #include <optional>
 
@@ -27,7 +28,8 @@ namespace engine
         // --- IRenderer Implementation ---
         void beginFrame() override;
         void clear(Color color) override;
-        void drawShape(engine::Vector2f position, float radius) override;
+        void drawCircle(engine::Vector2f position, float radius) override;
+        void drawRect(engine::Vector2f position, engine::Vector2f size) override;
         void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform) override;
         void endFrame() override;
 
@@ -38,6 +40,7 @@ namespace engine
     private:
         sf::RenderWindow m_renderWindow;
         std::shared_ptr<class IResourceManager> m_resourceManager;
-        sf::CircleShape m_shape;
+        sf::CircleShape m_circleShape;
+        sf::RectangleShape m_rectShape;
     };
 }
