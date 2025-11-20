@@ -48,6 +48,11 @@ namespace engine {
 
             m_accumulator += deltaTime;
 
+            // Prevent spiral of death
+            if (m_accumulator > 0.2f) {
+                m_accumulator = 0.2f;
+            }
+
             // 1. Process all pending inputs and forward to state manager
             processInput();
 
