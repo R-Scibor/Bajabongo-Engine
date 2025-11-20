@@ -1,6 +1,9 @@
 #include "SFMLResourceManager.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include <filesystem>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace engine {
 
@@ -21,9 +24,14 @@ namespace engine {
         auto texture = std::make_shared<sf::Texture>();
         if (!texture->loadFromFile(path)) {
             if (m_logger) {
-                m_logger->error("Failed to load texture: {}", path);
+                m_logger->error("Failed to load texture: {}. Using fallback magenta 1x1.", path);
             }
-            return nullptr;
+            
+            // Create 1x1 Magenta fallback
+            sf::Image fallbackImage;
+            // SFML 3 uses resize instead of create
+            fallbackImage.resize({1, 1}, sf::Color::Magenta);
+            (void)texture->loadFromImage(fallbackImage);
         }
 
         // Cache and return

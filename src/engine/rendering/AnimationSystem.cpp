@@ -15,20 +15,17 @@ namespace engine {
 
         auto view = m_context.m_registry->view<AnimationComponent, RenderableComponent>();
 
-        for (auto entity : view) {
-            auto& anim = view.get<AnimationComponent>(entity);
-            auto& renderable = view.get<RenderableComponent>(entity);
-
-            if (!anim.isPlaying || anim.isFinished) continue;
+        view.each([&](AnimationComponent& anim, RenderableComponent& renderable) {
+            if (!anim.isPlaying || anim.isFinished) return;
 
             const auto* clip = m_context.m_animationLibrary->getClip(anim.currentClipId);
-            if (!clip) continue;
+            if (!clip) return;
 
             // Update timer
             anim.timer += deltaTime;
 
             // Check for frame change
-            if (anim.timer >= clip->frameDuration) {
+            while (anim.timer >= clip->frameDuration) {
                 anim.timer -= clip->frameDuration;
                 anim.currentFrameIndex++;
 
@@ -39,6 +36,7 @@ namespace engine {
                     } else {
                         anim.currentFrameIndex = static_cast<int>(clip->spriteIds.size()) - 1;
                         anim.isFinished = true;
+                        break; // Stop processing if finished
                     }
                 }
             }
@@ -47,7 +45,7 @@ namespace engine {
             if (anim.currentFrameIndex < clip->spriteIds.size()) {
                 renderable.spriteId = clip->spriteIds[anim.currentFrameIndex];
             }
-        }
+        });
     }
 
 } // namespace engine

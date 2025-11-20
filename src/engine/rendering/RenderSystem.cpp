@@ -1,6 +1,8 @@
 ﻿#include "engine/pch.h"
 #include "RenderSystem.hpp"
 
+#include <vector>
+#include <algorithm>
 #include <entt/entt.hpp>
 
 #include "engine/core/EngineContext.hpp"
@@ -22,15 +24,28 @@ namespace engine
     {
         auto view = m_registry.view<TransformComponent, RenderableComponent>();
 
-        // Sort by layer (ascending)
-        m_registry.sort<RenderableComponent>([](const auto& lhs, const auto& rhs) {
-            return lhs.layer < rhs.layer;
+        struct RenderItem {
+            int layer;
+            entt::entity entity;
+        };
+
+        std::vector<RenderItem> items;
+        items.reserve(view.size_hint());
+
+        view.each([&](auto entity, const auto&, const auto& renderable) {
+            items.push_back({ renderable.layer, entity });
         });
 
-        for (auto entity : view)
+        std::sort(items.begin(), items.end(), [](const RenderItem& a, const RenderItem& b) {
+            return a.layer < b.layer;
+        });
+
+        for (const auto& item : items)
         {
-            auto& transform = view.get<TransformComponent>(entity);
-            auto& renderable = view.get<RenderableComponent>(entity);
+            auto& transform = view.get<TransformComponent>(item.entity);
+            // We already have layer, but we need other renderable data (spriteId)
+            // Re-fetching renderable is cheap/fast reference
+            auto& renderable = view.get<RenderableComponent>(item.entity);
 
             // Fetch sprite description
             const auto* spriteDesc = m_spriteManager.getSprite(renderable.spriteId);

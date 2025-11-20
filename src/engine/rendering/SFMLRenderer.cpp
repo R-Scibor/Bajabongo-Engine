@@ -78,8 +78,9 @@ namespace engine
         sprite.setOrigin(spriteDesc.origin);
         // Fix: Explicitly construct sf::Vector2f to avoid ambiguity or mismatch
         sprite.setPosition(sf::Vector2f(transform.position.x, transform.position.y));
-        // sprite.setRotation(transform.rotation); // If we had rotation
-        // sprite.setScale(transform.scale.x, transform.scale.y); // If we had scale
+        
+        sprite.setRotation(sf::radians(transform.rotation));
+        sprite.setScale({transform.scale.x, transform.scale.y});
 
         m_renderWindow.draw(sprite);
     }
