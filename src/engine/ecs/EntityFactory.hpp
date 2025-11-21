@@ -7,6 +7,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <memory>
+#include <functional>
+#include <unordered_map>
 
 namespace engine {
 
@@ -14,20 +16,22 @@ namespace engine {
 
     class EntityFactory {
     public:
+        using ComponentLoaderFn = std::function<void(entt::registry&, entt::entity, const nlohmann::json&)>;
+
         EntityFactory(EngineContext& context, std::shared_ptr<ArchetypeManager> archetypeManager);
 
         entt::entity spawn(const std::string& archetypeId, const Vector2f& position);
+
+        void registerComponentLoader(const std::string& componentName, ComponentLoaderFn loader);
 
     private:
         EngineContext& m_context;
         std::shared_ptr<ArchetypeManager> m_archetypeManager;
         std::shared_ptr<ILogger> m_logger;
 
-        // Helper methods for components
-        void addTransform(entt::entity entity, const nlohmann::json& data, const Vector2f& position);
-        void addRenderable(entt::entity entity, const nlohmann::json& data);
-        void addPhysics(entt::entity entity, const nlohmann::json& data, const Vector2f& position);
-        void addAnimation(entt::entity entity, const nlohmann::json& data);
+        std::unordered_map<std::string, ComponentLoaderFn> m_componentRegistry;
+
+        void registerDefaultLoaders();
     };
 
 } // namespace engine

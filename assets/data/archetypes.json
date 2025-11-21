@@ -1,7 +1,6 @@
 {
   "wooden_crate": {
     "Transform": {
-      "position": [0.0, 0.0],
       "rotation": 0.0
     },
     "Renderable": {
@@ -17,7 +16,6 @@
   },
   "heavy_crate": {
     "Transform": {
-      "position": [0.0, 0.0],
       "rotation": 0.0
     },
     "Renderable": {
@@ -33,14 +31,14 @@
   },
   "player": {
     "Transform": {
-      "position": [100.0, 100.0]
+      "rotation": 0.0
     },
     "Renderable": {
-      "spriteId": "player_idle",
+      "spriteId": "testanim_frame_0",
       "layer": 2
     },
     "Animation": {
-      "defaultClip": "idle",
+      "defaultClip": "test_anim",
       "playing": true
     },
     "Physics": {

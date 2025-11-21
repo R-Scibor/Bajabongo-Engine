@@ -16,6 +16,8 @@
 #include "engine/rendering/Sprite.hpp"
 #include "engine/rendering/AnimationClip.hpp"
 #include "engine/components/AnimationComponent.hpp"
+#include "engine/ecs/ArchetypeManager.hpp"
+#include "engine/ecs/EntityFactory.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
@@ -85,33 +87,41 @@ namespace game {
             m_logger->error("AnimationLibrary is missing in EngineContext! Animations cannot be registered.");
         }
 
+        // --- Phase 6: Data-Driven Systems Init ---
+        if (!context.m_archetypeManager) {
+            context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>();
+            if (context.m_logManager) {
+                context.m_archetypeManager->setLogger(context.m_logManager->GetLogger("ArchetypeManager"));
+            }
+        }
+
+        if (!context.m_entityFactory) {
+            context.m_entityFactory = std::make_shared<engine::EntityFactory>(context, context.m_archetypeManager);
+        }
+
+        // Load archetypes
+        if (context.m_archetypeManager->loadArchetypes("../../assets/data/archetypes.json")) {
+            if (m_logger) m_logger->info("Archetypes loaded successfully.");
+        } else {
+            if (m_logger) m_logger->error("Failed to load archetypes!");
+        }
+
+        // Spawn entities
+        if (context.m_entityFactory) {
+            // Player (using testanim_frame_0 and test_anim via JSON update)
+            context.m_entityFactory->spawn("player", {400.f, 300.f});
+
+            // Boxes
+            context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});
+            context.m_entityFactory->spawn("heavy_crate", {300.f, 500.f}); // Demonstration of density
+        }
+
         auto& registry = *context.m_registry;
 
-        // Box – dynamic body (static sprite, no animation)
-        auto box = registry.create();
-        registry.emplace<engine::PendingPhysicsBodyComponent>(
-            box,
-            engine::Vector2f{ 100.f, 100.f },
-            engine::Vector2f{ 20.f, 20.f },
-            false,
-            0.5f
-        );
-        registry.emplace<engine::TransformComponent>(box);
-        registry.emplace<engine::RenderableComponent>(box, "box_sprite", 1, sf::Color::White);
-
-        // Animated test entity
-        auto animatedEntity = registry.create();
-        engine::TransformComponent animTransform;
-        animTransform.position = engine::Vector2f{ 400.f, 300.f };
-        registry.emplace<engine::TransformComponent>(animatedEntity, animTransform);
-        registry.emplace<engine::RenderableComponent>(animatedEntity, "testanim_frame_0", 2, sf::Color::White);
-        
-        engine::AnimationComponent animComp;
-        animComp.currentClipId = "test_anim";
-        animComp.isPlaying = true;
-        registry.emplace<engine::AnimationComponent>(animatedEntity, animComp);
-
-        // Ground – static body
+        // Ground – static body (keeping manual for now as it's unique/level geometry, or could be an archetype)
+        // Let's keep ground manual for simplicity or move to archetype if needed.
+        // The prompt example showed entities like player/enemies/crates being spawned.
+        // Ground usually belongs to tilemap or level data.
         auto ground = registry.create();
         registry.emplace<engine::PendingPhysicsBodyComponent>(
             ground,

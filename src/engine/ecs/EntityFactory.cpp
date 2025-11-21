@@ -16,6 +16,11 @@ namespace engine {
         if (m_context.m_logManager) {
             m_logger = m_context.m_logManager->GetLogger("EntityFactory");
         }
+        registerDefaultLoaders();
+    }
+
+    void EntityFactory::registerComponentLoader(const std::string& componentName, ComponentLoaderFn loader) {
+        m_componentRegistry[componentName] = loader;
     }
 
     entt::entity EntityFactory::spawn(const std::string& archetypeId, const Vector2f& position) {
@@ -27,94 +32,92 @@ namespace engine {
 
         auto entity = m_context.m_registry->create();
 
-        if (archetypeData->contains("Transform")) {
-            addTransform(entity, (*archetypeData)["Transform"], position);
-        } else {
-            // Always add a transform even if not specified, using spawn position
-             m_context.m_registry->emplace<TransformComponent>(entity, position, 0.f, Vector2f{1.f, 1.f});
-        }
+        // 1. Initialize TransformComponent with spawn position (crucial for other components)
+        m_context.m_registry->emplace<TransformComponent>(entity, position, 0.f, Vector2f{1.f, 1.f});
 
-        if (archetypeData->contains("Renderable")) {
-            addRenderable(entity, (*archetypeData)["Renderable"]);
-        }
-
-        if (archetypeData->contains("Physics")) {
-            addPhysics(entity, (*archetypeData)["Physics"], position);
-        }
-
-        if (archetypeData->contains("Animation")) {
-            addAnimation(entity, (*archetypeData)["Animation"]);
+        // 2. Iterate over keys in JSON and call registered loaders
+        for (auto& [key, value] : archetypeData->items()) {
+            auto it = m_componentRegistry.find(key);
+            if (it != m_componentRegistry.end()) {
+                try {
+                    it->second(*m_context.m_registry, entity, value);
+                } catch (const std::exception& e) {
+                    if (m_logger) m_logger->error("EntityFactory: Error loading component '{}' for archetype '{}': {}", key, archetypeId, e.what());
+                }
+            } else {
+                if (m_logger) m_logger->warn("EntityFactory: No loader registered for component '{}'", key);
+            }
         }
 
         return entity;
     }
 
-    void EntityFactory::addTransform(entt::entity entity, const nlohmann::json& data, const Vector2f& spawnPos) {
-        Vector2f pos = spawnPos;
-        float rot = 0.f;
-        Vector2f scale = {1.f, 1.f};
+    void EntityFactory::registerDefaultLoaders() {
+        // --- Transform ---
+        registerComponentLoader("Transform", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            // Transform is already created with spawn position. We update it here.
+            auto& transform = registry.get<TransformComponent>(entity);
+            
+            if (data.contains("rotation")) {
+                transform.rotation = data["rotation"];
+            }
+            if (data.contains("scale") && data["scale"].is_array()) {
+                transform.scale.x = data["scale"][0];
+                transform.scale.y = data["scale"][1];
+            }
+            // Note: We deliberately ignore 'position' in JSON to respect the spawn position.
+            // Alternatively, we could treat JSON position as an offset.
+        });
 
-        // Override with JSON data if present (relative to spawn, or absolute? 
-        // Usually archetype defines defaults. Let's assume JSON defines offsets or defaults, 
-        // but the spawn position passed to function overrides or adds to it.
-        // For simplicity in this task: if position is passed to Spawn, use it. 
-        // If JSON has position, maybe it's an offset?
-        // Task says: "spawn(archetypeId, position)". Let's assume "position" arg is the world position.
-        
-        // However, we might want to respect rotation/scale from JSON.
-        if (data.contains("rotation")) rot = data["rotation"];
-        if (data.contains("scale") && data["scale"].is_array()) {
-            scale.x = data["scale"][0];
-            scale.y = data["scale"][1];
-        }
-        
-        m_context.m_registry->emplace<TransformComponent>(entity, pos, rot, scale);
-    }
+        // --- Renderable ---
+        registerComponentLoader("Renderable", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            std::string spriteId = data.value("spriteId", "");
+            int layer = data.value("layer", 0);
+            sf::Color color = sf::Color::White; // Could parse color if needed
 
-    void EntityFactory::addRenderable(entt::entity entity, const nlohmann::json& data) {
-        std::string spriteId = data.value("spriteId", "");
-        int layer = data.value("layer", 0);
-        
-        // Color parsing could be added here, defaulting to White
-        sf::Color color = sf::Color::White;
+            if (!spriteId.empty()) {
+                registry.emplace<RenderableComponent>(entity, spriteId, layer, color);
+            }
+        });
 
-        if (!spriteId.empty()) {
-            m_context.m_registry->emplace<RenderableComponent>(entity, spriteId, layer, color);
-        }
-    }
+        // --- Physics ---
+        registerComponentLoader("Physics", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            // Need position from TransformComponent
+            Vector2f position = {0.f, 0.f};
+            if (registry.all_of<TransformComponent>(entity)) {
+                position = registry.get<TransformComponent>(entity).position;
+            }
 
-    void EntityFactory::addPhysics(entt::entity entity, const nlohmann::json& data, const Vector2f& position) {
-        std::string typeStr = data.value("type", "static");
-        bool isStatic = (typeStr == "static");
-        
-        Vector2f size = {0.f, 0.f};
-        if (data.contains("size") && data["size"].is_array()) {
-            size.x = data["size"][0];
-            size.y = data["size"][1];
-        }
+            Vector2f size = {0.f, 0.f};
+            if (data.contains("size") && data["size"].is_array()) {
+                size.x = data["size"][0];
+                size.y = data["size"][1];
+            }
 
-        float density = data.value("density", 1.0f);
-        bool isSensor = data.value("isSensor", false);
-        bool fixedRotation = data.value("fixedRotation", false);
+            bool isStatic = (data.value("type", "static") == "static");
+            float density = data.value("density", 1.0f);
+            bool isSensor = data.value("isSensor", false);
+            bool fixedRotation = data.value("fixedRotation", false);
 
-        m_context.m_registry->emplace<PendingPhysicsBodyComponent>(
-            entity,
-            position,
-            size,
-            isStatic,
-            density,
-            isSensor,
-            fixedRotation
-        );
-    }
+            registry.emplace<PendingPhysicsBodyComponent>(
+                entity,
+                position,
+                size,
+                isStatic,
+                density,
+                isSensor,
+                fixedRotation
+            );
+        });
 
-    void EntityFactory::addAnimation(entt::entity entity, const nlohmann::json& data) {
-        AnimationComponent animComp;
-        animComp.currentClipId = data.value("defaultClip", "");
-        animComp.isPlaying = data.value("playing", false);
-        // Loop, speed, etc could be added here if Component supports it
-        
-        m_context.m_registry->emplace<AnimationComponent>(entity, animComp);
+        // --- Animation ---
+        registerComponentLoader("Animation", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            AnimationComponent animComp;
+            animComp.currentClipId = data.value("defaultClip", "");
+            animComp.isPlaying = data.value("playing", false);
+            
+            registry.emplace<AnimationComponent>(entity, animComp);
+        });
     }
 
 } // namespace engine
