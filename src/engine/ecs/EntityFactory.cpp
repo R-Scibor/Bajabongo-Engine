@@ -11,6 +11,13 @@
 
 namespace engine {
 
+    namespace ComponentNames {
+        static constexpr const char* Transform = "Transform";
+        static constexpr const char* Renderable = "Renderable";
+        static constexpr const char* Physics = "Physics";
+        static constexpr const char* Animation = "Animation";
+    }
+
     EntityFactory::EntityFactory(EngineContext& context, std::shared_ptr<ArchetypeManager> archetypeManager)
         : m_context(context), m_archetypeManager(archetypeManager) {
         if (m_context.m_logManager) {
@@ -54,8 +61,7 @@ namespace engine {
 
     void EntityFactory::registerDefaultLoaders() {
         // --- Transform ---
-        registerComponentLoader("Transform", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            // Transform is already created with spawn position. We update it here.
+        registerComponentLoader(ComponentNames::Transform, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
             auto& transform = registry.get<TransformComponent>(entity);
             
             if (data.contains("rotation")) {
@@ -65,15 +71,23 @@ namespace engine {
                 transform.scale.x = data["scale"][0];
                 transform.scale.y = data["scale"][1];
             }
-            // Note: We deliberately ignore 'position' in JSON to respect the spawn position.
-            // Alternatively, we could treat JSON position as an offset.
         });
 
         // --- Renderable ---
-        registerComponentLoader("Renderable", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+        registerComponentLoader(ComponentNames::Renderable, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
             std::string spriteId = data.value("spriteId", "");
             int layer = data.value("layer", 0);
-            sf::Color color = sf::Color::White; // Could parse color if needed
+            sf::Color color = sf::Color::White;
+
+            if (data.contains("color") && data["color"].is_array()) {
+                auto& c = data["color"];
+                if (c.size() >= 3) {
+                    color.r = c[0].get<int>();
+                    color.g = c[1].get<int>();
+                    color.b = c[2].get<int>();
+                    color.a = c.size() > 3 ? c[3].get<int>() : 255;
+                }
+            }
 
             if (!spriteId.empty()) {
                 registry.emplace<RenderableComponent>(entity, spriteId, layer, color);
@@ -81,8 +95,7 @@ namespace engine {
         });
 
         // --- Physics ---
-        registerComponentLoader("Physics", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            // Need position from TransformComponent
+        registerComponentLoader(ComponentNames::Physics, [this](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
             Vector2f position = {0.f, 0.f};
             if (registry.all_of<TransformComponent>(entity)) {
                 position = registry.get<TransformComponent>(entity).position;
@@ -92,6 +105,12 @@ namespace engine {
             if (data.contains("size") && data["size"].is_array()) {
                 size.x = data["size"][0];
                 size.y = data["size"][1];
+            }
+
+            // Validation for size
+            if (size.x <= 0.001f || size.y <= 0.001f) {
+                if (m_logger) m_logger->warn("EntityFactory: Physics component has invalid size for entity {}", static_cast<uint32_t>(entity));
+                size = {32.f, 32.f}; // Fallback
             }
 
             bool isStatic = (data.value("type", "static") == "static");
@@ -111,7 +130,7 @@ namespace engine {
         });
 
         // --- Animation ---
-        registerComponentLoader("Animation", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+        registerComponentLoader(ComponentNames::Animation, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
             AnimationComponent animComp;
             animComp.currentClipId = data.value("defaultClip", "");
             animComp.isPlaying = data.value("playing", false);
