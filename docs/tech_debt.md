@@ -36,3 +36,17 @@ Physics & Collision (Top-Down Shooter Specifics): [
 
 Add pushable objects, using density in PhysicsBodyComponent
 
+Persistence & Serialization (Save System): [
+Currently, entities spawned via the Debug Spawner are lost when the game closes.
+
+Requirement:
+- Implement a Save/Load system that serializes the relevant parts of the entt::registry to a file (JSON or Binary).
+- Must support serializing core components: Transform, Renderable, Physics properties (to reconstruct bodies), Health, etc.
+- Differentiation between "Static World" (loaded from LDtk) and "Dynamic State" (save game data).
+
+Implementation Strategy:
+- Evaluate 'cereal' library for automatic serialization vs manual JSON mapping.
+- Needs a "Post-Load" system to recreate Box2D bodies from the loaded data, as physics handles (b2BodyId) cannot be saved directly.
+
+
+]
