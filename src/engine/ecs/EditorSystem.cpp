@@ -124,6 +124,11 @@ namespace engine {
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
                 auto mousePos = m_context->m_inputManager->getMousePosition();
                 Vector2f spawnPos = { (float)mousePos.x, (float)mousePos.y };
+
+                // Convert screen coordinates to world coordinates if renderer is available
+                if (m_context->m_renderer) {
+                    spawnPos = m_context->m_renderer->screenToWorld(spawnPos);
+                }
                 
                 if (m_context->m_entityFactory) {
                     m_context->m_entityFactory->spawn(m_placingArchetype, spawnPos);

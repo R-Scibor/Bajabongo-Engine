@@ -110,6 +110,12 @@ namespace engine
         m_renderWindow.draw(sprite);
     }
 
+    engine::Vector2f SFMLRenderer::screenToWorld(engine::Vector2f screenPos) {
+        sf::Vector2i pixelPos(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y));
+        sf::Vector2f worldPos = m_renderWindow.mapPixelToCoords(pixelPos);
+        return { worldPos.x, worldPos.y };
+    }
+
     void SFMLRenderer::endFrame() {
         m_renderWindow.display();
     }

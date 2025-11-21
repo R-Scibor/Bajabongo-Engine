@@ -27,6 +27,8 @@ namespace engine
         virtual void drawCircle(engine::Vector2f position, float radius) = 0;
         virtual void drawRect(engine::Vector2f position, engine::Vector2f size) = 0;
         
+        virtual engine::Vector2f screenToWorld(engine::Vector2f screenPos) = 0;
+
         virtual void endFrame() = 0;
 
     protected:

@@ -80,7 +80,7 @@ namespace engine {
     }
 
     engine::Vector2i SFMLInputManager::getMousePosition() const {
-        sf::Vector2i sfmlPosition = sf::Mouse::getPosition();
+        sf::Vector2i sfmlPosition = sf::Mouse::getPosition(m_window);
         engine::Vector2i position = { sfmlPosition.x, sfmlPosition.y };
         m_logger->debug("Mouse position: ({}, {})", position.x, position.y);
         return position;
