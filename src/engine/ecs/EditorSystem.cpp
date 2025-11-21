@@ -4,11 +4,13 @@
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/components/MetaComponent.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/core/IInputManager.hpp"
+#include "engine/rendering/IRenderer.hpp"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -139,7 +141,24 @@ namespace engine {
     }
 
     void EditorSystem::Render() {
-        // Any specific debug rendering (shapes) could go here
+        // Visual Selection Indicator
+        if (m_selectedEntity != entt::null && m_context->m_registry->valid(m_selectedEntity)) {
+            if (m_context->m_registry->all_of<TransformComponent>(m_selectedEntity)) {
+                auto& transform = m_context->m_registry->get<TransformComponent>(m_selectedEntity);
+                
+                // Simple visual size estimation
+                // We don't have easy access to sprite size without potential compilation issues or complexity,
+                // so we'll just use a reasonable default scaled by the transform.
+                float baseSize = 25.0f;
+                float maxScale = std::max(std::abs(transform.scale.x), std::abs(transform.scale.y));
+                float radius = baseSize * maxScale;
+
+                // Draw a selection circle
+                if (m_context->m_renderer) {
+                    m_context->m_renderer->drawCircle(transform.position, radius);
+                }
+            }
+        }
     }
 
     void EditorSystem::DrawHierarchy() {
@@ -147,14 +166,39 @@ namespace engine {
 
         auto& registry = *m_context->m_registry;
         
-        for (auto entity : registry.storage<entt::entity>()) {
+        // Use a list of entities to avoid iterator invalidation during deletion
+        std::vector<entt::entity> entities;
+        entities.reserve(registry.storage<entt::entity>().size());
+        for(auto entity : registry.storage<entt::entity>()) {
+            entities.push_back(entity);
+        }
+
+        for (auto entity : entities) {
+            if (!registry.valid(entity)) continue;
+
             std::string label = "Entity " + std::to_string(static_cast<uint32_t>(entity));
             
+            // Use MetaComponent name if available
+            if (registry.all_of<MetaComponent>(entity)) {
+                label = registry.get<MetaComponent>(entity).name + " (" + std::to_string(static_cast<uint32_t>(entity)) + ")";
+            }
+
             ImGuiTreeNodeFlags flags = ((m_selectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
             
             bool opened = ImGui::TreeNodeEx((void*)(uint64_t)entity, flags, "%s", label.c_str());
             if (ImGui::IsItemClicked()) {
                 m_selectedEntity = entity;
+            }
+
+            // Right-click context menu
+            if (ImGui::BeginPopupContextItem()) {
+                if (ImGui::MenuItem("Delete")) {
+                    registry.destroy(entity);
+                    if (m_selectedEntity == entity) {
+                        m_selectedEntity = entt::null;
+                    }
+                }
+                ImGui::EndPopup();
             }
 
             if (opened) {
@@ -172,10 +216,24 @@ namespace engine {
             auto& registry = *m_context->m_registry;
             
             ImGui::Text("Entity ID: %d", static_cast<uint32_t>(m_selectedEntity));
+            
+            if (registry.all_of<MetaComponent>(m_selectedEntity)) {
+                auto& meta = registry.get<MetaComponent>(m_selectedEntity);
+                ImGui::InputText("Name", &meta.name);
+            }
+
             ImGui::Separator();
 
             for (auto& [type, inspector] : m_inspectors) {
                 inspector(registry, m_selectedEntity);
+            }
+
+            ImGui::Separator();
+            ImGui::Spacing();
+            
+            if (ImGui::Button("Destroy Entity", ImVec2(-1, 0))) {
+                registry.destroy(m_selectedEntity);
+                m_selectedEntity = entt::null;
             }
 
         } else {

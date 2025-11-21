@@ -5,6 +5,7 @@
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
+#include "engine/components/MetaComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include <SFML/Graphics/Color.hpp>
@@ -42,7 +43,10 @@ namespace engine {
         // 1. Initialize TransformComponent with spawn position (crucial for other components)
         m_context.m_registry->emplace<TransformComponent>(entity, position, 0.f, Vector2f{1.f, 1.f});
 
-        // 2. Iterate over keys in JSON and call registered loaders
+        // 2. Add MetaComponent with archetype name
+        m_context.m_registry->emplace<MetaComponent>(entity, archetypeId);
+
+        // 3. Iterate over keys in JSON and call registered loaders
         for (auto& [key, value] : archetypeData->items()) {
             auto it = m_componentRegistry.find(key);
             if (it != m_componentRegistry.end()) {

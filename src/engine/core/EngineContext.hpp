@@ -21,6 +21,7 @@ namespace engine {
         bool showPhysics = false;
         bool showHitboxes = false;
         bool pauseGame = false;
+        bool showEditor = false;
     };
 
     /**

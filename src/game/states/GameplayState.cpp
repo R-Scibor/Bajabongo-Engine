@@ -156,6 +156,9 @@ namespace game {
             if (keyPressed->code == sf::Keyboard::Key::Escape) {
                 if (m_logger) m_logger->info("Escape key pressed. Requesting pop to previous state.");
                 context.m_dispatcher->enqueue<engine::RequestStatePopEvent>();
+            } else if (keyPressed->code == sf::Keyboard::Key::F1) {
+                context.debugFlags.showEditor = !context.debugFlags.showEditor;
+                if (m_logger) m_logger->info("Toggled Editor: {}", context.debugFlags.showEditor);
             }
         }
     }
@@ -173,7 +176,7 @@ namespace game {
         m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
         m_renderSystem.update();
 
-        if (m_editorSystem) {
+        if (m_editorSystem && context.debugFlags.showEditor) {
             // DT is currently not used for UI logic but passed for API consistency
             m_editorSystem->Update(0.0f);
             m_editorSystem->Render();
