@@ -6,6 +6,8 @@
 	"spdlog",
 	"entt",
     "box2d",
-	"nlohmann-json"
+	"nlohmann-json",
+	"imgui",
+    "imgui-sfml"
 	]
 }

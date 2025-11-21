@@ -15,6 +15,7 @@ namespace engine {
     class AnimationLibrary;
     class ArchetypeManager;
     class EntityFactory;
+    class GuiService;
 
     /**
      * @brief A central DI container for all major engine services.
@@ -44,6 +45,9 @@ namespace engine {
         // --- Phase 6: Data-Driven Systems ---
         std::shared_ptr<ArchetypeManager> m_archetypeManager;
         std::shared_ptr<EntityFactory> m_entityFactory;
+
+        // --- Phase 5C: Tooling ---
+        std::shared_ptr<GuiService> m_guiService;
     };
 
 } // namespace engine

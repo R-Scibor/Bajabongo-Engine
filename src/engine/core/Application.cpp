@@ -5,9 +5,11 @@
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/IWindow.hpp"
 #include "engine/rendering/IRenderer.hpp"
+#include "engine/rendering/SFMLRenderer.hpp" // Required for casting to get sf::RenderWindow
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/IInputManager.hpp"
+#include "engine/core/GuiService.hpp"
 
 #include <SFML/Window/Event.hpp>
 #include <box2d/box2d.h>
@@ -22,11 +24,25 @@ namespace engine {
     {
         m_context->m_stateManager = m_stateManager.get();
         m_logger = m_context->m_logManager->GetLogger("Core");
+        
+        // Initialize GuiService
+        m_context->m_guiService = std::make_shared<GuiService>();
+        
+        // We need the concrete sf::RenderWindow for ImGui-SFML
+        // This assumes we are using SFMLRenderer.
+        auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
+        if (sfmlRenderer) {
+            m_context->m_guiService->Init(sfmlRenderer->getNativeRenderWindow());
+        } else {
+            m_logger->error("Failed to initialize GuiService: Window is not SFMLRenderer");
+        }
+
         m_logger->info("Application starting up.");
     }
 
     Application::~Application()
     {
+        m_context->m_guiService->Shutdown();
         m_context->m_stateManager = nullptr;
         if (m_logger) {
             m_logger->info("Application shutting down.");
@@ -55,6 +71,12 @@ namespace engine {
 
             // 1. Process all pending inputs and forward to state manager
             processInput();
+
+            // 1b. Start Gui Frame
+            auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
+            if (sfmlRenderer) {
+                m_context->m_guiService->BeginFrame(sfmlRenderer->getNativeRenderWindow(), sf::seconds(deltaTime));
+            }
 
             // 2. Run fixed-step updates for physics and game logic
             while (m_accumulator >= m_fixedTimestep) {
@@ -85,8 +107,21 @@ namespace engine {
 
         // Poll all SFML events and forward them to the active state
         while (auto event = m_context->m_window->pollEvent()) {
-            m_stateManager->handleEvent(*event);
-            m_context->m_inputManager->processEvent(*event);
+            
+            // Pass to GuiService first
+            bool captured = false;
+            auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
+            if (sfmlRenderer) {
+                 captured = m_context->m_guiService->HandleEvent(sfmlRenderer->getNativeRenderWindow(), *event);
+            }
+
+            // If UI captured input, we might want to skip game processing for some events.
+            // But we still let the system handle Closed event.
+            if (!captured) {
+                 m_stateManager->handleEvent(*event);
+                 m_context->m_inputManager->processEvent(*event);
+            }
+
             if (event->is<sf::Event::Closed>()) {
                 m_context->m_window->close();
             }
@@ -114,7 +149,16 @@ namespace engine {
 
         m_context->m_renderer->beginFrame();
         m_context->m_renderer->clear({0, 0, 25, 255});
+        
+        // Render Game World
         m_stateManager->render();
+
+        // Render GUI on top
+        auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
+        if (sfmlRenderer) {
+             m_context->m_guiService->Render(sfmlRenderer->getNativeRenderWindow());
+        }
+
         m_context->m_renderer->endFrame();
     }
 

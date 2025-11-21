@@ -5,6 +5,7 @@
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
 #include "engine/rendering/AnimationSystem.hpp"
+#include "engine/ecs/EditorSystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -38,6 +39,7 @@ namespace game {
         engine::PhysicsSyncSystem m_physicsSyncSystem;
         engine::RenderSystem m_renderSystem;
         engine::AnimationSystem m_animationSystem;
+        std::unique_ptr<engine::EditorSystem> m_editorSystem;
 
         std::shared_ptr<engine::ILogger> m_logger;
         entt::connection m_physicsCleanupHook;

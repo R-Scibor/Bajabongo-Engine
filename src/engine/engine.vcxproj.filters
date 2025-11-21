@@ -30,6 +30,9 @@
     <ClInclude Include="core\Application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\GuiService.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="core\ILogger.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,6 +120,9 @@
     <ClInclude Include="ecs\ArchetypeManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ecs\EditorSystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ecs\EntityFactory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -129,6 +135,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="core\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\GuiService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="logging\SpdlogLogger.cpp">
@@ -159,6 +168,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ecs\ArchetypeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs\EditorSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ecs\EntityFactory.cpp">
