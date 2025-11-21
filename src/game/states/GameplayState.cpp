@@ -89,10 +89,7 @@ namespace game {
 
         // --- Phase 6: Data-Driven Systems Init ---
         if (!context.m_archetypeManager) {
-            context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>();
-            if (context.m_logManager) {
-                context.m_archetypeManager->setLogger(context.m_logManager->GetLogger("ArchetypeManager"));
-            }
+            context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>(context.m_logManager);
         }
 
         if (!context.m_entityFactory) {

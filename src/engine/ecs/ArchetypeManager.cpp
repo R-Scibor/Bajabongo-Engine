@@ -4,6 +4,12 @@
 
 namespace engine {
 
+    ArchetypeManager::ArchetypeManager(std::shared_ptr<ILoggerManager> logManager) {
+        if (logManager) {
+            m_logger = logManager->GetLogger("ArchetypeManager");
+        }
+    }
+
     bool ArchetypeManager::loadArchetypes(const std::string& filepath) {
         std::ifstream file(filepath);
         if (!file.is_open()) {
