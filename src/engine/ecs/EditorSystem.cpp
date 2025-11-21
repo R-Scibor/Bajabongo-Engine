@@ -24,20 +24,42 @@ namespace engine {
         RegisterInspector<TransformComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& transform = reg.get<TransformComponent>(e);
-                
+                bool changed = false; // Flaga czy coś zmieniliśmy
+
                 float pos[2] = { transform.position.x, transform.position.y };
                 if (ImGui::DragFloat2("Position", pos, 0.1f)) {
                     transform.position = { pos[0], pos[1] };
+                    changed = true;
                 }
 
                 float scale[2] = { transform.scale.x, transform.scale.y };
                 if (ImGui::DragFloat2("Scale", scale, 0.01f)) {
                     transform.scale = { scale[0], scale[1] };
+                    // Skala nie wpływa na fizykę w Box2D (bez przebudowy kształtu),
+                    // więc tu zmieniamy tylko grafikę.
                 }
 
                 float rotation = transform.rotation;
                 if (ImGui::DragFloat("Rotation", &rotation, 1.0f)) {
                     transform.rotation = rotation;
+                    changed = true;
+                }
+                
+                // --- SYNC DO BOX2D (Teleportacja) ---
+                if (changed && reg.all_of<PhysicsBodyComponent>(e)) {
+                    auto& bodyComp = reg.get<PhysicsBodyComponent>(e);
+                    if (b2Body_IsValid(bodyComp.bodyId)) {
+                        // Konwersja Deg -> Rad
+                        float angleRad = transform.rotation * (3.14159f / 180.0f);
+                        b2Vec2 b2Pos = { transform.position.x, transform.position.y };
+                        b2Rot b2Rotation = b2MakeRot(angleRad);
+
+                        // Hard Reset pozycji w Box2D
+                        b2Body_SetTransform(bodyComp.bodyId, b2Pos, b2Rotation);
+                        
+                        // Ważne: Obudź ciało, inaczej może zostać uśpione w starej pozycji
+                        b2Body_SetAwake(bodyComp.bodyId, true);
+                    }
                 }
             }
         });
