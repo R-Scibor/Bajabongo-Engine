@@ -62,12 +62,9 @@ namespace engine {
     }
 
     void SFMLInputManager::processEvent(const sf::Event& event) {
-        // The new design forwards single events here.
-        // For now, this class's responsibility is mainly to provide
-        // state polling functions like isKeyPressed, which don't need
-        // to react to specific events.
-        // The window closing event is handled in Application::processInput.
-        (void)event; // Mark event as unused for now.
+        // This manager relies on polling, but we keep this hook for future event-driven input handling.
+        // Currently, events are processed directly by the Application or forwarded to GuiService.
+        (void)event;
     }
 
     bool SFMLInputManager::isKeyPressed(engine::KeyCode key) const {
@@ -82,7 +79,7 @@ namespace engine {
     engine::Vector2i SFMLInputManager::getMousePosition() const {
         sf::Vector2i sfmlPosition = sf::Mouse::getPosition(m_window);
         engine::Vector2i position = { sfmlPosition.x, sfmlPosition.y };
-        m_logger->debug("Mouse position: ({}, {})", position.x, position.y);
+        m_logger->trace("Mouse position: ({}, {})", position.x, position.y);
         return position;
     }
 

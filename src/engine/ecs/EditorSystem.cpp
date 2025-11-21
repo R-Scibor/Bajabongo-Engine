@@ -11,6 +11,7 @@
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/core/IInputManager.hpp"
 #include "engine/rendering/IRenderer.hpp"
+#include "engine/rendering/Sprite.hpp"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -143,24 +144,131 @@ namespace engine {
                 if (m_logger) m_logger->info("Placement mode cancelled.");
             }
         }
+        // Selection Mode (Click to Select)
+        else {
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
+                auto mousePos = m_context->m_inputManager->getMousePosition();
+                Vector2f worldPos = { (float)mousePos.x, (float)mousePos.y };
+                if (m_context->m_renderer) {
+                    worldPos = m_context->m_renderer->screenToWorld(worldPos);
+                }
+
+                entt::entity pickedEntity = entt::null;
+
+                // 1. Physics Pick (Iterative Distance Check)
+                // Since b2World_QueryAABB might vary by version, we iterate physics bodies manually.
+                // This is safe and robust for an editor.
+                float bestDistSq = FLT_MAX;
+                
+                // Check Physics Bodies first (Primary)
+                {
+                    auto view = m_context->m_registry->view<PhysicsBodyComponent>();
+                    float thresholdSq = 30.0f * 30.0f;
+
+                    for (auto [entity, bodyComp] : view.each()) {
+                        if (b2Body_IsValid(bodyComp.bodyId)) {
+                            b2Vec2 b2Pos = b2Body_GetPosition(bodyComp.bodyId);
+                            
+                            float dx = b2Pos.x - worldPos.x;
+                            float dy = b2Pos.y - worldPos.y;
+                            float distSq = dx*dx + dy*dy;
+
+                            if (distSq < thresholdSq && distSq < bestDistSq) {
+                                bestDistSq = distSq;
+                                pickedEntity = entity;
+                            }
+                        }
+                    }
+                }
+
+                // 2. Graphics Pick (Fallback)
+                // If no physics body was close enough, try transforms
+                if (pickedEntity == entt::null) {
+                    auto view = m_context->m_registry->view<TransformComponent>();
+                    float thresholdSq = 30.0f * 30.0f; // 30 pixels threshold
+
+                    for (auto [entity, transform] : view.each()) {
+                        float dx = transform.position.x - worldPos.x;
+                        float dy = transform.position.y - worldPos.y;
+                        float distSq = dx*dx + dy*dy;
+
+                        // Scale threshold by entity scale to make picking larger objects easier
+                        float scaleFactor = std::max(std::abs(transform.scale.x), std::abs(transform.scale.y));
+                        float currentThresholdSq = thresholdSq * (scaleFactor * scaleFactor);
+
+                        if (distSq < currentThresholdSq && distSq < bestDistSq) {
+                            bestDistSq = distSq;
+                            pickedEntity = entity;
+                        }
+                    }
+                }
+
+                if (pickedEntity != entt::null) {
+                    m_selectedEntity = pickedEntity;
+                    if (m_logger) m_logger->info("Selected entity {}", static_cast<uint32_t>(m_selectedEntity));
+                } else {
+                    m_selectedEntity = entt::null;
+                }
+            }
+        }
     }
 
+    // Helper to check mouse placement
     void EditorSystem::Render() {
         // Visual Selection Indicator
         if (m_selectedEntity != entt::null && m_context->m_registry->valid(m_selectedEntity)) {
-            if (m_context->m_registry->all_of<TransformComponent>(m_selectedEntity)) {
+             // ... (Selection code from before is here, no changes needed to this block unless I accidentally replaced it)
+             // Wait, I'm replacing Render(), so I need to keep the selection indicator code.
+             if (m_context->m_registry->all_of<TransformComponent>(m_selectedEntity)) {
                 auto& transform = m_context->m_registry->get<TransformComponent>(m_selectedEntity);
                 
-                // Simple visual size estimation
-                // We don't have easy access to sprite size without potential compilation issues or complexity,
-                // so we'll just use a reasonable default scaled by the transform.
                 float baseSize = 25.0f;
                 float maxScale = std::max(std::abs(transform.scale.x), std::abs(transform.scale.y));
                 float radius = baseSize * maxScale;
 
-                // Draw a selection circle
                 if (m_context->m_renderer) {
                     m_context->m_renderer->drawCircle(transform.position, radius);
+                }
+            }
+        }
+
+        // Ghost Placement Preview
+        if (m_isPlacing && !m_placingArchetype.empty()) {
+            // Get mouse pos in world
+            auto mousePos = m_context->m_inputManager->getMousePosition();
+            Vector2f worldPos = { (float)mousePos.x, (float)mousePos.y };
+            if (m_context->m_renderer) {
+                worldPos = m_context->m_renderer->screenToWorld(worldPos);
+            }
+
+            // Get archetype data
+            if (m_context->m_archetypeManager) {
+                const auto* arch = m_context->m_archetypeManager->getArchetype(m_placingArchetype);
+                if (arch && arch->contains("Renderable")) {
+                    std::string spriteId = (*arch)["Renderable"].value("spriteId", "");
+                    
+                    if (!spriteId.empty() && m_context->m_spriteManager) {
+                         const auto* spriteDesc = m_context->m_spriteManager->getSprite(spriteId);
+                         if (spriteDesc) {
+                             // Create temp transform
+                             TransformComponent ghostTransform;
+                             ghostTransform.position = worldPos;
+                             ghostTransform.rotation = 0.f;
+                             ghostTransform.scale = {1.f, 1.f}; // Default, or load from archetype if present
+
+                             // Parse scale from archetype if exists
+                             if (arch->contains("Transform") && (*arch)["Transform"].contains("scale")) {
+                                 auto& s = (*arch)["Transform"]["scale"];
+                                 if (s.is_array() && s.size() >= 2) {
+                                     ghostTransform.scale = { s[0], s[1] };
+                                 }
+                             }
+
+                             // Draw ghost
+                             Color ghostColor = {255, 255, 255, 128}; // 50% alpha
+                             m_context->m_renderer->drawSprite(*spriteDesc, ghostTransform, ghostColor);
+                         }
+                    }
                 }
             }
         }
