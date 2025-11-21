@@ -4,6 +4,8 @@
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/core/ILogger.hpp"
+#include "engine/core/ILoggerManager.hpp"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -15,7 +17,10 @@ namespace engine {
     EditorSystem::EditorSystem(std::shared_ptr<EngineContext> context)
         : m_context(std::move(context))
     {
-        // Register TransformComponent Inspector
+        if (m_context->m_logManager) {
+            m_logger = m_context->m_logManager->GetLogger("EditorSystem");
+        }
+
         RegisterInspector<TransformComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& transform = reg.get<TransformComponent>(e);
@@ -37,7 +42,6 @@ namespace engine {
             }
         });
 
-        // Register RenderableComponent Inspector
         RegisterInspector<RenderableComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Renderable", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& renderable = reg.get<RenderableComponent>(e);
@@ -60,7 +64,6 @@ namespace engine {
             }
         });
 
-        // Register PhysicsBodyComponent Inspector
         RegisterInspector<PhysicsBodyComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Physics Body", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& body = reg.get<PhysicsBodyComponent>(e);
@@ -95,11 +98,9 @@ namespace engine {
         ImGui::Begin("Hierarchy");
 
         auto& registry = *m_context->m_registry;
-        // Iterate all entities using range-based loop on storage
+        
         for (auto entity : registry.storage<entt::entity>()) {
             std::string label = "Entity " + std::to_string(static_cast<uint32_t>(entity));
-            
-            // Optional: Display TagComponent if it existed (not in core yet per file list, but commonly used)
             
             ImGuiTreeNodeFlags flags = ((m_selectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
             
@@ -125,20 +126,7 @@ namespace engine {
             ImGui::Text("Entity ID: %d", static_cast<uint32_t>(m_selectedEntity));
             ImGui::Separator();
 
-            // Check all registered inspectors
-            // Note: In a real system we might want to iterate components attached to entity
-            // but entt doesn't support runtime reflection of all components easily without meta.
-            // So we iterate our supported inspector list and check if entity has them.
             for (auto& [type, inspector] : m_inspectors) {
-                // The inspector function itself checks for component presence (via the wrapper in RegisterInspector logic below)
-                // WAIT: The wrapper logic must be inside RegisterInspector implementation.
-                // But here I need to fix my RegisterInspector to include that check, 
-                // OR I do it here.
-                // My current RegisterInspector just stores the func.
-                // I need to fix RegisterInspector or the loop here.
-                
-                // Since I can't check 'type' against registry here easily without meta,
-                // I rely on the lambda wrapper approach.
                 inspector(registry, m_selectedEntity);
             }
 

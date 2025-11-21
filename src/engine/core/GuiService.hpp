@@ -3,13 +3,21 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
+#include <memory>
 
 namespace engine {
+
+    class ILogger;
 
     class GuiService {
     public:
         GuiService();
         ~GuiService();
+
+        /**
+         * @brief Sets the logger for this service.
+         */
+        void SetLogger(std::shared_ptr<ILogger> logger);
 
         /**
          * @brief Initializes the ImGui-SFML context.
@@ -40,6 +48,7 @@ namespace engine {
 
     private:
         bool m_initialized = false;
+        std::shared_ptr<ILogger> m_logger;
     };
 
 } // namespace engine

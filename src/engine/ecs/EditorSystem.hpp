@@ -9,6 +9,7 @@
 namespace engine {
 
     struct EngineContext;
+    class ILogger;
 
     class EditorSystem {
     public:
@@ -34,6 +35,7 @@ namespace engine {
         void DrawInspector();
 
         std::shared_ptr<EngineContext> m_context;
+        std::shared_ptr<ILogger> m_logger;
         entt::entity m_selectedEntity = entt::null;
         
         std::unordered_map<std::type_index, InspectorFunc> m_inspectors;

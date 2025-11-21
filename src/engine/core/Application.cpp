@@ -27,9 +27,10 @@ namespace engine {
         
         // Initialize GuiService
         m_context->m_guiService = std::make_shared<GuiService>();
+        m_context->m_guiService->SetLogger(m_context->m_logManager->GetLogger("GuiService"));
         
-        // We need the concrete sf::RenderWindow for ImGui-SFML
-        // This assumes we are using SFMLRenderer.
+        // We need the concrete sf::RenderWindow for ImGui-SFML.
+        // This assumes we are using SFMLRenderer, which is currently the only implementation.
         auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
         if (sfmlRenderer) {
             m_context->m_guiService->Init(sfmlRenderer->getNativeRenderWindow());
@@ -72,29 +73,30 @@ namespace engine {
             // 1. Process all pending inputs and forward to state manager
             processInput();
 
-            // 1b. Start Gui Frame
+            // 2. Start Gui Frame
+            // Ensure ImGui is updated once per frame with the current delta time.
             auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
             if (sfmlRenderer) {
                 m_context->m_guiService->BeginFrame(sfmlRenderer->getNativeRenderWindow(), sf::seconds(deltaTime));
             }
 
-            // 2. Run fixed-step updates for physics and game logic
+            // 3. Run fixed-step updates for physics and game logic
             while (m_accumulator >= m_fixedTimestep) {
                 fixedUpdate();
                 m_accumulator -= m_fixedTimestep;
             }
 
-            // 3. Run non-essential updates and process event dispatcher
+            // 4. Run non-essential updates and process event dispatcher
             update();
 
-            // 4. Process all queued state transitions at a safe point
+            // 5. Process all queued state transitions at a safe point
             m_stateManager->processTransitions();
 
             if (m_stateManager->isEmpty()) {
                 m_context->m_window->close();
             }
 
-            // 5. Render the final state stack
+            // 6. Render the final state stack
             render();
         }
 

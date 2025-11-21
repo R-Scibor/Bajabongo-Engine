@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "GuiService.hpp"
+#include "engine/core/ILogger.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -12,11 +13,18 @@ namespace engine {
         Shutdown();
     }
 
+    void GuiService::SetLogger(std::shared_ptr<ILogger> logger) {
+        m_logger = std::move(logger);
+    }
+
     void GuiService::Init(sf::RenderWindow& window) {
-        if (m_initialized) return;
+        if (m_initialized) {
+            if (m_logger) m_logger->warn("GuiService: Already initialized.");
+            return;
+        }
 
         if (!ImGui::SFML::Init(window)) {
-            // Handle error? For now just return or log if we had logger
+            if (m_logger) m_logger->error("GuiService: Failed to initialize ImGui-SFML.");
             return;
         }
         
@@ -25,12 +33,14 @@ namespace engine {
         // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         m_initialized = true;
+        if (m_logger) m_logger->info("GuiService: Initialized successfully.");
     }
 
     void GuiService::Shutdown() {
         if (m_initialized) {
             ImGui::SFML::Shutdown();
             m_initialized = false;
+            if (m_logger) m_logger->info("GuiService: Shut down.");
         }
     }
 

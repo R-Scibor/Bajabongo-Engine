@@ -32,46 +32,9 @@ namespace game {
         , m_animationSystem(context)
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
-        // Initialize EditorSystem. We need to pass a shared_ptr to context, but here we have reference.
-        // EngineContext is usually managed as shared_ptr in Application.
-        // We can create a shared_ptr alias if needed or EditorSystem should take reference?
-        // EditorSystem constructor takes shared_ptr.
-        // We don't have access to the shared_ptr that owns 'context' here directly passed in constructor.
-        // But wait, Application passes reference.
-        
-        // Workaround: Create a shared_ptr that doesn't own the pointer (aliasing) or change EditorSystem to take reference.
-        // Changing EditorSystem to take shared_ptr was my design decision earlier.
-        // But checking Application.cpp:
-        // Application(std::shared_ptr<EngineContext> context...)
-        // It passes *m_context to states.
-        
-        // Let's fix EditorSystem to take reference or pointer, or just use the raw pointer since State outlives it?
-        // No, EditorSystem stores m_context.
-        
-        // Ideally, GameplayState should get shared_ptr<EngineContext>.
-        // But IGameState interface takes EngineContext&.
-        
-        // I will change EditorSystem to take shared_ptr, but I need to get it.
-        // Actually, for now I can just store the reference or use a null deleter shared_ptr if I really want to stick to shared_ptr,
-        // but that's risky if context dies (which it shouldn't).
-        
-        // Better: I'll modify EditorSystem to take shared_ptr, but since I don't have it here,
-        // I'll construct it with a trick or change EditorSystem to take raw pointer/reference.
-        // Given the architecture, EngineContext is a singleton-like struct passed around.
-        // I'll make a null-deleter shared_ptr for now as a quick fix, OR better:
-        // Since I am in Architect/Code mode, I can change EditorSystem.hpp to take weak_ptr or reference.
-        
-        // Actually, let's look at how other systems work.
-        // PhysicsBodyCreationSystem takes reference.
-        // EditorSystem should probably take reference too.
-        // I'll check EditorSystem.hpp again.
-        // "explicit EditorSystem(std::shared_ptr<EngineContext> context);"
-        
-        // I will change EditorSystem to take std::shared_ptr in the implementation,
-        // BUT I'll pass a shared_ptr created from the reference with a null deleter to avoid double free.
-        // auto sharedContext = std::shared_ptr<engine::EngineContext>(&context, [](engine::EngineContext*){});
-        // This is safe as long as GameplayState lives shorter than Application (which it does).
-        
+
+        // Note: Create a non-owning shared_ptr for EditorSystem since it expects shared_ptr<EngineContext>.
+        // This is safe because GameplayState and EditorSystem are owned by Application which owns the Context.
         auto sharedContext = std::shared_ptr<engine::EngineContext>(&context, [](engine::EngineContext*){});
         m_editorSystem = std::make_unique<engine::EditorSystem>(sharedContext);
     }
@@ -209,7 +172,8 @@ namespace game {
         m_renderSystem.update();
 
         if (m_editorSystem) {
-            m_editorSystem->Update(0.0f); // dt not strictly needed for ImGui draw calls if we don't animate UI manually
+            // DT is currently not used for UI logic but passed for API consistency
+            m_editorSystem->Update(0.0f);
             m_editorSystem->Render();
         }
     }
