@@ -33,11 +33,17 @@ namespace engine {
     private:
         void DrawHierarchy();
         void DrawInspector();
+        void DrawSpawner();
+        void DrawSettings();
 
         std::shared_ptr<EngineContext> m_context;
         std::shared_ptr<ILogger> m_logger;
         entt::entity m_selectedEntity = entt::null;
         
+        // Spawning State
+        bool m_isPlacing = false;
+        std::string m_placingArchetype;
+
         std::unordered_map<std::type_index, InspectorFunc> m_inspectors;
     };
 

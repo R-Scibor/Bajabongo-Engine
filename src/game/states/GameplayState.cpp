@@ -161,14 +161,16 @@ namespace game {
     }
 
     void GameplayState::update(engine::EngineContext& context, float fixedDeltaTime) {
-        m_physicsBodyCreationSystem.update();
-        b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
-        m_physicsSyncSystem.update();
-        m_animationSystem.update(fixedDeltaTime);
+        if (!context.debugFlags.pauseGame) {
+            m_physicsBodyCreationSystem.update();
+            b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
+            m_physicsSyncSystem.update();
+            m_animationSystem.update(fixedDeltaTime);
+        }
     }
 
     void GameplayState::render(engine::EngineContext& context) {
-        m_renderSystem.setDebugDraw(true);
+        m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
         m_renderSystem.update();
 
         if (m_editorSystem) {

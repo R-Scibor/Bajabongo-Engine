@@ -6,6 +6,9 @@
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
+#include "engine/ecs/ArchetypeManager.hpp"
+#include "engine/ecs/EntityFactory.hpp"
+#include "engine/core/IInputManager.hpp"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -110,6 +113,29 @@ namespace engine {
     void EditorSystem::Update(float dt) {
         DrawHierarchy();
         DrawInspector();
+        DrawSpawner();
+        DrawSettings();
+
+        // Logic for Placement Mode
+        if (m_isPlacing && !m_placingArchetype.empty()) {
+            // Left Click to Spawn (if mouse is not hovering ImGui window)
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
+                auto mousePos = m_context->m_inputManager->getMousePosition();
+                Vector2f spawnPos = { (float)mousePos.x, (float)mousePos.y };
+                
+                if (m_context->m_entityFactory) {
+                    m_context->m_entityFactory->spawn(m_placingArchetype, spawnPos);
+                    if (m_logger) m_logger->info("Spawned archetype '{}' at ({}, {})", m_placingArchetype, spawnPos.x, spawnPos.y);
+                }
+            }
+
+            // Right Click to Cancel
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+                m_isPlacing = false;
+                m_placingArchetype.clear();
+                if (m_logger) m_logger->info("Placement mode cancelled.");
+            }
+        }
     }
 
     void EditorSystem::Render() {
@@ -156,6 +182,67 @@ namespace engine {
             ImGui::Text("No entity selected.");
         }
 
+        ImGui::End();
+    }
+
+    void EditorSystem::DrawSpawner() {
+        ImGui::Begin("Asset Browser");
+
+        if (ImGui::CollapsingHeader("Archetypes", ImGuiTreeNodeFlags_DefaultOpen)) {
+            static int selectedIndex = -1;
+            static std::string selectedArchetype;
+            
+            if (m_context->m_archetypeManager) {
+                auto& archetypes = m_context->m_archetypeManager->getAllArchetypes();
+                
+                // Lista wyboru
+                if (ImGui::BeginListBox("##archetypes")) {
+                    int i = 0;
+                    for (const auto& [name, data] : archetypes) {
+                        const bool is_selected = (selectedIndex == i);
+                        if (ImGui::Selectable(name.c_str(), is_selected)) {
+                            selectedIndex = i;
+                            selectedArchetype = name;
+                        }
+                        if (is_selected) ImGui::SetItemDefaultFocus();
+                        i++;
+                    }
+                    ImGui::EndListBox();
+                }
+
+                // Przycisk Spawn Mode
+                ImGui::Spacing();
+                if (!selectedArchetype.empty()) {
+                    bool isCurrent = (m_isPlacing && m_placingArchetype == selectedArchetype);
+                    
+                    std::string btnLabel = isCurrent ? "Stop Placing" : "Start Placing";
+                    
+                    if (ImGui::Button(btnLabel.c_str(), ImVec2(-1, 0))) {
+                        if (isCurrent) {
+                            m_isPlacing = false;
+                            m_placingArchetype.clear();
+                        } else {
+                            m_isPlacing = true;
+                            m_placingArchetype = selectedArchetype;
+                            if (m_logger) m_logger->info("Placement mode started for '{}'", selectedArchetype);
+                        }
+                    }
+                    
+                    if (m_isPlacing) {
+                        ImGui::TextColored({0, 1, 0, 1}, "Placement Active! Left click to spawn, Right click to cancel.");
+                    }
+                }
+            }
+        }
+        ImGui::End();
+    }
+
+    void EditorSystem::DrawSettings() {
+        ImGui::Begin("Debug Settings");
+        ImGui::Checkbox("Show Physics Wireframe", &m_context->debugFlags.showPhysics);
+        ImGui::Checkbox("Show Hitboxes", &m_context->debugFlags.showHitboxes);
+        ImGui::Checkbox("Pause Simulation", &m_context->debugFlags.pauseGame);
+        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::End();
     }
 

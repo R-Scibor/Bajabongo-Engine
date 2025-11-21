@@ -17,10 +17,18 @@ namespace engine {
     class EntityFactory;
     class GuiService;
 
+    struct DebugSettings {
+        bool showPhysics = false;
+        bool showHitboxes = false;
+        bool pauseGame = false;
+    };
+
     /**
      * @brief A central DI container for all major engine services.
      */
     struct EngineContext {
+        DebugSettings debugFlags;
+
         // --- Core Services ---
         std::shared_ptr<IWindow> m_window;
         std::shared_ptr<IRenderer> m_renderer;

@@ -15,6 +15,10 @@ namespace engine {
         bool loadArchetypes(const std::string& filepath);
         const nlohmann::json* getArchetype(const std::string& id) const;
 
+        const std::unordered_map<std::string, nlohmann::json>& getAllArchetypes() const {
+            return m_archetypes;
+        }
+
     private:
         std::unordered_map<std::string, nlohmann::json> m_archetypes;
         std::shared_ptr<ILogger> m_logger;
