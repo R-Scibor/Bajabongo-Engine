@@ -1,0 +1,52 @@
+{
+  "wooden_crate": {
+    "Transform": {
+      "position": [0.0, 0.0],
+      "rotation": 0.0
+    },
+    "Renderable": {
+      "spriteId": "box_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [32.0, 32.0],
+      "density": 1.0,
+      "isSensor": false
+    }
+  },
+  "heavy_crate": {
+    "Transform": {
+      "position": [0.0, 0.0],
+      "rotation": 0.0
+    },
+    "Renderable": {
+      "spriteId": "box_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [32.0, 32.0],
+      "density": 20.0,
+      "isSensor": false
+    }
+  },
+  "player": {
+    "Transform": {
+      "position": [100.0, 100.0]
+    },
+    "Renderable": {
+      "spriteId": "player_idle",
+      "layer": 2
+    },
+    "Animation": {
+      "defaultClip": "idle",
+      "playing": true
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [20.0, 40.0],
+      "fixedRotation": true
+    }
+  }
+}

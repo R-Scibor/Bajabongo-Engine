@@ -183,6 +183,8 @@
     <ClInclude Include="rendering\SFMLRenderer.hpp" />
     <ClInclude Include="rendering\SFMLResourceManager.hpp" />
     <ClInclude Include="rendering\Sprite.hpp" />
+    <ClInclude Include="ecs\ArchetypeManager.hpp" />
+    <ClInclude Include="ecs\EntityFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\Application.cpp" />
@@ -202,6 +204,8 @@
     <ClCompile Include="rendering\RenderSystem.cpp" />
     <ClCompile Include="rendering\SFMLRenderer.cpp" />
     <ClCompile Include="rendering\SFMLResourceManager.cpp" />
+    <ClCompile Include="ecs\ArchetypeManager.cpp" />
+    <ClCompile Include="ecs\EntityFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

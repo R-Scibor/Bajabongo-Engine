@@ -5,6 +5,7 @@
 	"sfml",
 	"spdlog",
 	"entt",
-    "box2d"
+    "box2d",
+	"nlohmann-json"
 	]
 }

@@ -36,6 +36,7 @@ namespace engine
             b2BodyDef bodyDef = b2DefaultBodyDef();
             bodyDef.type = pending.isStatic ? b2_staticBody : b2_dynamicBody;
             bodyDef.position = { pending.position.x, pending.position.y };
+            bodyDef.fixedRotation = pending.fixedRotation;
 
             b2BodyId bodyId = b2CreateBody(m_worldId, &bodyDef);
             if (!b2Body_IsValid(bodyId)) {
@@ -50,6 +51,7 @@ namespace engine
             b2Polygon box = b2MakeBox(pending.size.x / 2.0f, pending.size.y / 2.0f);
             b2ShapeDef shapeDef = b2DefaultShapeDef();
             shapeDef.density = pending.density;
+            shapeDef.isSensor = pending.isSensor;
             b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &box);
 
             if (!b2Shape_IsValid(shapeId)) {
