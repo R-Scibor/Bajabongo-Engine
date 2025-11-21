@@ -118,15 +118,14 @@ namespace engine {
             bool isSensor = data.value("isSensor", false);
             bool fixedRotation = data.value("fixedRotation", false);
 
-            registry.emplace<PendingPhysicsBodyComponent>(
-                entity,
-                position,
-                size,
-                isStatic,
-                density,
-                isSensor,
-                fixedRotation
-            );
+            registry.emplace<PendingPhysicsBodyComponent>(entity, PendingPhysicsBodyComponent{
+                .position = position,
+                .size = size,
+                .isStatic = isStatic,
+                .density = density,
+                .isSensor = isSensor,
+                .fixedRotation = fixedRotation
+            });
         });
 
         // --- Animation ---
