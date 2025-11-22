@@ -74,7 +74,48 @@ namespace engine {
             if (m_resourceManager) {
                 m_resourceManager->loadTexture(id, path);
             }
+
+            // Checkpoint 3.2: Connect to Main Loop
+            if (textureJson.contains("sprites") && textureJson["sprites"].is_array()) {
+                for (const auto& spriteJson : textureJson["sprites"]) {
+                    loadSprite(id, spriteJson);
+                }
+            }
         }
+    }
+
+    // Checkpoint 3.1: Implement parseSprite Helper
+    void AssetManifestLoader::loadSprite(const std::string& textureId, const nlohmann::json& spriteJson) {
+        if (!m_spriteManager) return;
+
+        if (!spriteJson.contains("id") || !spriteJson.contains("region") || !spriteJson.contains("origin")) {
+            if (m_logger) {
+                m_logger->warn("AssetManifestLoader: Invalid sprite definition in texture '{}'", textureId);
+            }
+            return;
+        }
+
+        std::string spriteId = spriteJson["id"];
+        auto region = spriteJson["region"]; // array of 4 ints
+        auto origin = spriteJson["origin"]; // array of 2 floats
+
+        if (!region.is_array() || region.size() != 4 || !origin.is_array() || origin.size() != 2) {
+             if (m_logger) {
+                m_logger->warn("AssetManifestLoader: Invalid region/origin format for sprite '{}'", spriteId);
+            }
+            return;
+        }
+
+        engine::SpriteDesc desc;
+        desc.textureId = textureId;
+        // SFML 3 requires Vector2i for position and size
+        desc.uvRect = sf::IntRect(
+            sf::Vector2i(region[0].get<int>(), region[1].get<int>()),
+            sf::Vector2i(region[2].get<int>(), region[3].get<int>())
+        );
+        desc.origin = sf::Vector2f(origin[0].get<float>(), origin[1].get<float>());
+
+        m_spriteManager->registerSprite(spriteId, desc);
     }
 
 } // namespace engine

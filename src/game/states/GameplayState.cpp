@@ -58,41 +58,6 @@ namespace game {
              m_logger->warn("Missing dependencies for AssetManifestLoader. Skipping manifest loading.");
         }
 
-        if (context.m_resourceManager) {
-            context.m_resourceManager->loadTexture("box_texture", "../../assets/textures/box.png");
-            context.m_resourceManager->loadTexture("ground_texture", "../../assets/textures/ground.png");
-            context.m_resourceManager->loadTexture("testanim_texture", "../../assets/textures/testanim.png");
-        } else if (m_logger) {
-             m_logger->error("ResourceManager is missing in EngineContext! Textures will not be loaded.");
-        }
-
-        if (context.m_spriteManager) {
-            // Register "box_sprite"
-            engine::SpriteDesc boxSprite;
-            boxSprite.textureId = "box_texture";
-            boxSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(64, 64));
-            boxSprite.origin = sf::Vector2f(16.f, 32.f);
-            context.m_spriteManager->registerSprite("box_sprite", boxSprite);
-
-            // Register "ground_sprite"
-            engine::SpriteDesc groundSprite;
-            groundSprite.textureId = "ground_texture";
-            groundSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
-            groundSprite.origin = sf::Vector2f(16.f, 32.f);
-            context.m_spriteManager->registerSprite("ground_sprite", groundSprite);
-
-            // Register 10 animation frames (each frame is 600x250, stacked vertically)
-            for (int i = 0; i < 10; ++i) {
-                engine::SpriteDesc frameSprite;
-                frameSprite.textureId = "testanim_texture";
-                frameSprite.uvRect = sf::IntRect(sf::Vector2i(0, i * 250), sf::Vector2i(600, 250));
-                frameSprite.origin = sf::Vector2f(300.f, 250.f);
-                context.m_spriteManager->registerSprite("testanim_frame_" + std::to_string(i), frameSprite);
-            }
-        } else if (m_logger) {
-            m_logger->error("SpriteManager is missing in EngineContext! Sprites cannot be registered.");
-        }
-
         // --- Animation Setup ---
         if (context.m_animationLibrary) {
             engine::AnimationClip testAnimClip;

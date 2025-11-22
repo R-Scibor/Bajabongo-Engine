@@ -2,41 +2,36 @@
     "textures": [
         {
             "id": "box_texture",
-            "path": "../../assets/textures/box.png"
+            "path": "../../assets/textures/box.png",
+            "sprites": [
+                {
+                    "id": "box_sprite",
+                    "region": [0, 0, 32, 32],
+                    "origin": [16.0, 32.0]
+                }
+            ]
         },
         {
             "id": "ground_texture",
-            "path": "../../assets/textures/ground.png"
+            "path": "../../assets/textures/ground.png",
+            "sprites": [
+                {
+                    "id": "ground_sprite",
+                    "region": [0, 0, 32, 32],
+                    "origin": [16.0, 32.0]
+                }
+            ]
         },
         {
             "id": "testanim_texture",
-            "path": "../../assets/textures/testanim.png"
-        }
-    ],
-    "sprites": [
-        {
-            "id": "box_sprite",
-            "textureId": "box_texture",
-            "x": 0,
-            "y": 0,
-            "width": 64,
-            "height": 64
-        },
-        {
-            "id": "ground_sprite",
-            "textureId": "ground_texture",
-            "x": 0,
-            "y": 0,
-            "width": 32,
-            "height": 32
-        },
-        {
-            "id": "testanim_frame_0",
-            "textureId": "testanim_texture",
-            "x": 0,
-            "y": 0,
-            "width": 600,
-            "height": 250
+            "path": "../../assets/textures/testanim.png",
+            "sprites": [
+                {
+                    "id": "testanim_frame_0",
+                    "region": [0, 0, 600, 250],
+                    "origin": [300.0, 250.0]
+                }
+            ]
         }
     ],
     "animations": [
