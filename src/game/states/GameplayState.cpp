@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "GameplayState.hpp"
+#include "engine/assets/AssetManifestLoader.hpp"
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -43,6 +44,20 @@ namespace game {
         if (m_logger) m_logger->info("Entering GameplayState.");
         
         // --- Phase 5A: Load Resources & Register Sprites ---
+        
+        // Test 2.1: Instantiate AssetManifestLoader and load resources
+        if (context.m_resourceManager && context.m_spriteManager && context.m_animationLibrary) {
+            engine::AssetManifestLoader loader(
+                context.m_resourceManager,
+                context.m_spriteManager,
+                context.m_animationLibrary,
+                m_logger
+            );
+            loader.load("../../assets/data/resources.json");
+        } else if (m_logger) {
+             m_logger->warn("Missing dependencies for AssetManifestLoader. Skipping manifest loading.");
+        }
+
         if (context.m_resourceManager) {
             context.m_resourceManager->loadTexture("box_texture", "../../assets/textures/box.png");
             context.m_resourceManager->loadTexture("ground_texture", "../../assets/textures/ground.png");
@@ -55,7 +70,7 @@ namespace game {
             // Register "box_sprite"
             engine::SpriteDesc boxSprite;
             boxSprite.textureId = "box_texture";
-            boxSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(32, 32));
+            boxSprite.uvRect = sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(64, 64));
             boxSprite.origin = sf::Vector2f(16.f, 32.f);
             context.m_spriteManager->registerSprite("box_sprite", boxSprite);
 

@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="assets\AssetManifestLoader.hpp" />
     <ClInclude Include="components\AnimationComponent.hpp" />
     <ClInclude Include="components\PendingPhysicsBodyComponent.hpp" />
     <ClInclude Include="components\PhysicsBodyComponent.hpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="ecs\EntityFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="assets\AssetManifestLoader.cpp" />
     <ClCompile Include="core\Application.cpp" />
     <ClCompile Include="core\GuiService.cpp" />
     <ClCompile Include="core\StateManager.cpp" />

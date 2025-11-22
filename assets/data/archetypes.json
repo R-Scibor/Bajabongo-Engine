@@ -9,7 +9,7 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [32.0, 32.0],
+      "size": [64.0, 64.0],
       "density": 1.0,
       "isSensor": false
     }

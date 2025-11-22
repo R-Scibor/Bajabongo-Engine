@@ -21,6 +21,9 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="assets\AssetManifestLoader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="core\IWindow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -129,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="assets\AssetManifestLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rendering\SFMLRenderer.cpp">
