@@ -8,6 +8,7 @@
 #include "engine/rendering/SFMLResourceManager.hpp"
 #include "engine/rendering/Sprite.hpp"
 #include "engine/rendering/AnimationClip.hpp"
+#include "engine/assets/AssetManifestLoader.hpp"
 #include "engine/input/SFMLInputManager.hpp"
 #include "engine/logging/SpdlogManager.hpp"
 #include "engine/core/ILogger.hpp"
@@ -56,6 +57,14 @@ int main() {
         auto animationLibrary = std::make_shared<engine::AnimationLibrary>();
         gameLogger->info("Animation Library created.");
 
+        auto assetLoader = std::make_shared<engine::AssetManifestLoader>(
+            resourceManager,
+            spriteManager,
+            animationLibrary,
+            logManager->GetLogger("AssetLoader")
+        );
+        gameLogger->info("Asset Manifest Loader created.");
+
         auto inputManager = std::make_shared<engine::SFMLInputManager>(
             *logManager,
             renderer->getNativeRenderWindow()
@@ -72,7 +81,16 @@ int main() {
         context->m_resourceManager = resourceManager;
         context->m_spriteManager = spriteManager;
         context->m_animationLibrary = animationLibrary;
+        context->m_assetLoader = assetLoader;
         context->m_dispatcher   = std::make_shared<entt::dispatcher>();
+
+        // Phase 5.2: Load Assets on Startup
+        if (assetLoader->load("../../assets/data/resources.json")) {
+             gameLogger->info("Assets loaded successfully from manifest.");
+        } else {
+             gameLogger->error("Failed to load assets from manifest!");
+             return 1; // Critical failure
+        }
 
         // Create the state manager, which requires a reference to the context
         auto stateManager = std::make_unique<engine::StateManager>(*context);

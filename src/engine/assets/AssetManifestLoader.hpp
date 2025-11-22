@@ -46,6 +46,7 @@ namespace engine {
         // Helper methods for different sections
         void loadTextures(const nlohmann::json& j);
         void loadSprite(const std::string& textureId, const nlohmann::json& spriteJson);
+        void loadAnimation(const std::string& textureId, const nlohmann::json& animJson);
     };
 
 } // namespace engine

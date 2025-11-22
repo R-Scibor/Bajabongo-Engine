@@ -34,7 +34,7 @@
       "rotation": 0.0
     },
     "Renderable": {
-      "spriteId": "testanim_frame_0",
+      "spriteId": "test_anim_0",
       "layer": 2
     },
     "Animation": {

@@ -24,27 +24,19 @@
         },
         {
             "id": "testanim_texture",
-            "path": "../../assets/textures/testanim.png",
-            "sprites": [
+            "path": "../../assets/textures/test_anim.png",
+            "animations": [
                 {
-                    "id": "testanim_frame_0",
-                    "region": [0, 0, 600, 250],
-                    "origin": [300.0, 250.0]
+                    "id": "test_anim",
+                    "frameStart": [0, 0],
+                    "frameSize": [128, 128],
+                    "frameCount": 8,
+                    "columns": 8,
+                    "duration": 0.1,
+                    "loop": true
                 }
             ]
         }
     ],
-    "animations": [
-        {
-            "id": "test_anim",
-            "textureId": "testanim_texture",
-            "startX": 0,
-            "startY": 0,
-            "frameWidth": 600,
-            "frameHeight": 250,
-            "frameCount": 10,
-            "frameDuration": 0.1,
-            "loop": true
-        }
-    ]
+    "animations": []
 }

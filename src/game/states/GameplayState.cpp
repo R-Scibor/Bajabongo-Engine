@@ -1,6 +1,5 @@
 #include "engine/pch.h"
 #include "GameplayState.hpp"
-#include "engine/assets/AssetManifestLoader.hpp"
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -43,36 +42,6 @@ namespace game {
     void GameplayState::onEnter(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Entering GameplayState.");
         
-        // --- Phase 5A: Load Resources & Register Sprites ---
-        
-        // Test 2.1: Instantiate AssetManifestLoader and load resources
-        if (context.m_resourceManager && context.m_spriteManager && context.m_animationLibrary) {
-            engine::AssetManifestLoader loader(
-                context.m_resourceManager,
-                context.m_spriteManager,
-                context.m_animationLibrary,
-                m_logger
-            );
-            loader.load("../../assets/data/resources.json");
-        } else if (m_logger) {
-             m_logger->warn("Missing dependencies for AssetManifestLoader. Skipping manifest loading.");
-        }
-
-        // --- Animation Setup ---
-        if (context.m_animationLibrary) {
-            engine::AnimationClip testAnimClip;
-            testAnimClip.name = "test_anim";
-            testAnimClip.spriteIds = {
-                "testanim_frame_0", "testanim_frame_1", "testanim_frame_2", "testanim_frame_3", "testanim_frame_4",
-                "testanim_frame_5", "testanim_frame_6", "testanim_frame_7", "testanim_frame_8", "testanim_frame_9"
-            };
-            testAnimClip.frameDuration = 0.1f;
-            testAnimClip.loop = true;
-            context.m_animationLibrary->registerClip("test_anim", testAnimClip);
-        } else if (m_logger) {
-            m_logger->error("AnimationLibrary is missing in EngineContext! Animations cannot be registered.");
-        }
-
         // --- Phase 6: Data-Driven Systems Init ---
         if (!context.m_archetypeManager) {
             context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>(context.m_logManager);

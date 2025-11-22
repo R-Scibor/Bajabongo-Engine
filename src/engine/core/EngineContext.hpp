@@ -13,6 +13,7 @@ namespace engine {
     class IResourceManager;
     class SpriteManager;
     class AnimationLibrary;
+    class AssetManifestLoader;
     class ArchetypeManager;
     class EntityFactory;
     class GuiService;
@@ -50,6 +51,7 @@ namespace engine {
         std::shared_ptr<IResourceManager> m_resourceManager;
         std::shared_ptr<SpriteManager> m_spriteManager;
         std::shared_ptr<AnimationLibrary> m_animationLibrary;
+        std::shared_ptr<AssetManifestLoader> m_assetLoader;
         
         // --- Phase 6: Data-Driven Systems ---
         std::shared_ptr<ArchetypeManager> m_archetypeManager;

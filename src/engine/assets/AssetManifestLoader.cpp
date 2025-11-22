@@ -81,6 +81,13 @@ namespace engine {
                     loadSprite(id, spriteJson);
                 }
             }
+
+            // Checkpoint 4.1: Connect Animation Loop
+            if (textureJson.contains("animations") && textureJson["animations"].is_array()) {
+                for (const auto& animJson : textureJson["animations"]) {
+                    loadAnimation(id, animJson);
+                }
+            }
         }
     }
 
@@ -116,6 +123,62 @@ namespace engine {
         desc.origin = sf::Vector2f(origin[0].get<float>(), origin[1].get<float>());
 
         m_spriteManager->registerSprite(spriteId, desc);
+    }
+
+    void AssetManifestLoader::loadAnimation(const std::string& textureId, const nlohmann::json& animJson) {
+        if (!m_spriteManager || !m_animationLibrary) return;
+
+        if (!animJson.contains("id") || !animJson.contains("frameStart") ||
+            !animJson.contains("frameSize") || !animJson.contains("frameCount") ||
+            !animJson.contains("duration")) {
+             if (m_logger) {
+                m_logger->warn("AssetManifestLoader: Invalid animation definition in texture '{}'", textureId);
+            }
+            return;
+        }
+
+        std::string animId = animJson["id"];
+        auto frameStart = animJson["frameStart"]; // [x, y]
+        auto frameSize = animJson["frameSize"];   // [w, h]
+        int frameCount = animJson["frameCount"];
+        float duration = animJson["duration"];
+        bool loop = animJson.value("loop", false);
+        int columns = animJson.value("columns", frameCount); // Default to horizontal strip if 0 or missing
+
+        if (columns <= 0) columns = frameCount; // Safety fallback
+
+        std::vector<std::string> spriteIds;
+        spriteIds.reserve(frameCount);
+
+        // Checkpoint 4.2: The Slicing Loop
+        for (int i = 0; i < frameCount; ++i) {
+            int col = i % columns;
+            int row = i / columns;
+
+            int x = frameStart[0].get<int>() + (col * frameSize[0].get<int>());
+            int y = frameStart[1].get<int>() + (row * frameSize[1].get<int>());
+            int w = frameSize[0].get<int>();
+            int h = frameSize[1].get<int>();
+
+            std::string frameId = animId + "_" + std::to_string(i);
+
+            engine::SpriteDesc desc;
+            desc.textureId = textureId;
+            desc.uvRect = sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(w, h));
+            desc.origin = sf::Vector2f(w * 0.5f, h * 1.0f); // Default pivot: Bottom Center
+
+            m_spriteManager->registerSprite(frameId, desc);
+            spriteIds.push_back(frameId);
+        }
+
+        // Checkpoint 4.3: Clip Registration
+        engine::AnimationClip clip;
+        clip.name = animId;
+        clip.loop = loop;
+        clip.frameDuration = duration;
+        clip.spriteIds = spriteIds;
+
+        m_animationLibrary->registerClip(animId, clip);
     }
 
 } // namespace engine
