@@ -10,7 +10,9 @@
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 #include "engine/events/StateEvents.hpp"
+#include "engine/events/PhysicsEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
+#include "engine/physics/PhysicsEventSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
 #include "engine/rendering/Sprite.hpp"
@@ -27,6 +29,7 @@ namespace game {
 
     GameplayState::GameplayState(engine::EngineContext& context)
         : m_physicsBodyCreationSystem(context)
+        , m_physicsEventSystem(context)
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
         , m_animationSystem(context)
@@ -61,7 +64,8 @@ namespace game {
         // Spawn entities
         if (context.m_entityFactory) {
             // Player (using testanim_frame_0 and test_anim via JSON update)
-            context.m_entityFactory->spawn("player", {400.f, 300.f});
+            // Spawn player above the sensor to force collision
+            context.m_entityFactory->spawn("player", {500.f, 100.f});
 
             // Boxes
             context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});
@@ -89,6 +93,26 @@ namespace game {
             registry.on_destroy<engine::PhysicsBodyComponent>()
                     .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
         if (m_logger) m_logger->info("Physics cleanup hook registered.");
+
+        // Test: Listen for Contact Events
+        context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().connect<&GameplayState::onContactBegin>(this);
+        context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&GameplayState::onSensorBegin>(this);
+
+        // Test: Spawn a Sensor Trigger
+        // We'll put it near the player so they can walk into it.
+        auto trigger = registry.create();
+        registry.emplace<engine::PendingPhysicsBodyComponent>(
+            trigger,
+            engine::Vector2f{ 500.f, 300.f }, // Right of the player
+            engine::Vector2f{ 50.f, 50.f },
+            true, // static
+            0.0f,
+            true // isSensor
+        );
+        
+        // Add a visual so we can see it
+        registry.emplace<engine::TransformComponent>(trigger, engine::Vector2f{500.f, 300.f});
+        registry.emplace<engine::RenderableComponent>(trigger, "box_sprite", 1, sf::Color::Green);
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {
@@ -98,6 +122,10 @@ namespace game {
             context.m_registry->on_destroy<engine::PhysicsBodyComponent>().disconnect(this);
             if (m_logger) m_logger->info("Physics cleanup hook disconnected.");
         }
+        
+        // Clean up test listeners
+        context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().disconnect(this);
+        context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().disconnect(this);
     }
 
     void GameplayState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
@@ -116,6 +144,8 @@ namespace game {
         if (!context.debugFlags.pauseGame) {
             m_physicsBodyCreationSystem.update();
             b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
+            m_physicsEventSystem.update();
+            context.m_dispatcher->update();
             m_physicsSyncSystem.update();
             m_animationSystem.update(fixedDeltaTime);
         }
@@ -141,6 +171,26 @@ namespace game {
             b2DestroyBody(bodyComp.bodyId);
         } else {
             m_logger->warn("Attempted to destroy an invalid physics body for entity {}", static_cast<uint32_t>(entity));
+        }
+    }
+
+    void GameplayState::onContactBegin(const engine::PhysicsContactBeginEvent& event)
+    {
+        if (m_logger)
+        {
+            m_logger->debug("Contact Begin: Entity {} -> Entity {}",
+                entt::to_integral(event.entityA),
+                entt::to_integral(event.entityB));
+        }
+    }
+
+    void GameplayState::onSensorBegin(const engine::PhysicsSensorBeginEvent& event)
+    {
+        if (m_logger)
+        {
+            m_logger->info("SENSOR ACTIVATED: Entity {} entered Sensor {}",
+                entt::to_integral(event.visitorEntity),
+                entt::to_integral(event.sensorEntity));
         }
     }
 

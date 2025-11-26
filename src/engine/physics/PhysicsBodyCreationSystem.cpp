@@ -52,6 +52,17 @@ namespace engine
             b2ShapeDef shapeDef = b2DefaultShapeDef();
             shapeDef.density = pending.density;
             shapeDef.isSensor = pending.isSensor;
+            
+            // Enable events so we can poll them later
+            // Enable sensor events for all shapes to ensure reliable detection
+            shapeDef.enableSensorEvents = true;
+            
+            if (pending.isSensor) {
+                m_logger->debug("Enabling SENSOR events for entity {}", entt::to_integral(entity));
+            } else {
+                shapeDef.enableContactEvents = true;
+            }
+
             b2ShapeId shapeId = b2CreatePolygonShape(bodyId, &shapeDef, &box);
 
             if (!b2Shape_IsValid(shapeId)) {

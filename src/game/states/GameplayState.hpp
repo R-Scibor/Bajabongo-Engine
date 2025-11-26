@@ -1,8 +1,10 @@
 #pragma once
 
 #include "engine/core/IGameState.hpp"
+#include "engine/events/PhysicsEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
+#include "engine/physics/PhysicsEventSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
 #include "engine/rendering/AnimationSystem.hpp"
 #include "engine/ecs/EditorSystem.hpp"
@@ -34,8 +36,11 @@ namespace game {
 
     private:
         void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
+        void onContactBegin(const engine::PhysicsContactBeginEvent& event);
+        void onSensorBegin(const engine::PhysicsSensorBeginEvent& event);
 
         engine::PhysicsBodyCreationSystem m_physicsBodyCreationSystem;
+        engine::PhysicsEventSystem m_physicsEventSystem;
         engine::PhysicsSyncSystem m_physicsSyncSystem;
         engine::RenderSystem m_renderSystem;
         engine::AnimationSystem m_animationSystem;

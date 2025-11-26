@@ -70,6 +70,10 @@ namespace engine
     {
         b2SensorEvents events = b2World_GetSensorEvents(m_worldId);
 
+        if (events.beginCount > 0) {
+             m_logger->debug("PhysicsEventSystem: Found {} SENSOR begin events", events.beginCount);
+        }
+
         for (int i = 0; i < events.beginCount; ++i)
         {
             b2SensorBeginTouchEvent* beginEvent = events.beginEvents + i;
