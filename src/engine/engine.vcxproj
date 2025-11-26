@@ -152,6 +152,8 @@
   <ItemGroup>
     <ClInclude Include="assets\AssetManifestLoader.hpp" />
     <ClInclude Include="components\AnimationComponent.hpp" />
+    <ClInclude Include="components\ChildComponent.hpp" />
+    <ClInclude Include="components\ParentComponent.hpp" />
     <ClInclude Include="components\PendingPhysicsBodyComponent.hpp" />
     <ClInclude Include="components\PhysicsBodyComponent.hpp" />
     <ClInclude Include="components\RenderableComponent.hpp" />
