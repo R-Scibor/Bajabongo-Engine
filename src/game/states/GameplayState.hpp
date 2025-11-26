@@ -8,6 +8,7 @@
 #include "engine/rendering/RenderSystem.hpp"
 #include "engine/rendering/AnimationSystem.hpp"
 #include "engine/ecs/EditorSystem.hpp"
+#include "engine/ecs/HierarchySystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -45,6 +46,7 @@ namespace game {
         engine::RenderSystem m_renderSystem;
         engine::AnimationSystem m_animationSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
+        engine::HierarchySystem m_hierarchySystem;
 
         std::shared_ptr<engine::ILogger> m_logger;
         entt::connection m_physicsCleanupHook;

@@ -6,7 +6,7 @@
 namespace engine
 {
     class ILogger;
-    class EngineContext;
+    struct EngineContext;
 
     /**
      * @brief System responsible for updating child transforms based on their parents.

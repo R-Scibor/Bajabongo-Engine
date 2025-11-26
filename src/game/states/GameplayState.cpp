@@ -8,6 +8,7 @@
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
+#include "engine/components/ParentComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 #include "engine/events/StateEvents.hpp"
 #include "engine/events/PhysicsEvents.hpp"
@@ -33,6 +34,7 @@ namespace game {
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
         , m_animationSystem(context)
+        , m_hierarchySystem(context)
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
 
@@ -62,17 +64,24 @@ namespace game {
         }
 
         // Spawn entities
+        auto& registry = *context.m_registry;
+
         if (context.m_entityFactory) {
             // Player (using testanim_frame_0 and test_anim via JSON update)
             // Spawn player above the sensor to force collision
-            context.m_entityFactory->spawn("player", {500.f, 100.f});
+            auto playerEntity = context.m_entityFactory->spawn("player", {500.f, 100.f});
+
+            // Test Hierarchy: Attach a "hat" (box) to the player
+            auto hat = registry.create();
+            registry.emplace<engine::TransformComponent>(hat);
+            registry.emplace<engine::RenderableComponent>(hat, "box_sprite", 2, sf::Color::Red);
+            registry.emplace<engine::ParentComponent>(hat, playerEntity, engine::Vector2f{0.f, -50.f}, 0.0f);
+            // 0, -50 should be above the player's center (assuming origin is center)
 
             // Boxes
             context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});
             context.m_entityFactory->spawn("heavy_crate", {300.f, 500.f}); // Demonstration of density
         }
-
-        auto& registry = *context.m_registry;
 
         // Ground – static body (keeping manual for now as it's unique/level geometry, or could be an archetype)
         // Let's keep ground manual for simplicity or move to archetype if needed.
@@ -147,6 +156,7 @@ namespace game {
             m_physicsEventSystem.update();
             context.m_dispatcher->update();
             m_physicsSyncSystem.update();
+            m_hierarchySystem.update();
             m_animationSystem.update(fixedDeltaTime);
         }
     }
