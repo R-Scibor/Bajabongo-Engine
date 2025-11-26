@@ -23,6 +23,12 @@ namespace engine
 
         void update();
 
+        /**
+         * @brief Callback for when an entity with a ChildComponent is destroyed.
+         *        Recursively destroys all children.
+         */
+        void onParentDestroyed(entt::registry& registry, entt::entity entity);
+
     private:
         entt::registry& m_registry;
         std::shared_ptr<ILogger> m_logger;

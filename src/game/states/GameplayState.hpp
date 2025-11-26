@@ -50,6 +50,7 @@ namespace game {
 
         std::shared_ptr<engine::ILogger> m_logger;
         entt::connection m_physicsCleanupHook;
+        entt::connection m_hierarchyCleanupHook;
     };
 
 } // namespace game

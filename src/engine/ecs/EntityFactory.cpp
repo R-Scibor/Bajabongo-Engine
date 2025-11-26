@@ -4,6 +4,8 @@
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
+#include "engine/components/ParentComponent.hpp"
+#include "engine/components/ChildComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/MetaComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -57,6 +59,43 @@ namespace engine {
                 }
             } else {
                 if (m_logger) m_logger->warn("EntityFactory: No loader registered for component '{}'", key);
+            }
+        }
+
+        // 4. Handle Children
+        if (archetypeData->contains("children") && (*archetypeData)["children"].is_array()) {
+            
+            // Ensure parent has a ChildComponent to track its kids
+            auto& childComp = m_context.m_registry->get_or_emplace<ChildComponent>(entity);
+
+            for (const auto& childDef : (*archetypeData)["children"]) {
+                std::string childArchetype = childDef.value("archetype", "");
+                if (childArchetype.empty()) continue;
+
+                // RECURSION: Spawn the child at (0,0) initially.
+                // The HierarchySystem will move it to the correct spot next frame.
+                // Note: We might want to pass an offset or a flag to prevent Transform init if we cared about perf,
+                // but (0,0) is fine as it gets overwritten by hierarchy.
+                entt::entity childEntity = spawn(childArchetype, {0.f, 0.f});
+
+                // Read Local Offsets
+                Vector2f localPos = {0.f, 0.f};
+                if (childDef.contains("offset") && childDef["offset"].is_array()) {
+                    localPos.x = childDef["offset"][0];
+                    localPos.y = childDef["offset"][1];
+                }
+                float localRot = childDef.value("rotation", 0.f);
+
+                // AUTO-LINKING: Add ParentComponent to child
+                m_context.m_registry->emplace<ParentComponent>(
+                    childEntity,
+                    entity, // Parent ID
+                    localPos,
+                    localRot
+                );
+
+                // Add to parent's ChildComponent list (for destruction logic later)
+                childComp.children.push_back(childEntity);
             }
         }
 

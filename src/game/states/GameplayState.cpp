@@ -9,6 +9,7 @@
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/ParentComponent.hpp"
+#include "engine/components/ChildComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 #include "engine/events/StateEvents.hpp"
 #include "engine/events/PhysicsEvents.hpp"
@@ -69,14 +70,8 @@ namespace game {
         if (context.m_entityFactory) {
             // Player (using testanim_frame_0 and test_anim via JSON update)
             // Spawn player above the sensor to force collision
-            auto playerEntity = context.m_entityFactory->spawn("player", {500.f, 100.f});
-
-            // Test Hierarchy: Attach a "hat" (box) to the player
-            auto hat = registry.create();
-            registry.emplace<engine::TransformComponent>(hat);
-            registry.emplace<engine::RenderableComponent>(hat, "box_sprite", 2, sf::Color::Red);
-            registry.emplace<engine::ParentComponent>(hat, playerEntity, engine::Vector2f{0.f, -50.f}, 0.0f);
-            // 0, -50 should be above the player's center (assuming origin is center)
+            // NEW: Spawn composite archetype (player_with_hat)
+            context.m_entityFactory->spawn("player_with_hat", {500.f, 100.f});
 
             // Boxes
             context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});
@@ -101,7 +96,13 @@ namespace game {
         m_physicsCleanupHook =
             registry.on_destroy<engine::PhysicsBodyComponent>()
                     .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
-        if (m_logger) m_logger->info("Physics cleanup hook registered.");
+
+        // Hierarchy cleanup hook
+        m_hierarchyCleanupHook =
+            registry.on_destroy<engine::ChildComponent>()
+                    .connect<&engine::HierarchySystem::onParentDestroyed>(&m_hierarchySystem);
+
+        if (m_logger) m_logger->info("Physics and Hierarchy cleanup hooks registered.");
 
         // Test: Listen for Contact Events
         context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().connect<&GameplayState::onContactBegin>(this);
@@ -129,8 +130,11 @@ namespace game {
         
         if (m_physicsCleanupHook) {
             context.m_registry->on_destroy<engine::PhysicsBodyComponent>().disconnect(this);
-            if (m_logger) m_logger->info("Physics cleanup hook disconnected.");
         }
+        if (m_hierarchyCleanupHook) {
+            m_hierarchyCleanupHook.release();
+        }
+        if (m_logger) m_logger->info("Cleanup hooks disconnected.");
         
         // Clean up test listeners
         context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().disconnect(this);

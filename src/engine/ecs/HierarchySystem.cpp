@@ -6,6 +6,7 @@
 #include "engine/core/ILoggerManager.hpp"
 
 #include "engine/components/ParentComponent.hpp"
+#include "engine/components/ChildComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 
 #include <cmath>
@@ -70,4 +71,26 @@ namespace engine
             // Given the current requirements, we'll leave child's own scale alone (it acts as local scale).
         });
     }
+
+    void HierarchySystem::onParentDestroyed(entt::registry& registry, entt::entity entity)
+    {
+        // We use try_get because during destruction, some components might be in flux,
+        // although on_destroy triggers before the component is removed from the pool.
+        if (auto* childComp = registry.try_get<ChildComponent>(entity))
+        {
+            m_logger->trace("Entity {} destroyed. Cascading destruction to {} children.",
+                entt::to_integral(entity), childComp->children.size());
+
+            for (auto child : childComp->children)
+            {
+                if (registry.valid(child))
+                {
+                    // Recursively destroy child.
+                    // This will trigger on_destroy<ChildComponent> for the child if it has children.
+                    registry.destroy(child);
+                }
+            }
+        }
+    }
+
 }

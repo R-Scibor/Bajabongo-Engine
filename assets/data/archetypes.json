@@ -46,5 +46,37 @@
       "size": [20.0, 40.0],
       "fixedRotation": true
     }
+  },
+  "hat": {
+    "Transform": {},
+    "Renderable": {
+      "spriteId": "box_sprite",
+      "layer": 3
+    }
+  },
+  "player_with_hat": {
+    "Transform": {
+      "rotation": 0.0
+    },
+    "Renderable": {
+      "spriteId": "test_anim_0",
+      "layer": 2
+    },
+    "Animation": {
+      "defaultClip": "test_anim",
+      "playing": true
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [20.0, 40.0],
+      "fixedRotation": true
+    },
+    "children": [
+      {
+        "archetype": "hat",
+        "offset": [0, -50],
+        "rotation": 0.0
+      }
+    ]
   }
 }
