@@ -172,6 +172,7 @@
     <ClInclude Include="core\math\MathAliases.hpp" />
     <ClInclude Include="core\math\Rect.hpp" />
     <ClInclude Include="core\math\Vector2.hpp" />
+    <ClInclude Include="ecs\HierarchySystem.hpp" />
     <ClInclude Include="events\StateEvents.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="input\SFMLInputManager.hpp" />
@@ -197,6 +198,7 @@
     <ClCompile Include="core\Application.cpp" />
     <ClCompile Include="core\GuiService.cpp" />
     <ClCompile Include="core\StateManager.cpp" />
+    <ClCompile Include="ecs\HierarchySystem.cpp" />
     <ClCompile Include="input\SFMLInputManager.cpp" />
     <ClCompile Include="logging\SpdlogLogger.cpp" />
     <ClCompile Include="logging\SpdlogManager.cpp" />
