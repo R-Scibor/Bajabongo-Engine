@@ -63,6 +63,8 @@ namespace engine
                 continue;
             }
 
+            b2Shape_SetUserData(shapeId, (void*)(uintptr_t)entity);
+
             m_registry.emplace<PhysicsBodyComponent>(entity, bodyId);
             m_registry.remove<PendingPhysicsBodyComponent>(entity);
 
