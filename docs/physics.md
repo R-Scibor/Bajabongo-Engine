@@ -16,6 +16,8 @@ The system is centered around the new handle-based API of **Box2D 3.0**, which o
 
 - **[`PhysicsSyncSystem`](../src/engine/physics/PhysicsSyncSystem.hpp:0)**: This system synchronizes the state of the `TransformComponent` with the state of the physics body in the Box2D world. It iterates over all entities that have both a `TransformComponent` and a `PhysicsBodyComponent`, and updates the entity's position and rotation to match the physics simulation.
 
+- **[`PhysicsEventSystem`](../src/engine/physics/PhysicsEventSystem.hpp:0)**: This system bridges the gap between Box2D's C-API event polling and the engine's C++ ECS event architecture. It polls Box2D for contact and sensor events each frame and dispatches them as EnTT signals.
+
 ### Key Components for Entities
 
 - **[`TransformComponent`](../src/engine/components/TransformComponent.hpp:0)**: Defines the position, rotation, and scale of an entity in the game world.
@@ -34,7 +36,35 @@ A significant aspect of our physics integration is the strict adherence to the *
 
 All interactions with Box2D are done through functions that accept these ID handles, such as `b2CreateBody()`, `b2Body_SetTransform()`, etc.
 
-## 4. How to Create a Physics-Enabled Entity
+## 4. Physics Events
+
+The engine supports two types of physics events, which are dispatched via the EnTT dispatcher:
+
+1.  **Contact Events**: Fired when two solid bodies collide.
+    *   `PhysicsContactBeginEvent`
+    *   `PhysicsContactEndEvent`
+
+2.  **Sensor Events**: Fired when a body enters or exits a sensor (trigger) volume.
+    *   `PhysicsSensorBeginEvent`
+    *   `PhysicsSensorEndEvent`
+
+**Note on Sensors in Box2D 3.0:** To ensure reliable sensor detection, `enableSensorEvents` is enabled for all shapes in `PhysicsBodyCreationSystem`. This ensures that dynamic bodies (visitors) are correctly detected when they enter sensor volumes.
+
+### Example: Listening for Sensor Events
+
+```cpp
+// in GameplayState::onEnter or similar
+context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&GameplayState::onSensorBegin>(this);
+
+// Callback method
+void GameplayState::onSensorBegin(const engine::PhysicsSensorBeginEvent& event) {
+    m_logger->info("Entity {} entered Sensor {}", 
+        entt::to_integral(event.visitorEntity), 
+        entt::to_integral(event.sensorEntity));
+}
+```
+
+## 5. How to Create a Physics-Enabled Entity
 
 Creating a physics-enabled entity is a simple, data-driven process:
 
@@ -64,6 +94,7 @@ pendingBody.position = {100.0f, 50.0f};
 pendingBody.size = {10.0f, 10.0f};
 pendingBody.isStatic = false;
 pendingBody.density = 1.0f;
+pendingBody.isSensor = false; // Set to true for triggers
 
 // The PhysicsBodyCreationSystem will now automatically create a Box2D body
 // for this entity on its next update. The PhysicsSyncSystem will then keep
