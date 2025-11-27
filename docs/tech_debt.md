@@ -49,4 +49,13 @@ Implementation Strategy:
 - Needs a "Post-Load" system to recreate Box2D bodies from the loaded data, as physics handles (b2BodyId) cannot be saved directly.
 
 
+
+ECS & Hierarchy: [
+    Optimization:
+    - HierarchySystem currently iterates all ParentComponents. For very deep hierarchies, we might need topological sorting or breadth-first traversal to ensure parents update before children in a single frame (currently if child updates before parent, it lags one frame).
+    - Dirty Flags: Only update children if parent moved.
+
+    Features:
+    - Detaching: Currently we only support destroying children. We need a way to "Drop" an item (detach from parent, keep world transform).
+]
 ]
