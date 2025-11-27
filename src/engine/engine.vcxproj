@@ -179,6 +179,7 @@
     <ClInclude Include="logging\SpdlogLogger.hpp" />
     <ClInclude Include="logging\SpdlogManager.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="physics\GeometryBuilder.hpp" />
     <ClInclude Include="physics\PhysicsBodyCreationSystem.hpp" />
     <ClInclude Include="physics\PhysicsEventSystem.hpp" />
     <ClInclude Include="physics\PhysicsSyncSystem.hpp" />
@@ -208,6 +209,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="physics\GeometryBuilder.cpp" />
     <ClCompile Include="physics\PhysicsBodyCreationSystem.cpp" />
     <ClCompile Include="physics\PhysicsEventSystem.cpp" />
     <ClCompile Include="physics\PhysicsSyncSystem.cpp" />

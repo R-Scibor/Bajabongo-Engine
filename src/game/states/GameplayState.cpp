@@ -23,6 +23,7 @@
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
+#include "engine/physics/GeometryBuilder.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
@@ -123,6 +124,22 @@ namespace game {
         // Add a visual so we can see it
         registry.emplace<engine::TransformComponent>(trigger, engine::Vector2f{500.f, 300.f});
         registry.emplace<engine::RenderableComponent>(trigger, "box_sprite", 1, sf::Color::Green);
+
+        // --- Geometry Builder Test ---
+        if (m_logger) m_logger->info("Testing GeometryBuilder...");
+        engine::GeometryBuilder geomBuilder(m_logger);
+        
+        // Create a dummy 5x5 grid
+        // 1 = Wall, 0 = Air
+        std::vector<std::vector<int>> testGrid = {
+            {1, 1, 1, 1, 1},
+            {1, 0, 0, 0, 1},
+            {1, 0, 1, 0, 1},
+            {1, 0, 0, 0, 1},
+            {1, 1, 1, 1, 1}
+        };
+        
+        geomBuilder.analyzeGrid(testGrid, 32.0f);
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {
