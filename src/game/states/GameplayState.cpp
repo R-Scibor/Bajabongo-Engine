@@ -148,6 +148,12 @@ namespace game {
     void GameplayState::onExit(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Exiting GameplayState.");
         
+        // [HACK] Brute-force Scene Clear
+        // We clear the registry to remove all entities.
+        // Hooks are still active, so on_destroy events will fire (cleaning up Physics bodies).
+        if (m_logger) m_logger->warn("Executing Brute-force Scene Clear (registry.clear()). Global entities will be lost.");
+        context.m_registry->clear();
+
         if (m_physicsCleanupHook) {
             context.m_registry->on_destroy<engine::PhysicsBodyComponent>().disconnect(this);
         }

@@ -59,3 +59,31 @@ ECS & Hierarchy: [
     - Detaching: Currently we only support destroying children. We need a way to "Drop" an item (detach from parent, keep world transform).
 ]
 ]
+
+Sekcja: Rendering & Optimization
+
+Issue: Brak Frustum Culling i partycjonowania przestrzennego
+
+    Status: Odroczone (Low Priority dla małych map)
+
+    Opis: Obecny RenderSystem iteruje przez wszystkie encje posiadające komponenty Transform i Renderable w każdej klatce. Przy małych mapach (kilkaset obiektów) jest to akceptowalne. Jednak przy większych światach (Phase 6+) spowoduje to drastyczny spadek FPS, ponieważ GPU będzie przetwarzać obiekty znajdujące się poza ekranem.   
+
+Rozwiązanie docelowe: Implementacja struktury Quadtree lub Spatial Hash Grid oraz sprawdzanie viewRect.intersects(entityRect) przed wysłaniem obiektu do renderowania.
+
+Trigger do naprawy: Spadek wydajności poniżej 60 FPS przy powiększeniu mapy.
+
+Sekcja: Architecture & Lifecycle
+
+Issue: Tymczasowe czyszczenie świata (Brute-force Scene Clear)
+
+    Status: Tymczasowe rozwiązanie (Temporary Hack)
+
+    Opis: Zamiast pełnej serializacji lub selektywnego ładowania scen, stosujemy podejście "Nuke the World". Przy wyjściu ze stanu (GameplayState::onExit) wywoływane jest registry.clear(), co usuwa wszystkie encje, w tym potencjalne systemy globalne (np. odtwarzacz muzyki, statystyki sesji).
+
+    Ograniczenia:
+
+        Uniemożliwia przenoszenie stanu gracza (HP, Ekwipunek) między poziomami bez zewnętrznego "Global Context".
+
+        Wymaga ponownego inicjowania wszystkich zasobów przy każdym wejściu do gry.
+
+    Rozwiązanie docelowe: System Zarządzania Scenami z obsługą tagów DontDestroyOnLoad lub pełna serializacja stanu gracza do pliku przed przeładowaniem sceny.
