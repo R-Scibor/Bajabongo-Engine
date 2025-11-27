@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <box2d/id.h>
+#include <entt/entity/entity.hpp>
 #include "engine/core/math/MathAliases.hpp"
 
 namespace engine {
@@ -37,6 +38,8 @@ namespace engine {
     private:
         b2WorldId m_worldId;
         b2BodyId m_levelBodyId;
+        entt::registry& m_registry;
+        entt::entity m_levelEntity{ entt::null };
         std::shared_ptr<ILogger> m_logger;
     };
 }

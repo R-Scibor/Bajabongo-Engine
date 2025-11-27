@@ -4,12 +4,14 @@
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include <box2d/box2d.h>
+#include "engine/components/MetaComponent.hpp"
 
 namespace engine {
 
     LevelGeometryBuilder::LevelGeometryBuilder(const EngineContext& context)
         : m_worldId(context.m_physicsWorld)
         , m_levelBodyId(b2_nullBodyId)
+        , m_registry(*context.m_registry)
     {
         m_logger = context.m_logManager->GetLogger("LevelGeometry");
     }
@@ -23,12 +25,21 @@ namespace engine {
             b2DestroyBody(m_levelBodyId);
             m_levelBodyId = b2_nullBodyId;
         }
+
+        if (m_levelEntity != entt::null && m_registry.valid(m_levelEntity)) {
+            m_registry.destroy(m_levelEntity);
+            m_levelEntity = entt::null;
+        }
     }
 
     void LevelGeometryBuilder::createLevelBody(const std::vector<std::vector<Vector2f>>& chains) {
         clear();
 
         if (chains.empty()) return;
+
+        // Create entity for the level
+        m_levelEntity = m_registry.create();
+        m_registry.emplace<engine::MetaComponent>(m_levelEntity, "LevelGeometry");
 
         b2BodyDef bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2_staticBody;
@@ -40,6 +51,8 @@ namespace engine {
             m_logger->error("Failed to create level body!");
             return;
         }
+
+        b2Body_SetUserData(m_levelBodyId, (void*)(uintptr_t)m_levelEntity);
 
         int chainCount = 0;
         for (const auto& points : chains) {
@@ -99,7 +112,20 @@ namespace engine {
                  m_logger->debug("Creating chain: Loop={}, Count={}", chainDef.isLoop, chainDef.count);
             }
 
-            b2CreateChain(m_levelBodyId, &chainDef);
+            b2ChainId chainId = b2CreateChain(m_levelBodyId, &chainDef);
+            
+            // We need to assign UserData to all segments (shapes) of the chain
+            // so that PhysicsEventSystem can retrieve the entity from the shape.
+            int segmentCount = b2Chain_GetSegmentCount(chainId);
+            if (segmentCount > 0) {
+                std::vector<b2ShapeId> segments(segmentCount);
+                b2Chain_GetSegments(chainId, segments.data(), segmentCount);
+                
+                for (b2ShapeId shapeId : segments) {
+                    b2Shape_SetUserData(shapeId, (void*)(uintptr_t)m_levelEntity);
+                }
+            }
+            
             chainCount++;
         }
 
