@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include "engine/core/math/MathAliases.hpp"
 
 namespace engine {
     class ILogger;
@@ -11,6 +12,13 @@ namespace engine {
         explicit GeometryBuilder(std::shared_ptr<ILogger> logger);
 
         void analyzeGrid(const std::vector<std::vector<int>>& grid, float tileSize);
+
+    private:
+        struct TileIsland {
+            std::vector<Vector2i> tiles;
+        };
+
+        std::vector<TileIsland> findIslands(const std::vector<std::vector<int>>& grid);
 
     private:
         std::shared_ptr<ILogger> m_logger;
