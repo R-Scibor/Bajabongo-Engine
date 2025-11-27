@@ -18,6 +18,8 @@ The system is centered around the new handle-based API of **Box2D 3.0**, which o
 
 - **[`PhysicsEventSystem`](../src/engine/physics/PhysicsEventSystem.hpp:0)**: This system bridges the gap between Box2D's C-API event polling and the engine's C++ ECS event architecture. It polls Box2D for contact and sensor events each frame and dispatches them as EnTT signals.
 
+- **[`LevelGeometryBuilder`](../src/engine/physics/LevelGeometryBuilder.hpp:0)**: A specialized builder that generates static level geometry from grid data. It uses `GeometryBuilder` to optimize the geometry into continuous chains (`b2ChainDef`) to prevent "ghost collisions".
+
 ### Key Components for Entities
 
 - **[`TransformComponent`](../src/engine/components/TransformComponent.hpp:0)**: Defines the position, rotation, and scale of an entity in the game world.
@@ -64,7 +66,21 @@ void GameplayState::onSensorBegin(const engine::PhysicsSensorBeginEvent& event) 
 }
 ```
 
-## 5. How to Create a Physics-Enabled Entity
+## 5. Level Geometry & Ghost Collisions
+
+The engine includes a robust system for generating static level geometry that avoids the "Ghost Collision" problem common in tile-based games (where a player gets stuck on internal edges of adjacent tiles).
+
+### How it Works
+
+1.  **Grid Analysis (`GeometryBuilder`)**: The [`GeometryBuilder`](../src/engine/physics/GeometryBuilder.hpp:0) analyzes a 2D grid of tiles.
+2.  **Island Detection**: It identifies connected groups of solid tiles ("islands").
+3.  **Contour Tracing**: For each island, it traces the outer contour using a Moore-Neighbor tracing algorithm.
+4.  **Simplification**: It simplifies the contour by removing collinear vertices, reducing the physics complexity.
+5.  **Chain Generation**: The [`LevelGeometryBuilder`](../src/engine/physics/LevelGeometryBuilder.hpp:0) takes these optimized contours and creates Box2D Chain Shapes (`b2ChainDef`).
+
+This results in smooth, continuous walls without internal seams.
+
+## 6. How to Create a Physics-Enabled Entity
 
 Creating a physics-enabled entity is a simple, data-driven process:
 

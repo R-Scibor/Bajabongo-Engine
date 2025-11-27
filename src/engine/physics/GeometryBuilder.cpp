@@ -11,10 +11,11 @@ namespace engine {
     {
     }
 
-    void GeometryBuilder::analyzeGrid(const std::vector<std::vector<int>>& grid, float tileSize) {
+    std::vector<std::vector<Vector2f>> GeometryBuilder::analyzeGrid(const std::vector<std::vector<int>>& grid, float tileSize) {
+        std::vector<std::vector<Vector2f>> result;
         if (grid.empty()) {
             if (m_logger) m_logger->warn("GeometryBuilder: Grid is empty!");
-            return;
+            return result;
         }
 
         size_t height = grid.size();
@@ -35,7 +36,9 @@ namespace engine {
             if (m_logger) {
                 m_logger->debug("  Island contour: {} vertices -> Simplified: {} vertices", contour.size(), simplified.size());
             }
+            result.push_back(simplified);
         }
+        return result;
     }
 
     std::vector<GeometryBuilder::TileIsland> GeometryBuilder::findIslands(const std::vector<std::vector<int>>& grid) {

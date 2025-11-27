@@ -48,29 +48,55 @@ namespace engine {
             std::vector<b2Vec2> b2Points;
             b2Points.reserve(points.size());
             for (const auto& p : points) {
+                // Filter out points that are too close to the previous point
+                if (!b2Points.empty()) {
+                    float dx = p.x - b2Points.back().x;
+                    float dy = p.y - b2Points.back().y;
+                    if (dx*dx + dy*dy < 0.0001f) continue;
+                }
                 b2Points.push_back({ p.x, p.y });
             }
+            
+            // Also check closure point distance if looping
+             if (b2Points.size() > 1 &&
+                 points.front().x == points.back().x &&
+                 points.front().y == points.back().y) {
+                 // It is a loop, so the duplicate is already there (or we check against first)
+                 // My previous logic assumed points.front() == points.back() exactly.
+                 // If they are "close enough" maybe we should snap?
+                 // For now, just rely on exact match from GeometryBuilder.
+             }
+
+            if (b2Points.size() < 3) continue; // Minimum for chain? Maybe 2 for open.
 
             b2ChainDef chainDef = b2DefaultChainDef();
             chainDef.points = b2Points.data();
             chainDef.count = static_cast<int>(b2Points.size());
             
             // Check if loop
-            if (points.size() > 2 && 
-                points.front().x == points.back().x && 
+            if (points.size() > 2 &&
+                points.front().x == points.back().x &&
                 points.front().y == points.back().y) {
                 chainDef.isLoop = true;
-                // For loop, the last point should match the first in the data?
-                // Box2D 3.0 docs say: "The count should not include the duplicated end point if it is a loop".
-                // Wait, let me check standard Box2D behavior.
-                // Usually if isLoop is true, it connects last to first.
-                // If I provide duplicate end point, it might create a zero-length edge.
-                // Let's check if points are same.
                 if (chainDef.isLoop) {
                     chainDef.count--; // Exclude the last duplicate point
                 }
             } else {
                 chainDef.isLoop = false;
+            }
+
+            // Validate chain
+            if (chainDef.isLoop && chainDef.count < 3) {
+                m_logger->warn("Skipping degenerate loop chain with {} points.", chainDef.count);
+                continue;
+            }
+            if (!chainDef.isLoop && chainDef.count < 2) {
+                m_logger->warn("Skipping degenerate chain with {} points.", chainDef.count);
+                continue;
+            }
+
+            if (m_logger) {
+                 m_logger->debug("Creating chain: Loop={}, Count={}", chainDef.isLoop, chainDef.count);
             }
 
             b2CreateChain(m_levelBodyId, &chainDef);
