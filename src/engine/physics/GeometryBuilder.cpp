@@ -2,6 +2,7 @@
 #include "GeometryBuilder.hpp"
 #include "engine/core/ILogger.hpp"
 #include <algorithm>
+#include <cmath>
 
 namespace engine {
 
@@ -30,8 +31,9 @@ namespace engine {
 
         for (const auto& island : islands) {
             auto contour = traceContour(island, grid, tileSize);
+            auto simplified = simplifyContour(contour);
             if (m_logger) {
-                m_logger->debug("  Island contour: {} vertices", contour.size());
+                m_logger->debug("  Island contour: {} vertices -> Simplified: {} vertices", contour.size(), simplified.size());
             }
         }
     }
@@ -205,6 +207,60 @@ namespace engine {
         }
 
         return vertices;
+    }
+
+    std::vector<Vector2f> GeometryBuilder::simplifyContour(const std::vector<Vector2f>& points) {
+        if (points.size() < 3) return points;
+
+        std::vector<Vector2f> simplified;
+        simplified.push_back(points[0]);
+
+        for (size_t i = 1; i < points.size(); ++i) {
+            // Previous point (last added to simplified)
+            Vector2f p1 = simplified.back();
+            // Current candidate
+            Vector2f p2 = points[i];
+            
+            // If we are at the last point, always add it
+            if (i == points.size() - 1) {
+                simplified.push_back(p2);
+                break;
+            }
+
+            // Next point
+            Vector2f p3 = points[i + 1];
+
+            // Check if p2 is collinear with p1 and p3
+            // Vector p1->p2
+            float dx1 = p2.x - p1.x;
+            float dy1 = p2.y - p1.y;
+            // Vector p2->p3
+            float dx2 = p3.x - p2.x;
+            float dy2 = p3.y - p2.y;
+
+            // Cross product z-component: dx1*dy2 - dx2*dy1
+            float cross = dx1 * dy2 - dx2 * dy1;
+
+            // If cross product is near zero, points are collinear
+            if (std::abs(cross) > 0.001f) {
+                // Not collinear, keep p2
+                simplified.push_back(p2);
+            }
+            // Else: collinear, skip p2 (don't add it, next iteration will check p1->p3)
+        }
+
+        // Handle loop closure if start == end
+        // If original was closed, simplified should be closed
+        // But my trace logic might return duplicate start/end or not.
+        // Current logic: traceContour stops when currentVertex == startVertex
+        // But traceContour ADDS the currentVertex at the start of loop.
+        // It does NOT add the final vertex because it breaks the loop.
+        // So start == end is implicit if we loop.
+        
+        // Let's check if first and last points of simplified are collinear with second point?
+        // For now, basic simplification is enough.
+
+        return simplified;
     }
 
 }
