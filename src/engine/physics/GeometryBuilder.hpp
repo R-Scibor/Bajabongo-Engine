@@ -11,7 +11,7 @@ namespace engine {
     public:
         explicit GeometryBuilder(std::shared_ptr<ILogger> logger);
 
-        void analyzeGrid(const std::vector<std::vector<int>>& grid, float tileSize);
+        std::vector<std::vector<Vector2f>> analyzeGrid(const std::vector<std::vector<int>>& grid, float tileSize);
 
     private:
         struct TileIsland {

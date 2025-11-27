@@ -35,6 +35,7 @@ namespace engine
         void clear(Color color) override;
         void drawCircle(engine::Vector2f position, float radius) override;
         void drawRect(engine::Vector2f position, engine::Vector2f size) override;
+        void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) override;
         void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform, const Color& color) override;
         engine::Vector2f screenToWorld(engine::Vector2f screenPos) override;
         void endFrame() override;

@@ -24,6 +24,7 @@
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
 #include "engine/physics/GeometryBuilder.hpp"
+#include "engine/physics/LevelGeometryBuilder.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
@@ -37,6 +38,7 @@ namespace game {
         , m_renderSystem(context)
         , m_animationSystem(context)
         , m_hierarchySystem(context)
+        , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
 
@@ -139,7 +141,8 @@ namespace game {
             {1, 1, 1, 1, 1}
         };
         
-        geomBuilder.analyzeGrid(testGrid, 32.0f);
+        auto chains = geomBuilder.analyzeGrid(testGrid, 32.0f);
+        m_levelGeometryBuilder->createLevelBody(chains);
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {

@@ -9,10 +9,10 @@ namespace engine {
     struct EngineContext;
     class ILogger;
 
-    class LevelGeometrySystem {
+    class LevelGeometryBuilder {
     public:
-        explicit LevelGeometrySystem(const EngineContext& context);
-        ~LevelGeometrySystem();
+        explicit LevelGeometryBuilder(const EngineContext& context);
+        ~LevelGeometryBuilder();
 
         void createLevelBody(const std::vector<std::vector<Vector2f>>& chains);
         void clear();

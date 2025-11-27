@@ -83,6 +83,14 @@ namespace engine
         m_renderWindow.draw(m_rectShape);
     }
 
+    void SFMLRenderer::drawLine(engine::Vector2f start, engine::Vector2f end, Color color) {
+        sf::Vertex line[] = {
+            sf::Vertex(sf::Vector2f(start.x, start.y), sf::Color(color.r, color.g, color.b, color.a)),
+            sf::Vertex(sf::Vector2f(end.x, end.y), sf::Color(color.r, color.g, color.b, color.a))
+        };
+        m_renderWindow.draw(line, 2, sf::PrimitiveType::Lines);
+    }
+
     void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
         if (!m_resourceManager) {
             if (m_logger) m_logger->error("SFMLRenderer: ResourceManager is not set. Cannot draw sprite.");

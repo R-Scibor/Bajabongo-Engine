@@ -9,6 +9,7 @@
 #include "engine/rendering/AnimationSystem.hpp"
 #include "engine/ecs/EditorSystem.hpp"
 #include "engine/ecs/HierarchySystem.hpp"
+#include "engine/physics/LevelGeometryBuilder.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -47,6 +48,7 @@ namespace game {
         engine::AnimationSystem m_animationSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;
+        std::unique_ptr<engine::LevelGeometryBuilder> m_levelGeometryBuilder;
 
         std::shared_ptr<engine::ILogger> m_logger;
         entt::connection m_physicsCleanupHook;

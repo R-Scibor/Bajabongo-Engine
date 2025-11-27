@@ -26,6 +26,7 @@ namespace engine
         virtual void drawSprite(const struct SpriteDesc& sprite, const struct TransformComponent& transform, const Color& color) = 0;
         virtual void drawCircle(engine::Vector2f position, float radius) = 0;
         virtual void drawRect(engine::Vector2f position, engine::Vector2f size) = 0;
+        virtual void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) = 0;
         
         virtual engine::Vector2f screenToWorld(engine::Vector2f screenPos) = 0;
 

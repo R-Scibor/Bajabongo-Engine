@@ -123,6 +123,11 @@ namespace engine
                         float centerX = (aabb.upperBound.x + aabb.lowerBound.x) * 0.5f;
                         float centerY = (aabb.upperBound.y + aabb.lowerBound.y) * 0.5f;
                         m_renderer.drawRect({centerX, centerY}, {width, height});
+                    } else if (type == b2_chainSegmentShape) {
+                        b2ChainSegment segment = b2Shape_GetChainSegment(shapeId);
+                        b2Vec2 p1 = b2Body_GetWorldPoint(bodyId, segment.segment.point1);
+                        b2Vec2 p2 = b2Body_GetWorldPoint(bodyId, segment.segment.point2);
+                        m_renderer.drawLine({p1.x, p1.y}, {p2.x, p2.y}, {0, 0, 255, 255}); // Blue lines for chain segments
                     }
                 }
             });

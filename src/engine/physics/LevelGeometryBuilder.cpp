@@ -1,5 +1,5 @@
-#include "engine/pch.h"
-#include "LevelGeometrySystem.hpp"
+﻿#include "engine/pch.h"
+#include "LevelGeometryBuilder.hpp"
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
@@ -7,25 +7,25 @@
 
 namespace engine {
 
-    LevelGeometrySystem::LevelGeometrySystem(const EngineContext& context)
+    LevelGeometryBuilder::LevelGeometryBuilder(const EngineContext& context)
         : m_worldId(context.m_physicsWorld)
         , m_levelBodyId(b2_nullBodyId)
     {
         m_logger = context.m_logManager->GetLogger("LevelGeometry");
     }
 
-    LevelGeometrySystem::~LevelGeometrySystem() {
+    LevelGeometryBuilder::~LevelGeometryBuilder() {
         clear();
     }
 
-    void LevelGeometrySystem::clear() {
+    void LevelGeometryBuilder::clear() {
         if (b2Body_IsValid(m_levelBodyId)) {
             b2DestroyBody(m_levelBodyId);
             m_levelBodyId = b2_nullBodyId;
         }
     }
 
-    void LevelGeometrySystem::createLevelBody(const std::vector<std::vector<Vector2f>>& chains) {
+    void LevelGeometryBuilder::createLevelBody(const std::vector<std::vector<Vector2f>>& chains) {
         clear();
 
         if (chains.empty()) return;
