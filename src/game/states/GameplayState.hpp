@@ -10,6 +10,7 @@
 #include "engine/ecs/EditorSystem.hpp"
 #include "engine/ecs/HierarchySystem.hpp"
 #include "engine/physics/LevelGeometryBuilder.hpp"
+#include "engine/rendering/CameraSystem.hpp"
 
 #include "game/systems/PlayerControllerSystem.hpp"
 
@@ -48,6 +49,7 @@ namespace game {
         engine::PhysicsSyncSystem m_physicsSyncSystem;
         engine::RenderSystem m_renderSystem;
         engine::AnimationSystem m_animationSystem;
+        engine::CameraSystem m_cameraSystem;
         PlayerControllerSystem m_playerControllerSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;

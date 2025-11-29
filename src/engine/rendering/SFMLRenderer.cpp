@@ -118,6 +118,17 @@ namespace engine
         m_renderWindow.draw(sprite);
     }
 
+    void SFMLRenderer::setViewCenter(engine::Vector2f center) {
+        sf::View view = m_renderWindow.getView();
+        view.setCenter({center.x, center.y});
+        m_renderWindow.setView(view);
+    }
+
+    engine::Vector2f SFMLRenderer::getViewCenter() const {
+        const sf::View& view = m_renderWindow.getView();
+        return { view.getCenter().x, view.getCenter().y };
+    }
+
     engine::Vector2f SFMLRenderer::screenToWorld(engine::Vector2f screenPos) {
         sf::Vector2i pixelPos(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y));
         sf::Vector2f worldPos = m_renderWindow.mapPixelToCoords(pixelPos);

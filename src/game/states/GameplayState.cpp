@@ -17,9 +17,11 @@
 #include "engine/physics/PhysicsEventSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
+#include "engine/rendering/CameraSystem.hpp"
 #include "engine/rendering/Sprite.hpp"
 #include "engine/rendering/AnimationClip.hpp"
 #include "engine/components/AnimationComponent.hpp"
+#include "engine/components/CameraFocusComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
@@ -38,6 +40,7 @@ namespace game {
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
         , m_animationSystem(context)
+        , m_cameraSystem(context)
         , m_playerControllerSystem(context)
         , m_hierarchySystem(context)
         , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))
@@ -84,7 +87,8 @@ namespace game {
             // Player (using testanim_frame_0 and test_anim via JSON update)
             // Spawn player above the sensor to force collision
             // NEW: Spawn composite archetype (player_with_hat)
-            context.m_entityFactory->spawn("player_with_hat", {500.f, 100.f});
+            entt::entity player = context.m_entityFactory->spawn("player_with_hat", {500.f, 100.f});
+            registry.emplace<engine::CameraFocusComponent>(player, 1.0f, 5.0f);
 
             // Boxes
             context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});
@@ -199,6 +203,7 @@ namespace game {
             m_physicsSyncSystem.update();
             m_hierarchySystem.update();
             m_animationSystem.update(fixedDeltaTime);
+            m_cameraSystem.update(fixedDeltaTime);
         }
     }
 

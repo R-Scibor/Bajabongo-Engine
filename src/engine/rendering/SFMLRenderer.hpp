@@ -38,6 +38,8 @@ namespace engine
         void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) override;
         void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform, const Color& color) override;
         engine::Vector2f screenToWorld(engine::Vector2f screenPos) override;
+        void setViewCenter(engine::Vector2f center) override;
+        engine::Vector2f getViewCenter() const override;
         void endFrame() override;
 
         // --- SFML Specific ---

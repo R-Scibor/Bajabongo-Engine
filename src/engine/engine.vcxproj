@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="assets\AssetManifestLoader.hpp" />
     <ClInclude Include="components\AnimationComponent.hpp" />
+    <ClInclude Include="components\CameraFocusComponent.hpp" />
     <ClInclude Include="components\ChildComponent.hpp" />
     <ClInclude Include="components\ParentComponent.hpp" />
     <ClInclude Include="components\PendingPhysicsBodyComponent.hpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="physics\PhysicsSyncSystem.hpp" />
     <ClInclude Include="rendering\AnimationClip.hpp" />
     <ClInclude Include="rendering\AnimationSystem.hpp" />
+    <ClInclude Include="rendering\CameraSystem.hpp" />
     <ClInclude Include="rendering\IRenderer.hpp" />
     <ClInclude Include="rendering\RenderSystem.hpp" />
     <ClInclude Include="rendering\SFMLRenderer.hpp" />
@@ -216,6 +218,7 @@
     <ClCompile Include="physics\PhysicsEventSystem.cpp" />
     <ClCompile Include="physics\PhysicsSyncSystem.cpp" />
     <ClCompile Include="rendering\AnimationSystem.cpp" />
+    <ClCompile Include="rendering\CameraSystem.cpp" />
     <ClCompile Include="rendering\RenderSystem.cpp" />
     <ClCompile Include="rendering\SFMLRenderer.cpp" />
     <ClCompile Include="rendering\SFMLResourceManager.cpp" />

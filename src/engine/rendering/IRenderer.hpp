@@ -29,6 +29,8 @@ namespace engine
         virtual void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) = 0;
         
         virtual engine::Vector2f screenToWorld(engine::Vector2f screenPos) = 0;
+        virtual void setViewCenter(engine::Vector2f center) = 0;
+        virtual engine::Vector2f getViewCenter() const = 0;
 
         virtual void endFrame() = 0;
 
