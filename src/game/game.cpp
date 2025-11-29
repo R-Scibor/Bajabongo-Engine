@@ -35,7 +35,7 @@ int main() {
 
         // Box2D 3.0: Create world using C API
         b2WorldDef worldDef = b2DefaultWorldDef();
-        worldDef.gravity = { 0.0f, 9.8f }; // Positive Y = down
+        worldDef.gravity = { 0.0f, 0.0f }; // Top-down, no gravity
         b2WorldId physicsWorldId = b2CreateWorld(&worldDef);
 
         gameLogger->info("EnTT registry and Box2D world created.");

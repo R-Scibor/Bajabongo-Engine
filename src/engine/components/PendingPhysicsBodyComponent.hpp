@@ -12,5 +12,6 @@ namespace engine
         float density = 1.0f;   // Density of the shape (mass)
         bool isSensor = false;  // True if the shape is a sensor (no collision response)
         bool fixedRotation = false; // True to prevent body rotation
+        float linearDamping = 0.0f; // Linear damping (air resistance / friction)
     };
 }
