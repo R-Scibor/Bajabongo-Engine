@@ -20,6 +20,7 @@
 #include "engine/rendering/Sprite.hpp"
 #include "engine/rendering/AnimationClip.hpp"
 #include "engine/components/AnimationComponent.hpp"
+#include "game/components/PlayerComponent.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
@@ -37,6 +38,7 @@ namespace game {
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
         , m_animationSystem(context)
+        , m_playerControllerSystem(context)
         , m_hierarchySystem(context)
         , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))
     {
@@ -59,6 +61,14 @@ namespace game {
         if (!context.m_entityFactory) {
             context.m_entityFactory = std::make_shared<engine::EntityFactory>(context, context.m_archetypeManager);
         }
+
+        // Register Game-Specific Components
+        context.m_entityFactory->registerComponentLoader("Player", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            game::PlayerComponent playerComp;
+            playerComp.moveSpeed = data.value("moveSpeed", 5.0f);
+            playerComp.rotSpeed = data.value("rotSpeed", 10.0f);
+            registry.emplace<game::PlayerComponent>(entity, playerComp);
+        });
 
         // Load archetypes
         if (context.m_archetypeManager->loadArchetypes("../../assets/data/archetypes.json")) {
@@ -182,6 +192,7 @@ namespace game {
     void GameplayState::update(engine::EngineContext& context, float fixedDeltaTime) {
         if (!context.debugFlags.pauseGame) {
             m_physicsBodyCreationSystem.update();
+            m_playerControllerSystem.update(fixedDeltaTime);
             b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
             m_physicsEventSystem.update();
             context.m_dispatcher->update();

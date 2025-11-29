@@ -160,6 +160,7 @@ namespace engine {
             float density = data.value("density", 1.0f);
             bool isSensor = data.value("isSensor", false);
             bool fixedRotation = data.value("fixedRotation", false);
+            float linearDamping = data.value("linearDamping", 0.0f);
 
             registry.emplace<PendingPhysicsBodyComponent>(entity, PendingPhysicsBodyComponent{
                 .position = position,
@@ -167,7 +168,8 @@ namespace engine {
                 .isStatic = isStatic,
                 .density = density,
                 .isSensor = isSensor,
-                .fixedRotation = fixedRotation
+                .fixedRotation = fixedRotation,
+                .linearDamping = linearDamping
             });
         });
 

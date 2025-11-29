@@ -71,7 +71,7 @@ namespace engine {
         bool isPressed = sf::Keyboard::isKeyPressed(toSFMLKey(key));
         if (isPressed)
         {
-            m_logger->debug("Key {} is pressed.", static_cast<int>(key));
+            m_logger->trace("Key {} is pressed.", static_cast<int>(key));
         }
         return isPressed;
     }

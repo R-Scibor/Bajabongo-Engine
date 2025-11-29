@@ -11,6 +11,8 @@
 #include "engine/ecs/HierarchySystem.hpp"
 #include "engine/physics/LevelGeometryBuilder.hpp"
 
+#include "game/systems/PlayerControllerSystem.hpp"
+
 #include <entt/fwd.hpp>
 #include <memory>
 
@@ -46,6 +48,7 @@ namespace game {
         engine::PhysicsSyncSystem m_physicsSyncSystem;
         engine::RenderSystem m_renderSystem;
         engine::AnimationSystem m_animationSystem;
+        PlayerControllerSystem m_playerControllerSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;
         std::unique_ptr<engine::LevelGeometryBuilder> m_levelGeometryBuilder;

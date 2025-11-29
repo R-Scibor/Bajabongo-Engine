@@ -11,7 +11,8 @@
       "type": "dynamic",
       "size": [64.0, 64.0],
       "density": 1.0,
-      "isSensor": false
+      "isSensor": false,
+      "linearDamping": 3.0
     }
   },
   "heavy_crate": {
@@ -26,7 +27,8 @@
       "type": "dynamic",
       "size": [32.0, 32.0],
       "density": 20.0,
-      "isSensor": false
+      "isSensor": false,
+      "linearDamping": 3.0
     }
   },
   "player": {
@@ -41,10 +43,15 @@
       "defaultClip": "test_anim",
       "playing": true
     },
+    "Player": {
+      "moveSpeed": 50.0,
+      "rotSpeed": 10.0
+    },
     "Physics": {
       "type": "dynamic",
       "size": [20.0, 40.0],
-      "fixedRotation": true
+      "fixedRotation": true,
+      "linearDamping": 10.0
     }
   },
   "hat": {
@@ -66,10 +73,15 @@
       "defaultClip": "test_anim",
       "playing": true
     },
+    "Player": {
+      "moveSpeed": 50.0,
+      "rotSpeed": 10.0
+    },
     "Physics": {
       "type": "dynamic",
       "size": [20.0, 40.0],
-      "fixedRotation": true
+      "fixedRotation": true,
+      "linearDamping": 10.0
     },
     "children": [
       {
