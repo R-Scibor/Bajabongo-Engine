@@ -29,6 +29,7 @@ namespace engine
     {
         entt::entity sensorEntity;  // The entity that has the sensor shape
         entt::entity visitorEntity; // The entity that entered the sensor
+        bool isVisitorSensor;       // True if the visitor shape is also a sensor
     };
 
     /**

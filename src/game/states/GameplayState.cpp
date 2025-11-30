@@ -44,6 +44,7 @@ namespace game {
         , m_animationSystem(context)
         , m_cameraSystem(context)
         , m_playerControllerSystem(context)
+        , m_damageSystem(context)
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
         , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))

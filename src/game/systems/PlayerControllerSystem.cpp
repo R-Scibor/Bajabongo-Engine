@@ -13,6 +13,7 @@
 #include "engine/components/LifetimeComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/DamageComponent.hpp"
 #include "game/components/ProjectileComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 
@@ -131,27 +132,9 @@ namespace game {
 
                     // Game Logic
                     registry.emplace<ProjectileComponent>(projectile, weapon->damage);
+                    registry.emplace<DamageComponent>(projectile, weapon->damage); // Add DamageComponent!
                     registry.emplace<engine::LifetimeComponent>(projectile, weapon->projectileLifetime);
 
-                    // Apply Velocity immediately (Wait, we need the body first...)
-                    // We can't apply velocity here because the body isn't created yet.
-                    // PendingPhysicsBodyComponent is processed in PhysicsBodyCreationSystem.
-                    // We need a way to set initial velocity.
-                    // OPTION: Add initialVelocity to PendingPhysicsBodyComponent or handle it in a separate system?
-                    // SIMPLER OPTION: We can use a "ProjectileTag" and a system that sets velocity once body exists?
-                    // OR: Since we are in C++, we can just manually create the body here?
-                    // NO, we want to use the systems.
-                    
-                    // Let's use a simpler hack: Store the velocity in a component and apply it when body is ready.
-                    // But PhysicsBodyCreationSystem runs before Controller? Or after?
-                    // If it runs before, the body will be created next frame.
-                    
-                    // Let's add a "Projectile" tag and have a "ProjectileSystem" (or just do it here if we had the body)
-                    // Actually, we can just add a generic "InitialVelocityComponent"
-                    // but for now let's just add it to ProjectileComponent and have a system handle it?
-                    
-                    // Alternative: Use PendingPhysicsBodyComponent to store initial velocity?
-                    // That seems clean. Let's add initialVelocity to PendingPhysicsBodyComponent.
                 }
             }
         });

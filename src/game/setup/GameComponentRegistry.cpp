@@ -5,6 +5,7 @@
 // Game Components
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/HealthComponent.hpp"
+#include "game/components/DamageComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 
 #include <entt/entt.hpp>
@@ -52,6 +53,16 @@ namespace game {
                 weapon.cooldownTimer = data.value("cooldownTimer", 0.0f);
                 
                 registry.emplace<WeaponComponent>(entity, weapon);
+            }
+        );
+
+        // --- 4. Rejestracja DamageComponent ---
+        factory.registerComponentLoader("Damage",
+            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                DamageComponent damage;
+                damage.damageValue = data.value("damageValue", 10.0f);
+                
+                registry.emplace<DamageComponent>(entity, damage);
             }
         );
     }

@@ -98,7 +98,8 @@ namespace engine
 
             if (m_registry->valid(sensorEntity) && m_registry->valid(visitorEntity))
             {
-                m_dispatcher->enqueue<PhysicsSensorBeginEvent>(sensorEntity, visitorEntity);
+                bool isVisitorSensor = b2Shape_IsSensor(visitorShapeId);
+                m_dispatcher->enqueue<PhysicsSensorBeginEvent>(sensorEntity, visitorEntity, isVisitorSensor);
             }
         }
 

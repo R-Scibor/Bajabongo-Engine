@@ -14,6 +14,7 @@
 #include "engine/systems/LifetimeSystem.hpp"
 
 #include "game/systems/PlayerControllerSystem.hpp"
+#include "game/systems/DamageSystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -51,6 +52,7 @@ namespace game {
         engine::RenderSystem m_renderSystem;
         engine::AnimationSystem m_animationSystem;
         engine::CameraSystem m_cameraSystem;
+        DamageSystem m_damageSystem;
         PlayerControllerSystem m_playerControllerSystem;
         engine::LifetimeSystem m_lifetimeSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
