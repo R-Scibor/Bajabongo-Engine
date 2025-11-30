@@ -79,7 +79,7 @@ namespace game {
             game::WeaponComponent weapon;
             weapon.cooldownTimer = data.value("cooldownTimer", 0.0f);
             weapon.fireRate = data.value("fireRate", 0.2f);
-            weapon.projectileSpeed = data.value("projectileSpeed", 20.0f);
+            weapon.projectileSpeed = data.value("projectileSpeed", 300.0f);
             weapon.projectileLifetime = data.value("projectileLifetime", 2.0f);
             weapon.damage = data.value("damage", 10.0f);
             registry.emplace<game::WeaponComponent>(entity, weapon);

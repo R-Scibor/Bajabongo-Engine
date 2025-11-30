@@ -8,6 +8,11 @@
                     "id": "box_sprite",
                     "region": [0, 0, 32, 32],
                     "origin": [16.0, 32.0]
+                },
+                {
+                    "id": "bullet_sprite",
+                    "region": [0, 0, 32, 32],
+                    "origin": [16.0, 16.0]
                 }
             ]
         },
@@ -19,6 +24,17 @@
                     "id": "ground_sprite",
                     "region": [0, 0, 32, 32],
                     "origin": [16.0, 32.0]
+                }
+            ]
+        },
+        {
+            "id": "bullet_texture",
+            "path": "../../assets/textures/bulllet.png",
+            "sprites": [
+                {
+                    "id": "bullet_sprite",
+                    "region": [0, 0, 32, 32],
+                    "origin": [16.0, 16.0]
                 }
             ]
         },

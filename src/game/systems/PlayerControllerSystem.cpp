@@ -127,7 +127,7 @@ namespace game {
 
                     // Visuals
                     registry.emplace<engine::TransformComponent>(projectile, spawnPos);
-                    registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::Yellow);
+                    registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
 
                     // Game Logic
                     registry.emplace<ProjectileComponent>(projectile, weapon->damage);
