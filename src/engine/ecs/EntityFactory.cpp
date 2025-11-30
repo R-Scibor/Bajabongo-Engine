@@ -50,6 +50,9 @@ namespace engine {
 
         // 3. Iterate over keys in JSON and call registered loaders
         for (auto& [key, value] : archetypeData->items()) {
+            // Special case: 'children' is handled separately after this loop (recursive spawning)
+            if (key == "children") continue;
+
             auto it = m_componentRegistry.find(key);
             if (it != m_componentRegistry.end()) {
                 try {

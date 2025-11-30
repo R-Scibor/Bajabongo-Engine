@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "GameplayState.hpp"
+#include "game/setup/GameComponentRegistry.hpp"
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -65,25 +66,10 @@ namespace game {
 
         if (!context.m_entityFactory) {
             context.m_entityFactory = std::make_shared<engine::EntityFactory>(context, context.m_archetypeManager);
+            
+            // Rejestrujemy komponenty specyficzne dla gry w fabryce silnika
+            game::RegisterGameComponents(context);
         }
-
-        // Register Game-Specific Components
-        context.m_entityFactory->registerComponentLoader("Player", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            game::PlayerComponent playerComp;
-            playerComp.moveSpeed = data.value("moveSpeed", 5.0f);
-            playerComp.rotSpeed = data.value("rotSpeed", 10.0f);
-            registry.emplace<game::PlayerComponent>(entity, playerComp);
-        });
-
-        context.m_entityFactory->registerComponentLoader("Weapon", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            game::WeaponComponent weapon;
-            weapon.cooldownTimer = data.value("cooldownTimer", 0.0f);
-            weapon.fireRate = data.value("fireRate", 0.2f);
-            weapon.projectileSpeed = data.value("projectileSpeed", 300.0f);
-            weapon.projectileLifetime = data.value("projectileLifetime", 2.0f);
-            weapon.damage = data.value("damage", 10.0f);
-            registry.emplace<game::WeaponComponent>(entity, weapon);
-        });
 
         // Load archetypes
         if (context.m_archetypeManager->loadArchetypes("../../assets/data/archetypes.json")) {
@@ -101,7 +87,8 @@ namespace game {
             // NEW: Spawn composite archetype (player_with_hat)
             entt::entity player = context.m_entityFactory->spawn("player_with_hat", {500.f, 100.f});
             registry.emplace<engine::CameraFocusComponent>(player, 1.0f, 5.0f);
-            registry.emplace<game::WeaponComponent>(player); // Add default weapon
+            
+            // Note: WeaponComponent is now loaded from archetype JSON, so we don't need to add it manually.
 
             // Boxes
             context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});

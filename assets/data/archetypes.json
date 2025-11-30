@@ -44,8 +44,15 @@
       "playing": true
     },
     "Player": {
-      "moveSpeed": 50.0,
+      "moveSpeed": 150.0,
       "rotSpeed": 10.0
+    },
+    "Health": {
+      "maxHp": 200.0
+    },
+    "Weapon": {
+      "fireRate": 0.1,
+      "damage": 10.0
     },
     "Physics": {
       "type": "dynamic",
@@ -74,8 +81,15 @@
       "playing": true
     },
     "Player": {
-      "moveSpeed": 50.0,
+      "moveSpeed": 150.0,
       "rotSpeed": 10.0
+    },
+    "Health": {
+      "maxHp": 200.0
+    },
+    "Weapon": {
+      "fireRate": 0.1,
+      "damage": 10.0
     },
     "Physics": {
       "type": "dynamic",
@@ -90,5 +104,26 @@
         "rotation": 0.0
       }
     ]
+  },
+  "soldier": {
+    "Transform": {
+      "scale": [1.0, 1.0]
+    },
+    "Renderable": {
+      "spriteId": "box_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [32.0, 32.0],
+      "fixedRotation": true
+    },
+    "Health": {
+      "maxHp": 100.0
+    },
+    "Weapon": {
+      "fireRate": 0.2,
+      "damage": 25.0
+    }
   }
 }
