@@ -145,6 +145,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\PlayerComponent.hpp" />
+    <ClInclude Include="components\ProjectileComponent.hpp" />
+    <ClInclude Include="components\WeaponComponent.hpp" />
     <ClInclude Include="states\GameplayState.hpp" />
     <ClInclude Include="states\MainMenuState.hpp" />
     <ClInclude Include="systems\PlayerControllerSystem.hpp" />

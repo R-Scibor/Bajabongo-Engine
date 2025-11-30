@@ -166,6 +166,7 @@
     <ClInclude Include="core\IGameState.hpp" />
     <ClInclude Include="core\IInputManager.hpp" />
     <ClInclude Include="core\input\KeyCode.hpp" />
+    <ClInclude Include="core\input\MouseCode.hpp" />
     <ClInclude Include="core\IResourceManager.hpp" />
     <ClInclude Include="core\IWindow.hpp" />
     <ClInclude Include="core\StateManager.hpp" />

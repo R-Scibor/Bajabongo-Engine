@@ -17,6 +17,7 @@ namespace engine {
         SFMLInputManager(ILoggerManager& logManager, sf::RenderWindow& window);
         void processEvent(const sf::Event& event) override;
         bool isKeyPressed(engine::KeyCode key) const override;
+        bool isMouseButtonPressed(engine::MouseCode button) const override;
         engine::Vector2i getMousePosition() const override;
     private:
         std::shared_ptr<ILogger> m_logger;

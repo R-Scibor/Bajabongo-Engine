@@ -1,6 +1,7 @@
 ﻿#include "SFMLInputManager.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/core/input/MouseCode.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Event.hpp>
@@ -50,6 +51,16 @@ namespace {
             default: return sf::Keyboard::Key::Unknown;
         }
     }
+    sf::Mouse::Button toSFMLMouse(engine::MouseCode button) {
+        switch (button) {
+            case engine::MouseCode::Left: return sf::Mouse::Button::Left;
+            case engine::MouseCode::Right: return sf::Mouse::Button::Right;
+            case engine::MouseCode::Middle: return sf::Mouse::Button::Middle;
+            case engine::MouseCode::XButton1: return sf::Mouse::Button::Extra1;
+            case engine::MouseCode::XButton2: return sf::Mouse::Button::Extra2;
+            default: return sf::Mouse::Button::Left;
+        }
+    }
 }
 
 namespace engine {
@@ -74,6 +85,10 @@ namespace engine {
             m_logger->trace("Key {} is pressed.", static_cast<int>(key));
         }
         return isPressed;
+    }
+
+    bool SFMLInputManager::isMouseButtonPressed(engine::MouseCode button) const {
+        return sf::Mouse::isButtonPressed(toSFMLMouse(button));
     }
 
     engine::Vector2i SFMLInputManager::getMousePosition() const {

@@ -38,6 +38,8 @@ namespace engine
             bodyDef.position = { pending.position.x, pending.position.y };
             bodyDef.fixedRotation = pending.fixedRotation;
             bodyDef.linearDamping = pending.linearDamping;
+            bodyDef.isBullet = pending.isBullet;
+            bodyDef.linearVelocity = { pending.initialVelocity.x, pending.initialVelocity.y };
 
             b2BodyId bodyId = b2CreateBody(m_worldId, &bodyDef);
             if (!b2Body_IsValid(bodyId)) {

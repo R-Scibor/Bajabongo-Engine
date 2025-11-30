@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/input/KeyCode.hpp"
+#include "engine/core/input/MouseCode.hpp"
 #include "engine/core/math/MathAliases.hpp"
 
 namespace sf {
@@ -15,6 +16,7 @@ namespace engine {
 
         virtual void processEvent(const sf::Event& event) = 0;
         virtual bool isKeyPressed(engine::KeyCode key) const = 0;
+        virtual bool isMouseButtonPressed(engine::MouseCode button) const = 0;
         virtual engine::Vector2i getMousePosition() const = 0;
     };
 

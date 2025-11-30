@@ -37,6 +37,10 @@ namespace engine
             b2ShapeId shapeIdA = beginEvent->shapeIdA;
             b2ShapeId shapeIdB = beginEvent->shapeIdB;
 
+            if (!b2Shape_IsValid(shapeIdA) || !b2Shape_IsValid(shapeIdB)) {
+                continue;
+            }
+
             auto entityA = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdA);
             auto entityB = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdB);
 
@@ -53,10 +57,14 @@ namespace engine
             b2ShapeId shapeIdA = endEvent->shapeIdA;
             b2ShapeId shapeIdB = endEvent->shapeIdB;
 
+            if (!b2Shape_IsValid(shapeIdA) || !b2Shape_IsValid(shapeIdB)) {
+                continue;
+            }
+
             auto entityA = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdA);
             auto entityB = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdB);
 
-            // Even if entities are destroyed, we might want to signal end contact? 
+            // Even if entities are destroyed, we might want to signal end contact?
             // But if they are destroyed, the registry check will fail.
             // For now, only dispatch if valid to be safe.
             if (m_registry->valid(entityA) && m_registry->valid(entityB))
@@ -81,6 +89,10 @@ namespace engine
             b2ShapeId sensorShapeId = beginEvent->sensorShapeId;
             b2ShapeId visitorShapeId = beginEvent->visitorShapeId;
 
+            if (!b2Shape_IsValid(sensorShapeId) || !b2Shape_IsValid(visitorShapeId)) {
+                continue;
+            }
+
             auto sensorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(sensorShapeId);
             auto visitorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(visitorShapeId);
 
@@ -96,6 +108,10 @@ namespace engine
 
             b2ShapeId sensorShapeId = endEvent->sensorShapeId;
             b2ShapeId visitorShapeId = endEvent->visitorShapeId;
+
+            if (!b2Shape_IsValid(sensorShapeId) || !b2Shape_IsValid(visitorShapeId)) {
+                continue;
+            }
 
             auto sensorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(sensorShapeId);
             auto visitorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(visitorShapeId);

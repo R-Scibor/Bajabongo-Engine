@@ -13,5 +13,7 @@ namespace engine
         bool isSensor = false;  // True if the shape is a sensor (no collision response)
         bool fixedRotation = false; // True to prevent body rotation
         float linearDamping = 0.0f; // Linear damping (air resistance / friction)
+        bool isBullet = false;      // True if the body should be treated as a bullet (CCD)
+        Vector2f initialVelocity = {0.0f, 0.0f}; // Initial linear velocity
     };
 }

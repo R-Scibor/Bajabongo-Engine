@@ -4,9 +4,16 @@
 #include <entt/entt.hpp>
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/IInputManager.hpp"
+#include "engine/core/input/MouseCode.hpp"
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/components/PendingPhysicsBodyComponent.hpp"
+#include "engine/components/TransformComponent.hpp"
+#include "engine/components/RenderableComponent.hpp"
+#include "engine/components/LifetimeComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
+#include "game/components/WeaponComponent.hpp"
+#include "game/components/ProjectileComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 
 #include <box2d/box2d.h>
@@ -29,6 +36,12 @@ namespace game {
 
         view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp) {
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
+
+            // Update Weapon Cooldown
+            auto* weapon = registry.try_get<WeaponComponent>(entity);
+            if (weapon && weapon->cooldownTimer > 0.0f) {
+                weapon->cooldownTimer -= fixedDeltaTime;
+            }
 
             // --- Movement (WASD) ---
             engine::Vector2f moveDir{ 0.0f, 0.0f };
@@ -77,6 +90,69 @@ namespace game {
 
                 // Set rotation directly
                 b2Body_SetTransform(bodyComp.bodyId, bodyPos, b2MakeRot(angle));
+
+                // --- Shooting (Left Click) ---
+                if (weapon && input->isMouseButtonPressed(engine::MouseCode::Left) && weapon->cooldownTimer <= 0.0f)
+                {
+                    // Reset Cooldown
+                    weapon->cooldownTimer = weapon->fireRate;
+
+                    // Calculate spawn position (offset from center to avoid self-collision or just look better)
+                    // For now, spawn at center + small offset in direction of aim
+                    float spawnOffset = 30.0f; // Adjust based on player size
+                    float cosA = std::cos(angle);
+                    float sinA = std::sin(angle);
+                    
+                    engine::Vector2f spawnPos = {
+                        bodyPos.x + cosA * spawnOffset,
+                        bodyPos.y + sinA * spawnOffset
+                    };
+
+                    // Create Projectile Entity
+                    auto projectile = registry.create();
+
+                    // Physics
+                    registry.emplace<engine::PendingPhysicsBodyComponent>(
+                        projectile,
+                        spawnPos,
+                        engine::Vector2f{ 10.0f, 10.0f }, // Size
+                        false, // Dynamic
+                        1.0f,  // Density
+                        true,  // isSensor
+                        false, // fixedRotation
+                        0.0f,   // damping
+                        true,   // isBullet
+                        engine::Vector2f{ cosA * weapon->projectileSpeed, sinA * weapon->projectileSpeed } // initialVelocity
+                    );
+
+                    // Visuals
+                    registry.emplace<engine::TransformComponent>(projectile, spawnPos);
+                    registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::Yellow);
+
+                    // Game Logic
+                    registry.emplace<ProjectileComponent>(projectile, weapon->damage);
+                    registry.emplace<engine::LifetimeComponent>(projectile, weapon->projectileLifetime);
+
+                    // Apply Velocity immediately (Wait, we need the body first...)
+                    // We can't apply velocity here because the body isn't created yet.
+                    // PendingPhysicsBodyComponent is processed in PhysicsBodyCreationSystem.
+                    // We need a way to set initial velocity.
+                    // OPTION: Add initialVelocity to PendingPhysicsBodyComponent or handle it in a separate system?
+                    // SIMPLER OPTION: We can use a "ProjectileTag" and a system that sets velocity once body exists?
+                    // OR: Since we are in C++, we can just manually create the body here?
+                    // NO, we want to use the systems.
+                    
+                    // Let's use a simpler hack: Store the velocity in a component and apply it when body is ready.
+                    // But PhysicsBodyCreationSystem runs before Controller? Or after?
+                    // If it runs before, the body will be created next frame.
+                    
+                    // Let's add a "Projectile" tag and have a "ProjectileSystem" (or just do it here if we had the body)
+                    // Actually, we can just add a generic "InitialVelocityComponent"
+                    // but for now let's just add it to ProjectileComponent and have a system handle it?
+                    
+                    // Alternative: Use PendingPhysicsBodyComponent to store initial velocity?
+                    // That seems clean. Let's add initialVelocity to PendingPhysicsBodyComponent.
+                }
             }
         });
     }

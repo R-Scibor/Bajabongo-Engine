@@ -11,6 +11,7 @@
 #include "engine/ecs/HierarchySystem.hpp"
 #include "engine/physics/LevelGeometryBuilder.hpp"
 #include "engine/rendering/CameraSystem.hpp"
+#include "engine/systems/LifetimeSystem.hpp"
 
 #include "game/systems/PlayerControllerSystem.hpp"
 
@@ -51,6 +52,7 @@ namespace game {
         engine::AnimationSystem m_animationSystem;
         engine::CameraSystem m_cameraSystem;
         PlayerControllerSystem m_playerControllerSystem;
+        engine::LifetimeSystem m_lifetimeSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;
         std::unique_ptr<engine::LevelGeometryBuilder> m_levelGeometryBuilder;
