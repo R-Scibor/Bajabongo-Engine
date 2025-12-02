@@ -16,6 +16,7 @@
 #include "game/systems/PlayerControllerSystem.hpp"
 #include "game/systems/DamageSystem.hpp"
 #include "game/systems/WeaponSystem.hpp"
+#include "game/systems/HudSystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -60,6 +61,7 @@ namespace game {
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;
         std::unique_ptr<engine::LevelGeometryBuilder> m_levelGeometryBuilder;
+        std::unique_ptr<HudSystem> m_hudSystem;
 
         std::shared_ptr<engine::ILogger> m_logger;
         entt::connection m_physicsCleanupHook;

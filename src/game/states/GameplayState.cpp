@@ -49,6 +49,7 @@ namespace game {
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
         , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))
+        , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
 
@@ -219,6 +220,10 @@ namespace game {
             // DT is currently not used for UI logic but passed for API consistency
             m_editorSystem->Update(0.0f);
             m_editorSystem->Render();
+        }
+
+        if (m_hudSystem) {
+            m_hudSystem->render();
         }
     }
 
