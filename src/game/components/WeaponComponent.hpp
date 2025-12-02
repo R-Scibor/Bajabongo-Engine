@@ -17,5 +17,10 @@ namespace game
         float reloadDuration = 2.0f;
         float reloadTimer = 0.0f;
         bool isReloading = false;
+
+        // Control State (Set by Controller/AI)
+        bool wantsToShoot = false;
+        bool wantsToReload = false;
+        float aimAngle = 0.0f;
     };
 }

@@ -94,7 +94,7 @@
       "maxHp": 200.0
     },
     "Weapon": {
-      "fireRate": 0.1,
+      "fireRate": 0.15,
       "damage": 10.0
     },
     "Physics": {
