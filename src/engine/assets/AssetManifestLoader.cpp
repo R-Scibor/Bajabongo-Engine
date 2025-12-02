@@ -150,6 +150,15 @@ namespace engine {
         std::vector<std::string> spriteIds;
         spriteIds.reserve(frameCount);
 
+        // Check for optional origin override
+        sf::Vector2f customOrigin;
+        bool hasCustomOrigin = false;
+        if (animJson.contains("origin") && animJson["origin"].is_array() && animJson["origin"].size() == 2) {
+            customOrigin.x = animJson["origin"][0].get<float>();
+            customOrigin.y = animJson["origin"][1].get<float>();
+            hasCustomOrigin = true;
+        }
+
         // Checkpoint 4.2: The Slicing Loop
         for (int i = 0; i < frameCount; ++i) {
             int col = i % columns;
@@ -165,7 +174,12 @@ namespace engine {
             engine::SpriteDesc desc;
             desc.textureId = textureId;
             desc.uvRect = sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(w, h));
-            desc.origin = sf::Vector2f(w * 0.5f, h * 1.0f); // Default pivot: Bottom Center
+            
+            if (hasCustomOrigin) {
+                desc.origin = customOrigin;
+            } else {
+                desc.origin = sf::Vector2f(w * 0.5f, h * 0.5f); // Default pivot: Center
+            }
 
             m_spriteManager->registerSprite(frameId, desc);
             spriteIds.push_back(frameId);

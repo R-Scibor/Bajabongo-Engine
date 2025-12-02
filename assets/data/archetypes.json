@@ -10,7 +10,7 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [256.0, 256.0],
+      "size": [128.0, 128.0],
       "density": 1.0,
       "isSensor": false,
       "linearDamping": 3.0
