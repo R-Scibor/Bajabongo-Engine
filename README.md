@@ -39,6 +39,10 @@ With the core architectural patterns (DI, ECS, State Management) in place, the n
 2.  Creating more concrete states, such as a `PauseState` or `OptionsState`.
 3.  Developing more sophisticated rendering techniques within the existing `RenderSystem`.
 
+## Tools
+
+*   **Asset Baker:** A Python utility for automating resource manifest generation and hot-reloading assets. See [Asset Pipeline](docs/asset_pipeline.md).
+
 ## Documentation
 
 *   [State Management System](docs/state_management.md)
@@ -46,3 +50,4 @@ With the core architectural patterns (DI, ECS, State Management) in place, the n
 *   [Logging System Architecture](docs/logging.md)
 *   [Core Math Library](docs/math.md)
 *   [Physics System Architecture](docs/physics.md)
+*   [Asset Pipeline & Tools](docs/asset_pipeline.md)
