@@ -144,6 +144,7 @@
     <ClCompile Include="states\MainMenuState.cpp" />
     <ClCompile Include="systems\DamageSystem.cpp" />
     <ClCompile Include="systems\PlayerControllerSystem.cpp" />
+    <ClCompile Include="systems\WeaponSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\DamageComponent.hpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="states\MainMenuState.hpp" />
     <ClInclude Include="systems\DamageSystem.hpp" />
     <ClInclude Include="systems\PlayerControllerSystem.hpp" />
+    <ClInclude Include="systems\WeaponSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

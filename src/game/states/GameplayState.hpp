@@ -15,6 +15,7 @@
 
 #include "game/systems/PlayerControllerSystem.hpp"
 #include "game/systems/DamageSystem.hpp"
+#include "game/systems/WeaponSystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -54,6 +55,7 @@ namespace game {
         engine::CameraSystem m_cameraSystem;
         DamageSystem m_damageSystem;
         PlayerControllerSystem m_playerControllerSystem;
+        WeaponSystem m_weaponSystem;
         engine::LifetimeSystem m_lifetimeSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;

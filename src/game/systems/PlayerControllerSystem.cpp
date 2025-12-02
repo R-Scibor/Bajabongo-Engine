@@ -38,11 +38,7 @@ namespace game {
         view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp) {
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
 
-            // Update Weapon Cooldown
             auto* weapon = registry.try_get<WeaponComponent>(entity);
-            if (weapon && weapon->cooldownTimer > 0.0f) {
-                weapon->cooldownTimer -= fixedDeltaTime;
-            }
 
             // --- Movement (WASD) ---
             engine::Vector2f moveDir{ 0.0f, 0.0f };
@@ -93,12 +89,29 @@ namespace game {
                 b2Body_SetTransform(bodyComp.bodyId, bodyPos, b2MakeRot(angle));
 
                 // --- Shooting (Left Click) ---
-                if (weapon && input->isMouseButtonPressed(engine::MouseCode::Left) && weapon->cooldownTimer <= 0.0f)
+                // --- Reload Input (R) ---
+                if (weapon && input->isKeyPressed(engine::KeyCode::R))
                 {
-                    // Reset Cooldown
-                    weapon->cooldownTimer = weapon->fireRate;
+                    if (weapon->currentAmmo < weapon->magSize && !weapon->isReloading && weapon->totalAmmo > 0)
+                    {
+                        weapon->isReloading = true;
+                        weapon->reloadTimer = weapon->reloadDuration;
+                        // TODO: Play reload sound
+                    }
+                }
 
-                    // Calculate spawn position (offset from center to avoid self-collision or just look better)
+                // --- Shooting (Left Click) ---
+                if (weapon && input->isMouseButtonPressed(engine::MouseCode::Left)
+                    && weapon->cooldownTimer <= 0.0f
+                    && !weapon->isReloading)
+                {
+                    if (weapon->currentAmmo > 0)
+                    {
+                         // Reset Cooldown
+                        weapon->cooldownTimer = weapon->fireRate;
+                        weapon->currentAmmo--;
+
+                        // Calculate spawn position (offset from center to avoid self-collision or just look better)
                     // For now, spawn at center + small offset in direction of aim
                     float spawnOffset = 30.0f; // Adjust based on player size
                     float cosA = std::cos(angle);
@@ -123,17 +136,32 @@ namespace game {
                         false, // fixedRotation
                         0.0f,   // damping
                         true,   // isBullet
-                        engine::Vector2f{ cosA * weapon->projectileSpeed, sinA * weapon->projectileSpeed } // initialVelocity
+                        engine::Vector2f{ cosA * weapon->projectileSpeed, sinA * weapon->projectileSpeed }, // initialVelocity
+                        angle // rotation
                     );
 
                     // Visuals
-                    registry.emplace<engine::TransformComponent>(projectile, spawnPos);
+                    registry.emplace<engine::TransformComponent>(projectile, spawnPos, angle);
                     registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
 
                     // Game Logic
                     registry.emplace<ProjectileComponent>(projectile, weapon->damage);
                     registry.emplace<DamageComponent>(projectile, weapon->damage); // Add DamageComponent!
-                    registry.emplace<engine::LifetimeComponent>(projectile, weapon->projectileLifetime);
+                        registry.emplace<engine::LifetimeComponent>(projectile, weapon->projectileLifetime);
+                    }
+                    else
+                    {
+                        // Out of ammo - trigger auto-reload or click sound
+                        if (!weapon->isReloading && weapon->totalAmmo > 0)
+                        {
+                            weapon->isReloading = true;
+                            weapon->reloadTimer = weapon->reloadDuration;
+                        }
+                        else
+                        {
+                            // TODO: Play "click" sound (empty)
+                        }
+                    }
 
                 }
             }

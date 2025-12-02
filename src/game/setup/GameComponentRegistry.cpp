@@ -52,6 +52,14 @@ namespace game {
                 weapon.projectileLifetime = data.value("projectileLifetime", 2.0f);
                 weapon.cooldownTimer = data.value("cooldownTimer", 0.0f);
                 
+                // Ammo & Reload
+                weapon.magSize = data.value("magSize", 30);
+                weapon.currentAmmo = data.value("currentAmmo", weapon.magSize); // Default to full mag
+                weapon.totalAmmo = data.value("totalAmmo", 90);
+                weapon.reloadDuration = data.value("reloadDuration", 2.0f);
+                weapon.isReloading = false;
+                weapon.reloadTimer = 0.0f;
+
                 registry.emplace<WeaponComponent>(entity, weapon);
             }
         );

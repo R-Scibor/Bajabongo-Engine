@@ -45,6 +45,7 @@ namespace game {
         , m_cameraSystem(context)
         , m_playerControllerSystem(context)
         , m_damageSystem(context)
+        , m_weaponSystem(context)
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
         , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))
@@ -198,6 +199,7 @@ namespace game {
         if (!context.debugFlags.pauseGame) {
             m_physicsBodyCreationSystem.update();
             m_playerControllerSystem.update(fixedDeltaTime);
+            m_weaponSystem.update(fixedDeltaTime);
             b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
             m_physicsEventSystem.update();
             context.m_dispatcher->update();
