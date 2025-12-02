@@ -31,19 +31,29 @@ namespace engine
             const auto& focus = view.get<CameraFocusComponent>(entity);
             const auto& transform = m_registry.get<TransformComponent>(entity);
 
+            // 1. Handle View Size (Zoom)
+            Vector2u windowSize = m_renderer->getWindowSize();
+            if (windowSize.y > 0) {
+                float aspectRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
+                float viewHeight = focus.viewHeight;
+                float viewWidth = viewHeight * aspectRatio;
+                m_renderer->setViewSize({viewWidth, viewHeight});
+            }
+
+            // 2. Handle View Center (Movement)
             Vector2f currentPos = m_renderer->getViewCenter();
             Vector2f targetPos = transform.position;
             
-            // Lerp factor: dt * smoothness
-            // Clamp to 1.0f to prevent overshooting
-            float t = std::min(fixedDeltaTime * focus.smoothness, 1.0f);
+            // Lerp factor: Use smoothness directly as interpolation factor (0.0 to 1.0)
+            // This interprets '0.1' as "move 10% towards target per frame".
+            float t = std::clamp(focus.smoothness, 0.0f, 1.0f);
             
             Vector2f newPos = currentPos + (targetPos - currentPos) * t;
             
             m_renderer->setViewCenter(newPos);
             
             // We break after the first camera focus entity found
-            break; 
+            break;
         }
     }
 }

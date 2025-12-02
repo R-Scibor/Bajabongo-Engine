@@ -54,6 +54,11 @@ namespace engine
         return m_renderWindow.pollEvent();
     }
 
+    Vector2u SFMLRenderer::getSize() const {
+        sf::Vector2u size = m_renderWindow.getSize();
+        return { size.x, size.y };
+    }
+
     // --- Implementacja IRenderer ---
 
     void SFMLRenderer::beginFrame() {
@@ -127,6 +132,16 @@ namespace engine
     engine::Vector2f SFMLRenderer::getViewCenter() const {
         const sf::View& view = m_renderWindow.getView();
         return { view.getCenter().x, view.getCenter().y };
+    }
+
+    void SFMLRenderer::setViewSize(engine::Vector2f size) {
+        sf::View view = m_renderWindow.getView();
+        view.setSize({ size.x, size.y });
+        m_renderWindow.setView(view);
+    }
+
+    engine::Vector2u SFMLRenderer::getWindowSize() const {
+        return getSize();
     }
 
     engine::Vector2f SFMLRenderer::screenToWorld(engine::Vector2f screenPos) {

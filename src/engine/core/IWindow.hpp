@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <optional>
+#include "engine/core/math/MathAliases.hpp"
 
 // Forward declaration for the event type
 namespace sf {
@@ -49,5 +50,11 @@ namespace engine
          * @return A void pointer to the native window handle (e.g., HWND on Windows).
          */
         virtual void* getNativeHandle() const = 0;
+
+        /**
+         * @brief Returns the current size of the window.
+         * @return The size of the window in pixels.
+         */
+        virtual Vector2u getSize() const = 0;
     };
 }

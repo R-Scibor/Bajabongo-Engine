@@ -29,6 +29,7 @@ namespace engine
         bool isOpen() const override;
         void* getNativeHandle() const override;
         std::optional<sf::Event> pollEvent() override;
+        Vector2u getSize() const override;
 
         // --- IRenderer Implementation ---
         void beginFrame() override;
@@ -40,6 +41,8 @@ namespace engine
         engine::Vector2f screenToWorld(engine::Vector2f screenPos) override;
         void setViewCenter(engine::Vector2f center) override;
         engine::Vector2f getViewCenter() const override;
+        void setViewSize(engine::Vector2f size) override;
+        engine::Vector2u getWindowSize() const override;
         void endFrame() override;
 
         // --- SFML Specific ---

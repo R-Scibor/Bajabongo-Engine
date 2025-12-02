@@ -89,7 +89,7 @@ namespace game {
             // Spawn player above the sensor to force collision
             // NEW: Spawn composite archetype (player_with_hat)
             entt::entity player = context.m_entityFactory->spawn("player_with_hat", {500.f, 100.f});
-            registry.emplace<engine::CameraFocusComponent>(player, 1.0f, 5.0f);
+            // CameraFocus is now loaded from archetype
             
             // Note: WeaponComponent is now loaded from archetype JSON, so we don't need to add it manually.
 

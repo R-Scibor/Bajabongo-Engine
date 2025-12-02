@@ -7,6 +7,7 @@
 #include "engine/components/ParentComponent.hpp"
 #include "engine/components/ChildComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
+#include "engine/components/CameraFocusComponent.hpp"
 #include "engine/components/MetaComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
@@ -19,6 +20,7 @@ namespace engine {
         static constexpr const char* Renderable = "Renderable";
         static constexpr const char* Physics = "Physics";
         static constexpr const char* Animation = "Animation";
+        static constexpr const char* CameraFocus = "CameraFocus";
     }
 
     EntityFactory::EntityFactory(EngineContext& context, std::shared_ptr<ArchetypeManager> archetypeManager)
@@ -183,6 +185,15 @@ namespace engine {
             animComp.isPlaying = data.value("playing", false);
             
             registry.emplace<AnimationComponent>(entity, animComp);
+        });
+
+        // --- CameraFocus ---
+        registerComponentLoader(ComponentNames::CameraFocus, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            CameraFocusComponent cameraComp;
+            cameraComp.viewHeight = data.value("viewHeight", 720.0f);
+            cameraComp.smoothness = data.value("smoothness", 0.1f);
+            
+            registry.emplace<CameraFocusComponent>(entity, cameraComp);
         });
     }
 

@@ -71,7 +71,6 @@ namespace game {
             ImGui::End();
             
             // Break after finding the first player (if multiple players exist, we'd need a different logic)
-            // But inside lambda we can't break easily without a flag, but for now it's fine as we expect one player.
         });
     }
 

@@ -4,7 +4,7 @@ namespace engine
 {
     struct CameraFocusComponent
     {
-        float zoom = 1.0f;
-        float smoothness = 5.0f; // Higher is faster
+        float viewHeight = 720.0f; // Height of the camera view in world units
+        float smoothness = 0.1f; // Higher is faster (0.1 = 10% per frame)
     };
 }
