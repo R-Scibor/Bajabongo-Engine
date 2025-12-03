@@ -86,4 +86,15 @@ Issue: Tymczasowe czyszczenie świata (Brute-force Scene Clear)
 
         Wymaga ponownego inicjowania wszystkich zasobów przy każdym wejściu do gry.
 
+
+Section: Assets & Loading
+
+Issue: Hardcoded Map Loader
+    Status: Temporary Hack (Phase 5C - Map Milestone)
+    Description: The current `MapLoader` class (`src/engine/assets/MapLoader.cpp`) is a temporary solution designed to load a specific `map.json` (Tiled export) for the milestone. It contains hardcoded scaling factors (4.0f) and relies on specific layer names ("Collision", "Image Layer 1") and resource IDs ("map_sprite").
+    Limitations:
+        - Does not support generic Tiled map loading (multiple layers, tilesets, object types).
+        - Scaling is hardcoded in C++ instead of being data-driven or handled by the camera/viewport.
+        - Does not integrate with a proper Level/Scene management system.
+    Target Solution: Implement a robust Level Loader that can parse generic Tiled JSON exports, handle multiple layers, tilesets, and object properties dynamically. It should integrate with the resource manager to load required textures on demand.
     Rozwiązanie docelowe: System Zarządzania Scenami z obsługą tagów DontDestroyOnLoad lub pełna serializacja stanu gracza do pliku przed przeładowaniem sceny.
