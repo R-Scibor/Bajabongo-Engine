@@ -2,56 +2,116 @@
     "textures": [
         {
             "id": "box_texture",
-            "path": "../../assets/textures/box.png",
+            "path": "../textures/box.png",
             "sprites": [
                 {
                     "id": "box_sprite",
-                    "region": [0, 0, 32, 32],
-                    "origin": [16.0, 16.0]
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        64
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
                 },
                 {
                     "id": "bullet_sprite",
-                    "region": [0, 0, 32, 32],
-                    "origin": [16.0, 16.0]
+                    "region": [
+                        0,
+                        0,
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
                 }
             ]
+        },
+        {
+            "id": "bulllet_texture",
+            "path": "../textures/bulllet.png",
+            "sprites": [
+                {
+                    "id": "bulllet_sprite",
+                    "region": [
+                        0,
+                        0,
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
+                }
+            ],
+            "animations": []
         },
         {
             "id": "ground_texture",
-            "path": "../../assets/textures/ground.png",
+            "path": "../textures/ground.png",
             "sprites": [
                 {
                     "id": "ground_sprite",
-                    "region": [0, 0, 32, 32],
-                    "origin": [16.0, 16.0]
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        64
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
                 }
             ]
         },
         {
-            "id": "bullet_texture",
-            "path": "../../assets/textures/bulllet.png",
-            "sprites": [
-                {
-                    "id": "bullet_sprite",
-                    "region": [0, 0, 32, 32],
-                    "origin": [16.0, 16.0]
-                }
-            ]
-        },
-        {
-            "id": "testanim_texture",
-            "path": "../../assets/textures/test_anim.png",
+            "id": "player_walk_128x128_texture",
+            "path": "../textures/player_walk_128x128.png",
+            "sprites": [],
             "animations": [
                 {
-                    "id": "test_anim",
-                    "frameStart": [0, 0],
-                    "frameSize": [128, 128],
+                    "id": "player_walk_128x128_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        128,
+                        128
+                    ],
                     "frameCount": 8,
                     "columns": 8,
                     "duration": 0.1,
                     "loop": true
                 }
             ]
+        },
+        {
+            "id": "test_anim_texture",
+            "path": "../textures/test_anim.png",
+            "sprites": [
+                {
+                    "id": "test_anim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        1024,
+                        128
+                    ],
+                    "origin": [
+                        512.0,
+                        64.0
+                    ]
+                }
+            ],
+            "animations": []
         }
     ],
     "animations": []
