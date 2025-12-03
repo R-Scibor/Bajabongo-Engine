@@ -89,31 +89,13 @@ namespace game {
             // Player (using testanim_frame_0 and test_anim via JSON update)
             // Spawn player above the sensor to force collision
             // NEW: Spawn composite archetype (player_with_hat)
-            entt::entity player = context.m_entityFactory->spawn("player_with_hat", {500.f, 100.f});
+            // Move spawn point 400px down (100.f + 400.f = 500.f)
+            entt::entity player = context.m_entityFactory->spawn("player_with_hat", {500.f, 500.f});
             // CameraFocus is now loaded from archetype
             
             // Note: WeaponComponent is now loaded from archetype JSON, so we don't need to add it manually.
-
-            // Boxes
-            context.m_entityFactory->spawn("wooden_crate", {100.f, 100.f});
-            context.m_entityFactory->spawn("heavy_crate", {300.f, 500.f}); // Demonstration of density
         }
-
-        // Ground – static body (keeping manual for now as it's unique/level geometry, or could be an archetype)
-        // Let's keep ground manual for simplicity or move to archetype if needed.
-        // The prompt example showed entities like player/enemies/crates being spawned.
-        // Ground usually belongs to tilemap or level data.
-        auto ground = registry.create();
-        registry.emplace<engine::PendingPhysicsBodyComponent>(
-            ground,
-            engine::Vector2f{ 400.f, 600.f },
-            engine::Vector2f{ 800.f, 40.f },
-            true,
-            0.0f
-        );
-        registry.emplace<engine::TransformComponent>(ground);
-        registry.emplace<engine::RenderableComponent>(ground, "ground_sprite", 0, sf::Color::White);
-
+        // Physics cleanup hook
         m_physicsCleanupHook =
             registry.on_destroy<engine::PhysicsBodyComponent>()
                     .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
@@ -128,22 +110,6 @@ namespace game {
         // Test: Listen for Contact Events
         context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().connect<&GameplayState::onContactBegin>(this);
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&GameplayState::onSensorBegin>(this);
-
-        // Test: Spawn a Sensor Trigger
-        // We'll put it near the player so they can walk into it.
-        auto trigger = registry.create();
-        registry.emplace<engine::PendingPhysicsBodyComponent>(
-            trigger,
-            engine::Vector2f{ 500.f, 300.f }, // Right of the player
-            engine::Vector2f{ 50.f, 50.f },
-            true, // static
-            0.0f,
-            true // isSensor
-        );
-        
-        // Add a visual so we can see it
-        registry.emplace<engine::TransformComponent>(trigger, engine::Vector2f{500.f, 300.f});
-        registry.emplace<engine::RenderableComponent>(trigger, "box_sprite", 1, sf::Color::Green);
 
         // --- Map Loader Test ---
         if (m_logger) m_logger->info("Loading Map...");
