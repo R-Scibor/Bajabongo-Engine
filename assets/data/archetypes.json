@@ -45,11 +45,11 @@
       "scale": [1.0, 1.0]
     },
     "Renderable": {
-      "spriteId": "test_anim_0",
+      "spriteId": "player_walk_anim_0",
       "layer": 2
     },
     "Animation": {
-      "defaultClip": "test_anim",
+      "defaultClip": "player_walk_anim",
       "playing": true
     },
     "Player": {
@@ -87,11 +87,11 @@
       "scale": [1.0, 1.0]
     },
     "Renderable": {
-      "spriteId": "test_anim_0",
+      "spriteId": "player_walk_anim_0",
       "layer": 2
     },
     "Animation": {
-      "defaultClip": "test_anim",
+      "defaultClip": "player_walk_anim",
       "playing": true
     },
     "Player": {

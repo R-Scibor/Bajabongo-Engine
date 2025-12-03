@@ -2,7 +2,7 @@
     "textures": [
         {
             "id": "box_texture",
-            "path": "../textures/box.png",
+            "path": "../../assets/textures/box.png",
             "sprites": [
                 {
                     "id": "box_sprite",
@@ -13,31 +13,19 @@
                         64
                     ],
                     "origin": [
-                        16.0,
-                        16.0
-                    ]
-                },
-                {
-                    "id": "bullet_sprite",
-                    "region": [
-                        0,
-                        0,
-                        32,
-                        32
-                    ],
-                    "origin": [
-                        16.0,
-                        16.0
+                        32.0,
+                        32.0
                     ]
                 }
-            ]
+            ],
+            "animations": []
         },
         {
-            "id": "bulllet_texture",
-            "path": "../textures/bulllet.png",
+            "id": "bullet_texture",
+            "path": "../../assets/textures/bullet.png",
             "sprites": [
                 {
-                    "id": "bulllet_sprite",
+                    "id": "bullet_sprite",
                     "region": [
                         0,
                         0,
@@ -54,7 +42,7 @@
         },
         {
             "id": "ground_texture",
-            "path": "../textures/ground.png",
+            "path": "../../assets/textures/ground.png",
             "sprites": [
                 {
                     "id": "ground_sprite",
@@ -65,19 +53,40 @@
                         64
                     ],
                     "origin": [
-                        16.0,
-                        16.0
+                        32.0,
+                        32.0
                     ]
                 }
-            ]
+            ],
+            "animations": []
         },
         {
-            "id": "player_walk_128x128_texture",
-            "path": "../textures/player_walk_128x128.png",
+            "id": "map_texture",
+            "path": "../../assets/textures/map.png",
+            "sprites": [
+                {
+                    "id": "map_sprite",
+                    "region": [
+                        0,
+                        0,
+                        5000,
+                        5000
+                    ],
+                    "origin": [
+                        2500.0,
+                        2500.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "player_walk_texture",
+            "path": "../../assets/textures/player_walk_128x128.png",
             "sprites": [],
             "animations": [
                 {
-                    "id": "player_walk_128x128_anim",
+                    "id": "player_walk_anim",
                     "frameStart": [
                         0,
                         0
@@ -95,7 +104,7 @@
         },
         {
             "id": "test_anim_texture",
-            "path": "../textures/test_anim.png",
+            "path": "../../assets/textures/test_anim.png",
             "sprites": [
                 {
                     "id": "test_anim_sprite",
@@ -108,6 +117,26 @@
                     "origin": [
                         512.0,
                         64.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "wall_texture",
+            "path": "../../assets/textures/wall_64x64.png",
+            "sprites": [
+                {
+                    "id": "wall_sprite",
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        64
+                    ],
+                    "origin": [
+                        32.0,
+                        32.0
                     ]
                 }
             ],

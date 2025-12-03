@@ -1,137 +1,107 @@
 import os
 import json
 import re
-from PIL import Image  # pip install Pillow
+from PIL import Image
 
-# --- CONFIGURATION ---
+# --- CONFIG ---
 TEXTURES_DIR = "../assets/textures"
 OUTPUT_JSON = "../assets/data/resources.json"
+JSON_PATH_PREFIX = "../../assets/textures/"
 
-# Keywords that trigger "Feet" origin (Bottom-Center)
 FEET_ORIGIN_KEYWORDS = ["player", "npc", "enemy", "zombie", "char", "unit", "mob"]
 
-def get_origin(width, height, filename):
-    """
-    Decides the pivot point based on filename keywords.
-    Default: Center (w/2, h/2)
-    Entities: Bottom-Center (w/2, h)
-    """
-    name_lower = filename.lower()
-    if any(k in name_lower for k in FEET_ORIGIN_KEYWORDS):
-        return [width / 2.0, float(height)] # Feet
-    return [width / 2.0, height / 2.0]      # Center
+name_size_re = re.compile(r"^(.*)_(\d+)x(\d+)$")
 
-def parse_grid_dimensions(filename):
+def split_name_and_size(stem: str):
     """
-    Looks for pattern '_WxH' in filename (e.g., 'hero_run_32x32.png').
-    Returns (frame_w, frame_h) or None.
+    'player_walk_128x128' -> ('player_walk', 128, 128)
+    'box' -> ('box', None, None)
     """
-    # Regex looks for _digitsXdigits just before the extension
-    match = re.search(r'_(\d+)x(\d+)', filename)
-    if match:
-        return int(match.group(1)), int(match.group(2))
-    return None
+    m = name_size_re.match(stem)
+    if not m:
+        return stem, None, None
+    base = m.group(1)
+    return base, int(m.group(2)), int(m.group(3))
+
+def get_origin(w, h, base_name):
+    low = base_name.lower()
+    if any(k in low for k in FEET_ORIGIN_KEYWORDS):
+        return [w / 2.0, float(h)]   # feet
+    return [w / 2.0, h / 2.0]        # center
 
 def bake_resources():
-    print(f"[-] Baking resources (Advanced Mode)...")
-    
-    data = {"textures": [], "animations": []} # We keep animations in root for your format? 
-    # NOTE: Your JSON structure shows animations INSIDE textures. I will stick to that.
-    
-    existing_map = {}
-    if os.path.exists(OUTPUT_JSON):
-        try:
-            with open(OUTPUT_JSON, 'r') as f:
-                existing_data = json.load(f)
-                for tex in existing_data.get("textures", []):
-                    existing_map[tex["id"]] = tex
-        except Exception:
-            pass
+    print(f"[AssetBaker] scanning {TEXTURES_DIR} ...")
+
+    textures = []
+    tex_count = 0
 
     for root, dirs, files in os.walk(TEXTURES_DIR):
         for file in files:
-            if not file.lower().endswith(('.png', '.jpg', '.jpeg')):
+            if not file.lower().endswith((".png", ".jpg", ".jpeg")):
                 continue
-                
+
             full_path = os.path.join(root, file)
-            rel_path = os.path.relpath(full_path, os.path.dirname(OUTPUT_JSON)).replace("\\", "/")
-            
-            file_stem = os.path.splitext(file)[0]
-            texture_id = f"{file_stem}_texture"
-            
+            rel_inside = os.path.relpath(full_path, TEXTURES_DIR).replace("\\", "/")
+            json_path = JSON_PATH_PREFIX + rel_inside
+
+            stem = os.path.splitext(file)[0]          # e.g. player_walk_128x128
+            base_name, sx, sy = split_name_and_size(stem)  # e.g. player_walk, 128,128
+
+            tex_id = f"{base_name}_texture"
+            sprite_id = f"{base_name}_sprite"
+            anim_id = f"{base_name}_anim"
+
             try:
                 with Image.open(full_path) as img:
-                    img_w, img_h = img.size
-            except:
+                    w, h = img.size
+            except Exception as e:
+                print(f"[AssetBaker] ERROR reading {full_path}: {e}")
                 continue
 
-            # 1. Get or Create Texture Entry
-            entry = existing_map.get(texture_id, {
-                "id": texture_id,
-                "path": rel_path,
+            entry = {
+                "id": tex_id,
+                "path": json_path,
                 "sprites": [],
                 "animations": []
-            })
-            
-            # Always update path in case of movement
-            entry["path"] = rel_path
+            }
 
-            # 2. Check for Grid/Animation Pattern (e.g. _32x32)
-            grid_dims = parse_grid_dimensions(file_stem)
-            
-            if grid_dims:
-                frame_w, frame_h = grid_dims
-                
-                # Validate math
-                if img_w % frame_w != 0 or img_h % frame_h != 0:
-                    print(f"[!] WARNING: {file} size ({img_w}x{img_h}) not divisible by frame size {grid_dims}!")
-                
-                cols = img_w // frame_w
-                rows = img_h // frame_h
-                total_frames = cols * rows
-                anim_id = f"{file_stem}_anim"
+            # Decide if this is an animation sheet or a static sprite
+            if sx and sy and w % sx == 0 and h % sy == 0 and (w > sx or h > sy):
+                # Spritesheet -> animation
+                cols = max(1, w // sx)
+                rows = max(1, h // sy)
+                frame_count = cols * rows
 
-                # Check if this animation already exists
-                has_anim = any(a["id"] == anim_id for a in entry.get("animations", []))
-                
-                if not has_anim:
-                    print(f"[+] Detected SpriteSheet: {file} -> {cols}x{rows} grid")
-                    entry["animations"].append({
-                        "id": anim_id,
-                        "frameStart": [0, 0], # Starts at 0,0
-                        "frameSize": [frame_w, frame_h],
-                        "frameCount": total_frames,
-                        "columns": cols,
-                        "duration": 0.1, # Default duration
-                        "loop": True
-                    })
-            
+                entry["animations"].append({
+                    "id": anim_id,
+                    "frameStart": [0, 0],
+                    "frameSize": [sx, sy],
+                    "frameCount": frame_count,
+                    "columns": cols,
+                    "duration": 0.1,
+                    "loop": True
+                })
             else:
-                # 3. Handle Static Sprite (Non-Grid)
-                # If it's NOT a grid, we assume it's a single static image
-                sprite_id = f"{file_stem}_sprite"
-                
-                # Find existing sprite to preserve custom data
-                target_sprite = next((s for s in entry["sprites"] if s["id"] == sprite_id), None)
-                
-                if target_sprite:
-                    # Update Region only
-                    target_sprite["region"] = [0, 0, img_w, img_h]
-                else:
-                    # Create New
-                    origin = get_origin(img_w, img_h, file_stem)
-                    entry["sprites"].append({
-                        "id": sprite_id,
-                        "region": [0, 0, img_w, img_h],
-                        "origin": origin
-                    })
+                # Single sprite (full image)
+                origin = get_origin(w, h, base_name)
+                entry["sprites"].append({
+                    "id": sprite_id,
+                    "region": [0, 0, w, h],
+                    "origin": origin
+                })
 
-            data["textures"].append(entry)
+            textures.append(entry)
+            tex_count += 1
 
-    # Write
-    with open(OUTPUT_JSON, 'w') as f:
-        json.dump(data, f, indent=4)
-    print(f"[-] Done. Processed {len(data['textures'])} textures.")
+    out = {
+        "textures": textures,
+        "animations": []  # keep for future use
+    }
+
+    with open(OUTPUT_JSON, "w") as f:
+        json.dump(out, f, indent=4)
+
+    print(f"[AssetBaker] done. {tex_count} textures written to {OUTPUT_JSON}")
 
 if __name__ == "__main__":
     bake_resources()

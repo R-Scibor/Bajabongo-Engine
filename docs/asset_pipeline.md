@@ -38,16 +38,20 @@ The pipeline uses **filename conventions** to automatically determine asset type
 ### 1. Static Sprites
 Used for standard props, UI elements, and backgrounds.
 *   **Format**: `filename.png`
-*   **Behavior**: Creates a `Sprite` entry.
+*   **Behavior**:
+    *   Generates Texture ID: `filename_texture`.
+    *   Generates Sprite ID: `filename_sprite`.
 *   **Default Origin**: Center `[width/2, height/2]`.
 
 **Example**:
-*   `box.png` (64x64) → Origin: `[32, 32]`
+*   `box.png` (64x64) → Texture: `box_texture`, Sprite: `box_sprite`, Origin: `[32, 32]`
 
 ### 2. Entities (Feet Alignment)
 Used for characters or objects that require Z-sorting/Y-sorting based on their "feet" or base.
 *   **Keywords**: The filename must contain one of: `player`, `npc`, `enemy`, `zombie`, `char`, `unit`, `mob`.
-*   **Behavior**: Creates a `Sprite` entry.
+*   **Behavior**:
+    *   Generates Texture ID: `filename_texture`.
+    *   Generates Sprite ID: `filename_sprite`.
 *   **Default Origin**: Bottom-Center `[width/2, height]`.
 
 **Example**:
@@ -55,27 +59,26 @@ Used for characters or objects that require Z-sorting/Y-sorting based on their "
 
 ### 3. Sprite Sheets (Animations)
 Used for frame-based animations. The frame size **must** be specified in the filename.
-*   **Format**: `name_action_WxH.png` (e.g., `hero_run_32x32.png`)
-*   **Behavior**: 
+*   **Format**: `basename_WxH.png` (e.g., `hero_run_32x32.png`)
+*   **Behavior**:
     *   Parses the `_WxH` suffix to determine frame size.
+    *   Generates Texture ID: `basename_texture` (e.g., `hero_run_texture`).
+    *   Generates Animation ID: `basename_anim` (e.g., `hero_run_anim`).
     *   Calculates rows and columns based on total image size.
-    *   Creates an `Animation` entry.
     *   Defaults: `loop: true`, `duration: 0.1s`.
 
 **Examples**:
 *   `player_run_32x32.png` (Image: 256x32)
+    *   IDs: `player_run_texture`, `player_run_anim`
     *   Frame Size: 32x32
     *   Result: 8 Frames, 1 Row.
 *   `explosion_64x64.png` (Image: 256x256)
     *   Frame Size: 64x64
     *   Result: 16 Frames, 4 Rows.
 
-## Manual Overrides
+## Auto-Generation Note
 
-The tool is **non-destructive**. You can manually edit `resources.json` to fine-tune properties that the script creates.
+The `resources.json` file is **fully auto-generated** by the `AssetBaker.py` tool.
 
-**Workflow**:
-1.  Run `AssetBaker.py` to generate the initial entry.
-2.  Open `assets/data/resources.json`.
-3.  Modify fields (e.g., set `"loop": false` or adjust `"origin"`).
-4.  Future runs of the tool will **preserve** your changes, only updating file paths and image dimensions if the source file has changed.
+*   **Do not manually edit** `resources.json`, as your changes will be overwritten the next time the baker is run.
+*   All properties (IDs, regions, origins) are derived directly from filenames and image dimensions.

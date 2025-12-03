@@ -22,6 +22,7 @@ Defines the entity's spatial properties in the world.
 ### 2. RenderableComponent
 Defines how the entity should look.
 *   **spriteId:** A string identifier linking to a registered sprite definition.
+    *   **Naming Convention:** Typically `name_sprite` (e.g., `box_sprite`, `player_idle_0`).
 *   **layer:** An integer for Z-sorting (higher values draw on top).
 *   **color:** A tint color (e.g., for damage effects or environmental lighting).
 
@@ -46,13 +47,15 @@ Animations are handled by swapping the `spriteId` in the `RenderableComponent` o
 ### AnimationClip
 Defines a single animation sequence.
 *   **name:** Unique identifier.
+    *   **Naming Convention:** Typically `name_anim` (e.g., `player_walk_anim`).
 *   **spriteIds:** A list of sprite IDs to play in sequence.
+    *   **Naming Convention:** Generated frames are often `name_anim_0`, `name_anim_1`, etc.
 *   **frameDuration:** Time in seconds for each frame.
 *   **loop:** Boolean indicating if the animation repeats.
 
 ### AnimationComponent
 Maintains the runtime state of an animation on an entity.
-*   **currentClipId:** ID of the playing clip.
+*   **currentClipId:** ID of the playing clip (e.g., `player_walk_anim`).
 *   **timer:** Accumulates delta time.
 *   **currentFrameIndex:** Tracks the current frame in the sequence.
 *   **isPlaying / isFinished:** Control flags.
