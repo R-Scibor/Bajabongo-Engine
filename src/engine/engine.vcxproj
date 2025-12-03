@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="assets\AssetManifestLoader.hpp" />
+    <ClInclude Include="assets\MapLoader.hpp" />
     <ClInclude Include="components\AnimationComponent.hpp" />
     <ClInclude Include="components\CameraFocusComponent.hpp" />
     <ClInclude Include="components\ChildComponent.hpp" />
@@ -202,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="assets\AssetManifestLoader.cpp" />
+    <ClCompile Include="assets\MapLoader.cpp" />
     <ClCompile Include="core\Application.cpp" />
     <ClCompile Include="core\GuiService.cpp" />
     <ClCompile Include="core\StateManager.cpp" />

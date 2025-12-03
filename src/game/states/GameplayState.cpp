@@ -30,6 +30,7 @@
 #include "engine/ecs/EditorSystem.hpp"
 #include "engine/physics/GeometryBuilder.hpp"
 #include "engine/physics/LevelGeometryBuilder.hpp"
+#include "engine/assets/MapLoader.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
@@ -143,6 +144,14 @@ namespace game {
         // Add a visual so we can see it
         registry.emplace<engine::TransformComponent>(trigger, engine::Vector2f{500.f, 300.f});
         registry.emplace<engine::RenderableComponent>(trigger, "box_sprite", 1, sf::Color::Green);
+
+        // --- Map Loader Test ---
+        if (m_logger) m_logger->info("Loading Map...");
+        engine::MapLoader mapLoader(context);
+        // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
+        // The prompt environment details showed "assets/map.json".
+        // The engine runs from a working directory. Assuming assets/ is correct relative path.
+        mapLoader.load("../../assets/map.json");
 
         // --- Geometry Builder Test ---
         if (m_logger) m_logger->info("Testing GeometryBuilder...");
