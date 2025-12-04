@@ -32,6 +32,17 @@ def get_origin(w, h, base_name):
 def bake_resources():
     print(f"[AssetBaker] scanning {TEXTURES_DIR} ...")
 
+    # Load existing resources to preserve manual edits (origins, regions, etc.)
+    existing_textures = {}
+    if os.path.exists(OUTPUT_JSON):
+        try:
+            with open(OUTPUT_JSON, "r") as f:
+                data = json.load(f)
+                for t in data.get("textures", []):
+                    existing_textures[t["id"]] = t
+        except Exception as e:
+            print(f"[AssetBaker] Warning: could not load existing {OUTPUT_JSON}: {e}")
+
     textures = []
     tex_count = 0
 
@@ -65,6 +76,10 @@ def bake_resources():
                 "animations": []
             }
 
+            # Generate default data from file
+            new_sprites = []
+            new_anims = []
+
             # Decide if this is an animation sheet or a static sprite
             if sx and sy and w % sx == 0 and h % sy == 0 and (w > sx or h > sy):
                 # Spritesheet -> animation
@@ -72,7 +87,7 @@ def bake_resources():
                 rows = max(1, h // sy)
                 frame_count = cols * rows
 
-                entry["animations"].append({
+                new_anims.append({
                     "id": anim_id,
                     "frameStart": [0, 0],
                     "frameSize": [sx, sy],
@@ -84,11 +99,41 @@ def bake_resources():
             else:
                 # Single sprite (full image)
                 origin = get_origin(w, h, base_name)
-                entry["sprites"].append({
+                new_sprites.append({
                     "id": sprite_id,
                     "region": [0, 0, w, h],
                     "origin": origin
                 })
+
+            # Merge with existing data if available
+            if tex_id in existing_textures:
+                old_tex = existing_textures[tex_id]
+                
+                # Preserve sprites: keep all old ones, add new ones if ID missing
+                old_sprites_list = old_tex.get("sprites", [])
+                old_sprite_ids = set(s["id"] for s in old_sprites_list)
+                
+                # Start with old sprites (preserving their settings)
+                entry["sprites"] = list(old_sprites_list)
+                
+                # Add generated ones only if they don't exist
+                for s in new_sprites:
+                    if s["id"] not in old_sprite_ids:
+                        entry["sprites"].append(s)
+
+                # Preserve animations: keep all old ones, add new ones if ID missing
+                old_anims_list = old_tex.get("animations", [])
+                old_anim_ids = set(a["id"] for a in old_anims_list)
+                
+                entry["animations"] = list(old_anims_list)
+                
+                for a in new_anims:
+                    if a["id"] not in old_anim_ids:
+                        entry["animations"].append(a)
+            else:
+                # No existing data, use generated
+                entry["sprites"] = new_sprites
+                entry["animations"] = new_anims
 
             textures.append(entry)
             tex_count += 1

@@ -88,9 +88,8 @@ namespace game {
         if (context.m_entityFactory) {
             // Player (using testanim_frame_0 and test_anim via JSON update)
             // Spawn player above the sensor to force collision
-            // NEW: Spawn composite archetype (player_with_hat)
-            // Move spawn point 400px down (100.f + 400.f = 500.f)
-            entt::entity player = context.m_entityFactory->spawn("player_with_hat", {500.f, 500.f});
+            // NEW: Spawn composite archetype (player)
+            entt::entity player = context.m_entityFactory->spawn("player", {400.f, 1650.f});
             // CameraFocus is now loaded from archetype
             
             // Note: WeaponComponent is now loaded from archetype JSON, so we don't need to add it manually.

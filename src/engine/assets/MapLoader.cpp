@@ -51,7 +51,7 @@ namespace engine {
                         auto entity = m_context.m_registry->create();
                         // Scale map background by 4x
                         float scale = 4.0f;
-                        m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{2500.0f * scale, 2500.0f * scale}, 0.0f, Vector2f{scale, scale});
+                        m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f, Vector2f{scale, scale});
                         
                         m_context.m_registry->emplace<RenderableComponent>(entity, "map_sprite", 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
                         

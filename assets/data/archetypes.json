@@ -143,5 +143,129 @@
       "fireRate": 0.2,
       "damage": 25.0
     }
+  },
+  "bed": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [2.0, 2.0]
+    },
+    "Renderable": {
+      "spriteId": "bed_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [256.0, 256.0],
+      "density": 2.0,
+      "isSensor": false,
+      "linearDamping": 5.0
+    },
+    "Health": {
+      "maxHp": 100.0
+    }
+  },
+  "oven": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [4.0, 4.0]
+    },
+    "Renderable": {
+      "spriteId": "oven_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [316.0, 512.0],
+      "density": 2.0,
+      "isSensor": false,
+      "linearDamping": 5.0
+    },
+    "Health": {
+      "maxHp": 100.0
+    }
+  },
+  "target_1": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [1.0, 1.0]
+    },
+    "Renderable": {
+      "spriteId": "target_1_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [38.0, 68.0],
+      "density": 1.0,
+      "isSensor": false,
+      "linearDamping": 5.0,
+      "fixedRotation": true
+    },
+    "Health": {
+      "maxHp": 20.0
+    }
+  },
+  "target_2": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [1.0, 1.0]
+    },
+    "Renderable": {
+      "spriteId": "target_2_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [38.0, 68.0],
+      "density": 1.0,
+      "isSensor": false,
+      "linearDamping": 5.0,
+      "fixedRotation": true
+    },
+    "Health": {
+      "maxHp": 20.0
+    }
+  },
+  "target_3": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [1.0, 1.0]
+    },
+    "Renderable": {
+      "spriteId": "target_3_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [38.0, 68.0],
+      "density": 1.0,
+      "isSensor": false,
+      "linearDamping": 5.0,
+      "fixedRotation": true
+    },
+    "Health": {
+      "maxHp": 20.0
+    }
+  },
+  "target_4": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [1.0, 1.0]
+    },
+    "Renderable": {
+      "spriteId": "target_4_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "dynamic",
+      "size": [38.0, 68.0],
+      "density": 1.0,
+      "isSensor": false,
+      "linearDamping": 5.0,
+      "fixedRotation": true
+    },
+    "Health": {
+      "maxHp": 20.0
+    }
   }
 }

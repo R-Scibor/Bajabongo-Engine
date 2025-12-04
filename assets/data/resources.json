@@ -1,5 +1,25 @@
-{
+﻿{
     "textures": [
+        {
+            "id": "bed_texture",
+            "path": "../../assets/textures/bed.png",
+            "sprites": [
+                {
+                    "id": "bed_sprite",
+                    "region": [
+                        0,
+                        0,
+                        128,
+                        84
+                    ],
+                    "origin": [
+                        64.0,
+                        42.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
         {
             "id": "box_texture",
             "path": "../../assets/textures/box.png",
@@ -69,12 +89,32 @@
                     "region": [
                         0,
                         0,
-                        5000,
-                        5000
+                        1024,
+                        1024
                     ],
                     "origin": [
-                        2500.0,
-                        2500.0
+                        0.0,
+                        0.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "oven_texture",
+            "path": "../../assets/textures/oven.png",
+            "sprites": [
+                {
+                    "id": "oven_sprite",
+                    "region": [
+                        0,
+                        0,
+                        79,
+                        128
+                    ],
+                    "origin": [
+                        39.5,
+                        64.0
                     ]
                 }
             ],
@@ -101,6 +141,86 @@
                     "loop": true
                 }
             ]
+        },
+        {
+            "id": "target_1_texture",
+            "path": "../../assets/textures/target_1.png",
+            "sprites": [
+                {
+                    "id": "target_1_sprite",
+                    "region": [
+                        0,
+                        0,
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "target_2_texture",
+            "path": "../../assets/textures/target_2.png",
+            "sprites": [
+                {
+                    "id": "target_2_sprite",
+                    "region": [
+                        0,
+                        0,
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "target_3_texture",
+            "path": "../../assets/textures/target_3.png",
+            "sprites": [
+                {
+                    "id": "target_3_sprite",
+                    "region": [
+                        0,
+                        0,
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "target_4_texture",
+            "path": "../../assets/textures/target_4.png",
+            "sprites": [
+                {
+                    "id": "target_4_sprite",
+                    "region": [
+                        0,
+                        0,
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ]
+                }
+            ],
+            "animations": []
         },
         {
             "id": "test_anim_texture",
