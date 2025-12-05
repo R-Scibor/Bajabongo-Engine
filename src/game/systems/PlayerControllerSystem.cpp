@@ -12,6 +12,7 @@
 #include "engine/components/LifetimeComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "engine/components/AnimationComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 
 #include <box2d/box2d.h>
@@ -30,12 +31,13 @@ namespace game {
         auto input = m_context.m_inputManager;
         auto renderer = m_context.m_renderer;
 
-        auto view = registry.view<PlayerComponent, engine::PhysicsBodyComponent>();
+        auto view = registry.view<PlayerComponent, engine::PhysicsBodyComponent, engine::TransformComponent>();
 
-        view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp) {
+        view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp, engine::TransformComponent& transform) {
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
 
             auto* weapon = registry.try_get<WeaponComponent>(entity);
+            auto* anim = registry.try_get<engine::AnimationComponent>(entity);
 
             // --- Movement (WASD) ---
             engine::Vector2f moveDir{ 0.0f, 0.0f };
@@ -52,6 +54,48 @@ namespace game {
                 float length = std::sqrt(lengthSq);
                 moveDir.x /= length;
                 moveDir.y /= length;
+            }
+
+            // --- Animation State Machine ---
+            if (anim) {
+                // 1. Determine State: Idle vs Moving
+                if (lengthSq > 0.0f) {
+                    // Moving
+                    std::string newClip = anim->currentClipId;
+                    float scaleX = std::abs(transform.scale.x); // Preserve magnitude
+
+                    // 2. Determine Direction
+                    // Prioritize vertical movement for sprite selection if moving diagonally,
+                    // or prioritize horizontal? Let's prioritize based on larger component.
+                    if (std::abs(moveDir.y) > std::abs(moveDir.x)) {
+                         if (moveDir.y < 0.0f) {
+                            newClip = "player_walk_up";
+                        } else {
+                            newClip = "player_walk_down";
+                        }
+                    } else {
+                        // Horizontal or equal
+                        newClip = "player_walk_right";
+                        if (moveDir.x < 0.0f) {
+                            transform.scale.x = -scaleX; // Face Left
+                        } else {
+                            transform.scale.x = scaleX; // Face Right
+                        }
+                    }
+
+                    // Switch clip if changed
+                    if (anim->currentClipId != newClip) {
+                        anim->currentClipId = newClip;
+                        anim->reset();
+                    }
+                }
+                else {
+                    // Idle
+                    if (anim->currentClipId != "player_idle") {
+                        anim->currentClipId = "player_idle";
+                        anim->reset();
+                    }
+                }
             }
 
             // Apply velocity
@@ -83,7 +127,7 @@ namespace game {
                 float angle = std::atan2(dy, dx);
 
                 // Set rotation directly
-                b2Body_SetTransform(bodyComp.bodyId, bodyPos, b2MakeRot(angle));
+                // b2Body_SetTransform(bodyComp.bodyId, bodyPos, b2MakeRot(angle));
 
                 // --- Update Weapon State ---
                 if (weapon)

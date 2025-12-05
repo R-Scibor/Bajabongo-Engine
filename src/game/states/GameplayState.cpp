@@ -63,7 +63,6 @@ namespace game {
     void GameplayState::onEnter(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Entering GameplayState.");
         
-        // --- Phase 6: Data-Driven Systems Init ---
         if (!context.m_archetypeManager) {
             context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>(context.m_logManager);
         }
@@ -71,7 +70,6 @@ namespace game {
         if (!context.m_entityFactory) {
             context.m_entityFactory = std::make_shared<engine::EntityFactory>(context, context.m_archetypeManager);
             
-            // Rejestrujemy komponenty specyficzne dla gry w fabryce silnika
             game::RegisterGameComponents(context);
         }
 
@@ -86,13 +84,14 @@ namespace game {
         auto& registry = *context.m_registry;
 
         if (context.m_entityFactory) {
-            // Player (using testanim_frame_0 and test_anim via JSON update)
-            // Spawn player above the sensor to force collision
             // NEW: Spawn composite archetype (player)
-            entt::entity player = context.m_entityFactory->spawn("player", {400.f, 1650.f});
+            entt::entity player = context.m_entityFactory->spawn("player", {155.f, 615.f});
+            entt::entity target_1 = context.m_entityFactory->spawn("target_1", {786.f, 213.f});
+            entt::entity target_2 = context.m_entityFactory->spawn("target_2", {882.f, 213.f});
+            entt::entity target_3 = context.m_entityFactory->spawn("target_3", {960.f, 213.f});
+            entt::entity target_4 = context.m_entityFactory->spawn("target_4", {1048.f, 213.f});
             // CameraFocus is now loaded from archetype
             
-            // Note: WeaponComponent is now loaded from archetype JSON, so we don't need to add it manually.
         }
         // Physics cleanup hook
         m_physicsCleanupHook =
@@ -114,9 +113,7 @@ namespace game {
         if (m_logger) m_logger->info("Loading Map...");
         engine::MapLoader mapLoader(context);
         // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
-        // The prompt environment details showed "assets/map.json".
-        // The engine runs from a working directory. Assuming assets/ is correct relative path.
-        mapLoader.load("../../assets/map.json");
+        mapLoader.load("../../assets/data/map.json");
 
         // --- Geometry Builder Test ---
         if (m_logger) m_logger->info("Testing GeometryBuilder...");

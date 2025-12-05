@@ -121,23 +121,75 @@
             "animations": []
         },
         {
-            "id": "player_walk_texture",
-            "path": "../../assets/textures/player_walk_128x128.png",
+            "id": "player_idle_texture",
+            "path": "../../assets/textures/player_idle.png",
             "sprites": [],
             "animations": [
                 {
-                    "id": "player_walk_anim",
+                    "id": "player_idle",
                     "frameStart": [
                         0,
                         0
                     ],
                     "frameSize": [
-                        128,
-                        128
+                        256,
+                        256
                     ],
-                    "frameCount": 8,
-                    "columns": 8,
-                    "duration": 0.1,
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 1.0,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_walk_texture",
+            "path": "../../assets/textures/player_walk.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "player_walk_up",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "frameCount": 25,
+                    "columns": 25,
+                    "duration": 0.06,
+                    "loop": true
+                },
+                {
+                    "id": "player_walk_down",
+                    "frameStart": [
+                        0,
+                        256
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "frameCount": 25,
+                    "columns": 25,
+                    "duration": 0.06,
+                    "loop": true
+                },
+                {
+                    "id": "player_walk_right",
+                    "frameStart": [
+                        0,
+                        512
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "frameCount": 25,
+                    "columns": 25,
+                    "duration": 0.06,
                     "loop": true
                 }
             ]

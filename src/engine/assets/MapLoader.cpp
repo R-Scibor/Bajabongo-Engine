@@ -50,7 +50,7 @@ namespace engine {
                     if (visible) {
                         auto entity = m_context.m_registry->create();
                         // Scale map background by 4x
-                        float scale = 4.0f;
+                        float scale = 1.5f;
                         m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f, Vector2f{scale, scale});
                         
                         m_context.m_registry->emplace<RenderableComponent>(entity, "map_sprite", 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
@@ -61,7 +61,7 @@ namespace engine {
                 } else if (type == "objectgroup" && layer.value("name", "") == "Collision") {
                     if (layer.contains("objects")) {
                         int count = 0;
-                        float scale = 4.0f;
+                        float scale = 1.5f;
                         for (const auto& obj : layer["objects"]) {
                             float x = obj.value("x", 0.0f) * scale;
                             float y = obj.value("y", 0.0f) * scale;

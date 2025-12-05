@@ -42,14 +42,14 @@
   "player": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [1.0, 1.0]
+      "scale": [0.5, 0.5]
     },
     "Renderable": {
-      "spriteId": "player_walk_anim_0",
+      "spriteId": "player_idle_0",
       "layer": 2
     },
     "Animation": {
-      "defaultClip": "player_walk_anim",
+      "defaultClip": "player_idle",
       "playing": true
     },
     "Player": {
@@ -65,9 +65,10 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [20.0, 40.0],
+      "size": [48.0, 32.0],
       "fixedRotation": true,
-      "linearDamping": 10.0
+      "linearDamping": 10.0,
+      "offset": [0.0, 64.0]
     },
     "CameraFocus": {
       "viewHeight": 720.0,
@@ -84,14 +85,14 @@
   "player_with_hat": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [1.0, 1.0]
+      "scale": [0.5, 0.5]
     },
     "Renderable": {
-      "spriteId": "player_walk_anim_0",
+      "spriteId": "player_idle_0",
       "layer": 2
     },
     "Animation": {
-      "defaultClip": "player_walk_anim",
+      "defaultClip": "player_idle",
       "playing": true
     },
     "Player": {
@@ -107,9 +108,10 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [20.0, 40.0],
+      "size": [48.0, 32.0],
       "fixedRotation": true,
-      "linearDamping": 10.0
+      "linearDamping": 10.0,
+      "offset": [0.0, 64.0]
     },
     "CameraFocus": {
       "viewHeight": 720.0,
@@ -123,31 +125,10 @@
       }
     ]
   },
-  "soldier": {
-    "Transform": {
-      "scale": [4.0, 4.0]
-    },
-    "Renderable": {
-      "spriteId": "box_sprite",
-      "layer": 1
-    },
-    "Physics": {
-      "type": "dynamic",
-      "size": [128.0, 128.0],
-      "fixedRotation": true
-    },
-    "Health": {
-      "maxHp": 100.0
-    },
-    "Weapon": {
-      "fireRate": 0.2,
-      "damage": 25.0
-    }
-  },
   "bed": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [2.0, 2.0]
+      "scale": [1.5, 1.5]
     },
     "Renderable": {
       "spriteId": "bed_sprite",
@@ -167,7 +148,7 @@
   "oven": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [4.0, 4.0]
+      "scale": [1.5, 1.5]
     },
     "Renderable": {
       "spriteId": "oven_sprite",
@@ -187,7 +168,7 @@
   "target_1": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [1.0, 1.0]
+      "scale": [1.5, 1.5]
     },
     "Renderable": {
       "spriteId": "target_1_sprite",
@@ -208,7 +189,7 @@
   "target_2": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [1.0, 1.0]
+      "scale": [1.5, 1.5]
     },
     "Renderable": {
       "spriteId": "target_2_sprite",
@@ -229,7 +210,7 @@
   "target_3": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [1.0, 1.0]
+      "scale": [1.5, 1.5]
     },
     "Renderable": {
       "spriteId": "target_3_sprite",
@@ -250,7 +231,7 @@
   "target_4": {
     "Transform": {
       "rotation": 0.0,
-      "scale": [1.0, 1.0]
+      "scale": [1.5, 1.5]
     },
     "Renderable": {
       "spriteId": "target_4_sprite",
