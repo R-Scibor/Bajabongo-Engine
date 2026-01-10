@@ -135,6 +135,10 @@
                         256,
                         256
                     ],
+                    "origin": [
+                        128.0,
+                        240.0
+                    ],
                     "frameCount": 1,
                     "columns": 1,
                     "duration": 1.0,
@@ -157,6 +161,10 @@
                         256,
                         256
                     ],
+                    "origin": [
+                        128.0,
+                        240.0
+                    ],
                     "frameCount": 25,
                     "columns": 25,
                     "duration": 0.06,
@@ -172,6 +180,10 @@
                         256,
                         256
                     ],
+                    "origin": [
+                        128.0,
+                        240.0
+                    ],
                     "frameCount": 25,
                     "columns": 25,
                     "duration": 0.06,
@@ -186,6 +198,10 @@
                     "frameSize": [
                         256,
                         256
+                    ],
+                    "origin": [
+                        128.0,
+                        240.0
                     ],
                     "frameCount": 25,
                     "columns": 25,
