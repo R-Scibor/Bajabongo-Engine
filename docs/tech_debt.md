@@ -16,22 +16,14 @@ Animation System: [
 
 Physics & Collision (Top-Down Shooter Specifics): [
 "The Feet Problem" (Hitbox Duality):
-- OBECNY STAN: Używamy jednego kształtu (Box) wycentrowanego na pozycji entity.
-- PROBLEM: W grze top-down (2.5D) potrzebujemy dwóch różnych zachowań kolizji:
-1. Movement Collider (Stopy): Mały, solidny kształt u dołu sprite'a. Pozwala głowie "wchodzić" na ściany (efekt perspektywy) i przechodzić przez wąskie drzwi.
-2. Hurtbox (Ciało): Duży sensor pokrywający cały sprite. Nie blokuje ruchu, ale wykrywa trafienia pocisków.
-
-- ROZWIĄZANIE DOCELOWE (Faza 6/7):
-    - Wdrożenie "Compound Bodies" w Box2D (jedno ciało, wiele kształtów).
-    - Ustawienie filtrów kolizji (Bitmasking):
-        - Kategoria FEET koliduje z ENVIRONMENT.
-        - Kategoria HURTBOX (sensor) koliduje z PROJECTILE.
+- **SOLVED** (Jan 2026): Implemented multi-fixture bodies and collision categories.
+    - **Feet**: Physical collider (Category: Player/Enemy) that interacts with Environment (Walls, LowObstacles).
+    - **Hurtbox**: Sensor collider (Category: Hurtbox) that interacts with Projectiles.
+    - **LowObstacles**: New category for fences/tables that block movement but allow shooting.
         
-- TYMCZASOWE ROZWIĄZANIE (Faza 5A - Rendering Polish):
-    - Ustawienie Origin sprite'a na "stopy" (dół-środek), aby grafika renderowała się "nad" punktem fizycznym.
-    - Dzięki temu transform.position będzie wskazywał na stopy postaci, co ułatwi sortowanie Y.
-
-
+- NEXT STEPS:
+    - Fine-tune shape sizes in `archetypes.json`.
+    - Implement visual debug drawing for specific fixtures if needed.
 ]
 
 Add pushable objects, using density in PhysicsBodyComponent

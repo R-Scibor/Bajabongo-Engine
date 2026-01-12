@@ -117,4 +117,75 @@ pendingBody.isSensor = false; // Set to true for triggers
 // the TransformComponent updated with the physics simulation.
 ```
 
-This approach keeps the game logic clean and decoupled from the low-level details of the physics engine.
+## 7. Collision Filtering and Multi-Shape Bodies
+
+### Collision Categories
+
+The engine uses Box2D filter categories to define how different objects interact. The available categories are defined in `PhysicsConstants.hpp`:
+
+*   **Default**: Standard objects.
+*   **Player**: The physical body (feet) of the player.
+*   **Enemy**: The physical body of enemies.
+*   **Wall**: Static geometry that blocks movement and projectiles.
+*   **Projectile**: Bullets and other projectiles.
+*   **LowObstacle**: Objects like fences or tables that block movement (Player/Enemy) but allow projectiles to pass over/through.
+*   **Sensor**: Trigger volumes.
+*   **Hurtbox**: A sensor shape attached to characters (Player/Enemy) specifically for detecting projectile hits.
+
+### Multi-Shape Bodies (Composite Colliders)
+
+Entities can have multiple collision shapes (fixtures) attached to a single physics body. This is commonly used for characters to separate their movement collision box from their hit detection box.
+
+#### Example: Player Archetype
+The Player entity uses two shapes:
+1.  **Feet**: A small box at the bottom of the sprite. This interacts with Walls and LowObstacles to handle movement collision.
+2.  **Hurtbox**: A larger sensor box covering the sprite. This interacts with Projectiles to register damage.
+
+This structure is defined in `archetypes.json`:
+
+```json
+"Physics": {
+  "type": "dynamic",
+  "fixedRotation": true,
+  "category": "Player",
+  "fixtures": [
+    {
+      "size": [32.0, 16.0],
+      "offset": [0.0, 16.0],
+      "isSensor": false,
+      "category": "Player"
+    },
+    {
+      "size": [48.0, 64.0],
+      "offset": [0.0, 0.0],
+      "isSensor": true,
+      "category": "Hurtbox"
+    }
+  ]
+}
+```
+
+### Creating Multi-Fixture Bodies in Code
+
+To create a body with multiple fixtures manually:
+
+```cpp
+engine::PendingPhysicsBodyComponent pending;
+pending.position = {x, y};
+pending.isStatic = false;
+
+// Fixture 1: Physical Base
+engine::FixtureDef baseFix;
+baseFix.size = {32.f, 32.f};
+baseFix.categoryBits = engine::PhysicsCategory::Player;
+pending.fixtures.push_back(baseFix);
+
+// Fixture 2: Hurtbox Sensor
+engine::FixtureDef hurtboxFix;
+hurtboxFix.size = {64.f, 64.f};
+hurtboxFix.isSensor = true;
+hurtboxFix.categoryBits = engine::PhysicsCategory::Hurtbox;
+pending.fixtures.push_back(hurtboxFix);
+
+registry.emplace<engine::PendingPhysicsBodyComponent>(entity, pending);
+```
