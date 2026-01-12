@@ -65,9 +65,25 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [48.0, 32.0],
       "fixedRotation": true,
-      "linearDamping": 10.0
+      "linearDamping": 10.0,
+      "category": "Player",
+      "fixtures": [
+        {
+          "size": [40.0, 16.0],
+          "offset": [0.0, 0.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Player"
+        },
+        {
+          "size": [36.0, 125.0],
+          "offset": [0.0, -62.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
     },
     "CameraFocus": {
       "viewHeight": 720.0,
@@ -107,9 +123,25 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [48.0, 32.0],
       "fixedRotation": true,
-      "linearDamping": 10.0
+      "linearDamping": 10.0,
+      "category": "Player",
+      "fixtures": [
+        {
+          "size": [32.0, 16.0],
+          "offset": [0.0, 16.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Player"
+        },
+        {
+          "size": [48.0, 64.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
     },
     "CameraFocus": {
       "viewHeight": 720.0,
@@ -174,11 +206,25 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [38.0, 68.0],
-      "density": 1.0,
-      "isSensor": false,
       "linearDamping": 5.0,
-      "fixedRotation": true
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        {
+          "size": [32.0, 16.0],
+          "offset": [0.0, 24.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [38.0, 68.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
     },
     "Health": {
       "maxHp": 20.0
@@ -195,11 +241,25 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [38.0, 68.0],
-      "density": 1.0,
-      "isSensor": false,
       "linearDamping": 5.0,
-      "fixedRotation": true
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        {
+          "size": [32.0, 16.0],
+          "offset": [0.0, 24.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [38.0, 68.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
     },
     "Health": {
       "maxHp": 20.0
@@ -216,11 +276,25 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [38.0, 68.0],
-      "density": 1.0,
-      "isSensor": false,
       "linearDamping": 5.0,
-      "fixedRotation": true
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        {
+          "size": [32.0, 16.0],
+          "offset": [0.0, 24.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [38.0, 68.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
     },
     "Health": {
       "maxHp": 20.0
@@ -237,11 +311,25 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [38.0, 68.0],
-      "density": 1.0,
-      "isSensor": false,
       "linearDamping": 5.0,
-      "fixedRotation": true
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        {
+          "size": [32.0, 16.0],
+          "offset": [0.0, 24.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [38.0, 68.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
     },
     "Health": {
       "maxHp": 20.0

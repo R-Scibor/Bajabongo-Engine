@@ -10,6 +10,7 @@
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/HalfCollisionComponent.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
 #include <entt/entt.hpp>
 
 namespace engine {
@@ -118,9 +119,16 @@ namespace engine {
 
         auto entity = m_context.m_registry->create();
 
+        unsigned int categoryBits = PhysicsCategory::Wall;
+        unsigned int maskBits = PhysicsCategory::All;
+
         // If it's half collision, add the tag component
         if (isHalfCollision) {
             m_context.m_registry->emplace<HalfCollisionComponent>(entity);
+            categoryBits = PhysicsCategory::LowObstacle;
+            // Wall: All.
+            // LowObstacle: Collides with Player, Enemy. Does NOT collide with Projectile.
+            maskBits = PhysicsCategory::Player | PhysicsCategory::Enemy;
         }
         
         // Create Physics Body
@@ -128,19 +136,24 @@ namespace engine {
         // isSensor = false
         // isBullet = false
         // fixedRotation = false (though for static it doesn't matter much)
-        m_context.m_registry->emplace<PendingPhysicsBodyComponent>(
-            entity,
-            Vector2f{centerX, centerY},
-            Vector2f{w, h},
-            true, // isStatic
-            1.0f, // density
-            false, // isSensor
-            false, // isBullet
-            0.0f, // angularDamping
-            false, // fixedRotation
-            Vector2f{0.f, 0.f}, // linearVelocity
-            rot * (3.14159f / 180.0f) // angle in radians
-        );
+        PendingPhysicsBodyComponent pending{
+            .position = Vector2f{centerX, centerY},
+            .isStatic = true,
+            .fixedRotation = false,
+            .rotation = rot * (3.14159f / 180.0f)
+        };
+
+        // Add single fixture
+        FixtureDef fixDef;
+        fixDef.size = Vector2f{w, h};
+        fixDef.density = 1.0f;
+        fixDef.isSensor = false;
+        fixDef.categoryBits = categoryBits;
+        fixDef.maskBits = maskBits;
+        
+        pending.fixtures.push_back(fixDef);
+        
+        m_context.m_registry->emplace<PendingPhysicsBodyComponent>(entity, pending);
         
         // Visual debug transform (optional, but good for consistency)
         m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{centerX, centerY}, rot, Vector2f{1.0f, 1.0f});

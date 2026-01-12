@@ -11,6 +11,7 @@
 #include "engine/components/MetaComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
 #include <SFML/Graphics/Color.hpp>
 
 namespace engine {
@@ -167,15 +168,96 @@ namespace engine {
             bool fixedRotation = data.value("fixedRotation", false);
             float linearDamping = data.value("linearDamping", 0.0f);
 
-            registry.emplace<PendingPhysicsBodyComponent>(entity, PendingPhysicsBodyComponent{
+            // Default categories
+            unsigned int categoryBits = PhysicsCategory::Default;
+            unsigned int maskBits = PhysicsCategory::All;
+
+            if (data.contains("category")) {
+                std::string cat = data["category"];
+                if (cat == "Player") categoryBits = PhysicsCategory::Player;
+                else if (cat == "Enemy") categoryBits = PhysicsCategory::Enemy;
+                else if (cat == "Wall") categoryBits = PhysicsCategory::Wall;
+                else if (cat == "Projectile") categoryBits = PhysicsCategory::Projectile;
+                else if (cat == "LowObstacle") categoryBits = PhysicsCategory::LowObstacle;
+                else if (cat == "Sensor") categoryBits = PhysicsCategory::Sensor;
+            }
+
+            // Custom logic for Players and Enemies to ensure they collide with correct things
+            if (categoryBits == PhysicsCategory::Player) {
+                 maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
+            } else if (categoryBits == PhysicsCategory::Enemy) {
+                 maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
+            }
+
+            PendingPhysicsBodyComponent pending{
                 .position = position,
-                .size = size,
                 .isStatic = isStatic,
-                .density = density,
-                .isSensor = isSensor,
                 .fixedRotation = fixedRotation,
-                .linearDamping = linearDamping
-            });
+                .linearDamping = linearDamping,
+                .isBullet = false,
+                .initialVelocity = {0.0f, 0.0f},
+                .rotation = 0.0f
+            };
+
+            // Parse fixtures
+            // Check if we have multiple fixtures defined in JSON
+            if (data.contains("fixtures") && data["fixtures"].is_array()) {
+                for (const auto& fixData : data["fixtures"]) {
+                     FixtureDef fixDef;
+                     if (fixData.contains("size") && fixData["size"].is_array()) {
+                        fixDef.size.x = fixData["size"][0];
+                        fixDef.size.y = fixData["size"][1];
+                     }
+                     if (fixData.contains("offset") && fixData["offset"].is_array()) {
+                        fixDef.offset.x = fixData["offset"][0];
+                        fixDef.offset.y = fixData["offset"][1];
+                     }
+                     fixDef.density = fixData.value("density", 1.0f);
+                     fixDef.isSensor = fixData.value("isSensor", false);
+                     
+                     // Category/Mask parsing for specific fixtures (if needed)
+                     // For now, let's implement basic string-to-category mapping locally or helper
+                     if (fixData.contains("category")) {
+                        std::string c = fixData["category"];
+                        if (c == "Player") fixDef.categoryBits = PhysicsCategory::Player;
+                        else if (c == "PlayerHurtbox") fixDef.categoryBits = PhysicsCategory::Hurtbox; // Use Hurtbox category
+                        else if (c == "Hurtbox") fixDef.categoryBits = PhysicsCategory::Hurtbox;
+                        else if (c == "Enemy") fixDef.categoryBits = PhysicsCategory::Enemy;
+                        else if (c == "Wall") fixDef.categoryBits = PhysicsCategory::Wall;
+                        else if (c == "Projectile") fixDef.categoryBits = PhysicsCategory::Projectile;
+                        else if (c == "LowObstacle") fixDef.categoryBits = PhysicsCategory::LowObstacle;
+                        else if (c == "Sensor") fixDef.categoryBits = PhysicsCategory::Sensor;
+                     } else {
+                         fixDef.categoryBits = categoryBits; // Inherit from body default
+                     }
+                     
+                     // Mask parsing could be complex list of strings...
+                     // For MVP, if it's Player Feet, use standard Player mask
+                     // If it's Hurtbox, use Projectile mask
+                     if (fixDef.categoryBits == PhysicsCategory::Player) {
+                         fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle;
+                     } else if (fixDef.categoryBits == PhysicsCategory::Hurtbox) {
+                         fixDef.maskBits = PhysicsCategory::Projectile;
+                     } else if (fixDef.categoryBits == PhysicsCategory::Enemy) {
+                         fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
+                     } else {
+                         fixDef.maskBits = maskBits; // Inherit
+                     }
+                     
+                     pending.fixtures.push_back(fixDef);
+                }
+            } else {
+                // Backward compatibility: Create single fixture from body params
+                FixtureDef fixDef;
+                fixDef.size = size;
+                fixDef.density = density;
+                fixDef.isSensor = isSensor;
+                fixDef.categoryBits = categoryBits;
+                fixDef.maskBits = maskBits;
+                pending.fixtures.push_back(fixDef);
+            }
+
+            registry.emplace<PendingPhysicsBodyComponent>(entity, pending);
         });
 
         // --- Animation ---

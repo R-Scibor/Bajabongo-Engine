@@ -5,6 +5,7 @@
 #include "engine/core/ILogger.hpp"
 #include <box2d/box2d.h>
 #include "engine/components/MetaComponent.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
 
 namespace engine {
 
@@ -53,6 +54,11 @@ namespace engine {
         }
 
         b2Body_SetUserData(m_levelBodyId, (void*)(uintptr_t)m_levelEntity);
+
+        // Define filter for level geometry (Walls)
+        b2Filter wallFilter = b2DefaultFilter();
+        wallFilter.categoryBits = PhysicsCategory::Wall;
+        wallFilter.maskBits = PhysicsCategory::All;
 
         int chainCount = 0;
         for (const auto& points : chains) {
@@ -123,6 +129,12 @@ namespace engine {
                 
                 for (b2ShapeId shapeId : segments) {
                     b2Shape_SetUserData(shapeId, (void*)(uintptr_t)m_levelEntity);
+
+                    // Set filter for each segment (Level geometry = Wall)
+                    b2Filter filter = b2Shape_GetFilter(shapeId);
+                    filter.categoryBits = PhysicsCategory::Wall;
+                    filter.maskBits = PhysicsCategory::All;
+                    b2Shape_SetFilter(shapeId, filter);
                 }
             }
             

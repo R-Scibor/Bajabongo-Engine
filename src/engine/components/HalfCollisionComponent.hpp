@@ -12,4 +12,7 @@ namespace engine {
         bool dummy = true; // Empty struct, just a tag
     };
 
+    // Alias for LowObstacle for clarity in new code
+    using LowObstacleComponent = HalfCollisionComponent;
+
 }

@@ -11,6 +11,7 @@
 #include "engine/components/LifetimeComponent.hpp"
 #include "game/components/ProjectileComponent.hpp"
 #include "game/components/DamageComponent.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
 
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
@@ -101,19 +102,25 @@ namespace game {
                     auto projectile = registry.create();
 
                     // Physics
-                    registry.emplace<engine::PendingPhysicsBodyComponent>(
-                        projectile,
-                        spawnPos,
-                        engine::Vector2f{ 10.0f, 10.0f }, // Size
-                        false, // Dynamic
-                        1.0f,  // Density
-                        true,  // isSensor
-                        false, // fixedRotation
-                        0.0f,   // damping
-                        true,   // isBullet
-                        engine::Vector2f{ cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed }, // initialVelocity
-                        angle // rotation
-                    );
+                    engine::PendingPhysicsBodyComponent pending{
+                         .position = spawnPos,
+                         .isStatic = false,
+                         .isBullet = true,
+                         .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
+                         .rotation = angle
+                    };
+
+                    engine::FixtureDef fixDef;
+                    fixDef.size = { 10.0f, 10.0f };
+                    fixDef.density = 1.0f;
+                    fixDef.isSensor = true;
+                    fixDef.categoryBits = engine::PhysicsCategory::Projectile;
+                    // Collide with Walls, Enemies, and PlayerHurtbox (if needed, but usually enemies shoot players)
+                    fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Enemy | engine::PhysicsCategory::Hurtbox;
+                    
+                    pending.fixtures.push_back(fixDef);
+
+                    registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);
 
                     // Visuals
                     registry.emplace<engine::TransformComponent>(projectile, spawnPos, angle);
