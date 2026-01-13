@@ -11,6 +11,7 @@
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/HalfCollisionComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
+#include "engine/ecs/EntityFactory.hpp"
 #include <entt/entt.hpp>
 
 namespace engine {
@@ -61,8 +62,7 @@ namespace engine {
                     } else if (name == LAYER_NAME_HALF_COLLISION) {
                         processObjectLayer(layer, true);
                     } else if (name == LAYER_NAME_ENTITIES) {
-                        // TODO: Implement Entity spawning here using ArchetypeManager
-                        if (m_logger) m_logger->warn("Entity spawning from map not yet implemented.");
+                        processEntityLayer(layer);
                     }
                 }
             }
@@ -90,6 +90,58 @@ namespace engine {
             m_context.m_registry->emplace<RenderableComponent>(entity, "map_sprite", 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
             
             if (m_logger) m_logger->info("Created map background entity for image: {}", imageName);
+        }
+    }
+
+    void MapLoader::processEntityLayer(const nlohmann::json& layer) {
+        if (!m_context.m_entityFactory) {
+            if (m_logger) m_logger->error("MapLoader: EntityFactory is null, cannot spawn entities.");
+            return;
+        }
+
+        if (layer.contains("objects")) {
+            int count = 0;
+            float scale = 1.5f; // Same scale as other layers
+
+            for (const auto& obj : layer["objects"]) {
+                // Tiled renamed "Type" to "Class" in recent versions.
+                // We check "type" first (legacy), then "class" (new), then fallback to "name".
+                std::string type = obj.value("type", "");
+                if (type.empty()) {
+                    type = obj.value("class", "");
+                }
+                if (type.empty()) {
+                    // Fallback: check if "name" is the type
+                    type = obj.value("name", "");
+                }
+
+                if (type.empty()) {
+                    if (m_logger) m_logger->warn("MapLoader: Object in Entities layer has no 'type' or 'class' defined. Skipping.");
+                    continue;
+                }
+
+                float x = obj.value("x", 0.0f) * scale;
+                float y = obj.value("y", 0.0f) * scale;
+                
+                // Tiled objects can be points or rects.
+                // If it's a point, we just use x,y.
+                // If it's a rect (e.g. for a portal trigger area), we might need center.
+                // Most entities (enemies, player) are likely point objects.
+                // Let's assume point/center logic:
+                // Tiled (top-left) -> Center conversion if width/height exist.
+                float w = obj.value("width", 0.0f) * scale;
+                float h = obj.value("height", 0.0f) * scale;
+
+                Vector2f spawnPos = { x + w * 0.5f, y + h * 0.5f };
+
+                entt::entity spawnedEntity = m_context.m_entityFactory->spawn(type, spawnPos);
+                if (spawnedEntity != entt::null) {
+                    count++;
+                } else {
+                    if (m_logger) m_logger->warn("MapLoader: Failed to spawn entity of type '{}'", type);
+                }
+            }
+            if (m_logger) m_logger->info("Spawned {} entities from layer '{}'.", count, layer.value("name", "Entities"));
         }
     }
 

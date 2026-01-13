@@ -7,6 +7,7 @@
 #include "game/components/HealthComponent.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/PortalComponent.hpp"
 
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
@@ -71,6 +72,17 @@ namespace game {
                 damage.damageValue = data.value("damageValue", 10.0f);
                 
                 registry.emplace<DamageComponent>(entity, damage);
+            }
+        );
+
+        // --- 5. Rejestracja PortalComponent ---
+        factory.registerComponentLoader("Portal",
+            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                PortalComponent portal;
+                portal.isOpen = data.value("isOpen", false);
+                portal.isLocked = data.value("isLocked", false);
+                
+                registry.emplace<PortalComponent>(entity, portal);
             }
         );
     }

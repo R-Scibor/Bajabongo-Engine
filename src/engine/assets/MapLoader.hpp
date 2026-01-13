@@ -18,6 +18,7 @@ namespace engine {
     private:
         void processImageLayer(const nlohmann::json& layer);
         void processObjectLayer(const nlohmann::json& layer, bool isHalfCollision);
+        void processEntityLayer(const nlohmann::json& layer);
         void createCollisionBody(const nlohmann::json& object, bool isHalfCollision);
 
         EngineContext& m_context;

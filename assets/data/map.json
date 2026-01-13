@@ -4,13 +4,79 @@
  "layers":[
         {
          "id":2,
-         "image":"Map_milestone1.png",
+         "image":"map.png",
          "imageheight":1024,
          "imagewidth":1024,
          "locked":true,
          "name":"Image Layer 1",
          "opacity":1,
          "type":"imagelayer",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":4,
+         "name":"HalfCollision",
+         "objects":[
+                {
+                 "height":44.75,
+                 "id":67,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":109,
+                 "x":42.25,
+                 "y":338.75
+                }, 
+                {
+                 "height":53.75,
+                 "id":69,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":56.75,
+                 "x":212,
+                 "y":318.25
+                }, 
+                {
+                 "height":67.25,
+                 "id":72,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":149.75,
+                 "x":535.25,
+                 "y":400.5
+                }, 
+                {
+                 "height":60.5,
+                 "id":73,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":82.75,
+                 "x":435.25,
+                 "y":699.5
+                }, 
+                {
+                 "height":28,
+                 "id":74,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":26,
+                 "x":453.5,
+                 "y":675.75
+                }],
+         "opacity":1,
+         "type":"objectgroup",
          "visible":true,
          "x":0,
          "y":0
@@ -30,17 +96,6 @@
                  "width":237.666666666667,
                  "x":43.3333333333333,
                  "y":328
-                }, 
-                {
-                 "height":63.2727272727273,
-                 "id":5,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":109.090909090909,
-                 "x":42.3636363636364,
-                 "y":320.181818181818
                 }, 
                 {
                  "height":133.636363636364,
@@ -195,8 +250,7 @@
                  "width":14,
                  "x":770.545454545455,
                  "y":585.636363636364
-                },
-            
+                }, 
                 {
                  "height":12.5454545454546,
                  "id":21,
@@ -207,7 +261,8 @@
                  "width":331.454545454545,
                  "x":678,
                  "y":762
-                }, 
+                },
+            
                 {
                  "height":41.6363636363636,
                  "id":22,
@@ -372,8 +427,7 @@
                  "width":9.63636363636363,
                  "x":460.909090909091,
                  "y":336.727272727273
-                },
-            
+                }, 
                 {
                  "height":8,
                  "id":37,
@@ -384,7 +438,8 @@
                  "width":179.454545454545,
                  "x":282,
                  "y":336
-                }, 
+                },
+            
                 {
                  "height":7.27272727272731,
                  "id":38,
@@ -549,8 +604,7 @@
                  "width":34.25,
                  "x":977.5,
                  "y":678.5
-                },
-            
+                }, 
                 {
                  "height":48.25,
                  "id":56,
@@ -561,7 +615,8 @@
                  "width":150.25,
                  "x":783,
                  "y":719.5
-                }, 
+                },
+            
                 {
                  "height":82.75,
                  "id":57,
@@ -662,15 +717,110 @@
                  "y":774.25
                 }, 
                 {
-                 "height":75.25,
-                 "id":66,
+                 "height":55,
+                 "id":68,
                  "name":"",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":153,
-                 "x":533.75,
-                 "y":393.5
+                 "width":4.5,
+                 "x":38.25,
+                 "y":327.5
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":6,
+         "name":"Entities",
+         "objects":[
+                {
+                 "height":0,
+                 "id":77,
+                 "name":"PlayerSpawn",
+                 "point":true,
+                 "rotation":0,
+                 "type":"Player",
+                 "visible":true,
+                 "width":0,
+                 "x":96,
+                 "y":406.5
+                }, 
+                {
+                 "height":0,
+                 "id":78,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"bed",
+                 "visible":true,
+                 "width":0,
+                 "x":-86.75,
+                 "y":352
+                }, 
+                {
+                 "height":0,
+                 "id":79,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"oven",
+                 "visible":true,
+                 "width":0,
+                 "x":-86.75,
+                 "y":447
+                }, 
+                {
+                 "height":0,
+                 "id":80,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"target_1",
+                 "visible":true,
+                 "width":0,
+                 "x":532,
+                 "y":268.5
+                }, 
+                {
+                 "height":0,
+                 "id":81,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"target_2",
+                 "visible":true,
+                 "width":0,
+                 "x":596.75,
+                 "y":265.5
+                }, 
+                {
+                 "height":0,
+                 "id":82,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"target_3",
+                 "visible":true,
+                 "width":0,
+                 "x":680,
+                 "y":264.25
+                }, 
+                {
+                 "height":0,
+                 "id":83,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"target_4",
+                 "visible":true,
+                 "width":0,
+                 "x":598.25,
+                 "y":346.25
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -678,8 +828,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":4,
- "nextobjectid":67,
+ "nextlayerid":7,
+ "nextobjectid":84,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
