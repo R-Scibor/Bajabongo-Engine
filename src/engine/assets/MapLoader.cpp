@@ -171,7 +171,7 @@ namespace engine {
 
         auto entity = m_context.m_registry->create();
 
-        unsigned int categoryBits = PhysicsCategory::Wall;
+        unsigned int categoryBits = PhysicsCategory::Wall | PhysicsCategory::VisibilityBlocker;
         unsigned int maskBits = PhysicsCategory::All;
 
         // If it's half collision, add the tag component
