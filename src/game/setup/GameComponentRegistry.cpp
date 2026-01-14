@@ -9,6 +9,7 @@
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/PortalComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
+#include "engine/components/WorldBoundsComponent.hpp"
 
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
@@ -94,6 +95,15 @@ namespace game {
                 visibility.viewRadius = data.value("viewRadius", 500.0f);
                 
                 registry.emplace<VisibilityComponent>(entity, visibility);
+            }
+        );
+        // --- 7. Rejestracja WorldBoundsComponent ---
+        factory.registerComponentLoader("WorldBounds",
+            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                float w = data.value("width", 0.0f);
+                float h = data.value("height", 0.0f);
+                
+                registry.emplace<engine::WorldBoundsComponent>(entity, w, h);
             }
         );
     }

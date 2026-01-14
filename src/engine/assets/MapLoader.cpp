@@ -8,6 +8,7 @@
 #include "engine/core/ILogger.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
+#include "engine/components/WorldBoundsComponent.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/HalfCollisionComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
@@ -76,6 +77,10 @@ namespace engine {
         float opacity = layer.value("opacity", 1.0f);
         bool visible = layer.value("visible", true);
 
+        // Extract bounds from image layer if available
+        float imageWidth = layer.value("imagewidth", 0.0f);
+        float imageHeight = layer.value("imageheight", 0.0f);
+
         if (visible) {
             auto entity = m_context.m_registry->create();
             // Scale map background by 1.5x (as per previous logic, keeping it consistent)
@@ -84,11 +89,15 @@ namespace engine {
             // Image layers usually start at 0,0
             m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f, Vector2f{scale, scale});
             
-            // Use the image name as the texture key (assuming it's loaded)
-            // Note: In a real engine, we'd probably want to strip paths or have a resource mapping.
-            // For now, using the filename directly as the texture ID.
+            // Image name as texture key
             m_context.m_registry->emplace<RenderableComponent>(entity, "map_sprite", 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
             
+            // Add WorldBoundsComponent if dimensions are valid
+            if (imageWidth > 0 && imageHeight > 0) {
+                 m_context.m_registry->emplace<WorldBoundsComponent>(entity, imageWidth * scale, imageHeight * scale);
+                 if (m_logger) m_logger->info("Added WorldBoundsComponent: {}x{}", imageWidth * scale, imageHeight * scale);
+            }
+
             if (m_logger) m_logger->info("Created map background entity for image: {}", imageName);
         }
     }

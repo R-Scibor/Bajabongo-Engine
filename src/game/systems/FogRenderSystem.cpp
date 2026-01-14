@@ -1,22 +1,30 @@
 #include "engine/pch.h"
 #include "FogRenderSystem.hpp"
 #include "game/components/VisibilityComponent.hpp"
+#include "engine/components/WorldBoundsComponent.hpp"
 #include "engine/core/IWindow.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <cmath>
 
 namespace game {
 
     FogRenderSystem::FogRenderSystem(engine::EngineContext& context)
         : m_context(context)
     {
+        // Initial size (can be updated later when world bounds are found)
         auto size = context.m_window->getSize();
         initializeTextures(size.x, size.y);
     }
 
     void FogRenderSystem::initializeTextures(unsigned int width, unsigned int height) {
+        // Prevent re-initialization if size hasn't changed significantly or is valid
+        if (m_initialized && m_currentWidth == width && m_currentHeight == height) {
+            return;
+        }
+
         if (!m_sightTexture.resize({width, height})) {
             // Handle error
             if (m_context.m_logManager) {
@@ -34,14 +42,37 @@ namespace game {
              m_explorationTexture.display();
         }
 
+        m_currentWidth = width;
+        m_currentHeight = height;
         m_initialized = true;
+
+        if (m_context.m_logManager) {
+             m_context.m_logManager->GetLogger("FogRenderSystem")->info("Fog textures initialized to {}x{}", width, height);
+        }
     }
 
     void FogRenderSystem::resize(unsigned int width, unsigned int height) {
-        initializeTextures(width, height);
+        // Only resize if we are NOT using world bounds (e.g. initial fallback)
+        // If we found world bounds, we ignore window resize events for texture size
+        if (!m_usingWorldBounds) {
+             initializeTextures(width, height);
+        }
     }
 
     void FogRenderSystem::update() {
+        // Check for WorldBoundsComponent to set correct texture size
+        if (!m_usingWorldBounds) {
+            auto boundsView = m_context.m_registry->view<engine::WorldBoundsComponent>();
+            for (auto entity : boundsView) {
+                const auto& bounds = boundsView.get<engine::WorldBoundsComponent>(entity);
+                if (bounds.width > 0 && bounds.height > 0) {
+                     initializeTextures(static_cast<unsigned int>(std::ceil(bounds.width)), static_cast<unsigned int>(std::ceil(bounds.height)));
+                     m_usingWorldBounds = true;
+                     break; // Use the first one found
+                }
+            }
+        }
+
         if (!m_initialized) return;
 
         // 1. Clear sight texture to transparent
@@ -78,22 +109,23 @@ namespace game {
 
         // 3. Accumulate into exploration texture
         // Draw the current sight texture onto the exploration texture
-        // We want to keep pixels that are already discovered (alpha > 0) OR currently visible.
-        // A Max blend mode would work if we treat "Explored" as White and "Unexplored" as Transparent.
-        // Let's assume Exploration Texture: Alpha 0 = Unexplored, Alpha 255 = Explored.
+        // Use BlendAdd to accumulate opacity (White on Transparent)
+        // Since sightTexture is White (Visible) on Transparent (Hidden), 
+        // Adding it to explorationTexture (which starts Transparent) will accumulate the white pixels.
+        // Once a pixel is white (1.0), adding more white keeps it white (clamped to 1.0).
         
         sf::Sprite sightSprite(m_sightTexture.getTexture());
-        // To accumulate, we can draw the sight sprite onto exploration texture.
-        // If we want to keep what's already there, we need a blend mode that doesn't clear the destination.
-        // sf::BlendNone would overwrite. sf::BlendAlpha would mix.
-        // We want: Destination = Max(Destination, Source).
-        // SFML standard blend modes don't have Max directly exposed easily without custom equation.
-        // However, if we just draw the sight sprite (White) over the exploration texture...
-        // If exploration texture has White (Explored) and we draw White (Visible), it stays White.
-        // If exploration texture has Transparent (Unexplored) and we draw White, it becomes White.
-        // So standard Alpha blending works if we draw opaque white on transparent!
+        // We need to flip the sprite vertically because sf::RenderTexture is stored upside down relative to window
+        // But here we are drawing from texture to texture, so coordinate systems might match?
+        // Actually SFML RenderTextures are usually consistent with each other. 
+        // Let's test without flipping first. If it's upside down, we'll fix it.
+        // Wait, getTexture() returns the texture which is "right side up" for sprite drawing usually.
         
-        m_explorationTexture.draw(sightSprite);
+        // Use sf::BlendAdd to ensure we only "add" light.
+        // If exploration has alpha 0, and sight has alpha 1 -> result alpha 1.
+        // If exploration has alpha 1, and sight has alpha 0 -> result alpha 1.
+        // This acts like a Boolean OR for visibility.
+        m_explorationTexture.draw(sightSprite, sf::BlendAdd);
         m_explorationTexture.display();
     }
 

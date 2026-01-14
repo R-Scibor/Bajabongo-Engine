@@ -118,6 +118,18 @@ namespace engine
         m_renderWindow.draw(sprite);
     }
 
+    void SFMLRenderer::drawSpriteDirect(const void* spriteHandle, engine::Vector2f position) {
+        if (!spriteHandle) return;
+        const sf::Sprite* sprite = static_cast<const sf::Sprite*>(spriteHandle);
+        // We draw the sprite as provided, but force position if needed, or assume sprite has position set
+        // But the interface has position argument.
+        
+        // If we modify the sprite, we need a copy.
+        sf::Sprite copy = *sprite;
+        copy.setPosition({position.x, position.y});
+        m_renderWindow.draw(copy);
+    }
+
     void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
         if (!m_resourceManager) {
             if (m_logger) m_logger->error("SFMLRenderer: ResourceManager is not set. Cannot draw sprite.");

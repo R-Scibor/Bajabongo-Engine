@@ -24,6 +24,9 @@ namespace game {
         sf::RenderTexture m_explorationTexture;
         
         bool m_initialized = false;
+        bool m_usingWorldBounds = false;
+        unsigned int m_currentWidth = 0;
+        unsigned int m_currentHeight = 0;
         
         void initializeTextures(unsigned int width, unsigned int height);
     };

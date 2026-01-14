@@ -177,8 +177,17 @@ namespace game {
         // Render Fog
         m_fogRenderSystem.update();
         if (context.m_renderer) {
+             // Draw Sight Texture (Debug: Tinted Green to distinguish)
              const auto& sightTexture = m_fogRenderSystem.getSightTexture();
-             context.m_renderer->drawTexture(&sightTexture, {0.0f, 0.0f});
+             sf::Sprite sightSprite(sightTexture);
+             sightSprite.setColor(sf::Color(0, 255, 0, 100)); // Semi-transparent Green
+             context.m_renderer->drawSpriteDirect(&sightSprite, {0.0f, 0.0f}); // Assume 0,0 for full screen overlay
+
+             // Draw Exploration Texture (Debug: Tinted Blue to distinguish)
+             const auto& explorationTexture = m_fogRenderSystem.getExplorationTexture();
+             sf::Sprite explorationSprite(explorationTexture);
+             explorationSprite.setColor(sf::Color(0, 0, 255, 100)); // Semi-transparent Blue
+             context.m_renderer->drawSpriteDirect(&explorationSprite, {0.0f, 0.0f});
         }
 
         // TEST: Draw visibility polygon
