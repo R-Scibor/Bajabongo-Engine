@@ -38,6 +38,7 @@ namespace engine
         void drawRect(engine::Vector2f position, engine::Vector2f size) override;
         void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) override;
         void drawPolygon(const std::vector<engine::Vector2f>& vertices, const Color& color) override;
+        void drawTexture(const void* textureHandle, engine::Vector2f position) override;
         void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform, const Color& color) override;
         engine::Vector2f screenToWorld(engine::Vector2f screenPos) override;
         void setViewCenter(engine::Vector2f center) override;

@@ -107,6 +107,17 @@ namespace engine
         m_renderWindow.draw(polygon);
     }
 
+    void SFMLRenderer::drawTexture(const void* textureHandle, engine::Vector2f position) {
+        if (!textureHandle) return;
+        
+        const sf::Texture* texture = static_cast<const sf::Texture*>(textureHandle);
+        sf::Sprite sprite(*texture);
+        sprite.setPosition({position.x, position.y});
+        
+        // We assume we want to draw it as is (1:1)
+        m_renderWindow.draw(sprite);
+    }
+
     void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
         if (!m_resourceManager) {
             if (m_logger) m_logger->error("SFMLRenderer: ResourceManager is not set. Cannot draw sprite.");

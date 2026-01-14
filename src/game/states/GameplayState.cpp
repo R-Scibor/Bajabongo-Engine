@@ -26,6 +26,7 @@
 #include "engine/components/CameraFocusComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/systems/FogRenderSystem.hpp"
 #include "game/components/VisibilityComponent.hpp"
 #include "game/systems/VisibilitySystem.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
@@ -51,6 +52,7 @@ namespace game {
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
         , m_visibilitySystem(context)
+        , m_fogRenderSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
@@ -171,6 +173,13 @@ namespace game {
     void GameplayState::render(engine::EngineContext& context) {
         m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
         m_renderSystem.update();
+        
+        // Render Fog
+        m_fogRenderSystem.update();
+        if (context.m_renderer) {
+             const auto& sightTexture = m_fogRenderSystem.getSightTexture();
+             context.m_renderer->drawTexture(&sightTexture, {0.0f, 0.0f});
+        }
 
         // TEST: Draw visibility polygon
         if (context.m_renderer) {

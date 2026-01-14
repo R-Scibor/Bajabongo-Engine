@@ -17,6 +17,7 @@
 #include "game/systems/WeaponSystem.hpp"
 #include "game/systems/HudSystem.hpp"
 #include "game/systems/VisibilitySystem.hpp"
+#include "game/systems/FogRenderSystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -61,6 +62,7 @@ namespace game {
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;
         VisibilitySystem m_visibilitySystem;
+        FogRenderSystem m_fogRenderSystem;
         std::unique_ptr<HudSystem> m_hudSystem;
 
         std::shared_ptr<engine::ILogger> m_logger;
