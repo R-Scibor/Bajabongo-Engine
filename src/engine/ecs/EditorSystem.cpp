@@ -13,6 +13,11 @@
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/rendering/Sprite.hpp"
 
+#include "game/components/HealthComponent.hpp"
+#include "game/components/WeaponComponent.hpp"
+#include "game/components/PlayerComponent.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
+
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <box2d/box2d.h>
@@ -26,6 +31,32 @@ namespace engine {
         if (m_context->m_logManager) {
             m_logger = m_context->m_logManager->GetLogger("EditorSystem");
         }
+
+        RegisterInspector<game::HealthComponent>([](entt::registry& reg, entt::entity e) {
+            if (ImGui::CollapsingHeader("Health", ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto& health = reg.get<game::HealthComponent>(e);
+                ImGui::DragFloat("Current HP", &health.currentHp, 1.0f, 0.0f, health.maxHp);
+                ImGui::DragFloat("Max HP", &health.maxHp, 1.0f, 1.0f, 10000.0f);
+            }
+        });
+
+        RegisterInspector<game::WeaponComponent>([](entt::registry& reg, entt::entity e) {
+            if (ImGui::CollapsingHeader("Weapon", ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto& weapon = reg.get<game::WeaponComponent>(e);
+                ImGui::DragFloat("Fire Rate", &weapon.fireRate, 0.01f, 0.01f, 5.0f);
+                ImGui::DragFloat("Damage", &weapon.damage, 1.0f, 0.0f, 1000.0f);
+                ImGui::DragInt("Current Ammo", &weapon.currentAmmo, 1, 0, weapon.magSize);
+                ImGui::DragInt("Mag Size", &weapon.magSize, 1, 1, 1000);
+                ImGui::DragInt("Total Ammo", &weapon.totalAmmo, 10, 0, 10000);
+            }
+        });
+
+        RegisterInspector<game::PlayerComponent>([](entt::registry& reg, entt::entity e) {
+            if (ImGui::CollapsingHeader("Player Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto& player = reg.get<game::PlayerComponent>(e);
+                ImGui::DragFloat("Move Speed", &player.moveSpeed, 0.1f, 0.0f, 100.0f);
+            }
+        });
 
         RegisterInspector<TransformComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -104,6 +135,38 @@ namespace engine {
                      ImGui::Text("B2 Pos: %.2f, %.2f", pos.x, pos.y);
                      float angle = b2Body_GetRotation(body.bodyId).c; // Approx
                      ImGui::Text("B2 Angle (cos): %.2f", angle);
+
+                     // Inspect Shapes and Filters
+                     int shapeCount = b2Body_GetShapeCount(body.bodyId);
+                     if (shapeCount > 0) {
+                         std::vector<b2ShapeId> shapes(shapeCount);
+                         b2Body_GetShapes(body.bodyId, shapes.data(), shapeCount);
+
+                         if (ImGui::TreeNode("Shapes")) {
+                             for (int i = 0; i < shapeCount; ++i) {
+                                 if (ImGui::TreeNode((void*)(intptr_t)i, "Shape %d", i)) {
+                                     b2Filter filter = b2Shape_GetFilter(shapes[i]);
+                                     ImGui::Text("Category: %u", filter.categoryBits);
+                                     ImGui::Text("Mask: %u", filter.maskBits);
+
+                                     // Allow toggling VisibilityBlocker
+                                     bool isVisibilityBlocker = (filter.categoryBits & engine::PhysicsCategory::VisibilityBlocker) != 0;
+                                     if (ImGui::Checkbox("Visibility Blocker", &isVisibilityBlocker)) {
+                                         if (isVisibilityBlocker) {
+                                             filter.categoryBits |= engine::PhysicsCategory::VisibilityBlocker;
+                                         } else {
+                                             filter.categoryBits &= ~engine::PhysicsCategory::VisibilityBlocker;
+                                         }
+                                         b2Shape_SetFilter(shapes[i], filter);
+                                     }
+
+                                     ImGui::TreePop();
+                                 }
+                             }
+                             ImGui::TreePop();
+                         }
+                     }
+
                 } else {
                     ImGui::TextColored({1, 0, 0, 1}, "Invalid Body ID");
                 }

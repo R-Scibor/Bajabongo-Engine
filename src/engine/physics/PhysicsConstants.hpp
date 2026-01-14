@@ -15,6 +15,7 @@ namespace engine
         LowObstacle = 1 << 5, // Fences, tables (blocks movement, allows shooting)
         Sensor      = 1 << 6,
         Hurtbox     = 1 << 7,
+        VisibilityBlocker = 1 << 8,
         All         = 0xFFFFFFFF
     };
 }

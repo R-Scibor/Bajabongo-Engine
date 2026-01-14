@@ -57,7 +57,7 @@ namespace engine {
 
         // Define filter for level geometry (Walls)
         b2Filter wallFilter = b2DefaultFilter();
-        wallFilter.categoryBits = PhysicsCategory::Wall;
+        wallFilter.categoryBits = PhysicsCategory::Wall | PhysicsCategory::VisibilityBlocker;
         wallFilter.maskBits = PhysicsCategory::All;
 
         int chainCount = 0;
@@ -130,9 +130,9 @@ namespace engine {
                 for (b2ShapeId shapeId : segments) {
                     b2Shape_SetUserData(shapeId, (void*)(uintptr_t)m_levelEntity);
 
-                    // Set filter for each segment (Level geometry = Wall)
+                    // Set filter for each segment (Level geometry = Wall | VisibilityBlocker)
                     b2Filter filter = b2Shape_GetFilter(shapeId);
-                    filter.categoryBits = PhysicsCategory::Wall;
+                    filter.categoryBits = PhysicsCategory::Wall | PhysicsCategory::VisibilityBlocker;
                     filter.maskBits = PhysicsCategory::All;
                     b2Shape_SetFilter(shapeId, filter);
                 }
