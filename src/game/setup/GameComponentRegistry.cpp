@@ -8,6 +8,7 @@
 #include "game/components/DamageComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/PortalComponent.hpp"
+#include "game/components/VisibilityComponent.hpp"
 
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
@@ -83,6 +84,16 @@ namespace game {
                 portal.isLocked = data.value("isLocked", false);
                 
                 registry.emplace<PortalComponent>(entity, portal);
+            }
+        );
+
+        // --- 6. Rejestracja VisibilityComponent ---
+        factory.registerComponentLoader("Visibility",
+            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                VisibilityComponent visibility;
+                visibility.viewRadius = data.value("viewRadius", 500.0f);
+                
+                registry.emplace<VisibilityComponent>(entity, visibility);
             }
         );
     }

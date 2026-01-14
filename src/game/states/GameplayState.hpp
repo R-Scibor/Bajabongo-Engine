@@ -16,6 +16,7 @@
 #include "game/systems/DamageSystem.hpp"
 #include "game/systems/WeaponSystem.hpp"
 #include "game/systems/HudSystem.hpp"
+#include "game/systems/VisibilitySystem.hpp"
 
 #include <entt/fwd.hpp>
 #include <memory>
@@ -59,6 +60,7 @@ namespace game {
         engine::LifetimeSystem m_lifetimeSystem;
         std::unique_ptr<engine::EditorSystem> m_editorSystem;
         engine::HierarchySystem m_hierarchySystem;
+        VisibilitySystem m_visibilitySystem;
         std::unique_ptr<HudSystem> m_hudSystem;
 
         std::shared_ptr<engine::ILogger> m_logger;

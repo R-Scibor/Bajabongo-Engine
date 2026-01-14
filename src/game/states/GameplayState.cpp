@@ -26,6 +26,8 @@
 #include "engine/components/CameraFocusComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/VisibilityComponent.hpp"
+#include "game/systems/VisibilitySystem.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
@@ -48,6 +50,7 @@ namespace game {
         , m_weaponSystem(context)
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
+        , m_visibilitySystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
@@ -157,6 +160,7 @@ namespace game {
             m_physicsEventSystem.update();
             context.m_dispatcher->update();
             m_physicsSyncSystem.update();
+            m_visibilitySystem.update();
             m_hierarchySystem.update();
             m_lifetimeSystem.update(fixedDeltaTime);
             m_animationSystem.update(fixedDeltaTime);
@@ -167,6 +171,17 @@ namespace game {
     void GameplayState::render(engine::EngineContext& context) {
         m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
         m_renderSystem.update();
+
+        // TEST: Draw visibility polygon
+        if (context.m_renderer) {
+            auto view = context.m_registry->view<VisibilityComponent>();
+            for (auto entity : view) {
+                const auto& visibility = view.get<VisibilityComponent>(entity);
+                if (!visibility.visibilityPolygon.empty()) {
+                     context.m_renderer->drawPolygon(visibility.visibilityPolygon, {255, 0, 0, 128});
+                }
+            }
+        }
 
         // TEST: Draw a polygon
         if (context.m_renderer) {

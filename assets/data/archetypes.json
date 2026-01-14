@@ -88,6 +88,9 @@
     "CameraFocus": {
       "viewHeight": 720.0,
       "smoothness": 0.1
+    },
+    "Visibility": {
+      "viewRadius": 500.0
     }
   },
   "hat": {
