@@ -19,6 +19,7 @@
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/rendering/RenderSystem.hpp"
 #include "engine/rendering/CameraSystem.hpp"
+#include "engine/rendering/IRenderer.hpp"
 #include "engine/rendering/Sprite.hpp"
 #include "engine/rendering/AnimationClip.hpp"
 #include "engine/components/AnimationComponent.hpp"
@@ -186,6 +187,16 @@ namespace game {
     void GameplayState::render(engine::EngineContext& context) {
         m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
         m_renderSystem.update();
+
+        // TEST: Draw a polygon
+        if (context.m_renderer) {
+            std::vector<engine::Vector2f> polygon = {
+                {400.f, 300.f},
+                {500.f, 300.f},
+                {450.f, 400.f}
+            };
+            context.m_renderer->drawPolygon(polygon, {255, 0, 0, 128});
+        }
 
         if (m_editorSystem && context.debugFlags.showEditor) {
             // DT is currently not used for UI logic but passed for API consistency

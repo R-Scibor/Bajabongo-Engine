@@ -96,6 +96,17 @@ namespace engine
         m_renderWindow.draw(line, 2, sf::PrimitiveType::Lines);
     }
 
+    void SFMLRenderer::drawPolygon(const std::vector<engine::Vector2f>& vertices, const Color& color) {
+        if (vertices.empty()) return;
+
+        sf::VertexArray polygon(sf::PrimitiveType::TriangleFan, vertices.size());
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            polygon[i].position = sf::Vector2f(vertices[i].x, vertices[i].y);
+            polygon[i].color = sf::Color(color.r, color.g, color.b, color.a);
+        }
+        m_renderWindow.draw(polygon);
+    }
+
     void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
         if (!m_resourceManager) {
             if (m_logger) m_logger->error("SFMLRenderer: ResourceManager is not set. Cannot draw sprite.");
