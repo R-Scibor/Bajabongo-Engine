@@ -29,8 +29,6 @@
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
-#include "engine/physics/GeometryBuilder.hpp"
-#include "engine/physics/LevelGeometryBuilder.hpp"
 #include "engine/assets/MapLoader.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
@@ -50,7 +48,6 @@ namespace game {
         , m_weaponSystem(context)
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
-        , m_levelGeometryBuilder(std::make_unique<engine::LevelGeometryBuilder>(context))
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
@@ -115,23 +112,6 @@ namespace game {
         engine::MapLoader mapLoader(context);
         // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
         mapLoader.load("../../assets/data/map.json");
-
-        // --- Geometry Builder Test ---
-        if (m_logger) m_logger->info("Testing GeometryBuilder...");
-        engine::GeometryBuilder geomBuilder(m_logger);
-        
-        // Create a dummy 5x5 grid
-        // 1 = Wall, 0 = Air
-        std::vector<std::vector<int>> testGrid = {
-            {1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 1},
-            {1, 0, 1, 0, 1},
-            {1, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1}
-        };
-        
-        auto chains = geomBuilder.analyzeGrid(testGrid, 32.0f);
-        m_levelGeometryBuilder->createLevelBody(chains);
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {
