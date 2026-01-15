@@ -101,6 +101,10 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
     // If state is idle, maybe no suffix?
     // Let's look at resources.json: "player_idle", "player_walk_right"
     
+    // NOTE: Based on user feedback:
+    // Idle: player_idle, enemy_idle (no suffix)
+    // Walk: player_walk_right, enemy_walk_right (WITH suffix)
+    
     if (state == AnimationState::Walk) {
         return entityType + "_" + stateStr + "_right";
     }

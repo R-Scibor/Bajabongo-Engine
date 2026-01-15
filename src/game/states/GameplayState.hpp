@@ -19,6 +19,7 @@
 #include "game/systems/VisibilitySystem.hpp"
 #include "game/systems/VisibilityTaggingSystem.hpp"
 #include "game/systems/FogRenderSystem.hpp"
+#include "game/systems/EnemyAISystem.hpp"
 
 #include "engine/systems/AnimationStateMachineSystem.hpp"
 #include <entt/fwd.hpp>
@@ -67,6 +68,7 @@ namespace game {
         VisibilitySystem m_visibilitySystem;
         VisibilityTaggingSystem m_visibilityTaggingSystem;
         FogRenderSystem m_fogRenderSystem;
+        EnemyAISystem m_enemyAISystem;
         std::unique_ptr<HudSystem> m_hudSystem;
 
         std::shared_ptr<engine::ILogger> m_logger;

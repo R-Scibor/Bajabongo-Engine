@@ -56,6 +56,7 @@ namespace game {
         , m_visibilitySystem(context)
         , m_visibilityTaggingSystem(context)
         , m_fogRenderSystem(context)
+        , m_enemyAISystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
@@ -160,6 +161,7 @@ namespace game {
         if (!context.debugFlags.pauseGame) {
             m_physicsBodyCreationSystem.update();
             m_playerControllerSystem.update(fixedDeltaTime);
+            m_enemyAISystem.update(fixedDeltaTime);
             m_weaponSystem.update(fixedDeltaTime);
             b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
             m_physicsEventSystem.update();
