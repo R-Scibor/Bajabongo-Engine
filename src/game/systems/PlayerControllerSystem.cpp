@@ -14,6 +14,7 @@
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
+#include "engine/components/AnimationStateComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 
 #include <box2d/box2d.h>
@@ -63,42 +64,60 @@ namespace game {
 
             // --- Animation State Machine ---
             if (anim) {
-                // 1. Determine State: Idle vs Moving
-                if (lengthSq > 0.0f) {
-                    // Moving
-                    std::string newClip = anim->currentClipId;
-                    float scaleX = std::abs(transform.scale.x); // Preserve magnitude
-
-                    // 2. Determine Direction
-                    // Prioritize vertical movement for sprite selection if moving diagonally,
-                    // or prioritize horizontal? Let's prioritize based on larger component.
-                    if (std::abs(moveDir.y) > std::abs(moveDir.x)) {
-                         if (moveDir.y < 0.0f) {
-                            newClip = "player_walk_up";
-                        } else {
-                            newClip = "player_walk_down";
-                        }
+                // Check if we have the new AnimationStateComponent
+                if (auto* animState = registry.try_get<engine::AnimationStateComponent>(entity)) {
+                    // 1. Determine State: Idle vs Moving
+                    if (lengthSq > 0.0f) {
+                        animState->state = engine::AnimationState::Walk;
                     } else {
-                        // Horizontal or equal
-                        newClip = "player_walk_right";
-                        if (moveDir.x < 0.0f) {
-                            transform.scale.x = -scaleX; // Face Left
-                        } else {
-                            transform.scale.x = scaleX; // Face Right
-                        }
+                        animState->state = engine::AnimationState::Idle;
                     }
-
-                    // Switch clip if changed
-                    if (anim->currentClipId != newClip) {
-                        anim->currentClipId = newClip;
-                        anim->reset();
+                    
+                    // 2. Determine Facing Direction (Left/Right only)
+                    if (moveDir.x < 0.0f) {
+                        animState->facing = engine::FacingDirection::Left;
+                    } else if (moveDir.x > 0.0f) {
+                        animState->facing = engine::FacingDirection::Right;
                     }
+                    // If moving purely vertical (Y-only), keep previous facing
                 }
                 else {
-                    // Idle
-                    if (anim->currentClipId != "player_idle") {
-                        anim->currentClipId = "player_idle";
-                        anim->reset();
+                    // Fallback to legacy hardcoded logic if AnimationStateComponent is missing
+                    // 1. Determine State: Idle vs Moving
+                    if (lengthSq > 0.0f) {
+                        // Moving
+                        std::string newClip = anim->currentClipId;
+                        float scaleX = std::abs(transform.scale.x); // Preserve magnitude
+
+                        // 2. Determine Direction
+                        if (std::abs(moveDir.y) > std::abs(moveDir.x)) {
+                             if (moveDir.y < 0.0f) {
+                                newClip = "player_walk_up";
+                            } else {
+                                newClip = "player_walk_down";
+                            }
+                        } else {
+                            // Horizontal or equal
+                            newClip = "player_walk_right";
+                            if (moveDir.x < 0.0f) {
+                                transform.scale.x = -scaleX; // Face Left
+                            } else {
+                                transform.scale.x = scaleX; // Face Right
+                            }
+                        }
+
+                        // Switch clip if changed
+                        if (anim->currentClipId != newClip) {
+                            anim->currentClipId = newClip;
+                            anim->reset();
+                        }
+                    }
+                    else {
+                        // Idle
+                        if (anim->currentClipId != "player_idle") {
+                            anim->currentClipId = "player_idle";
+                            anim->reset();
+                        }
                     }
                 }
             }

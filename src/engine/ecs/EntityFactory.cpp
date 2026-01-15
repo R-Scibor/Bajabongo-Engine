@@ -8,6 +8,7 @@
 #include "engine/components/ChildComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/CameraFocusComponent.hpp"
+#include "engine/components/AnimationStateComponent.hpp"
 #include "engine/components/MetaComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
@@ -21,6 +22,7 @@ namespace engine {
         static constexpr const char* Renderable = "Renderable";
         static constexpr const char* Physics = "Physics";
         static constexpr const char* Animation = "Animation";
+        static constexpr const char* AnimationState = "AnimationState";
         static constexpr const char* CameraFocus = "CameraFocus";
     }
 
@@ -287,6 +289,27 @@ namespace engine {
             animComp.isPlaying = data.value("playing", false);
             
             registry.emplace<AnimationComponent>(entity, animComp);
+        });
+
+        // --- AnimationState ---
+        registerComponentLoader(ComponentNames::AnimationState, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            AnimationStateComponent stateComp;
+            
+            std::string initialState = data.value("initialState", "Idle");
+            if (initialState == "Walk") {
+                stateComp.state = AnimationState::Walk;
+            } else {
+                stateComp.state = AnimationState::Idle;
+            }
+            
+            std::string initialFacing = data.value("initialFacing", "Right");
+            if (initialFacing == "Left") {
+                stateComp.facing = FacingDirection::Left;
+            } else {
+                stateComp.facing = FacingDirection::Right;
+            }
+            
+            registry.emplace<AnimationStateComponent>(entity, stateComp);
         });
 
         // --- CameraFocus ---

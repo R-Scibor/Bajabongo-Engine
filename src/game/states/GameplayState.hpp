@@ -20,6 +20,7 @@
 #include "game/systems/VisibilityTaggingSystem.hpp"
 #include "game/systems/FogRenderSystem.hpp"
 
+#include "engine/systems/AnimationStateMachineSystem.hpp"
 #include <entt/fwd.hpp>
 #include <memory>
 
@@ -54,6 +55,7 @@ namespace game {
         engine::PhysicsEventSystem m_physicsEventSystem;
         engine::PhysicsSyncSystem m_physicsSyncSystem;
         engine::RenderSystem m_renderSystem;
+        engine::AnimationStateMachineSystem m_animationStateMachineSystem;
         engine::AnimationSystem m_animationSystem;
         engine::CameraSystem m_cameraSystem;
         DamageSystem m_damageSystem;

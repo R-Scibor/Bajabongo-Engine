@@ -45,6 +45,7 @@ namespace game {
         , m_physicsEventSystem(context)
         , m_physicsSyncSystem(context)
         , m_renderSystem(context)
+        , m_animationStateMachineSystem(context)
         , m_animationSystem(context)
         , m_cameraSystem(context)
         , m_playerControllerSystem(context)
@@ -168,6 +169,7 @@ namespace game {
             m_visibilityTaggingSystem.update();
             m_hierarchySystem.update();
             m_lifetimeSystem.update(fixedDeltaTime);
+            m_animationStateMachineSystem.update();
             m_animationSystem.update(fixedDeltaTime);
             m_cameraSystem.update(fixedDeltaTime);
         }

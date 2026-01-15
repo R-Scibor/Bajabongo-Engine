@@ -153,6 +153,7 @@
     <ClInclude Include="assets\AssetManifestLoader.hpp" />
     <ClInclude Include="assets\MapLoader.hpp" />
     <ClInclude Include="components\AnimationComponent.hpp" />
+    <ClInclude Include="components\AnimationStateComponent.hpp" />
     <ClInclude Include="components\CameraFocusComponent.hpp" />
     <ClInclude Include="components\ChildComponent.hpp" />
     <ClInclude Include="components\LifetimeComponent.hpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="ecs\ArchetypeManager.hpp" />
     <ClInclude Include="ecs\EditorSystem.hpp" />
     <ClInclude Include="ecs\EntityFactory.hpp" />
+    <ClInclude Include="systems\AnimationStateMachineSystem.hpp" />
     <ClInclude Include="systems\LifetimeSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +229,7 @@
     <ClCompile Include="ecs\ArchetypeManager.cpp" />
     <ClCompile Include="ecs\EditorSystem.cpp" />
     <ClCompile Include="ecs\EntityFactory.cpp" />
+    <ClCompile Include="systems\AnimationStateMachineSystem.cpp" />
     <ClCompile Include="systems\LifetimeSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

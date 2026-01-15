@@ -48,6 +48,10 @@
       "spriteId": "player_idle_0",
       "layer": 2
     },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Right"
+    },
     "Animation": {
       "defaultClip": "player_idle",
       "playing": true
@@ -112,6 +116,10 @@
     "Renderable": {
       "spriteId": "player_idle_0",
       "layer": 2
+    },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Right"
     },
     "Animation": {
       "defaultClip": "player_idle",
@@ -211,6 +219,14 @@
       "spriteId": "target_1_sprite",
       "layer": 1
     },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
+    "Animation": {
+      "defaultClip": "target_1_idle",
+      "playing": true
+    },
     "Physics": {
       "type": "dynamic",
       "linearDamping": 5.0,
@@ -245,6 +261,14 @@
     "Renderable": {
       "spriteId": "target_2_sprite",
       "layer": 1
+    },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
+    "Animation": {
+      "defaultClip": "target_2_idle",
+      "playing": true
     },
     "Physics": {
       "type": "dynamic",
@@ -281,6 +305,14 @@
       "spriteId": "target_3_sprite",
       "layer": 1
     },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
+    "Animation": {
+      "defaultClip": "target_3_idle",
+      "playing": true
+    },
     "Physics": {
       "type": "dynamic",
       "linearDamping": 5.0,
@@ -315,6 +347,14 @@
     "Renderable": {
       "spriteId": "target_4_sprite",
       "layer": 1
+    },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
+    "Animation": {
+      "defaultClip": "target_4_idle",
+      "playing": true
     },
     "Physics": {
       "type": "dynamic",
