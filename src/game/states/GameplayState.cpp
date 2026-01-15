@@ -93,7 +93,7 @@ namespace game {
         if (context.m_entityFactory) {
             // NEW: Spawn composite archetype (player)
             entt::entity player = context.m_entityFactory->spawn("player", {155.f, 615.f});
-            entt::entity target_1 = context.m_entityFactory->spawn("target_1", {786.f, 213.f});
+            entt::entity target_1 = context.m_entityFactory->spawn("enemy_1", {786.f, 213.f});
             entt::entity target_2 = context.m_entityFactory->spawn("target_2", {882.f, 213.f});
             entt::entity target_3 = context.m_entityFactory->spawn("target_3", {960.f, 213.f});
             entt::entity target_4 = context.m_entityFactory->spawn("target_4", {1048.f, 213.f});

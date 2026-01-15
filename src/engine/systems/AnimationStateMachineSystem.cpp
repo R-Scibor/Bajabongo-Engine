@@ -44,6 +44,8 @@ void AnimationStateMachineSystem::update() {
             // e.g., "player_with_hat" -> "player"
             if (meta->name.find("player") != std::string::npos) {
                 entityType = "player";
+            } else if (meta->name == "enemy_1") {
+                entityType = "player"; // Hack: "enemy_1" uses player animations
             } else if (meta->name.find("target") != std::string::npos || meta->name.find("enemy") != std::string::npos) {
                 entityType = "enemy"; // Or whatever prefix your enemy assets use
             } else {
