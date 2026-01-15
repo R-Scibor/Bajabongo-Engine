@@ -171,52 +171,51 @@ namespace game {
     }
 
     void GameplayState::render(engine::EngineContext& context) {
-        m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
-        m_renderSystem.update();
+        // =================================================================
+        // STEP 1: Capture Game World into Scene Texture (World-Space)
+        // =================================================================
         
-        // Render Fog
+        m_fogRenderSystem.beginSceneCapture();
+        
+        // Get the scene texture as a render target
+        sf::RenderTexture& sceneTarget = m_fogRenderSystem.getSceneRenderTexture();
+        
+        // Render all game entities to the scene texture
+        m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
+        m_renderSystem.update(sceneTarget);  // Inject scene texture
+        
+        m_fogRenderSystem.endSceneCapture();
+        
+        
+        // =================================================================
+        // STEP 2: Calculate Fog Masks (World-Space)
+        // =================================================================
+        
+        // This updates m_sightTexture and m_explorationTexture based on
+        // entities with VisibilityComponent
         m_fogRenderSystem.update();
-        if (context.m_renderer) {
-             // Draw Sight Texture (Debug: Tinted Green to distinguish)
-             const auto& sightTexture = m_fogRenderSystem.getSightTexture();
-             sf::Sprite sightSprite(sightTexture);
-             sightSprite.setColor(sf::Color(0, 255, 0, 100)); // Semi-transparent Green
-             context.m_renderer->drawSpriteDirect(&sightSprite, {0.0f, 0.0f}); // Assume 0,0 for full screen overlay
-
-             // Draw Exploration Texture (Debug: Tinted Blue to distinguish)
-             const auto& explorationTexture = m_fogRenderSystem.getExplorationTexture();
-             sf::Sprite explorationSprite(explorationTexture);
-             explorationSprite.setColor(sf::Color(0, 0, 255, 100)); // Semi-transparent Blue
-             context.m_renderer->drawSpriteDirect(&explorationSprite, {0.0f, 0.0f});
-        }
-
-        // TEST: Draw visibility polygon
-        if (context.m_renderer) {
-            auto view = context.m_registry->view<VisibilityComponent>();
-            for (auto entity : view) {
-                const auto& visibility = view.get<VisibilityComponent>(entity);
-                if (!visibility.visibilityPolygon.empty()) {
-                     context.m_renderer->drawPolygon(visibility.visibilityPolygon, {255, 0, 0, 128});
-                }
-            }
-        }
-
-        // TEST: Draw a polygon
-        if (context.m_renderer) {
-            std::vector<engine::Vector2f> polygon = {
-                {400.f, 300.f},
-                {500.f, 300.f},
-                {450.f, 400.f}
-            };
-            context.m_renderer->drawPolygon(polygon, {255, 0, 0, 128});
-        }
-
+        
+        
+        // =================================================================
+        // STEP 3: Composite Final Image with Shader (World -> Screen)
+        // =================================================================
+        
+        // Applies shader to combine scene + sight + exploration
+        // Camera view transformation happens automatically here
+        m_fogRenderSystem.renderFinal();
+        
+        
+        // =================================================================
+        // STEP 4: Render UI Overlay (Screen-Space, Always Visible)
+        // =================================================================
+        
+        // Editor UI
         if (m_editorSystem && context.debugFlags.showEditor) {
-            // DT is currently not used for UI logic but passed for API consistency
             m_editorSystem->Update(0.0f);
             m_editorSystem->Render();
         }
-
+        
+        // HUD (ammo, health, etc.)
         if (m_hudSystem) {
             m_hudSystem->render();
         }

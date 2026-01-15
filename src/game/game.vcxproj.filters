@@ -50,6 +50,18 @@
     <None Include="config\logging.ini">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\assets\data\archetypes.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\assets\data\map.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\assets\data\resources.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\assets\shaders\fog.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="states\GameplayState.hpp">

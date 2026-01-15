@@ -5,6 +5,7 @@
 #include "engine/core/IWindow.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/rendering/SFMLRenderer.hpp"
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <cmath>
@@ -14,9 +15,35 @@ namespace game {
     FogRenderSystem::FogRenderSystem(engine::EngineContext& context)
         : m_context(context)
     {
-        // Initial size (can be updated later when world bounds are found)
+        // TEMPORARY INITIALIZATION: Use window size as fallback
+        // This will be replaced by world bounds on first update() call
+        // when MapLoader adds WorldBoundsComponent to the map entity
         auto size = context.m_window->getSize();
         initializeTextures(size.x, size.y);
+        
+        if (m_context.m_logManager) {
+            auto logger = m_context.m_logManager->GetLogger("FogRenderSystem");
+            logger->warn("FogRenderSystem: Initialized with window size {}x{} (temporary). "
+                         "Will resize to world bounds automatically.",
+                         size.x, size.y);
+        }
+        
+        // Load fog shader
+        // Assuming the executable is in build/bin/Debug or similar depth
+        // Try sf::Shader::Type::Fragment if available, otherwise just rely on context
+        if (!m_fogShader.loadFromFile("../../assets/shaders/fog.frag", sf::Shader::Type::Fragment)) {
+            if (m_context.m_logManager) {
+                auto logger = m_context.m_logManager->GetLogger("FogRenderSystem");
+                logger->error("Failed to load fog.frag shader! Fog will not render correctly.");
+            }
+            m_shaderLoaded = false;
+        } else {
+            m_shaderLoaded = true;
+            if (m_context.m_logManager) {
+                auto logger = m_context.m_logManager->GetLogger("FogRenderSystem");
+                logger->info("Fog shader loaded successfully.");
+            }
+        }
     }
 
     void FogRenderSystem::initializeTextures(unsigned int width, unsigned int height) {
@@ -42,6 +69,12 @@ namespace game {
              m_explorationTexture.display();
         }
 
+        if (!m_sceneTexture.resize({width, height})) {
+             if (m_context.m_logManager) {
+               m_context.m_logManager->GetLogger("FogRenderSystem")->error("Failed to create scene render texture");
+            }
+        }
+
         m_currentWidth = width;
         m_currentHeight = height;
         m_initialized = true;
@@ -56,6 +89,82 @@ namespace game {
         // If we found world bounds, we ignore window resize events for texture size
         if (!m_usingWorldBounds) {
              initializeTextures(width, height);
+        }
+    }
+
+    sf::RenderTexture& FogRenderSystem::getSceneRenderTexture()
+    {
+        return m_sceneTexture;
+    }
+
+    void FogRenderSystem::beginSceneCapture()
+    {
+        if (!m_initialized) return;
+        
+        m_sceneTexture.clear(sf::Color::Black);
+        
+        // CRITICAL: Set view to world space (entire map), not viewport
+        if (m_usingWorldBounds) {
+            // Create a view that covers the entire world/map
+            // SFML 3.x: FloatRect takes pos(Vector2f), size(Vector2f)
+            sf::View worldView(sf::FloatRect(
+                {0.f, 0.f},
+                {static_cast<float>(m_currentWidth), static_cast<float>(m_currentHeight)}
+            ));
+            m_sceneTexture.setView(worldView);
+        } else {
+            // Fallback: If world bounds not loaded yet, use window view
+            auto sfmlRenderer = std::dynamic_pointer_cast<engine::SFMLRenderer>(m_context.m_renderer);
+            if (sfmlRenderer) {
+                m_sceneTexture.setView(sfmlRenderer->getNativeRenderWindow().getView());
+            }
+        }
+    }
+
+    void FogRenderSystem::endSceneCapture()
+    {
+        if (!m_initialized) return;
+        
+        // Finalize the render texture
+        m_sceneTexture.display();
+    }
+
+    void FogRenderSystem::renderFinal()
+    {
+        if (!m_initialized) {
+            return;
+        }
+        
+        // Fallback: If shader failed to load, render scene without fog
+        if (!m_shaderLoaded) {
+            auto sfmlRenderer = std::dynamic_pointer_cast<engine::SFMLRenderer>(m_context.m_renderer);
+            if (sfmlRenderer) {
+                sf::Sprite sceneSprite(m_sceneTexture.getTexture());
+                sceneSprite.setPosition(sf::Vector2f(0.f, 0.f));
+                sfmlRenderer->getNativeRenderWindow().draw(sceneSprite);
+            }
+            return;
+        }
+        
+        // Set shader uniforms
+        m_fogShader.setUniform("sceneTexture", m_sceneTexture.getTexture());
+        m_fogShader.setUniform("sightMap", m_sightTexture.getTexture());
+        m_fogShader.setUniform("explorationMap", m_explorationTexture.getTexture());
+        
+        // Create a sprite that represents the entire world
+        // SFML 3.x: Constructor takes texture directly
+        sf::Sprite worldSprite(m_sceneTexture.getTexture());
+        worldSprite.setPosition(sf::Vector2f(0.f, 0.f));  // World origin
+        
+        // Prepare render states with shader
+        sf::RenderStates states;
+        states.shader = &m_fogShader;
+        
+        // Draw to window - the camera view will automatically transform world to screen
+        auto sfmlRenderer = std::dynamic_pointer_cast<engine::SFMLRenderer>(m_context.m_renderer);
+        if (sfmlRenderer) {
+            // The window's current view (set by CameraSystem) handles world-to-screen transform
+            sfmlRenderer->getNativeRenderWindow().draw(worldSprite, states);
         }
     }
 

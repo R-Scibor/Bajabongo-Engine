@@ -2,27 +2,30 @@
 
 #include <entt/fwd.hpp>
 #include <memory>
+#include <SFML/Graphics/RenderTarget.hpp>
 
 namespace engine
 {
     struct EngineContext;
     class IRenderer;
-    class ILogger;
+    class SpriteManager;
+    class IResourceManager;
 
     class RenderSystem
     {
     public:
-        RenderSystem(const EngineContext& context);
+        explicit RenderSystem(engine::EngineContext& context);
 
-        void update();
+        void update(sf::RenderTarget& target);
 
-        void setDebugDraw(bool enabled) { m_debugDraw = enabled; }
+        void setDebugDraw(bool enable);
 
     private:
-        bool m_debugDraw = false;
+        engine::EngineContext& m_context;
         entt::registry& m_registry;
-        IRenderer& m_renderer;
-        class SpriteManager& m_spriteManager;
-        std::shared_ptr<ILogger> m_logger;
+        std::shared_ptr<engine::IRenderer> m_renderer;
+        std::shared_ptr<engine::SpriteManager> m_spriteManager;
+        std::shared_ptr<engine::IResourceManager> m_resourceManager;
+        bool m_debugDraw = false;
     };
 }
