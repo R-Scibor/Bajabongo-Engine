@@ -12,11 +12,16 @@
 #include "engine/components/LifetimeComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/VisibilityComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 
 #include <box2d/box2d.h>
 #include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 namespace game {
 
@@ -31,9 +36,9 @@ namespace game {
         auto input = m_context.m_inputManager;
         auto renderer = m_context.m_renderer;
 
-        auto view = registry.view<PlayerComponent, engine::PhysicsBodyComponent, engine::TransformComponent>();
+        auto view = registry.view<PlayerComponent, engine::PhysicsBodyComponent, engine::TransformComponent, VisibilityComponent>();
 
-        view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp, engine::TransformComponent& transform) {
+        view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp, engine::TransformComponent& transform, VisibilityComponent& visibility) {
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
 
             auto* weapon = registry.try_get<WeaponComponent>(entity);
@@ -128,6 +133,20 @@ namespace game {
 
                 // Set rotation directly
                 // b2Body_SetTransform(bodyComp.bodyId, bodyPos, b2MakeRot(angle));
+
+                // NEW: Update visibility direction with smooth interpolation
+                visibility.targetViewDirection = angle;
+                
+                // Shortest path interpolation for angle
+                float deltaAngle = angle - visibility.viewDirection;
+                if (deltaAngle > M_PI) deltaAngle -= 2.0f * M_PI;
+                if (deltaAngle < -M_PI) deltaAngle += 2.0f * M_PI;
+                
+                visibility.viewDirection += deltaAngle * visibility.viewInterpSpeed * fixedDeltaTime;
+
+                // Wrap angle to keep it clean (optional)
+                if (visibility.viewDirection > M_PI) visibility.viewDirection -= 2.0f * M_PI;
+                if (visibility.viewDirection < -M_PI) visibility.viewDirection += 2.0f * M_PI;
 
                 // --- Update Weapon State ---
                 if (weapon)

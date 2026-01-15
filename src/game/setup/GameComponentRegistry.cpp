@@ -93,7 +93,18 @@ namespace game {
             [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
                 VisibilityComponent visibility;
                 visibility.viewRadius = data.value("viewRadius", 500.0f);
+                visibility.minViewRadius = data.value("minViewRadius", 50.0f);
+                visibility.viewAngle = data.value("viewAngle", 90.0f);
+                visibility.viewDirection = data.value("viewDirection", 0.0f);
                 
+                if (data.contains("viewOffset")) {
+                    auto offsetArr = data["viewOffset"];
+                    if (offsetArr.is_array() && offsetArr.size() >= 2) {
+                        visibility.offset.x = offsetArr[0];
+                        visibility.offset.y = offsetArr[1];
+                    }
+                }
+
                 registry.emplace<VisibilityComponent>(entity, visibility);
             }
         );

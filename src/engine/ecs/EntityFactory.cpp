@@ -182,6 +182,16 @@ namespace engine {
                 else if (cat == "Sensor") categoryBits = PhysicsCategory::Sensor;
             }
 
+            // [Modified] Visibility Blocker Logic
+            // Default to NOT blocking vision unless explicitly set to true
+            // This ensures players/enemies don't block vision by default.
+            bool blocksVision = data.value("blocksVision", false);
+            if (blocksVision) {
+                categoryBits |= PhysicsCategory::VisibilityBlocker;
+            } else {
+                categoryBits &= ~PhysicsCategory::VisibilityBlocker;
+            }
+
             // Custom logic for Players and Enemies to ensure they collide with correct things
             if (categoryBits == PhysicsCategory::Player) {
                  maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
@@ -229,6 +239,16 @@ namespace engine {
                         else if (c == "Sensor") fixDef.categoryBits = PhysicsCategory::Sensor;
                      } else {
                          fixDef.categoryBits = categoryBits; // Inherit from body default
+                     }
+
+                     // Apply blocksVision logic to individual fixtures too
+                     // Note: If inherit from body default, it's already applied. 
+                     // If custom category was set above, we need to apply it again unless overriden by specific fixture property.
+                     bool fixtureBlocksVision = fixData.value("blocksVision", blocksVision);
+                     if (fixtureBlocksVision) {
+                         fixDef.categoryBits |= PhysicsCategory::VisibilityBlocker;
+                     } else {
+                         fixDef.categoryBits &= ~PhysicsCategory::VisibilityBlocker;
                      }
                      
                      // Mask parsing could be complex list of strings...

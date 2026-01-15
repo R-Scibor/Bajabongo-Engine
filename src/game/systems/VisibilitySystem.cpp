@@ -7,6 +7,10 @@
 #include <cmath>
 #include <set>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace game {
 
     VisibilitySystem::VisibilitySystem(engine::EngineContext& context)
@@ -97,10 +101,13 @@ namespace game {
 
             visibility.visibilityPolygon.clear();
 
-            engine::Vector2f origin = transform.position;
+            engine::Vector2f origin = transform.position + visibility.offset;
             float radius = visibility.viewRadius;
+            float minRadius = visibility.minViewRadius;
+            float direction = visibility.viewDirection;  // Mouse aim direction
+            float halfAngle = visibility.viewAngle * 0.5f * (M_PI / 180.0f);  // Convert to radians
 
-            // 1. Find all relevant vertices
+            // 1. Query walls in view cone range (slightly wider for safety)
             std::vector<engine::Vector2f> wallVertices;
             queryWorld(origin, radius, wallVertices);
             
@@ -108,45 +115,84 @@ namespace game {
 
             // 2. Create angles to cast rays
             std::vector<float> angles;
+            
+            // Add cone boundary rays
+            float leftAngle = direction - halfAngle;
+            float rightAngle = direction + halfAngle;
+            angles.push_back(leftAngle);
+            angles.push_back(rightAngle);
+            
             const float epsilon = 0.0001f;
-
             for (const auto& v : wallVertices) {
                 engine::Vector2f dir = v - origin;
                 float angle = std::atan2(dir.y, dir.x);
                 
-                angles.push_back(angle);
-                angles.push_back(angle - epsilon);
-                angles.push_back(angle + epsilon);
+                // Need to normalize angle difference to [-PI, PI] to correctly check if it is within cone
+                float diff = angle - direction;
+                while (diff > M_PI) diff -= 2 * M_PI;
+                while (diff < -M_PI) diff += 2 * M_PI;
+
+                // Only consider walls within cone field of view OR within min radius
+                float distSq = (v.x - origin.x) * (v.x - origin.x) + (v.y - origin.y) * (v.y - origin.y);
+                bool inMinRadius = distSq <= minRadius * minRadius;
+                bool inCone = diff >= -halfAngle - epsilon && diff <= halfAngle + epsilon;
+
+                if (inCone || inMinRadius) {
+                    angles.push_back(angle);
+                    angles.push_back(angle - epsilon);
+                    angles.push_back(angle + epsilon);
+                }
             }
 
-            // Add circle boundary points to ensure we have a nice circle when no walls are around
-            // or even if there are walls, we want to see the "end" of the vision
-            int boundarySegments = 128; // Increased segments for smoother circle
-            for (int i = 0; i < boundarySegments; ++i) {
-                // Use range [-PI, PI] to match atan2 and avoid overlap artifacts with transparency
-                float angle = -3.14159f + (float)i / boundarySegments * 2.0f * 3.14159f;
+            // Add cone arc boundary points (curved edge)
+            const int arcSegments = 32;  // Smooth arc
+            for (int i = 0; i <= arcSegments; ++i) {
+                float t = static_cast<float>(i) / arcSegments;
+                float arcAngle = leftAngle + t * (rightAngle - leftAngle);
+                angles.push_back(arcAngle);
+            }
+            
+            // Add full circle boundary points for minRadius
+            const int circleSegments = 90;
+            for (int i = 0; i < circleSegments; ++i) {
+                float angle = -M_PI + (float)i / circleSegments * 2.0f * M_PI;
                 angles.push_back(angle);
             }
 
-            // Sort and remove duplicates
+            // Sort angles
             std::sort(angles.begin(), angles.end());
             
-            std::vector<engine::Vector2f> points;
+            // Remove duplicates
+             angles.erase(std::unique(angles.begin(), angles.end(), [](float a, float b) {
+                return std::abs(a - b) < 0.0001f;
+            }), angles.end());
             
-            // Start polygon with origin to form a proper fan
-            points.push_back(origin);
+            // 3. Cast rays and build polygon
+            std::vector<engine::Vector2f> points;
+            points.push_back(origin);  // Fan origin
 
             for (float angle : angles) {
-                engine::Vector2f dir = { std::cos(angle), std::sin(angle) };
-                engine::Vector2f end = origin + dir * radius;
+                engine::Vector2f dir(std::cos(angle), std::sin(angle));
                 
+                // Determine ray length for this angle
+                // Check if angle is within the cone
+                float diff = angle - direction;
+                while (diff > M_PI) diff -= 2 * M_PI;
+                while (diff < -M_PI) diff += 2 * M_PI;
+                
+                float currentRadius = minRadius;
+                if (diff >= -halfAngle - epsilon && diff <= halfAngle + epsilon) {
+                    currentRadius = radius;
+                }
+                
+                engine::Vector2f end = origin + dir * currentRadius;
                 engine::Vector2f hit = castRay(origin, end);
                 points.push_back(hit);
             }
             
-            // Close the loop for the fan to connect back to the first ray point (optional but good for visual)
-            if (!points.empty()) {
-                points.push_back(points[1]); 
+            // Close the polygon
+            if (points.size() > 1) {
+                points.push_back(points[1]);  // Connect back to first ray
             }
 
             visibility.visibilityPolygon = points;
@@ -168,19 +214,22 @@ namespace game {
     }
 
     engine::Vector2f VisibilitySystem::castRay(const engine::Vector2f& start, const engine::Vector2f& end) {
-    // Use b2World_CastRayClosest instead - it returns b2RayResult directly
-    b2RayResult result = b2World_CastRayClosest(
-        m_worldId, 
-        {start.x, start.y}, 
-        {end.x - start.x, end.y - start.y}, 
-        b2DefaultQueryFilter()
-    );
-    
-    if (result.hit) {
-        return { result.point.x, result.point.y };
+        b2QueryFilter filter = b2DefaultQueryFilter();
+        filter.maskBits = engine::PhysicsCategory::VisibilityBlocker;
+
+        // Use b2World_CastRayClosest instead - it returns b2RayResult directly
+        b2RayResult result = b2World_CastRayClosest(
+            m_worldId, 
+            {start.x, start.y}, 
+            {end.x - start.x, end.y - start.y}, 
+            filter
+        );
+        
+        if (result.hit) {
+            return { result.point.x, result.point.y };
+        }
+        
+        return end;
     }
-    
-    return end;
-}
 
 }

@@ -90,7 +90,11 @@
       "smoothness": 0.1
     },
     "Visibility": {
-      "viewRadius": 500.0
+      "viewRadius": 500.0,
+      "minViewRadius": 64.0,
+      "viewAngle": 90.0,
+      "viewDirection": 0.0,
+      "viewOffset": [0.0, -55.0]
     }
   },
   "hat": {
