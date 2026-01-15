@@ -29,6 +29,7 @@
 #include "game/systems/FogRenderSystem.hpp"
 #include "game/components/VisibilityComponent.hpp"
 #include "game/systems/VisibilitySystem.hpp"
+#include "game/systems/VisibilityTaggingSystem.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
@@ -52,6 +53,7 @@ namespace game {
         , m_lifetimeSystem(context)
         , m_hierarchySystem(context)
         , m_visibilitySystem(context)
+        , m_visibilityTaggingSystem(context)
         , m_fogRenderSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
@@ -163,6 +165,7 @@ namespace game {
             context.m_dispatcher->update();
             m_physicsSyncSystem.update();
             m_visibilitySystem.update();
+            m_visibilityTaggingSystem.update();
             m_hierarchySystem.update();
             m_lifetimeSystem.update(fixedDeltaTime);
             m_animationSystem.update(fixedDeltaTime);

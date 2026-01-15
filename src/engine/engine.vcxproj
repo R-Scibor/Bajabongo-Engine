@@ -170,6 +170,7 @@
     <ClInclude Include="core\input\MouseCode.hpp" />
     <ClInclude Include="core\IResourceManager.hpp" />
     <ClInclude Include="core\IWindow.hpp" />
+    <ClInclude Include="core\math\GeometryUtils.hpp" />
     <ClInclude Include="core\StateManager.hpp" />
     <ClInclude Include="core\ILogger.hpp" />
     <ClInclude Include="core\ILoggerManager.hpp" />

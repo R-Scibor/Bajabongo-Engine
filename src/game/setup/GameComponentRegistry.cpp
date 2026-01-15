@@ -9,6 +9,7 @@
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/PortalComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
+#include "game/components/VisibleToPlayerComponent.hpp"
 #include "engine/components/WorldBoundsComponent.hpp"
 
 #include <entt/entt.hpp>
@@ -108,6 +109,16 @@ namespace game {
                 registry.emplace<VisibilityComponent>(entity, visibility);
             }
         );
+
+        // --- VisibleToPlayerComponent (Tag) ---
+        // Doesn't strictly need a loader if it's only added at runtime, 
+        // but useful if we want to force-make something visible in JSON
+        factory.registerComponentLoader("VisibleToPlayer",
+            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                 registry.emplace<VisibleToPlayerComponent>(entity);
+            }
+        );
+
         // --- 7. Rejestracja WorldBoundsComponent ---
         factory.registerComponentLoader("WorldBounds",
             [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {

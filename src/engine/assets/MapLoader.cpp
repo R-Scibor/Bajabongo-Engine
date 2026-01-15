@@ -13,6 +13,7 @@
 #include "engine/components/HalfCollisionComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
 #include "engine/ecs/EntityFactory.hpp"
+#include "game/components/VisibleToPlayerComponent.hpp"
 #include <entt/entt.hpp>
 
 namespace engine {
@@ -91,6 +92,15 @@ namespace engine {
             
             // Image name as texture key
             m_context.m_registry->emplace<RenderableComponent>(entity, "map_sprite", 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
+            
+            // Map background should always be visible
+            // Note: VisibleToPlayerComponent is in game namespace, but we are in engine namespace.
+            // We need to ensure we have access to it.
+            // Using full qualification to be safe, although we included the header.
+            // The error said "identifier ... undefined" which usually means namespace issue or bad include.
+            game::VisibleToPlayerComponent visComp;
+            visComp.alwaysVisible = true;
+            m_context.m_registry->emplace<game::VisibleToPlayerComponent>(entity, visComp);
             
             // Add WorldBoundsComponent if dimensions are valid
             if (imageWidth > 0 && imageHeight > 0) {
