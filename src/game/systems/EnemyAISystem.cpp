@@ -5,11 +5,19 @@
 #include "game/components/HealthComponent.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
 #include "game/components/RushBehaviorComponent.hpp"
+#include "game/components/WeaponComponent.hpp"
+#include "game/components/TurretBehaviorComponent.hpp"
+#include "game/components/SniperBehaviorComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
 #include <box2d/box2d.h>
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 namespace game {
 
@@ -32,7 +40,7 @@ void EnemyAISystem::update(float fixedDeltaTime) {
     updateDetection();
     updateStates(fixedDeltaTime);
     updateMovement(fixedDeltaTime);
-    updateCombat();
+    updateCombat(fixedDeltaTime);
     updateStuckDetection(fixedDeltaTime);
 }
 
@@ -590,8 +598,108 @@ engine::Vector2f EnemyAISystem::applyWallSliding(const engine::Vector2f& positio
     return {0.0f, 0.0f};
 }
 
-void EnemyAISystem::updateCombat() {
-    // Stub for Phase 5
+void EnemyAISystem::updateCombat(float dt) {
+    auto view = mRegistry.view<EnemyComponent, engine::TransformComponent, WeaponComponent>();
+    
+    view.each([&](entt::entity entity, EnemyComponent& enemy, engine::TransformComponent& transform, WeaponComponent& weapon) {
+        // Reset weapon flags each frame
+        weapon.wantsToShoot = false;
+        weapon.wantsToReload = false;
+        
+        // Only shoot in specific states
+        if (enemy.currentState != EnemyState::Shoot && 
+            enemy.currentState != EnemyState::Camp && 
+            enemy.currentState != EnemyState::Turret) {
+            return;
+        }
+        
+        // Validate target
+        if (enemy.targetEntity == entt::null || !mRegistry.valid(enemy.targetEntity)) {
+            return;
+        }
+        
+        // Check line of sight
+        if (!enemy.hasLineOfSight) {
+            return;
+        }
+        
+        // Get target position
+        // Explicitly specifying the template argument for get
+        const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
+        engine::Vector2f toTarget = targetTransform.position - transform.position;
+        float distanceSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+        
+        // Calculate desired aim angle
+        float desiredAimAngle = std::atan2(toTarget.y, toTarget.x);
+        
+        // TURRET BEHAVIOR
+        if (auto* turret = mRegistry.try_get<TurretBehaviorComponent>(entity)) {
+            float angleDiff = desiredAimAngle - weapon.aimAngle;
+            
+            // Normalize to [-PI, PI]
+            while (angleDiff > M_PI) angleDiff -= 2.0f * M_PI;
+            while (angleDiff < -M_PI) angleDiff += 2.0f * M_PI;
+            
+            // Rotate weapon aim
+            float maxRotation = turret->rotationSpeed * dt;
+            if (std::abs(angleDiff) < maxRotation) {
+                weapon.aimAngle = desiredAimAngle;
+            } else {
+                weapon.aimAngle += (angleDiff > 0.0f ? maxRotation : -maxRotation);
+            }
+            
+            // Flip sprite based on aim direction (LEFT vs RIGHT)
+            float scaleX = std::abs(transform.scale.x);
+            if (weapon.aimAngle > M_PI / 2.0f || weapon.aimAngle < -M_PI / 2.0f) {
+                // Aiming left
+                transform.scale.x = -scaleX;
+            } else {
+                // Aiming right
+                transform.scale.x = scaleX;
+            }
+            
+            // Shoot if aligned
+            if (std::abs(angleDiff) < turret->shootAngleTolerance) {
+                weapon.wantsToShoot = true;
+            }
+        }
+        // SNIPER BEHAVIOR
+        else if (auto* sniper = mRegistry.try_get<SniperBehaviorComponent>(entity)) {
+            weapon.aimAngle = desiredAimAngle;
+            
+            if (!sniper->isAiming) {
+                sniper->isAiming = true;
+                sniper->aimTimer = 0.0f;
+                if (mLogger) {
+                    mLogger->debug("Enemy {} (Sniper) started aiming", entt::to_integral(entity));
+                }
+            }
+            
+            sniper->aimTimer += dt;
+            
+            if (sniper->aimTimer >= sniper->aimDuration) {
+                weapon.wantsToShoot = true;
+                sniper->isAiming = false;
+                sniper->aimTimer = 0.0f;
+                if (mLogger) {
+                    mLogger->debug("Enemy {} (Sniper) fired", entt::to_integral(entity));
+                }
+            }
+        }
+        // NORMAL BEHAVIOR
+        else {
+            weapon.aimAngle = desiredAimAngle;
+            
+            if (distanceSq < enemy.attackRange * enemy.attackRange) {
+                weapon.wantsToShoot = true;
+            }
+        }
+        
+        // AUTO-RELOAD
+        if (weapon.currentAmmo == 0 && weapon.totalAmmo > 0) {
+            weapon.wantsToReload = true;
+        }
+    });
 }
 
 void EnemyAISystem::updateStuckDetection(float dt) {

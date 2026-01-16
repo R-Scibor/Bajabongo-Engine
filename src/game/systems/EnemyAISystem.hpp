@@ -25,7 +25,7 @@ private:
     void updateDetection();
     void updateStates(float dt);
     void updateMovement(float dt);
-    void updateCombat();
+    void updateCombat(float dt);
     void updateStuckDetection(float dt);
     
     // State Transition Helpers
