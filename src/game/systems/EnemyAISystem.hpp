@@ -22,7 +22,7 @@ public:
     
 private:
     // Update Phases
-    void updateDetection();
+    void updateDetection(float dt);
     void updateStates(float dt);
     void updateMovement(float dt);
     void updateCombat(float dt);

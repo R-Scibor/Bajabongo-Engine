@@ -41,14 +41,14 @@ EnemyAISystem::EnemyAISystem(engine::EngineContext& context)
 
 void EnemyAISystem::update(float fixedDeltaTime) {
     // Phase-based update (will be implemented incrementally)
-    updateDetection();
+    updateDetection(fixedDeltaTime);
     updateStates(fixedDeltaTime);
     updateMovement(fixedDeltaTime);
     updateCombat(fixedDeltaTime);
     updateStuckDetection(fixedDeltaTime);
 }
 
-void EnemyAISystem::updateDetection() {
+void EnemyAISystem::updateDetection(float dt) {
     // DIAGNOSTIC: Count entities
     auto playerView = mRegistry.view<PlayerComponent, engine::TransformComponent>();
     auto enemyView = mRegistry.view<EnemyComponent, engine::TransformComponent>();
@@ -108,7 +108,7 @@ void EnemyAISystem::updateDetection() {
             
             // Memory decay
             if (enemy.targetEntity != entt::null) {
-                enemy.lastSeenTimer += 0.016f; // Approximate frame time
+                enemy.lastSeenTimer += dt; // Use passed delta time
                 if (enemy.lastSeenTimer > enemy.memoryDuration) {
                     enemy.targetEntity = entt::null;
                 }
@@ -585,9 +585,8 @@ engine::Vector2f EnemyAISystem::applyWallSliding(const engine::Vector2f& positio
     // Dot product to check if moving into wall
     float dotProduct = direction.x * hitNormal.x + direction.y * hitNormal.y;
     
-    if (dotProduct > -0.1f) { // More permissive angle threshold (was -0.01f)
-        // Moving away from or parallel to wall - stop
-        return {0.0f, 0.0f};
+    if (dotProduct > -0.01f) { // Only stop if moving AWAY, not parallel
+        return desiredVelocity; // Continue with original velocity
     }
     
     // Project velocity onto wall surface (perpendicular to normal)
