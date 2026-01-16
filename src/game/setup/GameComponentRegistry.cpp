@@ -12,6 +12,14 @@
 #include "game/components/VisibleToPlayerComponent.hpp"
 #include "engine/components/WorldBoundsComponent.hpp"
 
+// AI Components
+#include "game/components/EnemyComponent.hpp"
+#include "game/components/PatrolBehaviorComponent.hpp"
+#include "game/components/RushBehaviorComponent.hpp"
+#include "game/components/SniperBehaviorComponent.hpp"
+#include "game/components/CampBehaviorComponent.hpp"
+#include "game/components/TurretBehaviorComponent.hpp"
+
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
 
@@ -128,5 +136,67 @@ namespace game {
                 registry.emplace<engine::WorldBoundsComponent>(entity, w, h);
             }
         );
+
+        // --- 8. Rejestracja EnemyComponent ---
+        factory.registerComponentLoader("Enemy", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            EnemyComponent enemy;
+            enemy.detectionRadius = data.value("detectionRadius", 400.0f);
+            enemy.alertRadius = data.value("alertRadius", 500.0f);
+            enemy.attackRange = data.value("attackRange", 300.0f);
+            enemy.moveSpeed = data.value("moveSpeed", 80.0f);
+            enemy.retreatHpPercent = data.value("retreatHpPercent", 0.3f);
+            
+            registry.emplace<EnemyComponent>(entity, enemy);
+        });
+
+        // --- 9. Rejestracja PatrolBehaviorComponent ---
+        factory.registerComponentLoader("PatrolBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            PatrolBehaviorComponent patrol;
+            
+            if (data.contains("waypoints") && data["waypoints"].is_array()) {
+                for (const auto& wp : data["waypoints"]) {
+                    if (wp.is_array() && wp.size() >= 2) {
+                        patrol.waypoints.push_back({wp[0], wp[1]});
+                    }
+                }
+            }
+            
+            patrol.waypointReachThreshold = data.value("waypointReachThreshold", 20.0f);
+            patrol.loopMode = data.value("loopMode", "loop") == "loop";
+            
+            registry.emplace<PatrolBehaviorComponent>(entity, patrol);
+        });
+
+        // --- 10. Rejestracja RushBehaviorComponent ---
+        factory.registerComponentLoader("RushBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            RushBehaviorComponent rush;
+            rush.rushSpeed = data.value("rushSpeed", 250.0f);
+            rush.rushActivationRange = data.value("rushActivationRange", 150.0f);
+            registry.emplace<RushBehaviorComponent>(entity, rush);
+        });
+
+        // --- 11. Rejestracja SniperBehaviorComponent ---
+        factory.registerComponentLoader("SniperBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            SniperBehaviorComponent sniper;
+            sniper.aimDuration = data.value("aimDuration", 1.5f);
+            sniper.maxRange = data.value("maxRange", 700.0f);
+            registry.emplace<SniperBehaviorComponent>(entity, sniper);
+        });
+
+        // --- 12. Rejestracja CampBehaviorComponent ---
+        factory.registerComponentLoader("CampBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            CampBehaviorComponent camp;
+            camp.campDuration = data.value("campDuration", 15.0f);
+            camp.campZoneRadius = data.value("campZoneRadius", 200.0f);
+            registry.emplace<CampBehaviorComponent>(entity, camp);
+        });
+
+        // --- 13. Rejestracja TurretBehaviorComponent ---
+        factory.registerComponentLoader("TurretBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            TurretBehaviorComponent turret;
+            turret.rotationSpeed = data.value("rotationSpeed", 3.0f);
+            turret.shootAngleTolerance = data.value("shootAngleTolerance", 0.1f);
+            registry.emplace<TurretBehaviorComponent>(entity, turret);
+        });
     }
 }
