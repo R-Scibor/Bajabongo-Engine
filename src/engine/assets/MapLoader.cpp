@@ -51,6 +51,11 @@ namespace engine {
 
         if (m_logger) m_logger->info("Loading map from {}", filepath);
 
+        // Read mapScale from JSON, defaulting to global default if not present
+        float mapScale = mapJson.value("mapScale", EngineContext::MAP_SCALE);
+        m_context.mapScale = mapScale;
+        if (m_logger) m_logger->info("Map Scale set to: {}", mapScale);
+
         if (mapJson.contains("layers")) {
             for (const auto& layer : mapJson["layers"]) {
                 std::string type = layer.value("type", "");
@@ -84,8 +89,8 @@ namespace engine {
 
         if (visible) {
             auto entity = m_context.m_registry->create();
-            // Scale map background by 1.5x (as per previous logic, keeping it consistent)
-            float scale = 1.5f;
+            // Use scale from context
+            float scale = m_context.mapScale;
             
             // Image layers usually start at 0,0
             m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f, Vector2f{scale, scale});
@@ -136,7 +141,7 @@ namespace engine {
 
         if (layer.contains("objects")) {
             int count = 0;
-            float scale = 1.5f; // Same scale as other layers
+            float scale = m_context.mapScale;
 
             for (const auto& obj : layer["objects"]) {
                 // Tiled renamed "Type" to "Class" in recent versions.
@@ -192,7 +197,7 @@ namespace engine {
     }
 
     void MapLoader::createCollisionBody(const nlohmann::json& obj, bool isHalfCollision) {
-        float scale = 1.5f; // Hardcoded scale from original implementation
+        float scale = m_context.mapScale;
         
         float x = obj.value("x", 0.0f) * scale;
         float y = obj.value("y", 0.0f) * scale;

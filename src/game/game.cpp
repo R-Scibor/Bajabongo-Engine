@@ -43,7 +43,7 @@ int main() {
         // Create rendering and input
         auto renderer = std::make_shared<engine::SFMLRenderer>();
         renderer->setLogger(logManager->GetLogger("SFMLRenderer"));
-        renderer->create("Game Window", 1280, 720);
+        renderer->create("Game Window", 1920, 1080);
         gameLogger->info("Window created successfully.");
 
         // Phase 5A: Create Resource Manager

@@ -59,6 +59,10 @@ namespace engine {
 
         // --- Phase 5C: Tooling ---
         std::shared_ptr<GuiService> m_guiService;
+
+        // --- Global Settings ---
+        static constexpr float MAP_SCALE = 2.0f; // Default map scale
+        float mapScale = MAP_SCALE;
     };
 
 } // namespace engine

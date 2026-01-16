@@ -1406,6 +1406,7 @@
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
+ "mapScale": 1.8,
  "tileheight":16,
  "tilesets":[],
  "tilewidth":16,

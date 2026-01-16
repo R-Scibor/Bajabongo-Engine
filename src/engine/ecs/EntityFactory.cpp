@@ -315,7 +315,7 @@ namespace engine {
         // --- CameraFocus ---
         registerComponentLoader(ComponentNames::CameraFocus, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
             CameraFocusComponent cameraComp;
-            cameraComp.viewHeight = data.value("viewHeight", 720.0f);
+            cameraComp.viewHeight = data.value("viewHeight", 1080.0f);
             cameraComp.smoothness = data.value("smoothness", 0.1f);
             
             registry.emplace<CameraFocusComponent>(entity, cameraComp);

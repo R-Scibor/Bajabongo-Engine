@@ -150,7 +150,7 @@ namespace engine {
         m_logger->trace("Rendering frame.");
 
         m_context->m_renderer->beginFrame();
-        m_context->m_renderer->clear({0, 0, 25, 255});
+        m_context->m_renderer->clear({0, 0, 0, 255});
         
         // Render Game World
         m_stateManager->render();
