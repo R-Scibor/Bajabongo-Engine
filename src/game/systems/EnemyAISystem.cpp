@@ -3,6 +3,8 @@
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/HealthComponent.hpp"
+#include "game/components/PatrolBehaviorComponent.hpp"
+#include "game/components/RushBehaviorComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -115,9 +117,7 @@ void EnemyAISystem::updateDetection() {
             enemy.hasLineOfSight = hasLoS;
             
             if (hasLoS) {
-                if (mLogger) {
-                    mLogger->info("Enemy {} DETECTED player!", entt::to_integral(entity));
-                }
+                //if (mLogger) {mLogger->info("Enemy {} DETECTED player!", entt::to_integral(entity));}
                 
                 enemy.targetEntity = playerEntity;
                 enemy.lastKnownPosition = playerPos;
@@ -144,7 +144,205 @@ void EnemyAISystem::updateDetection() {
 }
 
 void EnemyAISystem::updateStates(float dt) {
-    // Stub for Phase 3
+    auto view = mRegistry.view<EnemyComponent, engine::TransformComponent>();
+    
+    view.each([&](entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+        
+        // Update state timer
+        enemy.stateTimer += dt;
+        
+        EnemyState oldState = enemy.currentState;
+        
+        // State transition logic
+        switch (enemy.currentState) {
+            case EnemyState::Idle:
+                transitionFromIdle(entity, enemy, transform);
+                break;
+            case EnemyState::Patrol:
+                transitionFromPatrol(entity, enemy, transform);
+                break;
+            case EnemyState::Alert:
+                transitionFromAlert(entity, enemy, transform);
+                break;
+            case EnemyState::Chase:
+                transitionFromChase(entity, enemy, transform);
+                break;
+            case EnemyState::Shoot:
+                transitionFromShoot(entity, enemy, transform);
+                break;
+            case EnemyState::Dead:
+                // Terminal state
+                break;
+            // Other states...
+        }
+        
+        // Log state changes
+        if (oldState != enemy.currentState && mLogger) {
+            mLogger->debug("Enemy {} transitioned from {} to {}", 
+                           entt::to_integral(entity), 
+                           static_cast<int>(oldState), 
+                           static_cast<int>(enemy.currentState));
+        }
+    });
+}
+
+void EnemyAISystem::transitionFromIdle(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Idle → Patrol: If has waypoints
+    if (mRegistry.any_of<PatrolBehaviorComponent>(entity)) {
+        enemy.currentState = EnemyState::Patrol;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Idle → Chase: If player detected
+    if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Chase;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Idle → Alert: If alerted by ally
+    if (enemy.isAlerted && enemy.targetEntity == entt::null) {
+        enemy.currentState = EnemyState::Alert;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+}
+
+void EnemyAISystem::transitionFromPatrol(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Check HP for retreat
+    if (auto* health = mRegistry.try_get<HealthComponent>(entity)) {
+        if (health->currentHp < health->maxHp * enemy.retreatHpPercent) {
+            enemy.currentState = EnemyState::Retreat;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Patrol → Chase: If player spotted
+    if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Chase;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Patrol → Alert: If alerted
+    if (enemy.isAlerted && enemy.targetEntity == entt::null) {
+        enemy.currentState = EnemyState::Alert;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+}
+
+void EnemyAISystem::transitionFromAlert(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Alert → Chase: If player spotted
+    if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Chase;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Alert → Approach: Move to last known position
+    if (enemy.targetEntity == entt::null && enemy.isAlerted) {
+        enemy.currentState = EnemyState::Approach;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Alert → Patrol/Idle: Timeout
+    if (enemy.stateTimer > 10.0f) {
+        if (mRegistry.any_of<PatrolBehaviorComponent>(entity)) {
+            enemy.currentState = EnemyState::Patrol;
+        } else {
+            enemy.currentState = EnemyState::Idle;
+        }
+        enemy.isAlerted = false;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+}
+
+void EnemyAISystem::transitionFromChase(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Check HP for retreat
+    if (auto* health = mRegistry.try_get<HealthComponent>(entity)) {
+        if (health->currentHp < health->maxHp * enemy.retreatHpPercent) {
+            enemy.currentState = EnemyState::Retreat;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Chase → Shoot: In range with LoS
+    if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
+        if (!mRegistry.valid(enemy.targetEntity)) {
+            enemy.targetEntity = entt::null;
+            return;
+        }
+        
+        const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
+        engine::Vector2f toTarget = targetTransform.position - transform.position;
+        float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+        
+        if (distSq < enemy.attackRange * enemy.attackRange) {
+            enemy.currentState = EnemyState::Shoot;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Chase → Approach: Lost LoS
+    if (enemy.targetEntity != entt::null && !enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Approach;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Chase → Rush: Special behavior
+    if (mRegistry.any_of<RushBehaviorComponent>(entity)) {
+        auto& rush = mRegistry.get<RushBehaviorComponent>(entity);
+        if (enemy.targetEntity != entt::null && mRegistry.valid(enemy.targetEntity)) {
+            const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
+            engine::Vector2f toTarget = targetTransform.position - transform.position;
+            float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+            
+            if (distSq < rush.rushActivationRange * rush.rushActivationRange && rush.rushCooldownTimer <= 0.0f) {
+                enemy.currentState = EnemyState::Rush;
+                enemy.stateTimer = 0.0f;
+                return;
+            }
+        }
+    }
+}
+
+void EnemyAISystem::transitionFromShoot(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Shoot → Retreat: Low HP
+    if (auto* health = mRegistry.try_get<HealthComponent>(entity)) {
+        if (health->currentHp < health->maxHp * enemy.retreatHpPercent) {
+            enemy.currentState = EnemyState::Retreat;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Shoot → Chase: Target moved out of range
+    if (enemy.targetEntity != entt::null && mRegistry.valid(enemy.targetEntity)) {
+        const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
+        engine::Vector2f toTarget = targetTransform.position - transform.position;
+        float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+        
+        if (distSq >= enemy.attackRange * enemy.attackRange) {
+            enemy.currentState = EnemyState::Chase;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Shoot → Approach: Lost LoS
+    if (!enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Approach;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
 }
 
 void EnemyAISystem::updateMovement(float dt) {

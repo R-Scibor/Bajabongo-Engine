@@ -6,7 +6,13 @@
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
 
+namespace engine {
+    struct TransformComponent;
+}
+
 namespace game {
+
+struct EnemyComponent;
 
 class EnemyAISystem {
 public:
@@ -21,6 +27,13 @@ private:
     void updateMovement(float dt);
     void updateCombat();
     void updateStuckDetection(float dt);
+    
+    // State Transition Helpers
+    void transitionFromIdle(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromPatrol(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromAlert(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromChase(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromShoot(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
     
     // Helper Methods
     bool hasLineOfSight(const engine::Vector2f& start, const engine::Vector2f& end);
