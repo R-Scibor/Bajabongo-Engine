@@ -424,5 +424,60 @@
     "Health": {
       "maxHp": 30.0
     }
+  },
+  "enemy_patroller": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [0.5, 0.5]
+    },
+    "Renderable": {
+      "spriteId": "player_idle_0",
+      "layer": 2
+    },
+    "AnimationState": {
+      "initialState": "Idle",
+      "initialFacing": "Right"
+    },
+    "Animation": {
+      "defaultClip": "player_idle",
+      "playing": true
+    },
+    "Physics": {
+      "type": "dynamic",
+      "linearDamping": 5.0,
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        {
+          "size": [32.0, 16.0],
+          "offset": [0.0, 16.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [48.0, 64.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
+      ]
+    },
+    "Health": {
+      "maxHp": 40.0
+    },
+    "Enemy": {
+      "detectionRadius": 300.0,
+      "alertRadius": 400.0,
+      "attackRange": 200.0,
+      "moveSpeed": 60.0,
+      "retreatHpPercent": 0.2
+    },
+    "PatrolBehavior": {
+      "waypoints": [[300.0, 300.0], [500.0, 300.0], [500.0, 500.0], [300.0, 500.0]],
+      "waypointReachThreshold": 20.0,
+      "loopMode": "loop"
+    }
   }
 }
