@@ -35,9 +35,15 @@ private:
     void transitionFromChase(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
     void transitionFromShoot(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
     
+    // Movement Helpers
+    engine::Vector2f calculatePatrolMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    engine::Vector2f calculateChaseMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    engine::Vector2f calculateRushMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    engine::Vector2f calculateRetreatMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    engine::Vector2f applyWallSliding(const engine::Vector2f& position, const engine::Vector2f& desiredVelocity, float dt);
+
     // Helper Methods
     bool hasLineOfSight(const engine::Vector2f& start, const engine::Vector2f& end);
-    engine::Vector2f castRayWithSlide(const engine::Vector2f& origin, const engine::Vector2f& direction, float distance);
     void alertNearbyEnemies(entt::entity source, const engine::Vector2f& position);
     
     engine::EngineContext& mContext;
