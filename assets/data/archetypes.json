@@ -434,88 +434,146 @@
     }
   },
   "enemy_patroller": {
+    "Meta": {
+      "name": "Patroller Enemy"
+    },
     "Transform": {
-      "rotation": 0.0,
-      "scale": [0.5, 0.5]
+      "scale": [1.0, 1.0]
     },
     "Renderable": {
-      "spriteId": "player_idle_0",
-      "layer": 2
-    },
-    "AnimationState": {
-      "initialState": "Idle",
-      "initialFacing": "Right"
-    },
-    "Animation": {
-      "defaultClip": "player_idle",
-      "playing": true
+      "spriteId": "enemy_idle_sprite",
+      "layer": 1
     },
     "Physics": {
       "type": "dynamic",
-      "linearDamping": 5.0,
+      "size": [32.0, 64.0],
       "fixedRotation": true,
       "category": "Enemy",
       "fixtures": [
         {
           "size": [32.0, 16.0],
-          "offset": [0.0, 16.0],
-          "density": 1.0,
+          "offset": [0.0, 24.0],
           "isSensor": false,
           "category": "Enemy"
         },
         {
           "size": [48.0, 64.0],
           "offset": [0.0, 0.0],
-          "density": 0.0,
           "isSensor": true,
           "category": "Hurtbox"
         }
       ]
     },
     "Health": {
-      "maxHp": 40.0
+      "maxHp": 50.0
     },
     "Enemy": {
-      "detectionRadius": 300.0,
-      "alertRadius": 400.0,
-      "attackRange": 200.0,
-      "moveSpeed": 60.0,
-      "retreatHpPercent": 0.2
+      "detectionRadius": 400.0,
+      "alertRadius": 500.0,
+      "moveSpeed": 80.0,
+      "attackRange": 300.0,
+      "retreatHpPercent": 0.3
     },
     "PatrolBehavior": {
-      "waypoints": [[300.0, 300.0], [500.0, 300.0], [500.0, 500.0], [300.0, 500.0]],
+      "waypoints": [[100, 200], [300, 200], [300, 400], [100, 400]],
       "waypointReachThreshold": 20.0,
       "loopMode": "loop"
     },
     "Weapon": {
       "fireRate": 0.5,
-      "damage": 8.0,
-      "projectileSpeed": 280.0,
-      "projectileLifetime": 1.5,
+      "damage": 15.0,
+      "projectileSpeed": 300.0,
+      "projectileLifetime": 2.0,
       "magSize": 30,
-      "totalAmmo": 120
+      "totalAmmo": 90
+    }
+  },
+  "enemy_rusher": {
+    "Meta": { "name": "Rusher Enemy" },
+    "Transform": { "scale": [1.0, 1.0] },
+    "Renderable": { "spriteId": "enemy_rush_sprite", "layer": 1 },
+    "Physics": {
+      "type": "dynamic",
+      "size": [32.0, 64.0],
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        { "size": [32.0, 16.0], "offset": [0.0, 24.0], "isSensor": false, "category": "Enemy" },
+        { "size": [48.0, 64.0], "offset": [0.0, 0.0], "isSensor": true, "category": "Hurtbox" }
+      ]
+    },
+    "Health": { "maxHp": 75.0 },
+    "Enemy": {
+      "detectionRadius": 500.0,
+      "alertRadius": 600.0,
+      "moveSpeed": 100.0,
+      "attackRange": 100.0,
+      "retreatHpPercent": 0.2
+    },
+    "PatrolBehavior": {
+      "waypoints": [[150, 250], [400, 250]],
+      "waypointReachThreshold": 20.0,
+      "loopMode": "pingpong"
+    },
+    "RushBehavior": {
+      "rushSpeed": 250.0,
+      "rushActivationRange": 150.0
+    },
+    "Weapon": {
+      "fireRate": 0.8,
+      "damage": 10.0,
+      "magSize": 20,
+      "totalAmmo": 60
+    }
+  },
+  "enemy_sniper": {
+    "Meta": { "name": "Sniper Enemy" },
+    "Transform": { "scale": [1.0, 1.0] },
+    "Renderable": { "spriteId": "enemy_sniper_sprite", "layer": 1 },
+    "Physics": {
+      "type": "dynamic",
+      "size": [32.0, 64.0],
+      "fixedRotation": true,
+      "category": "Enemy",
+      "fixtures": [
+        { "size": [32.0, 16.0], "offset": [0.0, 24.0], "isSensor": false, "category": "Enemy" },
+        { "size": [48.0, 64.0], "offset": [0.0, 0.0], "isSensor": true, "category": "Hurtbox" }
+      ]
+    },
+    "Health": { "maxHp": 40.0 },
+    "Enemy": {
+      "detectionRadius": 600.0,
+      "alertRadius": 500.0,
+      "moveSpeed": 60.0,
+      "attackRange": 600.0,
+      "retreatHpPercent": 0.4
+    },
+    "PatrolBehavior": {
+      "waypoints": [[200, 150], [500, 150]],
+      "waypointReachThreshold": 20.0,
+      "loopMode": "loop"
+    },
+    "SniperBehavior": {
+      "aimDuration": 1.5,
+      "maxRange": 700.0
+    },
+    "Weapon": {
+      "fireRate": 2.5,
+      "damage": 60.0,
+      "magSize": 5,
+      "totalAmmo": 20
     }
   },
   "enemy_turret": {
     "Meta": { "name": "Turret Enemy" },
-    "Transform": { 
-      "scale": [1.0, 1.0]
-    },
-    "Renderable": { 
-      "spriteId": "turret_sprite",
-      "layer": 1 
-    },
+    "Transform": { "scale": [1.0, 1.0] },
+    "Renderable": { "spriteId": "enemy_turret_sprite", "layer": 1 },
     "Physics": {
       "type": "static",
       "size": [64.0, 64.0],
-      "fixedRotation": true,
       "category": "Enemy",
       "fixtures": [
-        {
-          "size": [64.0, 64.0],
-          "isSensor": true,
-          "category": "Hurtbox"
-        }
+        { "size": [64.0, 64.0], "isSensor": true, "category": "Hurtbox" }
       ]
     },
     "Health": { "maxHp": 150.0 },
@@ -533,8 +591,6 @@
     "Weapon": {
       "fireRate": 0.3,
       "damage": 25.0,
-      "projectileSpeed": 400.0,
-      "projectileLifetime": 2.0,
       "magSize": 100,
       "totalAmmo": 500
     }
