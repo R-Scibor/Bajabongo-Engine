@@ -81,31 +81,31 @@ void EnemyAISystem::updateDetection(float dt) {
         // Distance check
         engine::Vector2f toPlayer = playerPos - transform.position;
         float distanceSq = toPlayer.x * toPlayer.x + toPlayer.y * toPlayer.y;
-        float distance = std::sqrt(distanceSq);
         float detectionRadiusSq = enemy.detectionRadius * enemy.detectionRadius;
         
-        if (distanceSq < detectionRadiusSq) {
+        bool inRange = distanceSq < detectionRadiusSq;
+        bool hasLoS = false;
+        
+        if (inRange) {
             // Line-of-sight check
-            bool hasLoS = hasLineOfSight(transform.position, playerPos);
+            hasLoS = hasLineOfSight(transform.position, playerPos);
+        }
+        
+        enemy.hasLineOfSight = hasLoS;
+        
+        if (hasLoS) {
+            //if (mLogger) {mLogger->info("Enemy {} DETECTED player!", entt::to_integral(entity));}
             
-            enemy.hasLineOfSight = hasLoS;
+            enemy.targetEntity = playerEntity;
+            enemy.lastKnownPosition = playerPos;
+            enemy.lastSeenTimer = 0.0f;
             
-            if (hasLoS) {
-                //if (mLogger) {mLogger->info("Enemy {} DETECTED player!", entt::to_integral(entity));}
-                
-                enemy.targetEntity = playerEntity;
-                enemy.lastKnownPosition = playerPos;
-                enemy.lastSeenTimer = 0.0f;
-                
-                // Alert nearby enemies
-                if (!enemy.isAlerted) {
-                    enemy.isAlerted = true;
-                    alertNearbyEnemies(entity, playerPos);
-                }
+            // Alert nearby enemies
+            if (!enemy.isAlerted) {
+                enemy.isAlerted = true;
+                alertNearbyEnemies(entity, playerPos);
             }
         } else {
-            enemy.hasLineOfSight = false;
-            
             // Memory decay
             if (enemy.targetEntity != entt::null) {
                 enemy.lastSeenTimer += dt; // Use passed delta time
@@ -151,11 +151,21 @@ void EnemyAISystem::updateStates(float dt) {
         }
         
         // Log state changes
-        if (oldState != enemy.currentState && mLogger) {
-            mLogger->debug("Enemy {} transitioned from {} to {}", 
-                           entt::to_integral(entity), 
-                           static_cast<int>(oldState), 
-                           static_cast<int>(enemy.currentState));
+        if (oldState != enemy.currentState) {
+            // Fix Bug #11: Reset Sniper state when leaving Shoot state
+            if (oldState == EnemyState::Shoot) {
+                if (auto* sniper = mRegistry.try_get<SniperBehaviorComponent>(entity)) {
+                    sniper->isAiming = false;
+                    sniper->aimTimer = 0.0f;
+                }
+            }
+
+            if (mLogger) {
+                mLogger->debug("Enemy {} transitioned from {} to {}", 
+                               entt::to_integral(entity), 
+                               static_cast<int>(oldState), 
+                               static_cast<int>(enemy.currentState));
+            }
         }
     });
 }
@@ -246,45 +256,46 @@ void EnemyAISystem::transitionFromChase(entt::entity entity, EnemyComponent& ene
         }
     }
     
-    // Chase → Shoot: In range with LoS
-    if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
-        if (!mRegistry.valid(enemy.targetEntity)) {
-            enemy.targetEntity = entt::null;
-            return;
-        }
-        
+    // Optimize: Calculate distance once for all checks (Fix Bug #16)
+    float distSq = std::numeric_limits<float>::max();
+    bool targetValid = false;
+    
+    if (enemy.targetEntity != entt::null && mRegistry.valid(enemy.targetEntity)) {
         const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
         engine::Vector2f toTarget = targetTransform.position - transform.position;
-        float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
-        
-        if (distSq < enemy.attackRange * enemy.attackRange) {
-            enemy.currentState = EnemyState::Shoot;
+        distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+        targetValid = true;
+    } else {
+        // Target invalid or null
+        enemy.targetEntity = entt::null;
+        enemy.currentState = EnemyState::Idle; // Or search
+        return;
+    }
+
+    // Fix Bug #13: Check Rush BEFORE Shoot
+    // Chase → Rush: Special behavior
+    if (mRegistry.any_of<RushBehaviorComponent>(entity)) {
+        auto& rush = mRegistry.get<RushBehaviorComponent>(entity);
+        if (distSq < rush.rushActivationRange * rush.rushActivationRange && rush.rushCooldownTimer <= 0.0f) {
+            enemy.currentState = EnemyState::Rush;
             enemy.stateTimer = 0.0f;
             return;
         }
     }
     
-    // Chase → Approach: Lost LoS
-    if (enemy.targetEntity != entt::null && !enemy.hasLineOfSight) {
+    // Chase → Shoot: In range with LoS
+    if (enemy.hasLineOfSight) {
+        if (distSq < enemy.attackRange * enemy.attackRange) {
+            enemy.currentState = EnemyState::Shoot;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    } else {
+        // Chase → Approach: Lost LoS
+        // If we lost LOS, we transition to Approach to go to last known pos
         enemy.currentState = EnemyState::Approach;
         enemy.stateTimer = 0.0f;
         return;
-    }
-    
-    // Chase → Rush: Special behavior
-    if (mRegistry.any_of<RushBehaviorComponent>(entity)) {
-        auto& rush = mRegistry.get<RushBehaviorComponent>(entity);
-        if (enemy.targetEntity != entt::null && mRegistry.valid(enemy.targetEntity)) {
-            const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
-            engine::Vector2f toTarget = targetTransform.position - transform.position;
-            float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
-            
-            if (distSq < rush.rushActivationRange * rush.rushActivationRange && rush.rushCooldownTimer <= 0.0f) {
-                enemy.currentState = EnemyState::Rush;
-                enemy.stateTimer = 0.0f;
-                return;
-            }
-        }
     }
 }
 
@@ -373,7 +384,11 @@ void EnemyAISystem::updateMovement(float dt) {
              float nudgeSpeed = enemy.moveSpeed * 0.5f;
              
              // Create a perpendicular vector (x, y) -> (-y, x)
-             engine::Vector2f nudgeDir = {-desiredVelocity.y, desiredVelocity.x};
+             // Use finalVelocity (wall sliding result) if available, otherwise fallback
+             float refVelX = (std::abs(finalVelocity.x) > 0.01f || std::abs(finalVelocity.y) > 0.01f) ? finalVelocity.x : desiredVelocity.x;
+             float refVelY = (std::abs(finalVelocity.x) > 0.01f || std::abs(finalVelocity.y) > 0.01f) ? finalVelocity.y : desiredVelocity.y;
+             
+             engine::Vector2f nudgeDir = {-refVelY, refVelX};
              float nudgeMag = std::sqrt(nudgeDir.x * nudgeDir.x + nudgeDir.y * nudgeDir.y);
              
              if (nudgeMag > 0.01f) {
@@ -391,6 +406,11 @@ void EnemyAISystem::updateMovement(float dt) {
         float velMagSq = finalVelocity.x * finalVelocity.x + finalVelocity.y * finalVelocity.y;
         if (velMagSq > 1.0f) { // Moving at least 1 unit/sec
             enemy.lastValidPosition = transform.position;
+        } else {
+             // Fix Bug #15: Initialize lastValidPosition if it's still zero (spawned and never moved)
+             if (enemy.lastValidPosition.x == 0.0f && enemy.lastValidPosition.y == 0.0f) {
+                 enemy.lastValidPosition = transform.position;
+             }
         }
     });
 }
@@ -399,6 +419,11 @@ engine::Vector2f EnemyAISystem::calculatePatrolMovement(entt::entity entity, Ene
     auto* patrol = mRegistry.try_get<PatrolBehaviorComponent>(entity);
     if (!patrol || patrol->waypoints.empty()) {
         return {0.0f, 0.0f};
+    }
+    
+    // Safety check for indices
+    if (patrol->currentWaypointIndex >= patrol->waypoints.size()) {
+        patrol->currentWaypointIndex = 0;
     }
     
     // Get current waypoint
@@ -515,9 +540,16 @@ engine::Vector2f EnemyAISystem::calculateRetreatMovement(entt::entity entity, En
     // Run away from player
     if (enemy.targetEntity == entt::null || !mRegistry.valid(enemy.targetEntity)) {
         // Run to last valid position
+        
+        // Fix Bug #12: Prevent running to (0,0) if lastValidPosition is uninitialized
+        engine::Vector2f safePos = enemy.lastValidPosition;
+        if (safePos.x == 0.0f && safePos.y == 0.0f) {
+            safePos = transform.position; // Stay put or effectively stop if we don't know where to go
+        }
+
         engine::Vector2f toSafe = {
-            enemy.lastValidPosition.x - transform.position.x,
-            enemy.lastValidPosition.y - transform.position.y
+            safePos.x - transform.position.x,
+            safePos.y - transform.position.y
         };
         float distSq = toSafe.x * toSafe.x + toSafe.y * toSafe.y;
         if (distSq > 0.01f) {
@@ -565,10 +597,14 @@ engine::Vector2f EnemyAISystem::applyWallSliding(const engine::Vector2f& positio
     
     // Setup raycast filter
     b2QueryFilter filter = b2DefaultQueryFilter();
-    filter.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::VisibilityBlocker;
+    filter.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::VisibilityBlocker | engine::PhysicsCategory::LowObstacle;
     
-    // Prepare Box2D 3.0 raycast parameters
-    b2Vec2 origin = {position.x, position.y};
+    // Add an approximate radius buffer (e.g., 16.0f for standard unit)
+    float radiusBuffer = 16.0f; 
+    b2Vec2 origin = {
+        position.x + direction.x * radiusBuffer, 
+        position.y + direction.y * radiusBuffer
+    };
     b2Vec2 translation = {direction.x * rayLength, direction.y * rayLength};
     
     // Perform raycast
@@ -727,6 +763,8 @@ void EnemyAISystem::updateStuckDetection(float dt) {
             // Not moving states - reset counter
             if (enemy.stuckCounter > 0) {
                 enemy.stuckCounter = 0;
+                enemy.lastCheckedPosition = transform.position; // Correctly reset position tracking
+                enemy.stuckCheckTimer = 0.0f;
                 if (mLogger) {
                     mLogger->debug("Enemy {} stopped moving, reset stuck counter", 
                                    entt::to_integral(entity));
@@ -911,6 +949,9 @@ void EnemyAISystem::executeUnstuckBehavior(entt::entity entity, EnemyComponent& 
         
         b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, impulse, true);
         
+        // Give physics 200ms to work before AI takes control back
+        enemy.stunTimer = 0.2f;
+
         if (mLogger) {
             mLogger->info("Enemy {} unstuck attempt 1/4: random impulse (angle={:.2f}°, force={:.1f})", 
                           entt::to_integral(entity), 
@@ -952,6 +993,11 @@ void EnemyAISystem::executeUnstuckBehavior(entt::entity entity, EnemyComponent& 
             b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
             b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
             b2Body_SetAwake(bodyComp->bodyId, true);
+
+            // Update stuck tracking
+            enemy.lastCheckedPosition = safePosition;
+            enemy.stuckCheckTimer = 0.0f;
+            enemy.stuckCounter = 0; // Reset counter after successful teleport
             
             if (mLogger) {
                 bool wasVisible = isPositionVisibleToPlayer(enemy.lastValidPosition);
@@ -1014,8 +1060,14 @@ void EnemyAISystem::executeUnstuckBehavior(entt::entity entity, EnemyComponent& 
                 b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
                 b2Body_SetAwake(bodyComp->bodyId, true);
                 
+                // Update stuck tracking
+                enemy.lastCheckedPosition = safePosition;
+                enemy.stuckCheckTimer = 0.0f;
+                enemy.stuckCounter = 0;
+
                 // Reset patrol state
                 enemy.currentState = EnemyState::Patrol;
+                enemy.stateTimer = 0.0f; // Fix Bug #14: Reset timer when forcing state change
                 patrol->currentWaypointIndex = nearestIndex;
                 patrol->reversing = false;
                 
@@ -1168,7 +1220,6 @@ void EnemyAISystem::alertNearbyEnemies(entt::entity source, const engine::Vector
         
         engine::Vector2f toSource = sourceTransform.position - transform.position;
         float distSq = toSource.x * toSource.x + toSource.y * toSource.y;
-        float dist = std::sqrt(distSq);
         
         if (distSq < alertRadiusSq) {
             enemy.currentState = EnemyState::Alert;
