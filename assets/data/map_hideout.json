@@ -5,6 +5,8 @@
         {
          "id":2,
          "image":"map_hideout.png",
+         "imageheight":1024,
+         "imagewidth":1024,
          "locked":true,
          "name":"Image Layer 1",
          "opacity":1,

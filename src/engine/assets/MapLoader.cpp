@@ -91,7 +91,23 @@ namespace engine {
             m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f, Vector2f{scale, scale});
             
             // Image name as texture key
-            m_context.m_registry->emplace<RenderableComponent>(entity, "map_sprite", 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
+            std::string textureKey = "map_sprite"; // Default fallback
+            if (!imageName.empty()) {
+                // Remove path if present (e.g. "../assets/textures/map.png" -> "map.png")
+                size_t lastSlash = imageName.find_last_of("/\\");
+                std::string filename = (lastSlash != std::string::npos) ? imageName.substr(lastSlash + 1) : imageName;
+
+                // Remove extension (e.g. "map.png" -> "map")
+                size_t lastDot = filename.find_last_of(".");
+                if (lastDot != std::string::npos) {
+                    filename = filename.substr(0, lastDot);
+                }
+                
+                // Append _sprite
+                textureKey = filename + "_sprite";
+            }
+
+            m_context.m_registry->emplace<RenderableComponent>(entity, textureKey, 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
             
             // Map background should always be visible
             // Note: VisibleToPlayerComponent is in game namespace, but we are in engine namespace.

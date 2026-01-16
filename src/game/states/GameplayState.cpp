@@ -106,7 +106,7 @@ namespace game {
         if (m_logger) m_logger->info("Loading Map...");
         engine::MapLoader mapLoader(context);
         // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
-        mapLoader.load("../../assets/data/map.json");
+        mapLoader.load("../../assets/data/map_hideout.json");
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {

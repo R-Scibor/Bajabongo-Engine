@@ -101,6 +101,26 @@
             "animations": []
         },
         {
+            "id": "map_hideout_texture",
+            "path": "../../assets/textures/map_hideout.png",
+            "sprites": [
+                {
+                    "id": "map_hideout_sprite",
+                    "region": [
+                        0,
+                        0,
+                        1024,
+                        1024
+                    ],
+                    "origin": [
+                        0.0,
+                        0.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
             "id": "oven_texture",
             "path": "../../assets/textures/oven.png",
             "sprites": [
