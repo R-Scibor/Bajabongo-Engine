@@ -138,6 +138,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ai\AIUtils.cpp" />
+    <ClCompile Include="ai\EnemyCombatSystem.cpp" />
+    <ClCompile Include="ai\EnemyDetectionSystem.cpp" />
+    <ClCompile Include="ai\EnemyMovementSystem.cpp" />
+    <ClCompile Include="ai\EnemyStateTransitions.cpp" />
+    <ClCompile Include="ai\EnemyStuckRecoverySystem.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="setup\GameComponentRegistry.cpp" />
     <ClCompile Include="states\GameplayState.cpp" />
@@ -152,6 +158,12 @@
     <ClCompile Include="systems\WeaponSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ai\AIUtils.hpp" />
+    <ClInclude Include="ai\EnemyCombatSystem.hpp" />
+    <ClInclude Include="ai\EnemyDetectionSystem.hpp" />
+    <ClInclude Include="ai\EnemyMovementSystem.hpp" />
+    <ClInclude Include="ai\EnemyStateTransitions.hpp" />
+    <ClInclude Include="ai\EnemyStuckRecoverySystem.hpp" />
     <ClInclude Include="components\CampBehaviorComponent.hpp" />
     <ClInclude Include="components\DamageComponent.hpp" />
     <ClInclude Include="components\EnemyComponent.hpp" />
