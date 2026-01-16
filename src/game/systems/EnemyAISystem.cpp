@@ -144,6 +144,15 @@ void EnemyAISystem::updateStates(float dt) {
             case EnemyState::Shoot:
                 transitionFromShoot(entity, enemy, transform);
                 break;
+            case EnemyState::Rush:
+                transitionFromRush(entity, enemy, transform);
+                break;
+            case EnemyState::Retreat:
+                transitionFromRetreat(entity, enemy, transform);
+                break;
+            case EnemyState::Approach:
+                transitionFromApproach(entity, enemy, transform);
+                break;
             case EnemyState::Dead:
                 // Terminal state
                 break;
@@ -328,6 +337,98 @@ void EnemyAISystem::transitionFromShoot(entt::entity entity, EnemyComponent& ene
         enemy.stateTimer = 0.0f;
         return;
     }
+}
+
+void EnemyAISystem::transitionFromRush(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    auto* rush = mRegistry.try_get<RushBehaviorComponent>(entity);
+    if (!rush) {
+        enemy.currentState = EnemyState::Chase;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Rush → Retreat: Low HP (priority check)
+    if (auto* health = mRegistry.try_get<HealthComponent>(entity)) {
+        if (health->currentHp < health->maxHp * enemy.retreatHpPercent) {
+            enemy.currentState = EnemyState::Retreat;
+            enemy.stateTimer = 0.0f;
+            rush->rushCooldownTimer = rush->rushCooldown; // Start cooldown
+            return;
+        }
+    }
+    
+    // Validate target
+    if (enemy.targetEntity == entt::null || !mRegistry.valid(enemy.targetEntity)) {
+        enemy.currentState = EnemyState::Idle;
+        enemy.stateTimer = 0.0f;
+        rush->rushCooldownTimer = rush->rushCooldown;
+        return;
+    }
+    
+    const auto& targetTransform = mRegistry.get<engine::TransformComponent>(enemy.targetEntity);
+    engine::Vector2f toTarget = targetTransform.position - transform.position;
+    float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+    
+    // Rush → Shoot: Close enough and have LoS
+    if (distSq < enemy.attackRange * enemy.attackRange && enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Shoot;
+        enemy.stateTimer = 0.0f;
+        rush->rushCooldownTimer = rush->rushCooldown; // Start cooldown
+        return;
+    }
+    
+    // Rush → Chase: Lost LoS or too far
+    if (!enemy.hasLineOfSight || distSq > rush->rushActivationRange * rush->rushActivationRange * 4.0f) {
+        enemy.currentState = EnemyState::Chase;
+        enemy.stateTimer = 0.0f;
+        rush->rushCooldownTimer = rush->rushCooldown;
+        return;
+    }
+    
+    // Continue rushing (no state change)
+}
+
+void EnemyAISystem::transitionFromRetreat(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Retreat → Chase: HP recovered above threshold
+    if (auto* health = mRegistry.try_get<HealthComponent>(entity)) {
+        if (health->currentHp >= health->maxHp * (enemy.retreatHpPercent + 0.2f)) { // Hysteresis: +20%
+            enemy.currentState = EnemyState::Chase;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Retreat → Idle: Lost target
+    if (enemy.targetEntity == entt::null || !mRegistry.valid(enemy.targetEntity)) {
+        enemy.currentState = EnemyState::Idle;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Continue retreating
+}
+
+void EnemyAISystem::transitionFromApproach(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    // Approach → Chase: Regained LoS
+    if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
+        enemy.currentState = EnemyState::Chase;
+        enemy.stateTimer = 0.0f;
+        return;
+    }
+    
+    // Approach → Idle: Reached last known position and no target
+    if (enemy.targetEntity == entt::null || !mRegistry.valid(enemy.targetEntity)) {
+        engine::Vector2f toLastKnown = enemy.lastKnownPosition - transform.position;
+        float distSq = toLastKnown.x * toLastKnown.x + toLastKnown.y * toLastKnown.y;
+        
+        if (distSq < 50.0f * 50.0f) { // Within 50 units of last known
+            enemy.currentState = EnemyState::Idle;
+            enemy.stateTimer = 0.0f;
+            return;
+        }
+    }
+    
+    // Continue approaching
 }
 
 void EnemyAISystem::updateMovement(float dt) {

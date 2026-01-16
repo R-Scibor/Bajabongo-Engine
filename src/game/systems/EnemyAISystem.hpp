@@ -40,6 +40,9 @@ private:
     void transitionFromAlert(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
     void transitionFromChase(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
     void transitionFromShoot(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromRush(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromRetreat(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+    void transitionFromApproach(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
     
     // Movement Helpers
     engine::Vector2f calculatePatrolMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
