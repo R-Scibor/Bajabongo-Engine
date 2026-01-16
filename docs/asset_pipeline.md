@@ -94,9 +94,14 @@ The `MapLoader` expects specific layers to function correctly. Ensure your Tiled
 1.  **Image Layer (Background)**:
     *   **Type**: `Image Layer`
     *   **Name**: Any
-    *   **Usage**: The background image of the level. The engine scales this by 1.5x by default.
+    *   **Usage**: The background image of the level. The engine scales this by the map's `mapScale` value (default 1.5).
+    *   **Requirements**: Must define dimensions in the JSON: `"imageheight": 1024, "imagewidth": 1024`.
 
-2.  **Collision Layer (Walls)**:
+2.  **Map Properties (Root)**:
+    *   **mapScale** (Float): Optional. Defines the global scaling factor for the map visual and physics (default: 1.5).
+    *   Example: `{ "mapScale": 1.5, ... }` in the JSON root.
+
+3.  **Collision Layer (Walls)**:
     *   **Type**: `Object Layer`
     *   **Name**: `Collision` (Case-sensitive)
     *   **Usage**: Draw rectangles or polygons here to define solid walls.
