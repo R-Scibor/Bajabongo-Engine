@@ -49,8 +49,6 @@ namespace game {
 
     private:
         void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
-        void onContactBegin(const engine::PhysicsContactBeginEvent& event);
-        void onSensorBegin(const engine::PhysicsSensorBeginEvent& event);
 
         engine::PhysicsBodyCreationSystem m_physicsBodyCreationSystem;
         engine::PhysicsEventSystem m_physicsEventSystem;

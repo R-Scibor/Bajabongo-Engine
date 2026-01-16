@@ -90,19 +90,6 @@ namespace game {
         // Spawn entities
         auto& registry = *context.m_registry;
 
-        if (context.m_entityFactory) {
-            // NEW: Spawn composite archetype (player)
-            //entt::entity player = context.m_entityFactory->spawn("player", {155.f, 615.f});
-            entt::entity target_1 = context.m_entityFactory->spawn("enemy_1", {786.f, 213.f});
-            entt::entity target_2 = context.m_entityFactory->spawn("target_2", {882.f, 213.f});
-            entt::entity target_3 = context.m_entityFactory->spawn("target_3", {960.f, 213.f});
-            entt::entity target_4 = context.m_entityFactory->spawn("target_4", {1048.f, 213.f});
-            // CameraFocus is now loaded from archetype
-            
-            // Add to GameplayState::onEnter() for testing:
-            context.m_entityFactory->spawn("enemy_patroller", {300.f, 300.f});
-            context.m_entityFactory->spawn("enemy_patroller", {500.f, 300.f});
-        }
         // Physics cleanup hook
         m_physicsCleanupHook =
             registry.on_destroy<engine::PhysicsBodyComponent>()
@@ -114,10 +101,6 @@ namespace game {
                     .connect<&engine::HierarchySystem::onParentDestroyed>(&m_hierarchySystem);
 
         if (m_logger) m_logger->info("Physics and Hierarchy cleanup hooks registered.");
-
-        // Test: Listen for Contact Events
-        context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().connect<&GameplayState::onContactBegin>(this);
-        context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&GameplayState::onSensorBegin>(this);
 
         // --- Map Loader Test ---
         if (m_logger) m_logger->info("Loading Map...");
@@ -240,26 +223,6 @@ namespace game {
             b2DestroyBody(bodyComp.bodyId);
         } else {
             m_logger->warn("Attempted to destroy an invalid physics body for entity {}", static_cast<uint32_t>(entity));
-        }
-    }
-
-    void GameplayState::onContactBegin(const engine::PhysicsContactBeginEvent& event)
-    {
-        if (m_logger)
-        {
-            m_logger->debug("Contact Begin: Entity {} -> Entity {}",
-                entt::to_integral(event.entityA),
-                entt::to_integral(event.entityB));
-        }
-    }
-
-    void GameplayState::onSensorBegin(const engine::PhysicsSensorBeginEvent& event)
-    {
-        if (m_logger)
-        {
-            m_logger->info("SENSOR ACTIVATED: Entity {} entered Sensor {}",
-                entt::to_integral(event.visitorEntity),
-                entt::to_integral(event.sensorEntity));
         }
     }
 

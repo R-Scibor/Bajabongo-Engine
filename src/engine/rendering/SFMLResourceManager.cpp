@@ -23,15 +23,22 @@ namespace engine {
         // Load from disk
         auto texture = std::make_shared<sf::Texture>();
         if (!texture->loadFromFile(path)) {
-            if (m_logger) {
-                m_logger->error("Failed to load texture: {}. Using fallback magenta 1x1.", path);
+            // Try user-specified fallback path
+            if (texture->loadFromFile("../../assets/textures/eg.png")) {
+                if (m_logger) {
+                    m_logger->warn("Failed to load texture: {}. Used fallback: ../../assets/textures/eg.png", path);
+                }
+            } else {
+                if (m_logger) {
+                    m_logger->error("Failed to load texture: {} and fallback. Using generated 128x128 magenta.", path);
+                }
+                
+                // Create 128x128 Magenta fallback
+                sf::Image fallbackImage;
+                // SFML 3 uses resize instead of create
+                fallbackImage.resize({128, 128}, sf::Color::Magenta);
+                (void)texture->loadFromImage(fallbackImage);
             }
-            
-            // Create 1x1 Magenta fallback
-            sf::Image fallbackImage;
-            // SFML 3 uses resize instead of create
-            fallbackImage.resize({1, 1}, sf::Color::Magenta);
-            (void)texture->loadFromImage(fallbackImage);
         }
 
         // Force nearest-neighbor interpolation for crisp pixel art
