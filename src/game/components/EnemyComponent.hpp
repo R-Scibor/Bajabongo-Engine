@@ -47,6 +47,9 @@ struct EnemyComponent {
     int stuckCounter = 0;
     engine::Vector2f lastValidPosition{0.0f, 0.0f};
     
+    // Recovery
+    float stunTimer = 0.0f; // Disables movement updates when > 0
+    
     // Flags
     bool hasLineOfSight = false;
     bool isAlerted = false;

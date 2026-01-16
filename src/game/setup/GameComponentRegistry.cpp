@@ -20,6 +20,7 @@
 #include "game/components/CampBehaviorComponent.hpp"
 #include "game/components/TurretBehaviorComponent.hpp"
 
+#include "engine/components/TransformComponent.hpp"
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
 
@@ -145,6 +146,14 @@ namespace game {
             enemy.attackRange = data.value("attackRange", 300.0f);
             enemy.moveSpeed = data.value("moveSpeed", 80.0f);
             enemy.retreatHpPercent = data.value("retreatHpPercent", 0.3f);
+            
+            // Initialize stuck detection tracking
+            if (engine::TransformComponent* transform = registry.try_get<engine::TransformComponent>(entity)) {
+                enemy.lastValidPosition = transform->position;
+                enemy.lastCheckedPosition = transform->position;
+            }
+            
+            enemy.stunTimer = 0.0f; // Ensure initialized
             
             registry.emplace<EnemyComponent>(entity, enemy);
         });

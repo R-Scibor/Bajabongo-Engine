@@ -27,6 +27,12 @@ private:
     void updateMovement(float dt);
     void updateCombat(float dt);
     void updateStuckDetection(float dt);
+
+    void executeUnstuckBehavior(entt::entity entity, EnemyComponent& enemy, 
+                                const engine::TransformComponent& transform);
+    bool isPositionVisibleToPlayer(const engine::Vector2f& position);
+    engine::Vector2f findSafeUnstuckPosition(entt::entity entity, 
+                                              const engine::Vector2f& preferredPos);
     
     // State Transition Helpers
     void transitionFromIdle(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);

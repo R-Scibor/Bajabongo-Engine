@@ -12,8 +12,12 @@
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
+#include "game/components/VisibilityComponent.hpp"
+#include "engine/components/LifetimeComponent.hpp"
 #include <box2d/box2d.h>
 #include <cmath>
+#include <random>
+#include <limits>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -322,6 +326,15 @@ void EnemyAISystem::updateMovement(float dt) {
         
         if (!b2Body_IsValid(bodyComp.bodyId)) return;
         
+        // Handle Stun/Shove Timer
+        if (enemy.stunTimer > 0.0f) {
+            enemy.stunTimer -= dt;
+            if (enemy.stunTimer > 0.0f) {
+                // Skip movement updates while stunned to allow physics impulse to work
+                return; 
+            }
+        }
+        
         engine::Vector2f desiredVelocity{0.0f, 0.0f};
         
         // Movement based on current state
@@ -374,9 +387,9 @@ void EnemyAISystem::updateMovement(float dt) {
         
         b2Body_SetLinearVelocity(bodyComp.bodyId, {finalVelocity.x, finalVelocity.y});
         
-        // Update last valid position if moving
+        // Update last valid position if moving successfully
         float velMagSq = finalVelocity.x * finalVelocity.x + finalVelocity.y * finalVelocity.y;
-        if (velMagSq > 1.0f) {
+        if (velMagSq > 1.0f) { // Moving at least 1 unit/sec
             enemy.lastValidPosition = transform.position;
         }
     });
@@ -705,39 +718,415 @@ void EnemyAISystem::updateCombat(float dt) {
 void EnemyAISystem::updateStuckDetection(float dt) {
     auto view = mRegistry.view<EnemyComponent, engine::TransformComponent>();
     
+    // Use .each() instead of range-based for loop which seems to be problematic in this ENTT version
     view.each([&](entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
-        // Only check for stuck if supposed to be moving
-        bool shouldBeMoving = (enemy.currentState == EnemyState::Chase || 
-                               enemy.currentState == EnemyState::Patrol || 
-                               enemy.currentState == EnemyState::Rush ||
-                               enemy.currentState == EnemyState::Retreat);
-                               
-        if (!shouldBeMoving) {
-            enemy.stuckCounter = 0;
+        // Only check if enemy is trying to move
+        if (enemy.currentState == EnemyState::Idle || 
+            enemy.currentState == EnemyState::Dead ||
+            enemy.currentState == EnemyState::Shoot ||
+            enemy.currentState == EnemyState::Turret) {
+            // Not moving states - reset counter
+            if (enemy.stuckCounter > 0) {
+                enemy.stuckCounter = 0;
+                if (mLogger) {
+                    mLogger->debug("Enemy {} stopped moving, reset stuck counter", 
+                                   entt::to_integral(entity));
+                }
+            }
+            return; // Continue to next entity
+        }
+        
+        enemy.stuckCheckTimer += dt;
+        
+        if (enemy.stuckCheckTimer >= enemy.stuckCheckInterval) {
+            // Calculate distance moved since last check
+            engine::Vector2f delta = transform.position - enemy.lastCheckedPosition;
+            float distanceMovedSq = delta.x * delta.x + delta.y * delta.y;
+            float distanceMoved = std::sqrt(distanceMovedSq);
+            
+            // Threshold: 10 units over 2 seconds = very slow/stuck
+            const float MIN_MOVEMENT_THRESHOLD = 10.0f;
+            
+            if (distanceMoved < MIN_MOVEMENT_THRESHOLD) {
+                enemy.stuckCounter++;
+                
+                if (mLogger) {
+                    mLogger->warn("Enemy {} stuck check {}/6 (moved {:.2f} units in {:.1f}s)", 
+                                  entt::to_integral(entity), 
+                                  enemy.stuckCounter,
+                                  distanceMoved,
+                                  enemy.stuckCheckInterval);
+                }
+                
+                // Execute recovery attempts starting at check 3
+                if (enemy.stuckCounter >= 3) {
+                    executeUnstuckBehavior(entity, enemy, transform);
+                }
+            } else {
+                // Making progress - reset counter and log success
+                if (enemy.stuckCounter > 0) {
+                    if (mLogger) {
+                        mLogger->info("Enemy {} recovered from stuck state after {} checks", 
+                                      entt::to_integral(entity), 
+                                      enemy.stuckCounter);
+                    }
+                    enemy.stuckCounter = 0;
+                }
+            }
+            
+            // Update tracking position
+            enemy.lastCheckedPosition = transform.position;
+            enemy.stuckCheckTimer = 0.0f;
+        }
+    });
+}
+
+bool EnemyAISystem::isPositionVisibleToPlayer(const engine::Vector2f& position) {
+    // Query all entities with VisibilityComponent (typically just the player)
+    auto visibilityView = mRegistry.view<VisibilityComponent, engine::TransformComponent>();
+    
+    // We need to capture result outside lambda
+    bool isVisible = false;
+    
+    visibilityView.each([&](entt::entity entity, const VisibilityComponent& visibility, const engine::TransformComponent& transform) {
+        if (isVisible) return; // Already found visible
+        
+        // Calculate position relative to viewer
+        engine::Vector2f viewerPos = transform.position + visibility.offset;
+        engine::Vector2f toTarget = position - viewerPos;
+        float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
+        
+        // Check if within view radius
+        if (distSq > visibility.viewRadius * visibility.viewRadius) {
+            return; // Too far, not visible
+        }
+        
+        // Check if within minimum view radius (always visible)
+        if (distSq < visibility.minViewRadius * visibility.minViewRadius) {
+            isVisible = true; // Inside minimum radius, definitely visible
+            return;
+        }
+        
+        // Check if within view cone
+        float angleToTarget = std::atan2(toTarget.y, toTarget.x);
+        float halfFOV = (visibility.viewAngle * 3.14159f / 180.0f) / 2.0f;
+        
+        // Normalize angle difference to [-π, π]
+        float angleDiff = angleToTarget - visibility.viewDirection;
+        while (angleDiff > 3.14159f) angleDiff -= 2.0f * 3.14159f;
+        while (angleDiff < -3.14159f) angleDiff += 2.0f * 3.14159f;
+        
+        if (std::abs(angleDiff) <= halfFOV) {
+            // Within FOV cone - check line of sight
+            if (hasLineOfSight(viewerPos, position)) {
+                isVisible = true; // Fully visible
+                return;
+            }
+        }
+    });
+    
+    return isVisible;
+}
+
+engine::Vector2f EnemyAISystem::findSafeUnstuckPosition(entt::entity entity, 
+                                                         const engine::Vector2f& preferredPos) {
+    // First choice: Use preferred position if not visible
+    if (!isPositionVisibleToPlayer(preferredPos)) {
+        return preferredPos;
+    }
+    
+    if (mLogger) {
+        mLogger->debug("Enemy {} preferred unstuck position is visible, searching for alternative", 
+                       entt::to_integral(entity));
+    }
+    
+    // Second choice: Try waypoints (if entity has PatrolBehavior)
+    if (auto* patrol = mRegistry.try_get<PatrolBehaviorComponent>(entity)) {
+        for (const auto& waypoint : patrol->waypoints) {
+            if (!isPositionVisibleToPlayer(waypoint)) {
+                if (mLogger) {
+                    mLogger->debug("Enemy {} found safe waypoint at ({:.1f}, {:.1f})", 
+                                   entt::to_integral(entity), waypoint.x, waypoint.y);
+                }
+                return waypoint;
+            }
+        }
+    }
+    
+    // Third choice: Sample random positions in a radius around preferred position
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> angleDist(0.0f, 6.28318f); // 0 to 2π
+    std::uniform_real_distribution<float> radiusDist(100.0f, 300.0f);
+    
+    for (int attempt = 0; attempt < 8; ++attempt) {
+        float angle = angleDist(gen);
+        float radius = radiusDist(gen);
+        
+        engine::Vector2f candidate = {
+            preferredPos.x + std::cos(angle) * radius,
+            preferredPos.y + std::sin(angle) * radius
+        };
+        
+        if (!isPositionVisibleToPlayer(candidate)) {
+            if (mLogger) {
+                mLogger->debug("Enemy {} found safe random position at ({:.1f}, {:.1f}) after {} attempts", 
+                               entt::to_integral(entity), candidate.x, candidate.y, attempt + 1);
+            }
+            return candidate;
+        }
+    }
+    
+    // Last resort: Return preferred position anyway (better than nothing)
+    if (mLogger) {
+        mLogger->warn("Enemy {} could not find safe unstuck position, using preferred (visible)", 
+                      entt::to_integral(entity));
+    }
+    return preferredPos;
+}
+
+void EnemyAISystem::executeUnstuckBehavior(entt::entity entity, EnemyComponent& enemy, 
+                                            const engine::TransformComponent& transform) {
+    auto* bodyComp = mRegistry.try_get<engine::PhysicsBodyComponent>(entity);
+    if (!bodyComp || !b2Body_IsValid(bodyComp->bodyId)) {
+        if (mLogger) {
+            mLogger->error("Enemy {} has invalid physics body, cannot execute unstuck", 
+                           entt::to_integral(entity));
+        }
+        enemy.currentState = EnemyState::Dead;
+        return;
+    }
+    
+    // ==================================================================
+    // ATTEMPT 1: Random Impulse (Stuck Check #3 - after 6 seconds)
+    // ==================================================================
+    if (enemy.stuckCounter == 3) {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> angleDist(0.0f, 6.28318f);
+        std::uniform_real_distribution<float> forceDist(100.0f, 200.0f);
+        
+        float angle = angleDist(gen);
+        float force = forceDist(gen);
+        b2Vec2 impulse = {std::cos(angle) * force, std::sin(angle) * force};
+        
+        b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, impulse, true);
+        
+        if (mLogger) {
+            mLogger->info("Enemy {} unstuck attempt 1/4: random impulse (angle={:.2f}°, force={:.1f})", 
+                          entt::to_integral(entity), 
+                          angle * 180.0f / 3.14159f, 
+                          force);
+        }
+        return; // Don't reset counter, let it increment on next check
+    }
+    
+    // ==================================================================
+    // ATTEMPT 2: Teleport to Last Valid Position (Stuck Check #4 - after 8 seconds)
+    // ==================================================================
+    else if (enemy.stuckCounter == 4) {
+        // First check if CURRENT enemy position is visible to player
+        if (isPositionVisibleToPlayer(transform.position)) {
+             if (mLogger) {
+                mLogger->warn("Enemy {} is currently visible, skipping teleport to avoid popping", 
+                              entt::to_integral(entity));
+            }
+            // If visible, we might skip teleport this frame or try a small invisible nudge?
+            // For now, let's just skip to next attempt counter but NOT teleport
+            // effectively delaying teleport until not visible or force kill
+            
+            // However, to follow the design philosophy: "Teleporting while the player is watching breaks immersion"
+            // We should NOT teleport if visible.
+            // But we can increment counter to eventually kill it if it stays stuck & visible forever.
+            return; 
+        }
+
+        // Validate last valid position exists and isn't zero
+        if (enemy.lastValidPosition.x != 0.0f || enemy.lastValidPosition.y != 0.0f) {
+            // Find safe position (not in player's view)
+            engine::Vector2f safePosition = findSafeUnstuckPosition(entity, enemy.lastValidPosition);
+            
+            // Teleport to safe position
+            b2Body_SetTransform(bodyComp->bodyId, 
+                                 {safePosition.x, safePosition.y}, 
+                                 b2MakeRot(0.0f));
+            b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
+            b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
+            b2Body_SetAwake(bodyComp->bodyId, true);
+            
+            if (mLogger) {
+                bool wasVisible = isPositionVisibleToPlayer(enemy.lastValidPosition);
+                mLogger->info("Enemy {} unstuck attempt 2/4: teleport to last valid position ({:.1f}, {:.1f}) [{}]", 
+                              entt::to_integral(entity), 
+                              safePosition.x, 
+                              safePosition.y,
+                              wasVisible ? "adjusted for visibility" : "safe");
+            }
+        } else {
+            // No valid position stored, skip to next attempt
+            if (mLogger) {
+                mLogger->warn("Enemy {} has no valid lastValidPosition, skipping attempt 2", 
+                              entt::to_integral(entity));
+            }
+            enemy.stuckCounter = 5; // Force skip to next attempt
+        }
+        return;
+    }
+    
+    // ==================================================================
+    // ATTEMPT 3: Teleport to Nearest Waypoint (Stuck Check #5 - after 10 seconds)
+    // ==================================================================
+    else if (enemy.stuckCounter == 5) {
+        // First check if CURRENT enemy position is visible to player
+        if (isPositionVisibleToPlayer(transform.position)) {
+             if (mLogger) {
+                mLogger->warn("Enemy {} is currently visible, skipping waypoint teleport", 
+                              entt::to_integral(entity));
+            }
+            return; 
+        }
+
+        if (auto* patrol = mRegistry.try_get<PatrolBehaviorComponent>(entity)) {
+            if (!patrol->waypoints.empty()) {
+                // Find nearest waypoint
+                engine::Vector2f nearestWaypoint = patrol->waypoints[0];
+                float minDistSq = std::numeric_limits<float>::max();
+                int nearestIndex = 0;
+                
+                for (size_t i = 0; i < patrol->waypoints.size(); ++i) {
+                    const auto& wp = patrol->waypoints[i];
+                    engine::Vector2f delta = wp - transform.position;
+                    float distSq = delta.x * delta.x + delta.y * delta.y;
+                    if (distSq < minDistSq) {
+                        minDistSq = distSq;
+                        nearestWaypoint = wp;
+                        nearestIndex = i;
+                    }
+                }
+                
+                // Find safe position around nearest waypoint
+                engine::Vector2f safePosition = findSafeUnstuckPosition(entity, nearestWaypoint);
+                
+                // Teleport to safe waypoint
+                b2Body_SetTransform(bodyComp->bodyId, 
+                                     {safePosition.x, safePosition.y}, 
+                                     b2MakeRot(0.0f));
+                b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
+                b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
+                b2Body_SetAwake(bodyComp->bodyId, true);
+                
+                // Reset patrol state
+                enemy.currentState = EnemyState::Patrol;
+                patrol->currentWaypointIndex = nearestIndex;
+                patrol->reversing = false;
+                
+                if (mLogger) {
+                    bool wasVisible = isPositionVisibleToPlayer(nearestWaypoint);
+                    mLogger->info("Enemy {} unstuck attempt 3/4: teleport to waypoint #{} ({:.1f}, {:.1f}) [{}]", 
+                                  entt::to_integral(entity), 
+                                  nearestIndex,
+                                  safePosition.x, 
+                                  safePosition.y,
+                                  wasVisible ? "adjusted for visibility" : "safe");
+                }
+                return;
+            }
+        }
+        
+        // No patrol component or waypoints - skip to death
+        if (mLogger) {
+            mLogger->warn("Enemy {} has no waypoints for attempt 3, skipping to attempt 4", 
+                          entt::to_integral(entity));
+        }
+        enemy.stuckCounter = 6;
+        return;
+    }
+    
+    // ==================================================================
+    // ATTEMPT 4: Last Resort (Stuck Check #6 - after 12 seconds)
+    // ==================================================================
+    else if (enemy.stuckCounter >= 6) {
+        
+        // If visible, DO NOT KILL. Try aggressive physics shove instead.
+        if (isPositionVisibleToPlayer(transform.position)) {
+             if (mLogger) {
+                mLogger->warn("Enemy {} is visible, applying aggressive shove instead of kill", 
+                              entt::to_integral(entity));
+            }
+            
+            // Raycast in 4 directions to find clear path
+            b2Vec2 directions[4] = {
+                {1.0f, 0.0f},  // Right
+                {-1.0f, 0.0f}, // Left
+                {0.0f, 1.0f},  // Down
+                {0.0f, -1.0f}  // Up
+            };
+            
+            b2Vec2 bestDir = {0.0f, 0.0f};
+            float maxDist = -1.0f;
+            
+            b2QueryFilter filter = b2DefaultQueryFilter();
+            filter.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::LowObstacle; // Check walls and low obstacles
+            
+            for(int i=0; i<4; ++i) {
+                 b2Vec2 origin = {transform.position.x, transform.position.y};
+                 b2Vec2 translation = {directions[i].x * 100.0f, directions[i].y * 100.0f}; // 100 units check
+                 
+                 b2RayResult result = b2World_CastRayClosest(mWorldId, origin, translation, filter);
+                 
+                 float dist = 100.0f;
+                 if(result.hit) {
+                     // b2RayResult usually has fraction. 
+                     // If b2World_GetPoint failed, we rely on fraction.
+                     dist = result.fraction * 100.0f;
+                 }
+                 
+                 if(dist > maxDist) {
+                     maxDist = dist;
+                     bestDir = directions[i];
+                 }
+            }
+            
+            // Apply STRONG impulse in best direction
+            if (maxDist > 10.0f) {
+                 float shoveForce = 1000.0f; // Very strong shove
+                 b2Vec2 impulse = {bestDir.x * shoveForce, bestDir.y * shoveForce};
+                 b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, impulse, true);
+                 
+                 // Disable movement controller for 0.5s to let physics take effect
+                 enemy.stunTimer = 0.5f;
+                 
+                  if (mLogger) {
+                    mLogger->info("Enemy {} shoved with force {:.1f} in dir ({:.1f}, {:.1f})", 
+                                  entt::to_integral(entity), shoveForce, bestDir.x, bestDir.y);
+                }
+            }
+            
+            // Don't reset counter so we keep trying this or eventually kill if he becomes invisible
             return;
         }
 
-        enemy.stuckCheckTimer += dt;
-        if (enemy.stuckCheckTimer >= enemy.stuckCheckInterval) {
-            enemy.stuckCheckTimer = 0.0f;
-            
-            // Check distance moved since last check
-            engine::Vector2f diff = transform.position - enemy.lastCheckedPosition;
-            float distSq = diff.x * diff.x + diff.y * diff.y;
-            
-            // Threshold: moved less than 10 units in the interval
-            if (distSq < 100.0f) { 
-                enemy.stuckCounter++;
-                if (mLogger) {
-                    mLogger->debug("Enemy {} stuck! Counter: {}", entt::to_integral(entity), enemy.stuckCounter);
-                }
-            } else {
-                enemy.stuckCounter = 0;
-            }
-            
-            enemy.lastCheckedPosition = transform.position;
+        if (mLogger) {
+            mLogger->error("Enemy {} PERMANENTLY STUCK after all recovery attempts. Marking as Dead.", 
+                           entt::to_integral(entity));
         }
-    });
+        
+        // Mark as dead
+        enemy.currentState = EnemyState::Dead;
+        
+        if (auto* health = mRegistry.try_get<HealthComponent>(entity)) {
+            health->currentHp = 0.0f;
+        }
+        
+        // Optional: Add lifetime component for gradual fadeout
+        if (!mRegistry.any_of<engine::LifetimeComponent>(entity)) {
+            mRegistry.emplace<engine::LifetimeComponent>(entity, 3.0f); // Despawn after 3s
+        }
+        
+        // Disable physics collision
+        b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
+        b2Body_Disable(bodyComp->bodyId);
+    }
 }
 
 bool EnemyAISystem::hasLineOfSight(const engine::Vector2f& start, const engine::Vector2f& end) {
