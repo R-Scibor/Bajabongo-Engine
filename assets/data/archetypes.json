@@ -45,7 +45,7 @@
       "scale": [0.5, 0.5]
     },
     "Renderable": {
-      "spriteId": "player_idle_0",
+      "spriteId": "player_idle_sprite",
       "layer": 2
     },
     "AnimationState": {
@@ -53,7 +53,7 @@
       "initialFacing": "Right"
     },
     "Animation": {
-      "defaultClip": "player_idle",
+      "defaultClip": "player_idle_sprite",
       "playing": true
     },
     "Player": {
@@ -114,7 +114,7 @@
       "scale": [0.5, 0.5]
     },
     "Renderable": {
-      "spriteId": "player_idle_0",
+      "spriteId": "player_idle_sprite",
       "layer": 2
     },
     "AnimationState": {
@@ -122,7 +122,7 @@
       "initialFacing": "Right"
     },
     "Animation": {
-      "defaultClip": "player_idle",
+      "defaultClip": "player_idle_sprite",
       "playing": true
     },
     "Player": {

@@ -1,45 +1,5 @@
-﻿{
+{
     "textures": [
-        {
-            "id": "bed_texture",
-            "path": "../../assets/textures/bed.png",
-            "sprites": [
-                {
-                    "id": "bed_sprite",
-                    "region": [
-                        0,
-                        0,
-                        128,
-                        84
-                    ],
-                    "origin": [
-                        64.0,
-                        42.0
-                    ]
-                }
-            ],
-            "animations": []
-        },
-        {
-            "id": "box_texture",
-            "path": "../../assets/textures/box.png",
-            "sprites": [
-                {
-                    "id": "box_sprite",
-                    "region": [
-                        0,
-                        0,
-                        64,
-                        64
-                    ],
-                    "origin": [
-                        32.0,
-                        32.0
-                    ]
-                }
-            ],
-            "animations": []
-        },
         {
             "id": "bullet_texture",
             "path": "../../assets/textures/bullet.png",
@@ -61,40 +21,226 @@
             "animations": []
         },
         {
-            "id": "ground_texture",
-            "path": "../../assets/textures/ground.png",
+            "id": "eg_texture",
+            "path": "../../assets/textures/eg.png",
             "sprites": [
                 {
-                    "id": "ground_sprite",
+                    "id": "eg_sprite",
                     "region": [
                         0,
                         0,
-                        64,
-                        64
+                        88,
+                        128
                     ],
                     "origin": [
-                        32.0,
-                        32.0
+                        44.0,
+                        64.0
                     ]
                 }
             ],
             "animations": []
         },
         {
-            "id": "map_texture",
-            "path": "../../assets/textures/map.png",
+            "id": "gopnik_ak47_aim_texture",
+            "path": "../../assets/textures/gopnik_ak47_aim.png",
             "sprites": [
                 {
-                    "id": "map_sprite",
+                    "id": "gopnik_ak47_aim_sprite",
                     "region": [
                         0,
                         0,
-                        1024,
-                        1024
+                        256,
+                        256
                     ],
                     "origin": [
-                        0.0,
-                        0.0
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_ak47_dead_texture",
+            "path": "../../assets/textures/gopnik_ak47_dead.png",
+            "sprites": [
+                {
+                    "id": "gopnik_ak47_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_ak47_idle_texture",
+            "path": "../../assets/textures/gopnik_ak47_idle.png",
+            "sprites": [
+                {
+                    "id": "gopnik_ak47_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_pistol_aim_texture",
+            "path": "../../assets/textures/gopnik_pistol_aim.png",
+            "sprites": [
+                {
+                    "id": "gopnik_pistol_aim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_pistol_dead_texture",
+            "path": "../../assets/textures/gopnik_pistol_dead.png",
+            "sprites": [
+                {
+                    "id": "gopnik_pistol_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_pistol_idle_texture",
+            "path": "../../assets/textures/gopnik_pistol_idle.png",
+            "sprites": [
+                {
+                    "id": "gopnik_pistol_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_pistol_walk_texture",
+            "path": "../../assets/textures/gopnik_pistol_walk-10x5.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "gopnik_pistol_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        560,
+                        560
+                    ],
+                    "origin": [
+                        280.0,
+                        280.0
+                    ],
+                    "frameCount": 50,
+                    "columns": 10,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "gopnik_shotgun_aim_texture",
+            "path": "../../assets/textures/gopnik_shotgun_aim.png",
+            "sprites": [
+                {
+                    "id": "gopnik_shotgun_aim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_shotgun_dead_texture",
+            "path": "../../assets/textures/gopnik_shotgun_dead.png",
+            "sprites": [
+                {
+                    "id": "gopnik_shotgun_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "gopnik_shotgun_idle_texture",
+            "path": "../../assets/textures/gopnik_shotgun_idle.png",
+            "sprites": [
+                {
+                    "id": "gopnik_shotgun_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
                     ]
                 }
             ],
@@ -121,111 +267,47 @@
             "animations": []
         },
         {
-            "id": "oven_texture",
-            "path": "../../assets/textures/oven.png",
+            "id": "player_idle_texture",
+            "path": "../../assets/textures/player_idle.png",
             "sprites": [
                 {
-                    "id": "oven_sprite",
+                    "id": "player_idle_sprite",
                     "region": [
                         0,
                         0,
-                        79,
-                        128
+                        256,
+                        256
                     ],
                     "origin": [
-                        39.5,
-                        64.0
+                        128.0,
+                        256.0
                     ]
                 }
             ],
             "animations": []
         },
         {
-            "id": "player_idle_texture",
-            "path": "../../assets/textures/player_idle.png",
-            "sprites": [],
-            "animations": [
-                {
-                    "id": "player_idle",
-                    "frameStart": [
-                        0,
-                        0
-                    ],
-                    "frameSize": [
-                        256,
-                        256
-                    ],
-                    "origin": [
-                        128.0,
-                        240.0
-                    ],
-                    "frameCount": 1,
-                    "columns": 1,
-                    "duration": 1.0,
-                    "loop": true
-                }
-            ]
-        },
-        {
             "id": "player_walk_texture",
-            "path": "../../assets/textures/player_walk.png",
+            "path": "../../assets/textures/player_walk-13.png",
             "sprites": [],
             "animations": [
                 {
-                    "id": "player_walk_up",
+                    "id": "player_walk_anim",
                     "frameStart": [
                         0,
                         0
                     ],
                     "frameSize": [
-                        256,
-                        256
+                        208,
+                        312
                     ],
                     "origin": [
-                        128.0,
-                        240.0
+                        104.0,
+                        312.0
                     ],
-                    "frameCount": 25,
-                    "columns": 25,
-                    "duration": 0.06,
-                    "loop": true
-                },
-                {
-                    "id": "player_walk_down",
-                    "frameStart": [
-                        0,
-                        256
-                    ],
-                    "frameSize": [
-                        256,
-                        256
-                    ],
-                    "origin": [
-                        128.0,
-                        240.0
-                    ],
-                    "frameCount": 25,
-                    "columns": 25,
-                    "duration": 0.06,
-                    "loop": true
-                },
-                {
-                    "id": "player_walk_right",
-                    "frameStart": [
-                        0,
-                        512
-                    ],
-                    "frameSize": [
-                        256,
-                        256
-                    ],
-                    "origin": [
-                        128.0,
-                        240.0
-                    ],
-                    "frameCount": 25,
-                    "columns": 25,
-                    "duration": 0.06,
+                    "frameCount": 13,
+                    "columns": 13,
+                    "duration": 0.1,
                     "loop": true
                 }
             ]
@@ -311,44 +393,30 @@
             "animations": []
         },
         {
-            "id": "test_anim_texture",
-            "path": "../../assets/textures/test_anim.png",
-            "sprites": [
+            "id": "turret_un_idle_texture",
+            "path": "../../assets/textures/turret_un_idle-9x6.png",
+            "sprites": [],
+            "animations": [
                 {
-                    "id": "test_anim_sprite",
-                    "region": [
+                    "id": "turret_un_idle_anim",
+                    "frameStart": [
                         0,
-                        0,
-                        1024,
-                        128
+                        0
+                    ],
+                    "frameSize": [
+                        360,
+                        470
                     ],
                     "origin": [
-                        512.0,
-                        64.0
-                    ]
-                }
-            ],
-            "animations": []
-        },
-        {
-            "id": "wall_texture",
-            "path": "../../assets/textures/wall_64x64.png",
-            "sprites": [
-                {
-                    "id": "wall_sprite",
-                    "region": [
-                        0,
-                        0,
-                        64,
-                        64
+                        180.0,
+                        235.0
                     ],
-                    "origin": [
-                        32.0,
-                        32.0
-                    ]
+                    "frameCount": 54,
+                    "columns": 9,
+                    "duration": 0.1,
+                    "loop": true
                 }
-            ],
-            "animations": []
+            ]
         }
     ],
     "animations": []

@@ -1,152 +1,221 @@
+#!/usr/bin/env python3
+"""
+Bajabongo Engine - Asset Baker
+Scans assets/textures and generates resources.json manifest.
+
+Naming Conventions:
+  - Static sprites: filename.png
+  - Strip animations: basename-N.png (e.g., player_run-8.png)
+  - Grid animations: basename-NxM.png (e.g., zombie_walk-4x8.png)
+  - Maps: map_*.png (origin set to [0, 0])
+"""
+
 import os
 import json
 import re
+import sys
+from pathlib import Path
 from PIL import Image
 
-# --- CONFIG ---
-TEXTURES_DIR = "../assets/textures"
-OUTPUT_JSON = "../assets/data/resources.json"
-JSON_PATH_PREFIX = "../../assets/textures/"
+# Patterns
+STRIP_PATTERN = re.compile(r'^(.+?)-(\d+)\.png$')
+GRID_PATTERN = re.compile(r'^(.+?)-(\d+)x(\d+)\.png$')
 
-FEET_ORIGIN_KEYWORDS = ["player", "npc", "enemy", "zombie", "char", "unit", "mob"]
+# Entity keywords for feet-based pivot
+ENTITY_KEYWORDS = ["player", "npc", "enemy", "zombie", "char", "unit", "mob"]
 
-name_size_re = re.compile(r"^(.*)_(\d+)x(\d+)$")
+# Paths
+TEXTURE_DIR = Path("../assets/textures")
+OUTPUT_PATH = Path("../assets/data/resources.json")
 
-def split_name_and_size(stem: str):
-    """
-    'player_walk_128x128' -> ('player_walk', 128, 128)
-    'box' -> ('box', None, None)
-    """
-    m = name_size_re.match(stem)
-    if not m:
-        return stem, None, None
-    base = m.group(1)
-    return base, int(m.group(2)), int(m.group(3))
 
-def get_origin(w, h, base_name):
-    low = base_name.lower()
-    if any(k in low for k in FEET_ORIGIN_KEYWORDS):
-        return [w / 2.0, float(h)]   # feet
-    return [w / 2.0, h / 2.0]        # center
+def is_map(basename: str) -> bool:
+    """Check if the asset is a map background."""
+    return basename.lower().startswith("map_")
 
-def bake_resources():
-    print(f"[AssetBaker] scanning {TEXTURES_DIR} ...")
 
-    # Load existing resources to preserve manual edits (origins, regions, etc.)
-    existing_textures = {}
-    if os.path.exists(OUTPUT_JSON):
-        try:
-            with open(OUTPUT_JSON, "r") as f:
-                data = json.load(f)
-                for t in data.get("textures", []):
-                    existing_textures[t["id"]] = t
-        except Exception as e:
-            print(f"[AssetBaker] Warning: could not load existing {OUTPUT_JSON}: {e}")
+def is_entity(basename: str) -> bool:
+    """Check if the asset is an entity (for feet-based pivot)."""
+    lower = basename.lower()
+    return any(keyword in lower for keyword in ENTITY_KEYWORDS)
 
-    textures = []
-    tex_count = 0
 
-    for root, dirs, files in os.walk(TEXTURES_DIR):
-        for file in files:
-            if not file.lower().endswith((".png", ".jpg", ".jpeg")):
-                continue
+def calculate_origin(basename: str, width: int, height: int) -> list:
+    """Calculate origin based on asset type."""
+    if is_map(basename):
+        return [0.0, 0.0]  # Top-left for maps
+    elif is_entity(basename):
+        return [width / 2.0, float(height)]  # Feet for entities
+    else:
+        return [width / 2.0, height / 2.0]  # Center for everything else
 
-            full_path = os.path.join(root, file)
-            rel_inside = os.path.relpath(full_path, TEXTURES_DIR).replace("\\", "/")
-            json_path = JSON_PATH_PREFIX + rel_inside
 
-            stem = os.path.splitext(file)[0]          # e.g. player_walk_128x128
-            base_name, sx, sy = split_name_and_size(stem)  # e.g. player_walk, 128,128
-
-            tex_id = f"{base_name}_texture"
-            sprite_id = f"{base_name}_sprite"
-            anim_id = f"{base_name}_anim"
-
-            try:
-                with Image.open(full_path) as img:
-                    w, h = img.size
-            except Exception as e:
-                print(f"[AssetBaker] ERROR reading {full_path}: {e}")
-                continue
-
-            entry = {
-                "id": tex_id,
-                "path": json_path,
-                "sprites": [],
-                "animations": []
+def process_static_sprite(filepath: Path, img_width: int, img_height: int) -> dict:
+    """Generate texture entry for a static sprite."""
+    basename = filepath.stem
+    texture_id = f"{basename}_texture"
+    sprite_id = f"{basename}_sprite"
+    
+    origin = calculate_origin(basename, img_width, img_height)
+    
+    return {
+        "id": texture_id,
+        "path": f"../../assets/textures/{filepath.name}",
+        "sprites": [
+            {
+                "id": sprite_id,
+                "region": [0, 0, img_width, img_height],
+                "origin": origin
             }
-
-            # Generate default data from file
-            new_sprites = []
-            new_anims = []
-
-            # Decide if this is an animation sheet or a static sprite
-            if sx and sy and w % sx == 0 and h % sy == 0 and (w > sx or h > sy):
-                # Spritesheet -> animation
-                cols = max(1, w // sx)
-                rows = max(1, h // sy)
-                frame_count = cols * rows
-
-                new_anims.append({
-                    "id": anim_id,
-                    "frameStart": [0, 0],
-                    "frameSize": [sx, sy],
-                    "frameCount": frame_count,
-                    "columns": cols,
-                    "duration": 0.1,
-                    "loop": True
-                })
-            else:
-                # Single sprite (full image)
-                origin = get_origin(w, h, base_name)
-                new_sprites.append({
-                    "id": sprite_id,
-                    "region": [0, 0, w, h],
-                    "origin": origin
-                })
-
-            # Merge with existing data if available
-            if tex_id in existing_textures:
-                old_tex = existing_textures[tex_id]
-                
-                # Preserve sprites: keep all old ones, add new ones if ID missing
-                old_sprites_list = old_tex.get("sprites", [])
-                old_sprite_ids = set(s["id"] for s in old_sprites_list)
-                
-                # Start with old sprites (preserving their settings)
-                entry["sprites"] = list(old_sprites_list)
-                
-                # Add generated ones only if they don't exist
-                for s in new_sprites:
-                    if s["id"] not in old_sprite_ids:
-                        entry["sprites"].append(s)
-
-                # Preserve animations: keep all old ones, add new ones if ID missing
-                old_anims_list = old_tex.get("animations", [])
-                old_anim_ids = set(a["id"] for a in old_anims_list)
-                
-                entry["animations"] = list(old_anims_list)
-                
-                for a in new_anims:
-                    if a["id"] not in old_anim_ids:
-                        entry["animations"].append(a)
-            else:
-                # No existing data, use generated
-                entry["sprites"] = new_sprites
-                entry["animations"] = new_anims
-
-            textures.append(entry)
-            tex_count += 1
-
-    out = {
-        "textures": textures,
-        "animations": []  # keep for future use
+        ],
+        "animations": []
     }
 
-    with open(OUTPUT_JSON, "w") as f:
-        json.dump(out, f, indent=4)
 
-    print(f"[AssetBaker] done. {tex_count} textures written to {OUTPUT_JSON}")
+def process_animation(filepath: Path, img_width: int, img_height: int, cols: int, rows: int) -> dict:
+    """Generate texture entry for an animation (strip or grid)."""
+    basename = filepath.stem.rsplit('-', 1)[0]  # Remove grid suffix
+    texture_id = f"{basename}_texture"
+    anim_id = f"{basename}_anim"
+    
+    frame_width = img_width // cols
+    frame_height = img_height // rows
+    frame_count = cols * rows
+    
+    origin = calculate_origin(basename, frame_width, frame_height)
+    
+    return {
+        "id": texture_id,
+        "path": f"../../assets/textures/{filepath.name}",
+        "sprites": [],
+        "animations": [
+            {
+                "id": anim_id,
+                "frameStart": [0, 0],
+                "frameSize": [frame_width, frame_height],
+                "origin": origin,
+                "frameCount": frame_count,
+                "columns": cols,
+                "duration": 0.1,  # Default per-frame duration
+                "loop": True
+            }
+        ]
+    }
+
+
+def scan_textures() -> list:
+    """Scan texture directory and generate texture entries."""
+    textures = []
+    
+    if not TEXTURE_DIR.exists():
+        print(f"ERROR: Texture directory not found: {TEXTURE_DIR}")
+        return []
+    
+    for filepath in sorted(TEXTURE_DIR.glob("*.png")):
+        filename = filepath.name
+        
+        # Open image to get dimensions
+        try:
+            with Image.open(filepath) as img:
+                img_width, img_height = img.size
+        except Exception as e:
+            print(f"WARNING: Failed to read {filename}: {e}")
+            continue
+        
+        # Check for grid pattern
+        grid_match = GRID_PATTERN.match(filename)
+        if grid_match:
+            basename = grid_match.group(1)
+            cols = int(grid_match.group(2))
+            rows = int(grid_match.group(3))
+            
+            if cols < 1 or rows < 1:
+                print(f"WARNING: Invalid grid dimensions in {filename} ({cols}x{rows})")
+                continue
+            
+            print(f"[ANIM] {filename} → {cols}x{rows} grid ({cols * rows} frames)")
+            textures.append(process_animation(filepath, img_width, img_height, cols, rows))
+            continue
+        
+        # Check for strip pattern
+        strip_match = STRIP_PATTERN.match(filename)
+        if strip_match:
+            basename = strip_match.group(1)
+            cols = int(strip_match.group(2))
+            rows = 1
+            
+            if cols < 2:
+                print(f"WARNING: Strip animations need at least 2 frames: {filename}")
+                continue
+            
+            print(f"[ANIM] {filename} → {cols}-frame strip")
+            textures.append(process_animation(filepath, img_width, img_height, cols, rows))
+            continue
+        
+        # Static sprite
+        sprite_type = "MAP" if is_map(filepath.stem) else "SPRITE"
+        print(f"[{sprite_type}] {filename} → static sprite")
+        textures.append(process_static_sprite(filepath, img_width, img_height))
+    
+    return textures
+
+
+def merge_with_existing(new_textures: list) -> dict:
+    """Merge new texture data with existing manifest (preserve manual edits)."""
+    if not OUTPUT_PATH.exists():
+        return {"textures": new_textures, "animations": []}
+    
+    try:
+        with open(OUTPUT_PATH, 'r') as f:
+            existing = json.load(f)
+    except Exception as e:
+        print(f"WARNING: Failed to load existing manifest: {e}")
+        return {"textures": new_textures, "animations": []}
+    
+    # Build lookup map
+    existing_map = {tex["id"]: tex for tex in existing.get("textures", [])}
+    
+    merged = []
+    for new_tex in new_textures:
+        tex_id = new_tex["id"]
+        if tex_id in existing_map:
+            old_tex = existing_map[tex_id]
+            
+            # Preserve manual animation overrides (duration, loop)
+            if new_tex["animations"] and old_tex.get("animations"):
+                for new_anim in new_tex["animations"]:
+                    for old_anim in old_tex["animations"]:
+                        if new_anim["id"] == old_anim["id"]:
+                            # Keep manually edited duration/loop
+                            new_anim["duration"] = old_anim.get("duration", 0.1)
+                            new_anim["loop"] = old_anim.get("loop", True)
+        
+        merged.append(new_tex)
+    
+    return {"textures": merged, "animations": []}
+
+
+def main():
+    print("=== Bajabongo Asset Baker ===")
+    print(f"Scanning: {TEXTURE_DIR.absolute()}")
+    
+    textures = scan_textures()
+    
+    if not textures:
+        print("No textures found.")
+        return
+    
+    manifest = merge_with_existing(textures)
+    
+    # Write output
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT_PATH, 'w') as f:
+        json.dump(manifest, f, indent=4)
+    
+    print(f"\n✅ Generated {OUTPUT_PATH}")
+    print(f"   Textures: {len(textures)}")
+    print(f"   Animations: {sum(len(t['animations']) for t in textures)}")
+
 
 if __name__ == "__main__":
-    bake_resources()
+    main()

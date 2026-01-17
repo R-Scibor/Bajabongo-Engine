@@ -33,48 +33,44 @@ The script will:
 
 ## Naming Conventions
 
-The pipeline uses **filename conventions** to automatically determine asset types and properties. Adhering to these rules minimizes manual configuration.
+The pipeline uses **hyphen-delimited grid dimensions** in filenames to automatically generate asset metadata.
 
-### 1. Static Sprites
-Used for standard props, UI elements, and backgrounds.
-*   **Format**: `filename.png`
-*   **Behavior**:
-    *   Generates Texture ID: `filename_texture`.
-    *   Generates Sprite ID: `filename_sprite`.
-*   **Default Origin**: Center `[width/2, height/2]`.
+### 1. Map Backgrounds
+Large background images for levels.
+- **Format**: `map_*.png` (must start with `map_`)
+- **Origin**: Top-Left `[0, 0]`
+- **Example**: `map_hideout.png` (1024×1024) → Origin: `[0, 0]`
 
-**Example**:
-*   `box.png` (64x64) → Texture: `box_texture`, Sprite: `box_sprite`, Origin: `[32, 32]`
+### 2. Static Sprites
+Props, UI elements, and other single-image assets.
+- **Format**: `filename.png`
+- **Origin**: Center `[w/2, h/2]`
+- **Example**: `box.png` (64×64) → Origin: `[32, 32]`
 
-### 2. Entities (Feet Alignment)
-Used for characters or objects that require Z-sorting/Y-sorting based on their "feet" or base.
-*   **Keywords**: The filename must contain one of: `player`, `npc`, `enemy`, `zombie`, `char`, `unit`, `mob`.
-*   **Behavior**:
-    *   Generates Texture ID: `filename_texture`.
-    *   Generates Sprite ID: `filename_sprite`.
-*   **Default Origin**: Bottom-Center `[width/2, height]`.
+### 3. Entities (Feet Alignment)
+Characters and objects that need Y-sorting. Filename must contain one of: `player`, `npc`, `enemy`, `zombie`, `char`, `unit`, `mob`.
+- **Format**: `basename.png`
+- **Origin**: Bottom-Center `[w/2, h]` (feet position)
+- **Example**: `zombie_idle.png` (32×64) → Origin: `[16, 64]`
 
-**Example**:
-*   `zombie_idle.png` (32x64) → Origin: `[16, 64]`
+### 4. Strip Animations
+Single-row sprite sheets.
+- **Format**: `basename-N.png` (N = frame count)
+- **Example**: `player_run-8.png` → 8 frames, horizontal strip
+- **Grid**: 8 columns × 1 row
 
-### 3. Sprite Sheets (Animations)
-Used for frame-based animations. The frame size **must** be specified in the filename.
-*   **Format**: `basename_WxH.png` (e.g., `hero_run_32x32.png`)
-*   **Behavior**:
-    *   Parses the `_WxH` suffix to determine frame size.
-    *   Generates Texture ID: `basename_texture` (e.g., `hero_run_texture`).
-    *   Generates Animation ID: `basename_anim` (e.g., `hero_run_anim`).
-    *   Calculates rows and columns based on total image size.
-    *   Defaults: `loop: true`, `duration: 0.1s`.
+### 5. Grid Animations
+Multi-row sprite sheets.
+- **Format**: `basename-NxM.png` (N = columns, M = rows)
+- **Example**: `explosion-4x4.png` → 16 frames in 4×4 grid
+- **Example**: `enemy_walk-6x2.png` → 12 frames in 6×2 grid
 
-**Examples**:
-*   `player_run_32x32.png` (Image: 256x32)
-    *   IDs: `player_run_texture`, `player_run_anim`
-    *   Frame Size: 32x32
-    *   Result: 8 Frames, 1 Row.
-*   `explosion_64x64.png` (Image: 256x256)
-    *   Frame Size: 64x64
-    *   Result: 16 Frames, 4 Rows.
+**Notes**:
+- Frame dimensions are **calculated automatically** from image size ÷ grid dimensions
+- Animation defaults: `loop: true`, `duration: 0.1s` per frame
+- To override duration/loop, edit `resources.json` manually (changes are preserved on re-bake)
+- Origin rules apply to animations too (maps use `[0,0]`, entities use feet pivot)
+
 
 ## Auto-Generation Note
 
