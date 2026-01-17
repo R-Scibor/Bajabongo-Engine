@@ -254,6 +254,10 @@
       "initialState": "Idle",
       "initialFacing": "Left"
     },
+    "Animation": {
+      "defaultClip": "gopnik_pistol_idle",
+      "playing": true
+    },
     "Physics": {
       "type": "dynamic",
       "size": [32.0, 64.0],
@@ -307,6 +311,10 @@
       "initialState": "Idle",
       "initialFacing": "Left"
     },
+    "Animation": {
+      "defaultClip": "gopnik_shotgun_idle",
+      "playing": true
+    },
     "Physics": {
       "type": "dynamic",
       "size": [32.0, 64.0],
@@ -349,6 +357,10 @@
       "animationSetId": "gopnik_ak47",
       "initialState": "Idle",
       "initialFacing": "Left"
+    },
+    "Animation": {
+      "defaultClip": "gopnik_ak47_idle",
+      "playing": true
     },
     "Physics": {
       "type": "dynamic",

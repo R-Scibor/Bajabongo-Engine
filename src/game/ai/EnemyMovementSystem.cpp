@@ -5,6 +5,7 @@
 #include "game/components/RushBehaviorComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/components/AnimationStateComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
 #include <box2d/box2d.h>
@@ -80,6 +81,26 @@ namespace game::ai {
             
             b2Body_SetLinearVelocity(bodyComp.bodyId, {finalVelocity.x, finalVelocity.y});
             
+            // --- Animation State Sync ---
+            if (auto* animState = mContext.m_registry->try_get<engine::AnimationStateComponent>(entity)) {
+                float velMagSq = finalVelocity.x * finalVelocity.x + finalVelocity.y * finalVelocity.y;
+                
+                // Update State
+                if (velMagSq > 10.0f) { // Use a small threshold to avoid jitter
+                    animState->state = engine::AnimationState::Walk;
+                } else {
+                    animState->state = engine::AnimationState::Idle;
+                }
+                
+                // Update Facing
+                // Only change facing if there is significant horizontal movement
+                if (finalVelocity.x < -0.1f) {
+                    animState->facing = engine::FacingDirection::Left;
+                } else if (finalVelocity.x > 0.1f) {
+                    animState->facing = engine::FacingDirection::Right;
+                }
+            }
+
             float velMagSq = finalVelocity.x * finalVelocity.x + finalVelocity.y * finalVelocity.y;
             if (velMagSq > 1.0f) { 
                 enemy.lastValidPosition = transform.position;
