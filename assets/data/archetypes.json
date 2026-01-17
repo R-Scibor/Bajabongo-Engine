@@ -1,44 +1,4 @@
 {
-  "wooden_crate": {
-    "Transform": {
-      "rotation": 0.0,
-      "scale": [4.0, 4.0]
-    },
-    "Renderable": {
-      "spriteId": "box_sprite",
-      "layer": 1
-    },
-    "Physics": {
-      "type": "dynamic",
-      "size": [128.0, 128.0],
-      "density": 1.0,
-      "isSensor": false,
-      "linearDamping": 3.0
-    },
-    "Health": {
-      "maxHp": 50.0
-    }
-  },
-  "heavy_crate": {
-    "Transform": {
-      "rotation": 0.0,
-      "scale": [4.0, 4.0]
-    },
-    "Renderable": {
-      "spriteId": "box_sprite",
-      "layer": 1
-    },
-    "Physics": {
-      "type": "dynamic",
-      "size": [128.0, 128.0],
-      "density": 20.0,
-      "isSensor": false,
-      "linearDamping": 3.0
-    },
-    "Health": {
-      "maxHp": 200.0
-    }
-  },
   "player": {
     "Transform": {
       "rotation": 0.0,
@@ -100,116 +60,6 @@
       "viewAngle": 90.0,
       "viewDirection": 0.0,
       "viewOffset": [0.0, -55.0]
-    }
-  },
-  "hat": {
-    "Transform": {},
-    "Renderable": {
-      "spriteId": "box_sprite",
-      "layer": 3
-    }
-  },
-  "player_with_hat": {
-    "Transform": {
-      "rotation": 0.0,
-      "scale": [0.5, 0.5]
-    },
-    "Renderable": {
-      "spriteId": "player_idle_sprite",
-      "layer": 2
-    },
-    "AnimationState": {
-      "animationSetId": "player",
-      "initialState": "Idle",
-      "initialFacing": "Right"
-    },
-    "Animation": {
-      "defaultClip": "player_idle_sprite",
-      "playing": true
-    },
-    "Player": {
-      "moveSpeed": 150.0,
-      "rotSpeed": 10.0
-    },
-    "Health": {
-      "maxHp": 200.0
-    },
-    "Weapon": {
-      "fireRate": 0.15,
-      "damage": 10.0
-    },
-    "Physics": {
-      "type": "dynamic",
-      "fixedRotation": true,
-      "linearDamping": 10.0,
-      "category": "Player",
-      "fixtures": [
-        {
-          "size": [32.0, 16.0],
-          "offset": [0.0, 16.0],
-          "density": 1.0,
-          "isSensor": false,
-          "category": "Player"
-        },
-        {
-          "size": [48.0, 64.0],
-          "offset": [0.0, 0.0],
-          "density": 0.0,
-          "isSensor": true,
-          "category": "Hurtbox"
-        }
-      ]
-    },
-    "CameraFocus": {
-      "viewHeight": 720.0,
-      "smoothness": 0.1
-    },
-    "children": [
-      {
-        "archetype": "hat",
-        "offset": [0, -162],
-        "rotation": 0.0
-      }
-    ]
-  },
-  "bed": {
-    "Transform": {
-      "rotation": 0.0,
-      "scale": [1.5, 1.5]
-    },
-    "Renderable": {
-      "spriteId": "bed_sprite",
-      "layer": 1
-    },
-    "Physics": {
-      "type": "dynamic",
-      "size": [256.0, 256.0],
-      "density": 2.0,
-      "isSensor": false,
-      "linearDamping": 5.0
-    },
-    "Health": {
-      "maxHp": 100.0
-    }
-  },
-  "oven": {
-    "Transform": {
-      "rotation": 0.0,
-      "scale": [1.5, 1.5]
-    },
-    "Renderable": {
-      "spriteId": "oven_sprite",
-      "layer": 1
-    },
-    "Physics": {
-      "type": "dynamic",
-      "size": [316.0, 512.0],
-      "density": 2.0,
-      "isSensor": false,
-      "linearDamping": 5.0
-    },
-    "Health": {
-      "maxHp": 100.0
     }
   },
   "target_1": {
@@ -388,68 +238,21 @@
       "maxHp": 20.0
     }
   },
-  "enemy_1": {
+  "gopnik_patroller": {
+    "Meta": {
+      "name": "Patroller Gopnik"
+    },
     "Transform": {
-      "rotation": 0.0,
       "scale": [0.5, 0.5]
     },
     "Renderable": {
-      "spriteId": "player_idle_0",
-      "layer": 2
+      "spriteId": "gopnik_pistol_idle_sprite",
+      "layer": 1
     },
     "AnimationState": {
-      "animationSetId": "player",
+      "animationSetId": "gopnik_pistol",
       "initialState": "Idle",
-      "initialFacing": "Right"
-    },
-    "Animation": {
-      "defaultClip": "player_idle",
-      "playing": true
-    },
-    "Physics": {
-      "type": "dynamic",
-      "linearDamping": 5.0,
-      "fixedRotation": true,
-      "category": "Enemy",
-      "fixtures": [
-        {
-          "size": [32.0, 16.0],
-          "offset": [0.0, 16.0],
-          "density": 1.0,
-          "isSensor": false,
-          "category": "Enemy"
-        },
-        {
-          "size": [48.0, 64.0],
-          "offset": [0.0, 0.0],
-          "density": 0.0,
-          "isSensor": true,
-          "category": "Hurtbox"
-        }
-      ]
-    },
-    "Health": {
-      "maxHp": 30.0
-    },
-    "Weapon": {
-      "fireRate": 0.5,
-      "damage": 5.0,
-      "projectileSpeed": 250.0,
-      "projectileLifetime": 1.5,
-      "magSize": 20,
-      "totalAmmo": 100
-    }
-  },
-  "enemy_patroller": {
-    "Meta": {
-      "name": "Patroller Enemy"
-    },
-    "Transform": {
-      "scale": [1.0, 1.0]
-    },
-    "Renderable": {
-      "spriteId": "enemy_idle_sprite",
-      "layer": 1
+      "initialFacing": "Left"
     },
     "Physics": {
       "type": "dynamic",
@@ -495,10 +298,15 @@
       "totalAmmo": 90
     }
   },
-  "enemy_rusher": {
-    "Meta": { "name": "Rusher Enemy" },
-    "Transform": { "scale": [1.0, 1.0] },
-    "Renderable": { "spriteId": "enemy_rush_sprite", "layer": 1 },
+  "gopnik_rusher": {
+    "Meta": { "name": "Rusher Gopnik" },
+    "Transform": { "scale": [0.5, 0.5] },
+    "Renderable": { "spriteId": "gopnik_shotgun_idle_sprite", "layer": 1 },
+    "AnimationState": {
+      "animationSetId": "gopnik_shotgun",
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
     "Physics": {
       "type": "dynamic",
       "size": [32.0, 64.0],
@@ -533,10 +341,15 @@
       "totalAmmo": 60
     }
   },
-  "enemy_sniper": {
-    "Meta": { "name": "Sniper Enemy" },
-    "Transform": { "scale": [1.0, 1.0] },
-    "Renderable": { "spriteId": "enemy_sniper_sprite", "layer": 1 },
+  "gopnik_sniper": {
+    "Meta": { "name": "Sniper Gopnik" },
+    "Transform": { "scale": [0.5, 0.5] },
+    "Renderable": { "spriteId": "gopnik_ak47_idle_sprite", "layer": 1 },
+    "AnimationState": {
+      "animationSetId": "gopnik_ak47",
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
     "Physics": {
       "type": "dynamic",
       "size": [32.0, 64.0],
@@ -573,7 +386,7 @@
   },
   "enemy_turret": {
     "Meta": { "name": "Turret Enemy" },
-    "Transform": { "scale": [1.0, 1.0] },
+    "Transform": { "scale": [0.5, 0.5] },
     "Renderable": { "spriteId": "enemy_turret_sprite", "layer": 1 },
     "Physics": {
       "type": "static",

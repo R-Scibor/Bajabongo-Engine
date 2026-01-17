@@ -201,6 +201,32 @@
             ]
         },
         {
+            "id": "gopnik_ak47_walk_texture",
+            "path": "../../assets/textures/gopnik_ak47_walk-5x5.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "gopnik_ak47_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 25,
+                    "columns": 5,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "gopnik_pistol_aim_texture",
             "path": "../../assets/textures/gopnik_pistol_aim.png",
             "sprites": [
@@ -461,6 +487,32 @@
                     ],
                     "frameCount": 1,
                     "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "gopnik_shotgun_walk_texture",
+            "path": "../../assets/textures/gopnik_shotgun_walk-5x5.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "gopnik_shotgun_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 25,
+                    "columns": 5,
                     "duration": 0.1,
                     "loop": true
                 }
