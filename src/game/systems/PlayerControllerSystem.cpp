@@ -67,9 +67,11 @@ namespace game {
                 // We rely on AnimationStateComponent now. 
                 // If it's missing, the entity won't animate correctly (which is expected if we want to enforce the new system).
                 if (auto* animState = registry.try_get<engine::AnimationStateComponent>(entity)) {
-                    // 1. Determine State: Idle vs Moving
+                    // 1. Determine State: Idle vs Moving vs Aiming
                     if (lengthSq > 0.0f) {
                         animState->state = engine::AnimationState::Walk;
+                    } else if (weapon && weapon->wantsToShoot) {
+                        animState->state = engine::AnimationState::Aim;
                     } else {
                         animState->state = engine::AnimationState::Idle;
                     }
@@ -79,8 +81,20 @@ namespace game {
                         animState->facing = engine::FacingDirection::Left;
                     } else if (moveDir.x > 0.0f) {
                         animState->facing = engine::FacingDirection::Right;
+                    } else if (lengthSq < 0.001f && weapon) {
+                        // If standing still, face the aim direction
+                        // Ideally we should do this if we are aiming
+                        float aimAngle = weapon->aimAngle;
+                        // Normalize angle to -PI to PI
+                        while (aimAngle > M_PI) aimAngle -= 2.0f * M_PI;
+                        while (aimAngle < -M_PI) aimAngle += 2.0f * M_PI;
+
+                        if (std::abs(aimAngle) > M_PI / 2.0f) {
+                            animState->facing = engine::FacingDirection::Left;
+                        } else {
+                            animState->facing = engine::FacingDirection::Right;
+                        }
                     }
-                    // If moving purely vertical (Y-only), keep previous facing
                 }
             }
 

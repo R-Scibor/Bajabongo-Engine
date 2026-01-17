@@ -7,7 +7,9 @@ namespace engine {
     enum class AnimationState {
         Idle,
         Walk,
-        // Future: Attack, Death, etc.
+        Aim,
+        Dead
+        // Future: Attack, etc.
     };
 
     /// @brief Facing direction (2-directional)

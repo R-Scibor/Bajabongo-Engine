@@ -767,7 +767,21 @@
         {
             "id": "turret_un_idle_texture",
             "path": "../../assets/textures/turret_un_idle-9x6.png",
-            "sprites": [],
+            "sprites": [
+                {
+                    "id": "turret_un_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        360,
+                        470
+                    ],
+                    "origin": [
+                        180.0,
+                        235.0
+                    ]
+                }
+            ],
             "animations": [
                 {
                     "id": "turret_un_idle_anim",

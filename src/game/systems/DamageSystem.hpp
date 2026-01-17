@@ -17,6 +17,7 @@ namespace game {
 
     private:
         void handleCollision(entt::entity projectile, entt::entity target, bool isTargetSensor, entt::registry& registry);
+        void spawnDeadBody(entt::entity originalEntity, entt::registry& registry);
 
         engine::EngineContext& m_context;
         std::shared_ptr<engine::ILogger> m_logger;

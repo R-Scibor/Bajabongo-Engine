@@ -7,6 +7,7 @@
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/MetaComponent.hpp"
+#include "engine/rendering/AnimationClip.hpp"
 #include <entt/entt.hpp>
 #include <cmath>
 
@@ -102,9 +103,36 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
         case AnimationState::Walk:
             clipId += "_walk_anim";
             break;
+        case AnimationState::Aim:
+            clipId += "_aim";
+            break;
+        case AnimationState::Dead:
+            clipId += "_dead";
+            break;
         default:
             clipId += "_idle";
             break;
+    }
+
+    if (m_context.m_animationLibrary) {
+        // Try to use _anim first
+        std::string withAnim = clipId + "_anim";
+        if (m_context.m_animationLibrary->getClip(withAnim)) {
+            return withAnim;
+        }
+        
+        // If not present, try to use without _anim
+        if (m_context.m_animationLibrary->getClip(clipId)) {
+            return clipId;
+        }
+
+        // Fallback: If "Aim" is missing, try "Idle"
+        if (state == AnimationState::Aim) {
+            std::string idleClip = animSetId + "_idle";
+             if (m_context.m_animationLibrary->getClip(idleClip)) {
+                return idleClip;
+            }
+        }
     }
     
     return clipId;

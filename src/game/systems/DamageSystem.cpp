@@ -2,6 +2,12 @@
 #include "DamageSystem.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/HealthComponent.hpp"
+#include "engine/components/TransformComponent.hpp"
+#include "engine/components/RenderableComponent.hpp"
+#include "engine/components/AnimationStateComponent.hpp"
+#include "engine/components/AnimationComponent.hpp"
+#include "engine/components/MetaComponent.hpp"
+#include "game/components/DeadBodyComponent.hpp"
 
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -75,12 +81,64 @@ namespace game {
                 if (m_logger) {
                     m_logger->info("Entity {} destroyed (HP <= 0).", entt::to_integral(target));
                 }
+                
+                // Spawn Dead Body
+                spawnDeadBody(target, registry);
+
+                // Destroy the original entity
                 registry.destroy(target);
             }
         }
 
         // 3. Destroy the projectile (because it hit something solid)
         registry.destroy(projectile);
+    }
+
+    void DamageSystem::spawnDeadBody(entt::entity originalEntity, entt::registry& registry) {
+        auto* transform = registry.try_get<engine::TransformComponent>(originalEntity);
+        auto* renderable = registry.try_get<engine::RenderableComponent>(originalEntity);
+        auto* animState = registry.try_get<engine::AnimationStateComponent>(originalEntity);
+
+        if (transform && renderable && animState) {
+            auto deadBody = registry.create();
+
+            // Copy Transform
+            registry.emplace<engine::TransformComponent>(deadBody, *transform);
+
+            // Copy Renderable
+            auto& newRenderable = registry.emplace<engine::RenderableComponent>(deadBody, *renderable);
+            // Ensure dead bodies are rendered below living entities if needed, or same layer
+            newRenderable.layer = 0; // Move to background layer? Or keep same? Let's try layer 0 for floor.
+
+            // Setup Animation State
+            engine::AnimationStateComponent newAnimState;
+            newAnimState.animationSetId = animState->animationSetId;
+            newAnimState.state = engine::AnimationState::Dead;
+            newAnimState.facing = animState->facing;
+            // newAnimState.commitState(); // REMOVED: Do not commit state, let the system detect the change!
+            registry.emplace<engine::AnimationStateComponent>(deadBody, newAnimState);
+
+            // Setup Animation Component (needed for the system to process it)
+            registry.emplace<engine::AnimationComponent>(deadBody);
+
+            // Copy MetaComponent if it exists (for fallback logic in AnimationStateMachine)
+            if (auto* meta = registry.try_get<engine::MetaComponent>(originalEntity)) {
+                registry.emplace<engine::MetaComponent>(deadBody, *meta);
+            }
+            
+            // --- DEBUG: Verify AnimationSetId ---
+            if (m_logger) {
+                m_logger->info("Spawned DeadBody {}. AnimationSetId: '{}'. Original ID: '{}'", 
+                    entt::to_integral(deadBody), newAnimState.animationSetId, animState->animationSetId);
+            }
+
+            // Mark as DeadBody
+            registry.emplace<DeadBodyComponent>(deadBody);
+
+             if (m_logger) {
+                m_logger->debug("Spawned DeadBody entity {} for original entity {}", entt::to_integral(deadBody), entt::to_integral(originalEntity));
+            }
+        }
     }
 
 }

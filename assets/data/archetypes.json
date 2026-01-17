@@ -398,14 +398,23 @@
   },
   "enemy_turret": {
     "Meta": { "name": "Turret Enemy" },
-    "Transform": { "scale": [0.5, 0.5] },
-    "Renderable": { "spriteId": "enemy_turret_sprite", "layer": 1 },
+    "Transform": { "scale": [0.2, 0.2] },
+    "Renderable": { "spriteId": "turret_un_idle_sprite", "layer": 1 },
+    "AnimationState": {
+      "animationSetId": "turret_un",
+      "initialState": "Idle",
+      "initialFacing": "Left"
+    },
+    "Animation": {
+      "defaultClip": "turret_un_idle_anim",
+      "playing": true
+    },
     "Physics": {
       "type": "static",
-      "size": [64.0, 64.0],
+      "size": [140.0, 200.0],
       "category": "Enemy",
       "fixtures": [
-        { "size": [64.0, 64.0], "isSensor": true, "category": "Hurtbox" }
+        { "size": [140.0, 200.0], "isSensor": true, "category": "Hurtbox" }
       ]
     },
     "Health": { "maxHp": 150.0 },
