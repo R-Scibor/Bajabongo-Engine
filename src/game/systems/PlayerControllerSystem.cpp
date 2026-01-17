@@ -64,7 +64,8 @@ namespace game {
 
             // --- Animation State Machine ---
             if (anim) {
-                // Check if we have the new AnimationStateComponent
+                // We rely on AnimationStateComponent now. 
+                // If it's missing, the entity won't animate correctly (which is expected if we want to enforce the new system).
                 if (auto* animState = registry.try_get<engine::AnimationStateComponent>(entity)) {
                     // 1. Determine State: Idle vs Moving
                     if (lengthSq > 0.0f) {
@@ -80,45 +81,6 @@ namespace game {
                         animState->facing = engine::FacingDirection::Right;
                     }
                     // If moving purely vertical (Y-only), keep previous facing
-                }
-                else {
-                    // Fallback to legacy hardcoded logic if AnimationStateComponent is missing
-                    // 1. Determine State: Idle vs Moving
-                    if (lengthSq > 0.0f) {
-                        // Moving
-                        std::string newClip = anim->currentClipId;
-                        float scaleX = std::abs(transform.scale.x); // Preserve magnitude
-
-                        // 2. Determine Direction
-                        if (std::abs(moveDir.y) > std::abs(moveDir.x)) {
-                             if (moveDir.y < 0.0f) {
-                                newClip = "player_walk_up";
-                            } else {
-                                newClip = "player_walk_down";
-                            }
-                        } else {
-                            // Horizontal or equal
-                            newClip = "player_walk_right";
-                            if (moveDir.x < 0.0f) {
-                                transform.scale.x = -scaleX; // Face Left
-                            } else {
-                                transform.scale.x = scaleX; // Face Right
-                            }
-                        }
-
-                        // Switch clip if changed
-                        if (anim->currentClipId != newClip) {
-                            anim->currentClipId = newClip;
-                            anim->reset();
-                        }
-                    }
-                    else {
-                        // Idle
-                        if (anim->currentClipId != "player_idle") {
-                            anim->currentClipId = "player_idle";
-                            anim->reset();
-                        }
-                    }
                 }
             }
 

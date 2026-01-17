@@ -25,38 +25,40 @@ void AnimationStateMachineSystem::update() {
     // Process all entities with AnimationStateComponent + AnimationComponent
     auto view = registry.view<AnimationStateComponent, AnimationComponent, TransformComponent>();
     
-    for (auto entity : view) {
-        auto& stateComp = view.get<AnimationStateComponent>(entity);
-        auto& animComp = view.get<AnimationComponent>(entity);
-        auto& transform = view.get<TransformComponent>(entity);
-        
+    // Explicitly iterate to avoid iterator issues
+    view.each([&](entt::entity entity, AnimationStateComponent& stateComp, AnimationComponent& animComp, TransformComponent& transform) {
         // Only update if state changed
         if (!stateComp.stateChanged()) {
-            continue;
+            return;
         }
         
-        // Get entity type from MetaComponent (e.g., "player", "enemy")
-        std::string entityType = "player"; // Default
-        if (auto* meta = registry.try_get<MetaComponent>(entity)) {
-            // Check if name contains "player" or "enemy" or use specific archetypes
-            // For now, let's assume meta->name (archetypeId) works as prefix, 
-            // but we might need to map specific archetypes to generalized types
-            // e.g., "player_with_hat" -> "player"
-            if (meta->name.find("player") != std::string::npos) {
-                entityType = "player";
-            } else if (meta->name == "enemy_1") {
-                entityType = "player"; // Hack: "enemy_1" uses player animations
-            } else if (meta->name.find("target") != std::string::npos || meta->name.find("enemy") != std::string::npos) {
-                entityType = "enemy"; // Or whatever prefix your enemy assets use
+        // 1. Determine Animation Set (fallback logic)
+        std::string animSet = stateComp.animationSetId;
+        
+        if (animSet.empty()) {
+            // Fallback: Try MetaComponent (Archetype Name)
+            if (auto* meta = registry.try_get<MetaComponent>(entity)) {
+                // Heuristic: If archetype name contains "player" or "enemy", guess the set
+                if (meta->name.find("player") != std::string::npos) {
+                    animSet = "player";
+                } else if (meta->name.find("enemy") != std::string::npos) {
+                     // e.g., "enemy_grunt" -> "enemy" (or keep full name if unique assets exist)
+                     // For now, map to generic "player" set if they share assets (like enemy_1 currently does)
+                     // BUT if we want true decoupling, we should rely on what's provided.
+                     // Let's default to the meta name itself if nothing else matches.
+                     animSet = "player"; // HACK for current assets where enemy uses player anims
+                } else {
+                     animSet = meta->name;
+                }
             } else {
-                 entityType = meta->name;
+                animSet = "player"; // Absolute fallback
             }
         }
         
-        // Map state + direction -> clip ID
-        std::string newClipId = getClipId(stateComp.state, stateComp.facing, entityType);
+        // 2. Map state + direction -> clip ID
+        std::string newClipId = getClipId(stateComp.state, stateComp.facing, animSet);
         
-        // Update animation if clip changed
+        // 3. Update animation if clip changed
         if (animComp.currentClipId != newClipId) {
             animComp.currentClipId = newClipId;
             animComp.reset();
@@ -66,8 +68,10 @@ void AnimationStateMachineSystem::update() {
             }
         }
         
-        // Update sprite flip based on facing direction
+        // 4. Update sprite flip based on facing direction
         // Right = positive scale, Left = negative scale
+        // NOTE: We assume ALL side-view animations are authoring-time facing RIGHT.
+        // Therefore, facing LEFT requires a flip.
         float scaleX = std::abs(transform.scale.x);
         if (stateComp.facing == FacingDirection::Left) {
             transform.scale.x = -scaleX;
@@ -77,42 +81,33 @@ void AnimationStateMachineSystem::update() {
         
         // Commit state change
         stateComp.commitState();
-    }
+    });
 }
 
-std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingDirection facing, const std::string& entityType) {
-    // Naming convention: <entityType>_<state>_<direction>
-    // Examples: "player_walk_right", "enemy_idle_right"
-    // Since we only have left/right, we use "right" as base and flip sprite for left
+std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingDirection facing, const std::string& animSetId) {
+    // Naming convention: <animSetId>_<state>[_suffix]
+    // 
+    // Rules from User/AssetBaker:
+    // 1. Idle: "<animSetId>_idle" (e.g., "player_idle")
+    // 2. Walk: "<animSetId>_walk_anim" (e.g., "player_walk_anim")
+    //
+    // Note: We ignore facing in the string construction because we use flipping for Left/Right.
     
-    std::string stateStr;
+    std::string clipId = animSetId;
+    
     switch (state) {
         case AnimationState::Idle:
-            stateStr = "idle";
+            clipId += "_idle";
             break;
         case AnimationState::Walk:
-            stateStr = "walk";
+            clipId += "_walk_anim";
             break;
         default:
-            stateStr = "idle";
+            clipId += "_idle";
+            break;
     }
     
-    // For now, our assets seem to be:
-    // player_idle, player_walk_right, etc.
-    // If state is walk, we might need direction suffix if assets have it.
-    // If state is idle, maybe no suffix?
-    // Let's look at resources.json: "player_idle", "player_walk_right"
-    
-    // NOTE: Based on user feedback:
-    // Idle: player_idle, enemy_idle (no suffix)
-    // Walk: player_walk_right, enemy_walk_right (WITH suffix)
-    
-    if (state == AnimationState::Walk) {
-        return entityType + "_" + stateStr + "_right";
-    }
-    
-    // Default/Idle usually just <type>_<state> based on resources.json (e.g. "player_idle")
-    return entityType + "_" + stateStr;
+    return clipId;
 }
 
 } // namespace engine

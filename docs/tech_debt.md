@@ -12,6 +12,10 @@ Animation System: [
         Networking/determinism concerns around animation (they can be purely cosmetic for now).
 
         Any coupling to gameplay logic (e.g., “fire on frame 3” events) — that belongs in a more advanced “Gameplay & Combat” phase.
+
+        **Single-Frame Clips Requirement**: The `AnimationSystem` strictly requires an `AnimationClip` to exist for any state transition. If an entity transitions to "Idle" but only has a static sprite and no corresponding 1-frame animation clip, the sprite will not update (it will freeze on the last frame of the previous animation). We currently generate these clips automatically in `AssetBaker.py` for all static sprites, but a more robust engine-level fallback (e.g. play static sprite if clip missing) would be cleaner.
+
+        **Hardcoded Naming Conventions**: `AnimationStateMachineSystem` relies on strict string concatenation (`id + "_idle"`, `id + "_walk_anim"`). This is fragile. Ideally, we should have a data-driven mapping or a more flexible Animation Graph system.
     ]
 
 Physics & Collision (Top-Down Shooter Specifics): [

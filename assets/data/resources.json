@@ -18,7 +18,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "bullet",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "eg_texture",
@@ -38,7 +58,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "eg",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        88,
+                        128
+                    ],
+                    "origin": [
+                        44.0,
+                        64.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_ak47_aim_texture",
@@ -58,7 +98,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_ak47_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_ak47_dead_texture",
@@ -78,7 +138,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_ak47_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_ak47_idle_texture",
@@ -98,7 +178,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_ak47_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_pistol_aim_texture",
@@ -118,7 +218,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_pistol_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_pistol_dead_texture",
@@ -138,7 +258,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_pistol_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_pistol_idle_texture",
@@ -158,7 +298,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_pistol_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_pistol_walk_texture",
@@ -204,7 +364,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_shotgun_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_shotgun_dead_texture",
@@ -224,7 +404,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_shotgun_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "gopnik_shotgun_idle_texture",
@@ -244,7 +444,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "gopnik_shotgun_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        128.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "map_hideout_texture",
@@ -284,11 +504,31 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "player_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "player_walk_texture",
-            "path": "../../assets/textures/player_walk-13.png",
+            "path": "../../assets/textures/player_walk-25.png",
             "sprites": [],
             "animations": [
                 {
@@ -298,15 +538,15 @@
                         0
                     ],
                     "frameSize": [
-                        208,
-                        312
+                        256,
+                        256
                     ],
                     "origin": [
-                        104.0,
-                        312.0
+                        128.0,
+                        256.0
                     ],
-                    "frameCount": 13,
-                    "columns": 13,
+                    "frameCount": 25,
+                    "columns": 25,
                     "duration": 0.1,
                     "loop": true
                 }
@@ -330,7 +570,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "target_1",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "target_2_texture",
@@ -350,7 +610,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "target_2",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "target_3_texture",
@@ -370,7 +650,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "target_3",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "target_4_texture",
@@ -390,7 +690,27 @@
                     ]
                 }
             ],
-            "animations": []
+            "animations": [
+                {
+                    "id": "target_4",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        38,
+                        68
+                    ],
+                    "origin": [
+                        19.0,
+                        34.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
         },
         {
             "id": "turret_un_idle_texture",

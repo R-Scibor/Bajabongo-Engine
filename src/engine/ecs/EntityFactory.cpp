@@ -295,6 +295,9 @@ namespace engine {
         registerComponentLoader(ComponentNames::AnimationState, [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
             AnimationStateComponent stateComp;
             
+            // NEW: Load Animation Set ID
+            stateComp.animationSetId = data.value("animationSetId", "");
+
             std::string initialState = data.value("initialState", "Idle");
             if (initialState == "Walk") {
                 stateComp.state = AnimationState::Walk;

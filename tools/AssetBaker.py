@@ -156,6 +156,32 @@ def scan_textures() -> list:
         sprite_type = "MAP" if is_map(filepath.stem) else "SPRITE"
         print(f"[{sprite_type}] {filename} → static sprite")
         textures.append(process_static_sprite(filepath, img_width, img_height))
+
+        # Generate single-frame animation clip for static sprites that might be used as states (e.g. idle)
+        # This is a requirement because the AnimationSystem will not update the sprite if the requested clip is missing.
+        # So we create a 1-frame clip for every static sprite to be safe and flexible.
+        if not is_map(filepath.stem):
+             basename = filepath.stem
+             # Convention: If the file is "player_idle.png", the clip ID will be "player_idle".
+             # This matches what AnimationStateMachineSystem expects (animSetId + "_idle").
+             anim_id = basename 
+             
+             # Get the texture entry we just added
+             last_texture = textures[-1]
+             
+             origin = calculate_origin(basename, img_width, img_height)
+
+             last_texture["animations"].append({
+                "id": anim_id,
+                "frameStart": [0, 0],
+                "frameSize": [img_width, img_height],
+                "origin": origin,
+                "frameCount": 1,
+                "columns": 1,
+                "duration": 0.1,
+                "loop": True
+             })
+             print(f"[GEN] Generated 1-frame clip: {anim_id}")
     
     return textures
 

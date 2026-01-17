@@ -49,11 +49,12 @@
       "layer": 2
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Right"
     },
     "Animation": {
-      "defaultClip": "player_idle_sprite",
+      "defaultClip": "player_idle",
       "playing": true
     },
     "Player": {
@@ -118,6 +119,7 @@
       "layer": 2
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Right"
     },
@@ -220,6 +222,7 @@
       "layer": 1
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Left"
     },
@@ -263,6 +266,7 @@
       "layer": 1
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Left"
     },
@@ -306,6 +310,7 @@
       "layer": 1
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Left"
     },
@@ -349,6 +354,7 @@
       "layer": 1
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Left"
     },
@@ -392,6 +398,7 @@
       "layer": 2
     },
     "AnimationState": {
+      "animationSetId": "player",
       "initialState": "Idle",
       "initialFacing": "Right"
     },

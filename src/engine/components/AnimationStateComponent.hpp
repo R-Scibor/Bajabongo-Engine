@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace engine {
 
@@ -17,6 +18,7 @@ namespace engine {
 
     /// @brief Component that drives the animation state machine
     struct AnimationStateComponent {
+        std::string animationSetId; // Identifies which set of animations to use (e.g., "player", "zombie")
         AnimationState state = AnimationState::Idle;
         FacingDirection facing = FacingDirection::Right;
         
