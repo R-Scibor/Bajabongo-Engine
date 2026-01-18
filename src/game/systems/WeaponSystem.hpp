@@ -19,7 +19,8 @@ namespace game {
 
     private:
         bool canFire(const WeaponComponent& weapon) const;
-        void fireWeapon(entt::entity entity, WeaponComponent& weapon, const engine::PhysicsBodyComponent& bodyComp);
+        void applyFiringEffects(WeaponComponent& weapon, float dt);
+        void spawnProjectiles(engine::EngineContext& context, entt::entity entity, const WeaponComponent& weapon, const engine::PhysicsBodyComponent& bodyComp);
 
         engine::EngineContext& m_context;
         std::mt19937 m_rng;

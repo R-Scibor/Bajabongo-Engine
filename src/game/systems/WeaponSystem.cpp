@@ -102,125 +102,137 @@ namespace game {
             }
 
             // Handle Shooting
-            if (weapon.wantsToShoot && weapon.cooldownTimer <= 0.0f) {
-                if (weapon.currentAmmo > 0) {
-                    // Fire!
-                    weapon.cooldownTimer = weapon.fireRate;
-                    weapon.currentAmmo--;
+            if (canFire(weapon)) {
+                applyFiringEffects(weapon, fixedDeltaTime);
 
-                    b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
-                    
-                    // Loop for multiple projectiles
-                    for (int i = 0; i < weapon.projectilesPerShot; ++i) {
-                        // Apply Spread
-                        std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
-                        float spreadOffsetDeg = spreadDist(m_rng);
-                        float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
-                        float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
+                spawnProjectiles(m_context, entity, weapon, bodyComp);
 
-                        // Calculate spawn position (offset from center)
-                        float spawnOffset = 30.0f; // Adjust based on entity size?
-                        float cosA = std::cos(finalAngle);
-                        float sinA = std::sin(finalAngle);
-                        
-                        engine::Vector2f spawnPos = {
-                            bodyPos.x + cosA * spawnOffset,
-                            bodyPos.y + sinA * spawnOffset
-                        };
+                weapon.currentAmmo--;
+                weapon.cooldownTimer = weapon.fireRate;
 
-                        // Create Projectile Entity
-                        auto projectile = registry.create();
+                // Debug Log Spread
+                // if (m_context.m_logManager) {
+                //     auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
+                //     if (logger) logger->debug("Fired. Spread: {:.2f}", weapon.currentSpreadDeg);
+                // }
 
-                        // Physics
-                        engine::PendingPhysicsBodyComponent pending{
-                             .position = spawnPos,
-                             .isStatic = false,
-                             .isBullet = true,
-                             .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
-                             .rotation = finalAngle
-                        };
-
-                        engine::FixtureDef fixDef;
-                        fixDef.size = { 10.0f, 10.0f };
-                        fixDef.density = 1.0f;
-                        fixDef.isSensor = true;
-                        fixDef.categoryBits = engine::PhysicsCategory::Projectile;
-                        // Collide with Walls, Enemies, and PlayerHurtbox (if needed, but usually enemies shoot players)
-                        fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Enemy | engine::PhysicsCategory::Hurtbox;
-                        
-                        pending.fixtures.push_back(fixDef);
-
-                        registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);
-
-                        // Visuals
-                        registry.emplace<engine::TransformComponent>(projectile, spawnPos, finalAngle);
-                        registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
-
-                        // Game Logic
-                        registry.emplace<ProjectileComponent>(projectile, weapon.damage);
-                        registry.emplace<DamageComponent>(projectile, weapon.damage);
-                        registry.emplace<engine::LifetimeComponent>(projectile, weapon.projectileLifetime);
-                    }
-
-                    // Accumulate Spread (bloom)
-                    weapon.currentSpreadDeg = std::min(
-                        weapon.currentSpreadDeg + weapon.spreadPerShotDeg,
-                        weapon.maxSpreadDeg
-                    );
-
-                    // Add Recoil Kick (Upwards direction relative to aim)
-                    // "Up" in world space is (0, -1) which is -PI/2 radians
-                    // We want to kick the angle towards -PI/2
-
-                    float currentAim = weapon.aimAngle;
-                    float targetUp = -PI / 2.0f;
-
-                    // Calculate shortest angular distance to "up"
-                    float diff = targetUp - currentAim;
-
-                    // Wrap to [-PI, PI]
-                    while (diff <= -PI) diff += 2 * PI;
-                    while (diff > PI) diff -= 2 * PI;
-
-                    float kickSign = 0.0f;
-                    if (std::abs(diff) > 0.001f) {
-                        // Standard case: kick towards up
-                        kickSign = (diff > 0) ? 1.0f : -1.0f;
-
-                        // Handle 180 degree edge case (aiming straight down)
-                        // If aim is close to PI/2 (down), diff is close to -PI or PI
-                        if (std::abs(std::abs(diff) - PI) < 0.1f) {
-                             // Tie-breaker using aim vector x-component
-                             float aimX = std::cos(currentAim);
-                             if (aimX > 0) kickSign = -1.0f; 
-                             else kickSign = 1.0f;
-                        }
-                    } else {
-                        // Already looking up, small jitter
-                         kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
-                    }
-
-                    weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (PI / 180.0f);
-
-                    // Debug Log Spread
-                    // if (m_context.m_logManager) {
-                    //     auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
-                    //     if (logger) logger->debug("Fired. Spread: {:.2f}", weapon.currentSpreadDeg);
-                    // }
-
-                } else {
-                     // Out of ammo
-                     // If auto-reload logic is desired, it could go here. 
-                     // For now, just ensuring we don't fire.
-                     
+            } else {
+                 // Out of ammo logic (simplified auto-reload check if desired)
+                 if (weapon.wantsToShoot && weapon.cooldownTimer <= 0.0f && weapon.currentAmmo <= 0) {
                      // Simple auto-reload trigger if empty and trying to shoot
                      if (weapon.totalAmmo > 0) {
                          weapon.isReloading = true;
                          weapon.reloadTimer = weapon.reloadDuration;
                      }
-                }
+                 }
             }
         });
+    }
+
+    bool WeaponSystem::canFire(const WeaponComponent& weapon) const {
+        return weapon.wantsToShoot && 
+               weapon.cooldownTimer <= 0.0f && 
+               weapon.currentAmmo > 0;
+    }
+
+    void WeaponSystem::applyFiringEffects(WeaponComponent& weapon, float dt) {
+        // Accumulate Spread (bloom)
+        weapon.currentSpreadDeg = std::min(
+            weapon.currentSpreadDeg + weapon.spreadPerShotDeg,
+            weapon.maxSpreadDeg
+        );
+
+        // Add Recoil Kick (Upwards direction relative to aim)
+        // "Up" in world space is (0, -1) which is -PI/2 radians
+        // We want to kick the angle towards -PI/2
+
+        float currentAim = weapon.aimAngle;
+        float targetUp = -PI / 2.0f;
+
+        // Calculate shortest angular distance to "up"
+        float diff = targetUp - currentAim;
+
+        // Wrap to [-PI, PI]
+        while (diff <= -PI) diff += 2 * PI;
+        while (diff > PI) diff -= 2 * PI;
+
+        float kickSign = 0.0f;
+        if (std::abs(diff) > 0.001f) {
+            // Standard case: kick towards up
+            kickSign = (diff > 0) ? 1.0f : -1.0f;
+
+            // Handle 180 degree edge case (aiming straight down)
+            // If aim is close to PI/2 (down), diff is close to -PI or PI
+            if (std::abs(std::abs(diff) - PI) < 0.1f) {
+                 // Tie-breaker using aim vector x-component
+                 float aimX = std::cos(currentAim);
+                 if (aimX > 0) kickSign = -1.0f; 
+                 else kickSign = 1.0f;
+            }
+        } else {
+            // Already looking up, small jitter
+             kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
+        }
+
+        weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (PI / 180.0f);
+    }
+
+    void WeaponSystem::spawnProjectiles(engine::EngineContext& context, entt::entity entity, const WeaponComponent& weapon, const engine::PhysicsBodyComponent& bodyComp) {
+        auto& registry = *context.m_registry;
+        b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
+        
+        // Loop for multiple projectiles
+        for (int i = 0; i < weapon.projectilesPerShot; ++i) {
+            // Apply Spread
+            std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
+            
+            float spreadOffsetDeg = spreadDist(m_rng); 
+            float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
+            float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
+
+            // Calculate spawn position (offset from center)
+            float spawnOffset = 30.0f; // Adjust based on entity size?
+            float cosA = std::cos(finalAngle);
+            float sinA = std::sin(finalAngle);
+            
+            engine::Vector2f spawnPos = {
+                bodyPos.x + cosA * spawnOffset,
+                bodyPos.y + sinA * spawnOffset
+            };
+
+            // Create Projectile Entity
+            auto projectile = registry.create();
+
+            // Physics
+            engine::PendingPhysicsBodyComponent pending{
+                 .position = spawnPos,
+                 .isStatic = false,
+                 .isBullet = true,
+                 .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
+                 .rotation = finalAngle
+            };
+
+            engine::FixtureDef fixDef;
+            fixDef.size = { 10.0f, 10.0f };
+            fixDef.density = 1.0f;
+            fixDef.isSensor = true;
+            fixDef.categoryBits = engine::PhysicsCategory::Projectile;
+            // Collide with Walls, Enemies, and PlayerHurtbox (if needed, but usually enemies shoot players)
+            fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Enemy | engine::PhysicsCategory::Hurtbox;
+            
+            pending.fixtures.push_back(fixDef);
+
+            registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);
+
+            // Visuals
+            registry.emplace<engine::TransformComponent>(projectile, spawnPos, finalAngle);
+            registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
+
+            // Game Logic
+            registry.emplace<ProjectileComponent>(projectile, weapon.damage);
+            registry.emplace<DamageComponent>(projectile, weapon.damage);
+            registry.emplace<engine::LifetimeComponent>(projectile, weapon.projectileLifetime);
+        }
     }
 
 } // namespace game
