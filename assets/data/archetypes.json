@@ -20,7 +20,8 @@
     "Player": {
       "moveSpeed": 150.0,
       "rotSpeed": 10.0,
-      "medkits": 2
+      "medkits": 2,
+      "maxMedkits": 5
     },
     "Health": {
       "maxHp": 200.0
@@ -656,6 +657,30 @@
       "wantsToShoot": false,
       "wantsToReload": false,
       "aimAngle": 0.0
+    }
+  },
+  "MedkitPickup": {
+    "Transform": {},
+    "Renderable": {
+      "spriteId": "medkit_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "static",
+      "isSensor": true,
+      "category": "Sensor",
+      "blocksVision": false,
+      "fixtures": [
+        {
+          "size": [32.0, 32.0],
+          "offset": [0.0, 0.0],
+          "isSensor": true,
+          "category": "Sensor"
+        }
+      ]
+    },
+    "MedkitPickup": {
+      "medkitsGiven": 1
     }
   }
 }

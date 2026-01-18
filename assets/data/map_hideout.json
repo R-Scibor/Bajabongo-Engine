@@ -982,7 +982,19 @@
                  "width":0,
                  "x":96,
                  "y":406.5
-                }, 
+                },
+                {
+                 "height":0,
+                 "id":211,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"MedkitPickup",
+                 "visible":true,
+                 "width":0,
+                 "x":150,
+                 "y":400
+                },
                 {
                  "height":0,
                  "id":80,

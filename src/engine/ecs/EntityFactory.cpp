@@ -196,7 +196,7 @@ namespace engine {
 
             // Custom logic for Players and Enemies to ensure they collide with correct things
             if (categoryBits == PhysicsCategory::Player) {
-                 maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
+                 maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile | PhysicsCategory::Sensor;
             } else if (categoryBits == PhysicsCategory::Enemy) {
                  maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
             }
@@ -257,7 +257,7 @@ namespace engine {
                      // For MVP, if it's Player Feet, use standard Player mask
                      // If it's Hurtbox, use Projectile mask
                      if (fixDef.categoryBits == PhysicsCategory::Player) {
-                         fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle;
+                         fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Sensor;
                      } else if (fixDef.categoryBits == PhysicsCategory::Hurtbox) {
                          fixDef.maskBits = PhysicsCategory::Projectile;
                      } else if (fixDef.categoryBits == PhysicsCategory::Enemy) {

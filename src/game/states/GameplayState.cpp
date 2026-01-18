@@ -58,6 +58,7 @@ namespace game {
         , m_visibilityTaggingSystem(context)
         , m_fogRenderSystem(context)
         , m_enemyAISystem(context)
+        , m_pickupSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");

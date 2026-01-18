@@ -152,6 +152,7 @@
     <ClCompile Include="systems\EnemyAISystem.cpp" />
     <ClCompile Include="systems\FogRenderSystem.cpp" />
     <ClCompile Include="systems\HudSystem.cpp" />
+    <ClCompile Include="systems\PickupSystem.cpp" />
     <ClCompile Include="systems\PlayerControllerSystem.cpp" />
     <ClCompile Include="systems\VisibilitySystem.cpp" />
     <ClCompile Include="systems\VisibilityTaggingSystem.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="components\DamageComponent.hpp" />
     <ClInclude Include="components\EnemyComponent.hpp" />
     <ClInclude Include="components\HealthComponent.hpp" />
+    <ClInclude Include="components\MedkitPickupComponent.hpp" />
     <ClInclude Include="components\PatrolBehaviorComponent.hpp" />
     <ClInclude Include="components\PlayerComponent.hpp" />
     <ClInclude Include="components\ProjectileComponent.hpp" />
@@ -184,6 +186,7 @@
     <ClInclude Include="systems\EnemyAISystem.hpp" />
     <ClInclude Include="systems\FogRenderSystem.hpp" />
     <ClInclude Include="systems\HudSystem.hpp" />
+    <ClInclude Include="systems\PickupSystem.hpp" />
     <ClInclude Include="systems\PlayerControllerSystem.hpp" />
     <ClInclude Include="systems\VisibilitySystem.hpp" />
     <ClInclude Include="systems\VisibilityTaggingSystem.hpp" />

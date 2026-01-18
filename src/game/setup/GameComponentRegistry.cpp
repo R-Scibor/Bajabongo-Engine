@@ -4,6 +4,7 @@
 
 // Game Components
 #include "game/components/PlayerComponent.hpp"
+#include "game/components/MedkitPickupComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
@@ -39,6 +40,7 @@ namespace game {
                 playerComp.moveSpeed = data.value("moveSpeed", 5.0f);
                 playerComp.rotSpeed = data.value("rotSpeed", 10.0f);
                 playerComp.medkits = data.value("medkits", 2);
+                playerComp.maxMedkits = data.value("maxMedkits", 5);
                 
                 registry.emplace<PlayerComponent>(entity, playerComp);
             }
@@ -241,6 +243,13 @@ namespace game {
             turret.rotationSpeed = data.value("rotationSpeed", 3.0f);
             turret.shootAngleTolerance = data.value("shootAngleTolerance", 0.1f);
             registry.emplace<TurretBehaviorComponent>(entity, turret);
+        });
+
+        // --- 14. Rejestracja MedkitPickupComponent ---
+        factory.registerComponentLoader("MedkitPickup", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            MedkitPickupComponent pickup;
+            pickup.medkitsGiven = data.value("medkitsGiven", 1);
+            registry.emplace<MedkitPickupComponent>(entity, pickup);
         });
     }
 }

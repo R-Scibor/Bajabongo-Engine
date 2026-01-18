@@ -539,6 +539,46 @@
             "animations": []
         },
         {
+            "id": "medkit_texture",
+            "path": "../../assets/textures/medkit.png",
+            "sprites": [
+                {
+                    "id": "medkit_sprite",
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        64
+                    ],
+                    "origin": [
+                        32.0,
+                        32.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "medkit",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        64,
+                        64
+                    ],
+                    "origin": [
+                        32.0,
+                        32.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "player_ak_aim_texture",
             "path": "../../assets/textures/player_ak_aim.png",
             "sprites": [

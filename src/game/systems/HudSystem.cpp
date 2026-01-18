@@ -3,6 +3,7 @@
 #include "engine/core/EngineContext.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/HealthComponent.hpp"
 #include <entt/entt.hpp>
 #include <imgui.h>
 
@@ -22,6 +23,7 @@ namespace game {
         
         // We only expect one player
         view.each([&](entt::entity entity, const PlayerComponent& player, const WeaponComponent& weapon) {
+            auto* health = registry.try_get<HealthComponent>(entity);
             // Setup ImGui window for HUD
             // Position: Bottom Right
             ImGuiIO& io = ImGui::GetIO();
@@ -66,6 +68,12 @@ namespace game {
                     
                     ImGui::SetWindowFontScale(1.0f);
                     ImGui::Text("Magazine: %d", weapon.magSize);
+                }
+
+                ImGui::Separator();
+                ImGui::Text("Medkits: %d/%d", player.medkits, player.maxMedkits);
+                if (health) {
+                    ImGui::Text("HP: %.0f/%.0f", health->currentHp, health->maxHp);
                 }
             }
             ImGui::End();
