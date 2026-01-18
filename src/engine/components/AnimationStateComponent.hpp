@@ -27,14 +27,16 @@ namespace engine {
         // Optional: State change detection
         AnimationState previousState = AnimationState::Idle;
         FacingDirection previousFacing = FacingDirection::Right;
+        std::string previousAnimationSetId;
         
         bool stateChanged() const {
-            return state != previousState || facing != previousFacing;
+            return state != previousState || facing != previousFacing || animationSetId != previousAnimationSetId;
         }
         
         void commitState() {
             previousState = state;
             previousFacing = facing;
+            previousAnimationSetId = animationSetId;
         }
     };
 

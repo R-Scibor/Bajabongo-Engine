@@ -1051,7 +1051,7 @@
                     ],
                     "frameCount": 25,
                     "columns": 5,
-                    "duration": 0.1,
+                    "duration": 0.05,
                     "loop": true
                 }
             ]
@@ -1097,7 +1097,7 @@
             ]
         },
         {
-            "id": "player_shotgun_dead _texture",
+            "id": "player_shotgun_dead_texture",
             "path": "../../assets/textures/player_shotgun_dead .png",
             "sprites": [
                 {
@@ -1197,7 +1197,7 @@
                     ],
                     "frameCount": 31,
                     "columns": 31,
-                    "duration": 0.1,
+                    "duration": 0.05,
                     "loop": true
                 }
             ]

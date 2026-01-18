@@ -61,11 +61,6 @@ namespace game {
                     if (archJson && archJson->contains("AnimationSetId")) {
                         std::string animSetId = (*archJson)["AnimationSetId"];
                         animState.animationSetId = animSetId;
-                        
-                         // Reset animation state to avoid glitches
-                        if (auto* animComp = context.m_registry->try_get<engine::AnimationComponent>(entity)) {
-                            animComp->reset();
-                        }
                     } else {
                         // Fallback or keep existing if not specified? 
                         // Prompt implies "Define weapon archetypes with matching AnimationSetIds"
