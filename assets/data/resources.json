@@ -519,6 +519,246 @@
             ]
         },
         {
+            "id": "icon_hideout_texture",
+            "path": "../../assets/textures/icon_hideout.png",
+            "sprites": [
+                {
+                    "id": "icon_hideout_sprite",
+                    "region": [
+                        0,
+                        0,
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "icon_hideout",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "icon_hideout_text_texture",
+            "path": "../../assets/textures/icon_hideout_text.png",
+            "sprites": [
+                {
+                    "id": "icon_hideout_text_sprite",
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        21
+                    ],
+                    "origin": [
+                        32.0,
+                        10.5
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "icon_hideout_text",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        64,
+                        21
+                    ],
+                    "origin": [
+                        32.0,
+                        10.5
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "icon_hospital_texture",
+            "path": "../../assets/textures/icon_hospital.png",
+            "sprites": [
+                {
+                    "id": "icon_hospital_sprite",
+                    "region": [
+                        0,
+                        0,
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "icon_hospital",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "icon_hospital_text_texture",
+            "path": "../../assets/textures/icon_hospital_text.png",
+            "sprites": [
+                {
+                    "id": "icon_hospital_text_sprite",
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        21
+                    ],
+                    "origin": [
+                        32.0,
+                        10.5
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "icon_hospital_text",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        64,
+                        21
+                    ],
+                    "origin": [
+                        32.0,
+                        10.5
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "icon_warehouse_texture",
+            "path": "../../assets/textures/icon_warehouse.png",
+            "sprites": [
+                {
+                    "id": "icon_warehouse_sprite",
+                    "region": [
+                        0,
+                        0,
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "icon_warehouse",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        32,
+                        32
+                    ],
+                    "origin": [
+                        16.0,
+                        16.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "icon_warehouse_text_texture",
+            "path": "../../assets/textures/icon_warehouse_text.png",
+            "sprites": [
+                {
+                    "id": "icon_warehouse_text_sprite",
+                    "region": [
+                        0,
+                        0,
+                        64,
+                        21
+                    ],
+                    "origin": [
+                        32.0,
+                        10.5
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "icon_warehouse_text",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        64,
+                        21
+                    ],
+                    "origin": [
+                        32.0,
+                        10.5
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "map_hideout_texture",
             "path": "../../assets/textures/map_hideout.png",
             "sprites": [
@@ -529,6 +769,26 @@
                         0,
                         1024,
                         1024
+                    ],
+                    "origin": [
+                        0.0,
+                        0.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
+            "id": "map_selection_screen_texture",
+            "path": "../../assets/textures/map_selection_screen.png",
+            "sprites": [
+                {
+                    "id": "map_selection_screen_sprite",
+                    "region": [
+                        0,
+                        0,
+                        1920,
+                        1080
                     ],
                     "origin": [
                         0.0,

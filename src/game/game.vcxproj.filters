@@ -196,6 +196,9 @@
     <ClInclude Include="components\InteractableComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="components\MapMarkerComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="systems\PickupSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

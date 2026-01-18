@@ -173,6 +173,7 @@
     <ClInclude Include="components\HealthComponent.hpp" />
     <ClInclude Include="components\MedkitPickupComponent.hpp" />
     <ClInclude Include="components\InteractableComponent.hpp" />
+    <ClInclude Include="components\MapMarkerComponent.hpp" />
     <ClInclude Include="components\PatrolBehaviorComponent.hpp" />
     <ClInclude Include="components\PlayerComponent.hpp" />
     <ClInclude Include="components\ProjectileComponent.hpp" />
