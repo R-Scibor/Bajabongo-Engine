@@ -55,14 +55,30 @@ namespace game {
 
                 loadWeaponStats(context, entity, weaponArchetype);
                 
-                // Update AnimationSetId (CORE VISUAL CHANGE)
-                // e.g., "Rifle" -> uses rifle_idle, rifle_walk, etc. defined in your animation config
-                animState.animationSetId = weaponArchetype;
-                
-                // Reset animation state to avoid glitches (like trying to play a rifle anim on a pistol skeleton if they differed, though here it's sprite based)
-                if (auto* animComp = context.m_registry->try_get<engine::AnimationComponent>(entity)) {
-                    animComp->reset();
+                // Update AnimationSetId from archetype if available
+                if (context.m_archetypeManager) {
+                    const auto* archJson = context.m_archetypeManager->getArchetype(weaponArchetype);
+                    if (archJson && archJson->contains("AnimationSetId")) {
+                        std::string animSetId = (*archJson)["AnimationSetId"];
+                        animState.animationSetId = animSetId;
+                        
+                         // Reset animation state to avoid glitches
+                        if (auto* animComp = context.m_registry->try_get<engine::AnimationComponent>(entity)) {
+                            animComp->reset();
+                        }
+                    } else {
+                        // Fallback or keep existing if not specified? 
+                        // Prompt implies "Define weapon archetypes with matching AnimationSetIds"
+                        // If missing, maybe warn?
+                        // context.m_logManager->GetLogger("WeaponSwitchSystem")->warn("Archetype {} missing AnimationSetId", weaponArchetype);
+                    }
                 }
+                
+                // loadWeaponStats handles weapon stats, we just did anim set above.
+                // The original code set animState.animationSetId = weaponArchetype;
+                // But now we want it from the JSON key "AnimationSetId".
+                // I will remove the old direct assignment.
+
                 
                 auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
                 if (logger) {

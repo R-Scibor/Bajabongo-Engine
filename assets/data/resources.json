@@ -358,12 +358,12 @@
                         0
                     ],
                     "frameSize": [
-                        560,
-                        560
+                        256,
+                        256
                     ],
                     "origin": [
-                        280.0,
-                        280.0
+                        128.0,
+                        128.0
                     ],
                     "frameCount": 50,
                     "columns": 10,
@@ -539,6 +539,192 @@
             "animations": []
         },
         {
+            "id": "player_ak_aim_texture",
+            "path": "../../assets/textures/player_ak_aim.png",
+            "sprites": [
+                {
+                    "id": "player_ak_aim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_ak_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_ak_dead_texture",
+            "path": "../../assets/textures/player_ak_dead.png",
+            "sprites": [
+                {
+                    "id": "player_ak_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_ak_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_ak_idle_texture",
+            "path": "../../assets/textures/player_ak_idle.png",
+            "sprites": [
+                {
+                    "id": "player_ak_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_ak_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_ak_walk_texture",
+            "path": "../../assets/textures/player_ak_walk-5x5.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "player_ak_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 25,
+                    "columns": 5,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_dead_texture",
+            "path": "../../assets/textures/player_dead.png",
+            "sprites": [
+                {
+                    "id": "player_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "player_idle_texture",
             "path": "../../assets/textures/player_idle.png",
             "sprites": [
@@ -573,6 +759,444 @@
                     ],
                     "frameCount": 1,
                     "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pistol_aim_texture",
+            "path": "../../assets/textures/player_pistol_aim.png",
+            "sprites": [
+                {
+                    "id": "player_pistol_aim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_pistol_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pistol_dead_texture",
+            "path": "../../assets/textures/player_pistol_dead.png",
+            "sprites": [
+                {
+                    "id": "player_pistol_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_pistol_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pistol_idle_texture",
+            "path": "../../assets/textures/player_pistol_idle.png",
+            "sprites": [
+                {
+                    "id": "player_pistol_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_pistol_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pistol_walk_texture",
+            "path": "../../assets/textures/player_pistol_walk-5x5.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "player_pistol_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 25,
+                    "columns": 5,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pm_aim_texture",
+            "path": "../../assets/textures/player_pm_aim.png",
+            "sprites": [
+                {
+                    "id": "player_pm_aim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_pm_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pm_dead_texture",
+            "path": "../../assets/textures/player_pm_dead.png",
+            "sprites": [
+                {
+                    "id": "player_pm_dead_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_pm_dead",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pm_idle_texture",
+            "path": "../../assets/textures/player_pm_idle.png",
+            "sprites": [
+                {
+                    "id": "player_pm_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_pm_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_pm_walk_texture",
+            "path": "../../assets/textures/player_pm_walk-5x5.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "player_pm_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 25,
+                    "columns": 5,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_shotgun_aim_texture",
+            "path": "../../assets/textures/player_shotgun_aim.png",
+            "sprites": [
+                {
+                    "id": "player_shotgun_aim_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_shotgun_aim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_shotgun_dead _texture",
+            "path": "../../assets/textures/player_shotgun_dead .png",
+            "sprites": [
+                {
+                    "id": "player_shotgun_dead _sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_shotgun_dead ",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_shotgun_idle_texture",
+            "path": "../../assets/textures/player_shotgun_idle.png",
+            "sprites": [
+                {
+                    "id": "player_shotgun_idle_sprite",
+                    "region": [
+                        0,
+                        0,
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "player_shotgun_idle",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
+            "id": "player_shotgun_walk_texture",
+            "path": "../../assets/textures/player_shotgun_walk-31.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "player_shotgun_walk_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 31,
+                    "columns": 31,
                     "duration": 0.1,
                     "loop": true
                 }
@@ -767,21 +1391,7 @@
         {
             "id": "turret_un_idle_texture",
             "path": "../../assets/textures/turret_un_idle-9x6.png",
-            "sprites": [
-                {
-                    "id": "turret_un_idle_sprite",
-                    "region": [
-                        0,
-                        0,
-                        360,
-                        470
-                    ],
-                    "origin": [
-                        180.0,
-                        235.0
-                    ]
-                }
-            ],
+            "sprites": [],
             "animations": [
                 {
                     "id": "turret_un_idle_anim",
