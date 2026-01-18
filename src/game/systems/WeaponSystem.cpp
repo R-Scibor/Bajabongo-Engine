@@ -47,6 +47,17 @@ namespace game {
                 weapon.currentSpreadDeg = std::max(weapon.currentSpreadDeg, weapon.baseSpreadDeg);
             }
 
+            // Recoil Return (decay toward zero)
+            if (std::abs(weapon.recoilAngleOffset) > 0.01f) {
+                float sign = weapon.recoilAngleOffset > 0 ? -1.0f : 1.0f;
+                weapon.recoilAngleOffset += sign * weapon.recoilReturnDegPerSec * fixedDeltaTime * (PI / 180.0f);
+
+                // Clamp to zero when close
+                if (std::abs(weapon.recoilAngleOffset) < 0.01f) {
+                    weapon.recoilAngleOffset = 0.0f;
+                }
+            }
+
             // Cooldown Management
             if (weapon.cooldownTimer > 0.0f) {
                 weapon.cooldownTimer -= fixedDeltaTime;
@@ -103,13 +114,47 @@ namespace game {
                     std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
                     float spreadOffsetDeg = spreadDist(m_rng);
                     float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
-                    float finalAngle = weapon.aimAngle + spreadOffsetRad;
+                    float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
                     // Accumulate Spread (bloom)
                     weapon.currentSpreadDeg = std::min(
                         weapon.currentSpreadDeg + weapon.spreadPerShotDeg,
                         weapon.maxSpreadDeg
                     );
+
+                    // Add Recoil Kick (Upwards direction relative to aim)
+                    // "Up" in world space is (0, -1) which is -PI/2 radians
+                    // We want to kick the angle towards -PI/2
+
+                    float currentAim = weapon.aimAngle;
+                    float targetUp = -PI / 2.0f;
+
+                    // Calculate shortest angular distance to "up"
+                    float diff = targetUp - currentAim;
+
+                    // Wrap to [-PI, PI]
+                    while (diff <= -PI) diff += 2 * PI;
+                    while (diff > PI) diff -= 2 * PI;
+
+                    float kickSign = 0.0f;
+                    if (std::abs(diff) > 0.001f) {
+                        // Standard case: kick towards up
+                        kickSign = (diff > 0) ? 1.0f : -1.0f;
+
+                        // Handle 180 degree edge case (aiming straight down)
+                        // If aim is close to PI/2 (down), diff is close to -PI or PI
+                        if (std::abs(std::abs(diff) - PI) < 0.1f) {
+                             // Tie-breaker using aim vector x-component
+                             float aimX = std::cos(currentAim);
+                             if (aimX > 0) kickSign = -1.0f; 
+                             else kickSign = 1.0f;
+                        }
+                    } else {
+                        // Already looking up, small jitter
+                         kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
+                    }
+
+                    weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (PI / 180.0f);
 
                     // Debug Log Spread
                     // if (m_context.m_logManager) {
