@@ -725,6 +725,32 @@
             ]
         },
         {
+            "id": "player_heal_texture",
+            "path": "../../assets/textures/player_heal-9x8.png",
+            "sprites": [],
+            "animations": [
+                {
+                    "id": "player_heal_anim",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        256,
+                        256
+                    ],
+                    "origin": [
+                        128.0,
+                        256.0
+                    ],
+                    "frameCount": 72,
+                    "columns": 9,
+                    "duration": 0.0833,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "player_idle_texture",
             "path": "../../assets/textures/player_idle.png",
             "sprites": [
@@ -1098,10 +1124,10 @@
         },
         {
             "id": "player_shotgun_dead_texture",
-            "path": "../../assets/textures/player_shotgun_dead .png",
+            "path": "../../assets/textures/player_shotgun_dead.png",
             "sprites": [
                 {
-                    "id": "player_shotgun_dead _sprite",
+                    "id": "player_shotgun_dead_sprite",
                     "region": [
                         0,
                         0,
@@ -1116,7 +1142,7 @@
             ],
             "animations": [
                 {
-                    "id": "player_shotgun_dead ",
+                    "id": "player_shotgun_dead",
                     "frameStart": [
                         0,
                         0

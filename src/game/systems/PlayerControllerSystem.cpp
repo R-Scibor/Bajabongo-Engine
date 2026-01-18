@@ -51,7 +51,7 @@ namespace game {
             if (input->isKeyPressed(engine::KeyCode::H) && !player.isHealing && health && player.medkits > 0) {
                 if (health->currentHp > 0 && health->currentHp < health->maxHp) {
                     player.isHealing = true;
-                    player.healTimer = 3.0f;
+                    player.healTimer = 6.0f;
                     player.medkits--;
                 }
             }

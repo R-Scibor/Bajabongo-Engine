@@ -86,67 +86,74 @@ void AnimationStateMachineSystem::update() {
 }
 
 std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingDirection facing, const std::string& animSetId) {
-    // Naming convention: <animSetId>_<state>[_suffix]
-    // 
-    // Rules from User/AssetBaker:
-    // 1. Idle: "<animSetId>_idle" (e.g., "player_idle")
-    // 2. Walk: "<animSetId>_walk_anim" (e.g., "player_walk_anim")
-    //
-    // Note: We ignore facing in the string construction because we use flipping for Left/Right.
-    
-    std::string clipId = animSetId;
-    
-    switch (state) {
-        case AnimationState::Idle:
-            clipId += "_idle";
-            break;
-        case AnimationState::Walk:
-            clipId += "_walk_anim";
-            break;
-        case AnimationState::Aim:
-            clipId += "_aim";
-            break;
-        case AnimationState::Dead:
-            clipId += "_dead";
-            break;
-        case AnimationState::Heal:
-            clipId += "_heal";
-            break;
-        default:
-            clipId += "_idle";
-            break;
-    }
-
-    if (m_context.m_animationLibrary) {
-        // Try to use _anim first
-        std::string withAnim = clipId + "_anim";
-        if (m_context.m_animationLibrary->getClip(withAnim)) {
-            return withAnim;
+    // Helper to get suffix for a state
+    auto getSuffix = [](AnimationState s) -> std::string {
+        switch (s) {
+            case AnimationState::Idle: return "_idle";
+            case AnimationState::Walk: return "_walk_anim";
+            case AnimationState::Aim:  return "_aim";
+            case AnimationState::Dead: return "_dead";
+            case AnimationState::Heal: return "_heal";
+            default:                   return "_idle";
         }
+    };
+
+    // Helper to check if a specific clip ID exists (trying _anim variant too)
+    auto tryResolve = [&](const std::string& baseId) -> std::string {
+        if (!m_context.m_animationLibrary) return "";
         
-        // If not present, try to use without _anim
-        if (m_context.m_animationLibrary->getClip(clipId)) {
-            return clipId;
-        }
+        // Try with _anim first (legacy/consistency)
+        std::string withAnim = baseId + "_anim";
+        if (m_context.m_animationLibrary->getClip(withAnim)) return withAnim;
+        
+        // Try exact match
+        if (m_context.m_animationLibrary->getClip(baseId)) return baseId;
+        
+        return "";
+    };
 
-        // Fallback: If "Aim" is missing, try "Idle"
+    std::string currentSet = animSetId;
+    
+    // Loop to strip suffixes from animSetId (e.g. player_ak -> player)
+    while (true) {
+        std::string suffix = getSuffix(state);
+        std::string candidateId = currentSet + suffix;
+        
+        // 1. Try exact state match
+        std::string result = tryResolve(candidateId);
+        if (!result.empty()) return result;
+
+        // 2. Apply State-based Fallbacks (within this set)
+        // For Aim: We prefer "Correct Weapon, Wrong State" (Idle) over "Wrong Weapon, Correct State"
+        // so we check for Idle immediately before stripping the set name.
         if (state == AnimationState::Aim) {
-            std::string idleClip = animSetId + "_idle";
-             if (m_context.m_animationLibrary->getClip(idleClip)) {
-                return idleClip;
-            }
+            std::string idleSuffix = getSuffix(AnimationState::Idle);
+            std::string idleId = currentSet + idleSuffix;
+            result = tryResolve(idleId);
+            if (!result.empty()) return result;
         }
 
-        // Fallback: If "Heal" is missing, try "Idle"
-        if (state == AnimationState::Heal) {
-            std::string idleClip = animSetId + "_idle";
-             if (m_context.m_animationLibrary->getClip(idleClip)) {
-                return idleClip;
-            }
+        // Note: For Heal, we prefer "Wrong Weapon, Correct State" (Generic Heal) over "Correct Weapon, Wrong State" (Idle).
+        // So we skip the local fallback and allow the loop to try the parent set's Heal first.
+
+        // 3. Try to strip the set name for the next iteration
+        // e.g. "player_ak" -> "player"
+        size_t lastUnderscore = currentSet.find_last_of('_');
+        if (lastUnderscore != std::string::npos && lastUnderscore > 0) {
+            currentSet = currentSet.substr(0, lastUnderscore);
+        } else {
+            break; // No more parents
         }
     }
+
+    // If absolutely nothing found, return the constructed ID for the original request
     
-    return clipId;
+    // Final Global Fallback for Heal: If we couldn't find Heal in ANY set, try finding Idle in ANY set.
+    if (state == AnimationState::Heal) {
+        return getClipId(AnimationState::Idle, facing, animSetId);
+    }
+
+    return animSetId + getSuffix(state);
 }
 
 } // namespace engine
