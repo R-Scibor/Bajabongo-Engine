@@ -435,5 +435,33 @@
       "magSize": 100,
       "totalAmmo": 500
     }
+  },
+  "TestRifle": {
+    "Transform": {
+      "rotation": 0.0,
+      "scale": [0.5, 0.5]
+    },
+    "Renderable": {
+      "spriteId": "player_idle_sprite",
+      "layer": 2
+    },
+    "AnimationState": {
+      "animationSetId": "player",
+      "initialState": "Idle",
+      "initialFacing": "Right"
+    },
+    "Animation": {
+      "defaultClip": "player_idle",
+      "playing": true
+    },
+    "Weapon": {
+      "fireRate": 0.15,
+      "baseSpreadDeg": 2.0,
+      "spreadPerShotDeg": 1.5,
+      "spreadDecayDegPerSec": 8.0,
+      "maxSpreadDeg": 10.0,
+      "recoilKickDeg": 3.0,
+      "recoilReturnDegPerSec": 12.0
+    }
   }
 }

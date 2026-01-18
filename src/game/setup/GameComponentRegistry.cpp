@@ -65,6 +65,21 @@ namespace game {
                 weapon.projectileLifetime = data.value("projectileLifetime", 2.0f);
                 weapon.cooldownTimer = data.value("cooldownTimer", 0.0f);
                 
+                // Spread
+                weapon.baseSpreadDeg = data.value("baseSpreadDeg", 0.0f);
+                weapon.currentSpreadDeg = data.value("currentSpreadDeg", 0.0f);
+                weapon.spreadPerShotDeg = data.value("spreadPerShotDeg", 0.0f);
+                weapon.spreadDecayDegPerSec = data.value("spreadDecayDegPerSec", 0.0f);
+                weapon.maxSpreadDeg = data.value("maxSpreadDeg", 0.0f);
+
+                // Recoil
+                weapon.recoilKickDeg = data.value("recoilKickDeg", 0.0f);
+                weapon.recoilReturnDegPerSec = data.value("recoilReturnDegPerSec", 0.0f);
+                weapon.recoilAngleOffset = 0.0f; // Always init to 0
+
+                // Multi-projectile
+                weapon.projectilesPerShot = data.value("projectilesPerShot", 1);
+
                 // Ammo & Reload
                 weapon.magSize = data.value("magSize", 30);
                 weapon.currentAmmo = data.value("currentAmmo", weapon.magSize); // Default to full mag
