@@ -30,6 +30,7 @@
 #include "game/components/VisibilityComponent.hpp"
 #include "game/systems/VisibilitySystem.hpp"
 #include "game/systems/VisibilityTaggingSystem.hpp"
+#include "game/systems/WeaponSwitchSystem.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
@@ -148,6 +149,7 @@ namespace game {
             m_physicsBodyCreationSystem.update();
             m_playerControllerSystem.update(fixedDeltaTime);
             m_enemyAISystem.update(fixedDeltaTime);
+            m_weaponSwitchSystem.update(context, fixedDeltaTime);
             m_weaponSystem.update(fixedDeltaTime);
             b2World_Step(context.m_physicsWorld, fixedDeltaTime, 8);
             m_physicsEventSystem.update();

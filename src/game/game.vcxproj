@@ -155,6 +155,7 @@
     <ClCompile Include="systems\PlayerControllerSystem.cpp" />
     <ClCompile Include="systems\VisibilitySystem.cpp" />
     <ClCompile Include="systems\VisibilityTaggingSystem.cpp" />
+    <ClCompile Include="systems\WeaponSwitchSystem.cpp" />
     <ClCompile Include="systems\WeaponSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +187,7 @@
     <ClInclude Include="systems\PlayerControllerSystem.hpp" />
     <ClInclude Include="systems\VisibilitySystem.hpp" />
     <ClInclude Include="systems\VisibilityTaggingSystem.hpp" />
+    <ClInclude Include="systems\WeaponSwitchSystem.hpp" />
     <ClInclude Include="systems\WeaponSystem.hpp" />
   </ItemGroup>
   <ItemGroup>

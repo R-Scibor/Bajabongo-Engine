@@ -69,6 +69,9 @@
     <ClCompile Include="ai\EnemyStuckRecoverySystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="systems\WeaponSwitchSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="config\logging.ini">
@@ -173,6 +176,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ai\EnemyStuckRecoverySystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\WeaponSwitchSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
