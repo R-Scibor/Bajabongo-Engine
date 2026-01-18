@@ -1295,6 +1295,46 @@
             ]
         },
         {
+            "id": "table_texture",
+            "path": "../../assets/textures/table.png",
+            "sprites": [
+                {
+                    "id": "table_sprite",
+                    "region": [
+                        0,
+                        0,
+                        107,
+                        57
+                    ],
+                    "origin": [
+                        53.5,
+                        28.5
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "table",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        107,
+                        57
+                    ],
+                    "origin": [
+                        53.5,
+                        28.5
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "target_1_texture",
             "path": "../../assets/textures/target_1.png",
             "sprites": [
