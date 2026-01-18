@@ -25,13 +25,17 @@
       "maxHp": 200.0
     },
     "Weapon": {
-      "fireRate": 0.15,
-      "baseSpreadDeg": 2.0,
-      "spreadPerShotDeg": 1.5,
-      "spreadDecayDegPerSec": 8.0,
-      "maxSpreadDeg": 10.0,
-      "recoilKickDeg": 3.0,
-      "recoilReturnDegPerSec": 12.0
+      "fireRate": 0.8,
+      "damage": 5.0,
+      "projectilesPerShot": 8,
+      "baseSpreadDeg": 10.0,
+      "spreadPerShotDeg": 15.0,
+      "spreadDecayDegPerSec": 10.0,
+      "maxSpreadDeg": 45.0,
+      "recoilKickDeg": 15.0,
+      "recoilReturnDegPerSec": 20.0,
+      "magSize": 8,
+      "totalAmmo": 32
     },
     "Physics": {
       "type": "dynamic",
@@ -446,6 +450,21 @@
       "maxSpreadDeg": 10.0,
       "recoilKickDeg": 3.0,
       "recoilReturnDegPerSec": 12.0
+    }
+  },
+  "TestShotgun": {
+    "Weapon": {
+      "fireRate": 0.8,
+      "damage": 5.0,
+      "projectilesPerShot": 8,
+      "baseSpreadDeg": 10.0,
+      "spreadPerShotDeg": 15.0,
+      "spreadDecayDegPerSec": 10.0,
+      "maxSpreadDeg": 45.0,
+      "recoilKickDeg": 15.0,
+      "recoilReturnDegPerSec": 20.0,
+      "magSize": 8,
+      "totalAmmo": 32
     }
   }
 }

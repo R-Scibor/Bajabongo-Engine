@@ -110,11 +110,57 @@ namespace game {
 
                     b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
                     
-                    // Apply Spread
-                    std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
-                    float spreadOffsetDeg = spreadDist(m_rng);
-                    float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
-                    float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
+                    // Loop for multiple projectiles
+                    for (int i = 0; i < weapon.projectilesPerShot; ++i) {
+                        // Apply Spread
+                        std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
+                        float spreadOffsetDeg = spreadDist(m_rng);
+                        float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
+                        float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
+
+                        // Calculate spawn position (offset from center)
+                        float spawnOffset = 30.0f; // Adjust based on entity size?
+                        float cosA = std::cos(finalAngle);
+                        float sinA = std::sin(finalAngle);
+                        
+                        engine::Vector2f spawnPos = {
+                            bodyPos.x + cosA * spawnOffset,
+                            bodyPos.y + sinA * spawnOffset
+                        };
+
+                        // Create Projectile Entity
+                        auto projectile = registry.create();
+
+                        // Physics
+                        engine::PendingPhysicsBodyComponent pending{
+                             .position = spawnPos,
+                             .isStatic = false,
+                             .isBullet = true,
+                             .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
+                             .rotation = finalAngle
+                        };
+
+                        engine::FixtureDef fixDef;
+                        fixDef.size = { 10.0f, 10.0f };
+                        fixDef.density = 1.0f;
+                        fixDef.isSensor = true;
+                        fixDef.categoryBits = engine::PhysicsCategory::Projectile;
+                        // Collide with Walls, Enemies, and PlayerHurtbox (if needed, but usually enemies shoot players)
+                        fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Enemy | engine::PhysicsCategory::Hurtbox;
+                        
+                        pending.fixtures.push_back(fixDef);
+
+                        registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);
+
+                        // Visuals
+                        registry.emplace<engine::TransformComponent>(projectile, spawnPos, finalAngle);
+                        registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
+
+                        // Game Logic
+                        registry.emplace<ProjectileComponent>(projectile, weapon.damage);
+                        registry.emplace<DamageComponent>(projectile, weapon.damage);
+                        registry.emplace<engine::LifetimeComponent>(projectile, weapon.projectileLifetime);
+                    }
 
                     // Accumulate Spread (bloom)
                     weapon.currentSpreadDeg = std::min(
@@ -161,49 +207,6 @@ namespace game {
                     //     auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
                     //     if (logger) logger->debug("Fired. Spread: {:.2f}", weapon.currentSpreadDeg);
                     // }
-
-                    // Calculate spawn position (offset from center)
-                    float spawnOffset = 30.0f; // Adjust based on entity size?
-                    float cosA = std::cos(finalAngle);
-                    float sinA = std::sin(finalAngle);
-                    
-                    engine::Vector2f spawnPos = {
-                        bodyPos.x + cosA * spawnOffset,
-                        bodyPos.y + sinA * spawnOffset
-                    };
-
-                    // Create Projectile Entity
-                    auto projectile = registry.create();
-
-                    // Physics
-                    engine::PendingPhysicsBodyComponent pending{
-                         .position = spawnPos,
-                         .isStatic = false,
-                         .isBullet = true,
-                         .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
-                         .rotation = finalAngle
-                    };
-
-                    engine::FixtureDef fixDef;
-                    fixDef.size = { 10.0f, 10.0f };
-                    fixDef.density = 1.0f;
-                    fixDef.isSensor = true;
-                    fixDef.categoryBits = engine::PhysicsCategory::Projectile;
-                    // Collide with Walls, Enemies, and PlayerHurtbox (if needed, but usually enemies shoot players)
-                    fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Enemy | engine::PhysicsCategory::Hurtbox;
-                    
-                    pending.fixtures.push_back(fixDef);
-
-                    registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);
-
-                    // Visuals
-                    registry.emplace<engine::TransformComponent>(projectile, spawnPos, finalAngle);
-                    registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
-
-                    // Game Logic
-                    registry.emplace<ProjectileComponent>(projectile, weapon.damage);
-                    registry.emplace<DamageComponent>(projectile, weapon.damage);
-                    registry.emplace<engine::LifetimeComponent>(projectile, weapon.projectileLifetime);
 
                 } else {
                      // Out of ammo
