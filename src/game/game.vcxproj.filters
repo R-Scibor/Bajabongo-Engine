@@ -24,6 +24,9 @@
     <ClCompile Include="states\MainMenuState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="states\MapSelectionState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="systems\PlayerControllerSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,6 +101,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="states\MainMenuState.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="states\MapSelectionState.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="components\PlayerComponent.hpp">
@@ -185,6 +191,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="components\MedkitPickupComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\InteractableComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="systems\PickupSystem.hpp">

@@ -682,5 +682,31 @@
     "MedkitPickup": {
       "medkitsGiven": 1
     }
+  },
+  "MissionTable": {
+    "Transform": {
+      "scale": [1.0, 1.0]
+    },
+    "Renderable": {
+      "spriteId": "medkit_sprite",
+      "layer": 1
+    },
+    "Physics": {
+      "type": "static",
+      "isSensor": true,
+      "category": "Sensor",
+      "fixtures": [
+        {
+          "size": [64.0, 64.0],
+          "offset": [0.0, 0.0],
+          "isSensor": true,
+          "category": "Sensor"
+        }
+      ]
+    },
+    "Interactable": {
+      "type": "MissionTable",
+      "interactionRadius": 100.0
+    }
   }
 }

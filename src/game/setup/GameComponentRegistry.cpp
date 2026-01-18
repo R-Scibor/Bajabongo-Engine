@@ -5,6 +5,7 @@
 // Game Components
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/MedkitPickupComponent.hpp"
+#include "game/components/InteractableComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
@@ -250,6 +251,19 @@ namespace game {
             MedkitPickupComponent pickup;
             pickup.medkitsGiven = data.value("medkitsGiven", 1);
             registry.emplace<MedkitPickupComponent>(entity, pickup);
+        });
+
+        // --- 15. Rejestracja InteractableComponent ---
+        factory.registerComponentLoader("Interactable", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            InteractableComponent interactable;
+            
+            std::string typeStr = data.value("type", "MissionTable");
+            if (typeStr == "MissionTable") {
+                interactable.type = InteractableComponent::Type::MissionTable;
+            }
+            
+            interactable.interactionRadius = data.value("interactionRadius", 100.0f);
+            registry.emplace<InteractableComponent>(entity, interactable);
         });
     }
 }

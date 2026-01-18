@@ -14,6 +14,8 @@
 #include "game/components/HealthComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
+#include "game/components/InteractableComponent.hpp"
+#include "engine/events/StateEvents.hpp"
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/AnimationStateComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
@@ -24,6 +26,8 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+constexpr float PI_F = static_cast<float>(M_PI);
 
 namespace game {
 
@@ -53,6 +57,24 @@ namespace game {
                     player.isHealing = true;
                     player.healTimer = 6.0f;
                     player.medkits--;
+                }
+            }
+
+            // --- Interaction Logic (E) ---
+            if (input->isKeyPressed(engine::KeyCode::E)) {
+                auto interactables = registry.view<InteractableComponent, engine::TransformComponent>();
+                for (auto [targetEntity, interactable, targetTransform] : interactables.each()) {
+                    float dx = transform.position.x - targetTransform.position.x;
+                    float dy = transform.position.y - targetTransform.position.y;
+                    float distSq = dx * dx + dy * dy;
+
+                    if (distSq <= interactable.interactionRadius * interactable.interactionRadius) {
+                        if (interactable.type == InteractableComponent::Type::MissionTable) {
+                             // Swap to MapSelectionState to ensure current scene is cleared
+                             m_context.m_dispatcher->enqueue<engine::RequestStateSwapEvent>("MapSelection");
+                             break; // Only interact with one thing at a time
+                        }
+                    }
                 }
             }
 
@@ -113,10 +135,10 @@ namespace game {
                         // Ideally we should do this if we are aiming
                         float aimAngle = weapon->aimAngle;
                         // Normalize angle to -PI to PI
-                        while (aimAngle > M_PI) aimAngle -= 2.0f * M_PI;
-                        while (aimAngle < -M_PI) aimAngle += 2.0f * M_PI;
+                        while (aimAngle > PI_F) aimAngle -= 2.0f * PI_F;
+                        while (aimAngle < -PI_F) aimAngle += 2.0f * PI_F;
 
-                        if (std::abs(aimAngle) > M_PI / 2.0f) {
+                        if (std::abs(aimAngle) > PI_F / 2.0f) {
                             animState->facing = engine::FacingDirection::Left;
                         } else {
                             animState->facing = engine::FacingDirection::Right;
@@ -165,14 +187,14 @@ namespace game {
                 
                 // Shortest path interpolation for angle
                 float deltaAngle = angle - visibility.viewDirection;
-                if (deltaAngle > M_PI) deltaAngle -= 2.0f * M_PI;
-                if (deltaAngle < -M_PI) deltaAngle += 2.0f * M_PI;
+                if (deltaAngle > PI_F) deltaAngle -= 2.0f * PI_F;
+                if (deltaAngle < -PI_F) deltaAngle += 2.0f * PI_F;
                 
                 visibility.viewDirection += deltaAngle * visibility.viewInterpSpeed * fixedDeltaTime;
 
                 // Wrap angle to keep it clean (optional)
-                if (visibility.viewDirection > M_PI) visibility.viewDirection -= 2.0f * M_PI;
-                if (visibility.viewDirection < -M_PI) visibility.viewDirection += 2.0f * M_PI;
+                if (visibility.viewDirection > PI_F) visibility.viewDirection -= 2.0f * PI_F;
+                if (visibility.viewDirection < -PI_F) visibility.viewDirection += 2.0f * PI_F;
 
                 // --- Update Weapon State ---
                 if (weapon)

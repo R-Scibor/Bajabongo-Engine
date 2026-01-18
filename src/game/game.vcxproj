@@ -148,6 +148,7 @@
     <ClCompile Include="setup\GameComponentRegistry.cpp" />
     <ClCompile Include="states\GameplayState.cpp" />
     <ClCompile Include="states\MainMenuState.cpp" />
+    <ClCompile Include="states\MapSelectionState.cpp" />
     <ClCompile Include="systems\DamageSystem.cpp" />
     <ClCompile Include="systems\EnemyAISystem.cpp" />
     <ClCompile Include="systems\FogRenderSystem.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="components\EnemyComponent.hpp" />
     <ClInclude Include="components\HealthComponent.hpp" />
     <ClInclude Include="components\MedkitPickupComponent.hpp" />
+    <ClInclude Include="components\InteractableComponent.hpp" />
     <ClInclude Include="components\PatrolBehaviorComponent.hpp" />
     <ClInclude Include="components\PlayerComponent.hpp" />
     <ClInclude Include="components\ProjectileComponent.hpp" />
@@ -182,6 +184,7 @@
     <ClInclude Include="setup\GameComponentRegistry.hpp" />
     <ClInclude Include="states\GameplayState.hpp" />
     <ClInclude Include="states\MainMenuState.hpp" />
+    <ClInclude Include="states\MapSelectionState.hpp" />
     <ClInclude Include="systems\DamageSystem.hpp" />
     <ClInclude Include="systems\EnemyAISystem.hpp" />
     <ClInclude Include="systems\FogRenderSystem.hpp" />
