@@ -3,6 +3,8 @@
 #include <memory>
 #include <entt/fwd.hpp>
 #include <box2d/id.h>
+#include <string>
+#include <optional>
 
 namespace engine {
     class IWindow;
@@ -29,6 +31,15 @@ namespace engine {
      * @brief A central DI container for all major engine services.
      */
     struct EngineContext {
+        // Mission configuration
+        struct MissionConfig {
+            std::string mapFile;       // "assets/data/warehouse.json"
+            std::string displayName;   // "Warehouse"
+            // Add more if needed: difficulty, enemy count, etc.
+        };
+
+        std::optional<MissionConfig> currentMission; // Set before loading GameplayState
+
         DebugSettings debugFlags;
 
         // --- Core Services ---

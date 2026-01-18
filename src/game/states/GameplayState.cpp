@@ -105,10 +105,22 @@ namespace game {
         if (m_logger) m_logger->info("Physics and Hierarchy cleanup hooks registered.");
 
         // --- Map Loader Test ---
-        if (m_logger) m_logger->info("Loading Map...");
         engine::MapLoader mapLoader(context);
-        // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
-        mapLoader.load("../../assets/data/map_hideout.json");
+
+        // Load mission-specific map
+        if (context.currentMission.has_value()) {
+            const auto& mission = context.currentMission.value();
+
+            if (m_logger) m_logger->info("Loading mission: {}", mission.displayName);
+
+            // Load the correct map
+            mapLoader.load(mission.mapFile);
+        } else {
+            // Fallback: default map (hideout?)
+            if (m_logger) m_logger->warn("No mission config set, loading default map.");
+            // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
+            mapLoader.load("../../assets/data/map_hideout.json");
+        }
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {
