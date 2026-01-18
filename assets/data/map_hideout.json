@@ -1063,8 +1063,8 @@
                  "type":"MissionTable",
                  "visible":true,
                  "width":0,
-                 "x":457.5,
-                 "y":736
+                 "x":466,
+                 "y":733
                 }],
          "opacity":1,
          "type":"objectgroup",

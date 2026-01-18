@@ -22,8 +22,9 @@ namespace game {
     void MapSelectionState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
         if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
             if (keyPressed->code == sf::Keyboard::Key::Escape) {
-                if (m_logger) m_logger->info("Escape pressed. Popping state.");
-                context.m_dispatcher->enqueue<engine::RequestStatePopEvent>();
+                if (m_logger) m_logger->info("Escape pressed. Returning to Gameplay (Hideout).");
+                context.currentMission.reset(); // Clear mission config to load default/hideout
+                context.m_dispatcher->enqueue<engine::RequestStateSwapEvent>("Gameplay");
             }
         }
         

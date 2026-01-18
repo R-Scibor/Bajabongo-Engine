@@ -14,6 +14,7 @@
 #include "engine/core/ILogger.hpp"
 #include "game/states/MainMenuState.hpp"
 #include "game/states/GameplayState.hpp"
+#include "game/states/MapSelectionState.hpp"
 #include "engine/core/StateManager.hpp"
 
 #include <box2d/box2d.h>
@@ -100,6 +101,7 @@ int main() {
         // Register states directly with the local manager before it's moved.
         stateManager->registerState<game::MainMenuState>("MainMenu");
         stateManager->registerState<game::GameplayState>("Gameplay");
+        stateManager->registerState<game::MapSelectionState>("MapSelection");
 
         // Push the first state and process transitions to ensure it's active
         // before the main loop begins.
