@@ -75,7 +75,17 @@ namespace engine {
     void SFMLInputManager::processEvent(const sf::Event& event) {
         // This manager relies on polling, but we keep this hook for future event-driven input handling.
         // Currently, events are processed directly by the Application or forwarded to GuiService.
-        (void)event;
+        if (const auto* wheelEvent = event.getIf<sf::Event::MouseWheelScrolled>()) {
+            if (wheelEvent->wheel == sf::Mouse::Wheel::Vertical) {
+                m_scrollDelta += wheelEvent->delta;
+            }
+        }
+    }
+
+    void SFMLInputManager::update() {
+        // We do NOT clear m_scrollDelta here anymore, because it needs to be consumed
+        // by the logic systems (e.g. CameraSystem).
+        // If we clear it here, and logic runs on a different frequency than input/render, we miss events.
     }
 
     bool SFMLInputManager::isKeyPressed(engine::KeyCode key) const {
@@ -96,6 +106,12 @@ namespace engine {
         engine::Vector2i position = { sfmlPosition.x, sfmlPosition.y };
         m_logger->trace("Mouse position: ({}, {})", position.x, position.y);
         return position;
+    }
+
+    float SFMLInputManager::consumeMouseScrollDelta() {
+        float delta = m_scrollDelta;
+        m_scrollDelta = 0.0f;
+        return delta;
     }
 
 } // namespace engine

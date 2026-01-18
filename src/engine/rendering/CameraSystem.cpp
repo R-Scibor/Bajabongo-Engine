@@ -6,6 +6,7 @@
 #include "engine/components/TransformComponent.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
+#include "engine/core/IInputManager.hpp"
 #include <entt/entt.hpp>
 #include <algorithm> // for std::min
 
@@ -14,6 +15,7 @@ namespace engine
     CameraSystem::CameraSystem(EngineContext& context)
         : m_registry(*context.m_registry)
         , m_renderer(context.m_renderer)
+        , m_inputManager(context.m_inputManager)
     {
         m_logger = context.m_logManager->GetLogger("CameraSystem");
     }
@@ -28,8 +30,20 @@ namespace engine
         for (auto entity : view) {
             if (!m_registry.all_of<TransformComponent>(entity)) continue;
 
-            const auto& focus = view.get<CameraFocusComponent>(entity);
+            auto& focus = view.get<CameraFocusComponent>(entity);
             const auto& transform = m_registry.get<TransformComponent>(entity);
+
+            // Handle Zoom Input
+            if (m_inputManager) {
+                float scrollDelta = m_inputManager->consumeMouseScrollDelta();
+                if (scrollDelta != 0.0f) {
+                    focus.targetViewHeight -= scrollDelta * focus.zoomSpeed;
+                    focus.targetViewHeight = std::clamp(focus.targetViewHeight, focus.minZoom, focus.maxZoom);
+                }
+            }
+
+            // Interpolate Zoom
+            focus.viewHeight += (focus.targetViewHeight - focus.viewHeight) * focus.smoothness;
 
             // 1. Handle View Size (Zoom)
             Vector2u windowSize = m_renderer->getWindowSize();

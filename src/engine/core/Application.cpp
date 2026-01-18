@@ -107,6 +107,8 @@ namespace engine {
     {
         m_logger->trace("Processing input.");
 
+        m_context->m_inputManager->update();
+
         // Poll all SFML events and forward them to the active state
         while (auto event = m_context->m_window->pollEvent()) {
             
@@ -121,8 +123,9 @@ namespace engine {
             // But we still let the system handle Closed event.
             if (!captured) {
                  m_stateManager->handleEvent(*event);
-                 m_context->m_inputManager->processEvent(*event);
             }
+            // Always process input manager events to ensure state is up to date (e.g. key release)
+            m_context->m_inputManager->processEvent(*event);
 
             if (event->is<sf::Event::Closed>()) {
                 m_context->m_window->close();

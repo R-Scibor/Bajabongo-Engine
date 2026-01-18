@@ -15,9 +15,11 @@ namespace engine {
         virtual ~IInputManager() = default;
 
         virtual void processEvent(const sf::Event& event) = 0;
+        virtual void update() = 0;
         virtual bool isKeyPressed(engine::KeyCode key) const = 0;
         virtual bool isMouseButtonPressed(engine::MouseCode button) const = 0;
         virtual engine::Vector2i getMousePosition() const = 0;
+        virtual float consumeMouseScrollDelta() = 0;
     };
 
 } // namespace engine
