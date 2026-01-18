@@ -303,12 +303,28 @@
       "loopMode": "loop"
     },
     "Weapon": {
-      "fireRate": 0.5,
-      "damage": 15.0,
-      "projectileSpeed": 300.0,
+      "fireRate": 0.4,
+      "projectileSpeed": 400.0,
       "projectileLifetime": 2.0,
-      "magSize": 30,
-      "totalAmmo": 90
+      "damage": 15.0,
+      "baseSpreadDeg": 1.0,
+      "currentSpreadDeg": 0.0,
+      "spreadPerShotDeg": 2.0,
+      "spreadDecayDegPerSec": 5.0,
+      "maxSpreadDeg": 5.0,
+      "recoilKickDeg": 2.0,
+      "recoilReturnDegPerSec": 10.0,
+      "recoilAngleOffset": 0.0,
+      "projectilesPerShot": 1,
+      "magSize": 12,
+      "currentAmmo": 12,
+      "totalAmmo": 48,
+      "reloadDuration": 1.5,
+      "reloadTimer": 0.0,
+      "isReloading": false,
+      "wantsToShoot": false,
+      "wantsToReload": false,
+      "aimAngle": 0.0
     }
   },
   "gopnik_rusher": {
@@ -353,9 +369,27 @@
     },
     "Weapon": {
       "fireRate": 0.8,
-      "damage": 10.0,
-      "magSize": 20,
-      "totalAmmo": 60
+      "projectileSpeed": 350.0,
+      "projectileLifetime": 1.5,
+      "damage": 5.0,
+      "baseSpreadDeg": 10.0,
+      "currentSpreadDeg": 0.0,
+      "spreadPerShotDeg": 15.0,
+      "spreadDecayDegPerSec": 10.0,
+      "maxSpreadDeg": 45.0,
+      "recoilKickDeg": 15.0,
+      "recoilReturnDegPerSec": 20.0,
+      "recoilAngleOffset": 0.0,
+      "projectilesPerShot": 8,
+      "magSize": 8,
+      "currentAmmo": 8,
+      "totalAmmo": 32,
+      "reloadDuration": 3.0,
+      "reloadTimer": 0.0,
+      "isReloading": false,
+      "wantsToShoot": false,
+      "wantsToReload": false,
+      "aimAngle": 0.0
     }
   },
   "gopnik_sniper": {
@@ -399,10 +433,28 @@
       "maxRange": 700.0
     },
     "Weapon": {
-      "fireRate": 2.5,
-      "damage": 60.0,
-      "magSize": 5,
-      "totalAmmo": 20
+      "fireRate": 0.15,
+      "projectileSpeed": 500.0,
+      "projectileLifetime": 3.0,
+      "damage": 12.0,
+      "baseSpreadDeg": 2.0,
+      "currentSpreadDeg": 0.0,
+      "spreadPerShotDeg": 1.5,
+      "spreadDecayDegPerSec": 8.0,
+      "maxSpreadDeg": 10.0,
+      "recoilKickDeg": 3.0,
+      "recoilReturnDegPerSec": 12.0,
+      "recoilAngleOffset": 0.0,
+      "projectilesPerShot": 1,
+      "magSize": 30,
+      "currentAmmo": 30,
+      "totalAmmo": 120,
+      "reloadDuration": 2.5,
+      "reloadTimer": 0.0,
+      "isReloading": false,
+      "wantsToShoot": false,
+      "wantsToReload": false,
+      "aimAngle": 0.0
     }
   },
   "enemy_turret": {
