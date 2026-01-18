@@ -8,7 +8,8 @@ namespace engine {
         Idle,
         Walk,
         Aim,
-        Dead
+        Dead,
+        Heal
         // Future: Attack, etc.
     };
 

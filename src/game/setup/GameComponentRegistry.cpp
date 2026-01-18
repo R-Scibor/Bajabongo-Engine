@@ -33,11 +33,12 @@ namespace game {
         auto& factory = *context.m_entityFactory;
 
         // --- 1. Rejestracja PlayerComponent ---
-        factory.registerComponentLoader("Player", 
+        factory.registerComponentLoader("Player",
             [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
                 PlayerComponent playerComp;
                 playerComp.moveSpeed = data.value("moveSpeed", 5.0f);
                 playerComp.rotSpeed = data.value("rotSpeed", 10.0f);
+                playerComp.medkits = data.value("medkits", 2);
                 
                 registry.emplace<PlayerComponent>(entity, playerComp);
             }

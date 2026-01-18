@@ -109,6 +109,9 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
         case AnimationState::Dead:
             clipId += "_dead";
             break;
+        case AnimationState::Heal:
+            clipId += "_heal";
+            break;
         default:
             clipId += "_idle";
             break;
@@ -128,6 +131,14 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
 
         // Fallback: If "Aim" is missing, try "Idle"
         if (state == AnimationState::Aim) {
+            std::string idleClip = animSetId + "_idle";
+             if (m_context.m_animationLibrary->getClip(idleClip)) {
+                return idleClip;
+            }
+        }
+
+        // Fallback: If "Heal" is missing, try "Idle"
+        if (state == AnimationState::Heal) {
             std::string idleClip = animSetId + "_idle";
              if (m_context.m_animationLibrary->getClip(idleClip)) {
                 return idleClip;

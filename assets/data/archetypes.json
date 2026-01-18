@@ -19,7 +19,8 @@
     },
     "Player": {
       "moveSpeed": 150.0,
-      "rotSpeed": 10.0
+      "rotSpeed": 10.0,
+      "medkits": 2
     },
     "Health": {
       "maxHp": 200.0

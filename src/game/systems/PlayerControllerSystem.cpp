@@ -11,6 +11,7 @@
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/LifetimeComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
+#include "game/components/HealthComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
 #include "engine/components/AnimationComponent.hpp"
@@ -44,14 +45,36 @@ namespace game {
 
             auto* weapon = registry.try_get<WeaponComponent>(entity);
             auto* anim = registry.try_get<engine::AnimationComponent>(entity);
+            auto* health = registry.try_get<HealthComponent>(entity);
+
+            // --- Healing Logic ---
+            if (input->isKeyPressed(engine::KeyCode::H) && !player.isHealing && health && player.medkits > 0) {
+                if (health->currentHp > 0 && health->currentHp < health->maxHp) {
+                    player.isHealing = true;
+                    player.healTimer = 3.0f;
+                    player.medkits--;
+                }
+            }
+
+            if (player.isHealing) {
+                player.healTimer -= fixedDeltaTime;
+                if (player.healTimer <= 0.0f) {
+                    player.isHealing = false;
+                    if (health) {
+                        health->currentHp = std::min(health->currentHp + 25.0f, health->maxHp);
+                    }
+                }
+            }
 
             // --- Movement (WASD) ---
             engine::Vector2f moveDir{ 0.0f, 0.0f };
 
-            if (input->isKeyPressed(engine::KeyCode::W)) moveDir.y -= 1.0f;
-            if (input->isKeyPressed(engine::KeyCode::S)) moveDir.y += 1.0f;
-            if (input->isKeyPressed(engine::KeyCode::A)) moveDir.x -= 1.0f;
-            if (input->isKeyPressed(engine::KeyCode::D)) moveDir.x += 1.0f;
+            if (!player.isHealing) {
+                if (input->isKeyPressed(engine::KeyCode::W)) moveDir.y -= 1.0f;
+                if (input->isKeyPressed(engine::KeyCode::S)) moveDir.y += 1.0f;
+                if (input->isKeyPressed(engine::KeyCode::A)) moveDir.x -= 1.0f;
+                if (input->isKeyPressed(engine::KeyCode::D)) moveDir.x += 1.0f;
+            }
 
             // Normalize vector if moving diagonally
             float lengthSq = moveDir.x * moveDir.x + moveDir.y * moveDir.y;
@@ -64,16 +87,20 @@ namespace game {
 
             // --- Animation State Machine ---
             if (anim) {
-                // We rely on AnimationStateComponent now. 
+                // We rely on AnimationStateComponent now.
                 // If it's missing, the entity won't animate correctly (which is expected if we want to enforce the new system).
                 if (auto* animState = registry.try_get<engine::AnimationStateComponent>(entity)) {
-                    // 1. Determine State: Idle vs Moving vs Aiming
-                    if (lengthSq > 0.0f) {
-                        animState->state = engine::AnimationState::Walk;
-                    } else if (weapon && weapon->wantsToShoot) {
-                        animState->state = engine::AnimationState::Aim;
+                    if (player.isHealing) {
+                        animState->state = engine::AnimationState::Heal;
                     } else {
-                        animState->state = engine::AnimationState::Idle;
+                        // 1. Determine State: Idle vs Moving vs Aiming
+                        if (lengthSq > 0.0f) {
+                            animState->state = engine::AnimationState::Walk;
+                        } else if (weapon && weapon->wantsToShoot) {
+                            animState->state = engine::AnimationState::Aim;
+                        } else {
+                            animState->state = engine::AnimationState::Idle;
+                        }
                     }
                     
                     // 2. Determine Facing Direction (Left/Right only)
@@ -81,8 +108,8 @@ namespace game {
                         animState->facing = engine::FacingDirection::Left;
                     } else if (moveDir.x > 0.0f) {
                         animState->facing = engine::FacingDirection::Right;
-                    } else if (lengthSq < 0.001f && weapon) {
-                        // If standing still, face the aim direction
+                    } else if ((lengthSq < 0.001f || player.isHealing) && weapon) {
+                        // If standing still (or healing), face the aim direction
                         // Ideally we should do this if we are aiming
                         float aimAngle = weapon->aimAngle;
                         // Normalize angle to -PI to PI
@@ -99,12 +126,16 @@ namespace game {
             }
 
             // Apply velocity
-            b2Vec2 velocity = { moveDir.x * player.moveSpeed, moveDir.y * player.moveSpeed };
+            if (player.isHealing) {
+                 b2Body_SetLinearVelocity(bodyComp.bodyId, { 0.0f, 0.0f });
+            } else {
+                b2Vec2 velocity = { moveDir.x * player.moveSpeed, moveDir.y * player.moveSpeed };
 
-            // Wake up the body if we are trying to move it, otherwise it might sleep
-            if (lengthSq > 0.0f) {
-                b2Body_SetAwake(bodyComp.bodyId, true);
-                b2Body_SetLinearVelocity(bodyComp.bodyId, velocity);
+                // Wake up the body if we are trying to move it, otherwise it might sleep
+                if (lengthSq > 0.0f) {
+                    b2Body_SetAwake(bodyComp.bodyId, true);
+                    b2Body_SetLinearVelocity(bodyComp.bodyId, velocity);
+                }
             }
 
 
@@ -147,8 +178,13 @@ namespace game {
                 if (weapon)
                 {
                     weapon->aimAngle = angle;
-                    weapon->wantsToShoot = input->isMouseButtonPressed(engine::MouseCode::Left);
-                    weapon->wantsToReload = input->isKeyPressed(engine::KeyCode::R);
+                    if (player.isHealing) {
+                        weapon->wantsToShoot = false;
+                        weapon->wantsToReload = false;
+                    } else {
+                        weapon->wantsToShoot = input->isMouseButtonPressed(engine::MouseCode::Left);
+                        weapon->wantsToReload = input->isKeyPressed(engine::KeyCode::R);
+                    }
                 }
             }
         });
