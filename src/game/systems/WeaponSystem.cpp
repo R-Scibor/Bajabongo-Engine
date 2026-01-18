@@ -16,11 +16,17 @@
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
 #include <cmath>
+#include <numbers>
+
+#ifndef PI
+#define PI 3.14159265359f
+#endif
 
 namespace game {
 
     WeaponSystem::WeaponSystem(engine::EngineContext& context)
         : m_context(context)
+        , m_rng(std::random_device{}())
     {
     }
 
@@ -34,6 +40,12 @@ namespace game {
             
             // Ensure physics body is valid
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
+
+            // Spread Decay
+            if (weapon.currentSpreadDeg > weapon.baseSpreadDeg) {
+                weapon.currentSpreadDeg -= weapon.spreadDecayDegPerSec * fixedDeltaTime;
+                weapon.currentSpreadDeg = std::max(weapon.currentSpreadDeg, weapon.baseSpreadDeg);
+            }
 
             // Cooldown Management
             if (weapon.cooldownTimer > 0.0f) {
@@ -86,12 +98,29 @@ namespace game {
                     weapon.currentAmmo--;
 
                     b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
-                    float angle = weapon.aimAngle;
+                    
+                    // Apply Spread
+                    std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
+                    float spreadOffsetDeg = spreadDist(m_rng);
+                    float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
+                    float finalAngle = weapon.aimAngle + spreadOffsetRad;
+
+                    // Accumulate Spread (bloom)
+                    weapon.currentSpreadDeg = std::min(
+                        weapon.currentSpreadDeg + weapon.spreadPerShotDeg,
+                        weapon.maxSpreadDeg
+                    );
+
+                    // Debug Log Spread
+                    // if (m_context.m_logManager) {
+                    //     auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
+                    //     if (logger) logger->debug("Fired. Spread: {:.2f}", weapon.currentSpreadDeg);
+                    // }
 
                     // Calculate spawn position (offset from center)
                     float spawnOffset = 30.0f; // Adjust based on entity size?
-                    float cosA = std::cos(angle);
-                    float sinA = std::sin(angle);
+                    float cosA = std::cos(finalAngle);
+                    float sinA = std::sin(finalAngle);
                     
                     engine::Vector2f spawnPos = {
                         bodyPos.x + cosA * spawnOffset,
@@ -107,7 +136,7 @@ namespace game {
                          .isStatic = false,
                          .isBullet = true,
                          .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
-                         .rotation = angle
+                         .rotation = finalAngle
                     };
 
                     engine::FixtureDef fixDef;
@@ -123,7 +152,7 @@ namespace game {
                     registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);
 
                     // Visuals
-                    registry.emplace<engine::TransformComponent>(projectile, spawnPos, angle);
+                    registry.emplace<engine::TransformComponent>(projectile, spawnPos, finalAngle);
                     registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
 
                     // Game Logic
