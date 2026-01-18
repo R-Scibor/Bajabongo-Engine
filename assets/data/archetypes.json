@@ -24,6 +24,10 @@
     "Health": {
       "maxHp": 200.0
     },
+    "WeaponInventory": {
+      "weaponArchetypes": ["TestRifle", "TestShotgun"],
+      "activeSlot": 0
+    },
     "Weapon": {
       "fireRate": 0.8,
       "damage": 5.0,

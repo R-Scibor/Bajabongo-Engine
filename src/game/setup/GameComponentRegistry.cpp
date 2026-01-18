@@ -7,6 +7,7 @@
 #include "game/components/HealthComponent.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/WeaponInventoryComponent.hpp"
 #include "game/components/PortalComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
 #include "game/components/VisibleToPlayerComponent.hpp"
@@ -89,6 +90,24 @@ namespace game {
                 weapon.reloadTimer = 0.0f;
 
                 registry.emplace<WeaponComponent>(entity, weapon);
+            }
+        );
+
+        // --- WeaponInventoryComponent ---
+        factory.registerComponentLoader("WeaponInventory",
+            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                WeaponInventoryComponent inventory;
+                
+                if (data.contains("weaponArchetypes") && data["weaponArchetypes"].is_array()) {
+                    for (const auto& w : data["weaponArchetypes"]) {
+                        inventory.weaponArchetypes.push_back(w.get<std::string>());
+                    }
+                }
+                
+                inventory.activeSlot = data.value("activeSlot", 0);
+                inventory.switchDelay = data.value("switchDelay", 0.3f);
+                
+                registry.emplace<WeaponInventoryComponent>(entity, inventory);
             }
         );
 
