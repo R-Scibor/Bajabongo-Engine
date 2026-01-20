@@ -51,7 +51,7 @@
       "fixtures": [
         {
           "size": [40.0, 16.0],
-          "offset": [0.0, 0.0],
+          "offset": [0.0, -5.0],
           "density": 1.0,
           "isSensor": false,
           "category": "Player"
@@ -271,19 +271,21 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [32.0, 64.0],
       "fixedRotation": true,
+      "linearDamping": 10.0,
       "category": "Enemy",
       "fixtures": [
         {
-          "size": [32.0, 16.0],
-          "offset": [0.0, 24.0],
+          "size": [40.0, 16.0],
+          "offset": [0.0, 60.0],
+          "density": 1.0,
           "isSensor": false,
           "category": "Enemy"
         },
         {
-          "size": [48.0, 64.0],
+          "size": [36.0, 125.0],
           "offset": [0.0, 0.0],
+          "density": 0.0,
           "isSensor": true,
           "category": "Hurtbox"
         }
@@ -344,12 +346,24 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [32.0, 64.0],
       "fixedRotation": true,
+      "linearDamping": 10.0,
       "category": "Enemy",
       "fixtures": [
-        { "size": [32.0, 16.0], "offset": [0.0, 24.0], "isSensor": false, "category": "Enemy" },
-        { "size": [48.0, 64.0], "offset": [0.0, 0.0], "isSensor": true, "category": "Hurtbox" }
+        {
+          "size": [40.0, 16.0],
+          "offset": [0.0, 60.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [36.0, 125.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
       ]
     },
     "Health": { "maxHp": 75.0 },
@@ -409,12 +423,24 @@
     },
     "Physics": {
       "type": "dynamic",
-      "size": [32.0, 64.0],
       "fixedRotation": true,
+      "linearDamping": 10.0,
       "category": "Enemy",
       "fixtures": [
-        { "size": [32.0, 16.0], "offset": [0.0, 24.0], "isSensor": false, "category": "Enemy" },
-        { "size": [48.0, 64.0], "offset": [0.0, 0.0], "isSensor": true, "category": "Hurtbox" }
+        {
+          "size": [40.0, 16.0],
+          "offset": [0.0, 60.0],
+          "density": 1.0,
+          "isSensor": false,
+          "category": "Enemy"
+        },
+        {
+          "size": [36.0, 125.0],
+          "offset": [0.0, 0.0],
+          "density": 0.0,
+          "isSensor": true,
+          "category": "Hurtbox"
+        }
       ]
     },
     "Health": { "maxHp": 40.0 },
@@ -438,7 +464,7 @@
       "fireRate": 0.15,
       "projectileSpeed": 500.0,
       "projectileLifetime": 3.0,
-      "damage": 12.0,
+      "damage": 25.0,
       "baseSpreadDeg": 2.0,
       "currentSpreadDeg": 0.0,
       "spreadPerShotDeg": 1.5,
