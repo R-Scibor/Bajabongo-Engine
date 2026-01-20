@@ -170,7 +170,7 @@ namespace game {
                 }
             }
         }
-    }
+    }       
 
     void MapSelectionState::render(engine::EngineContext& context) {
         if (m_renderSystem && context.m_renderer) {

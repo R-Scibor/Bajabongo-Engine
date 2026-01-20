@@ -151,7 +151,12 @@ namespace game {
             if (player.isHealing) {
                  b2Body_SetLinearVelocity(bodyComp.bodyId, { 0.0f, 0.0f });
             } else {
-                b2Vec2 velocity = { moveDir.x * player.moveSpeed, moveDir.y * player.moveSpeed };
+                float currentSpeed = player.moveSpeed;
+                if (input->isKeyPressed(engine::KeyCode::LShift)) {
+                    currentSpeed *= 2.5f;
+                }
+
+                b2Vec2 velocity = { moveDir.x * currentSpeed, moveDir.y * currentSpeed };
 
                 // Wake up the body if we are trying to move it, otherwise it might sleep
                 if (lengthSq > 0.0f) {

@@ -47,6 +47,17 @@ namespace {
             case engine::KeyCode::Num8: return sf::Keyboard::Key::Num8;
             case engine::KeyCode::Num9: return sf::Keyboard::Key::Num9;
             case engine::KeyCode::Space: return sf::Keyboard::Key::Space;
+            case engine::KeyCode::LShift: return sf::Keyboard::Key::LShift;
+            case engine::KeyCode::RShift: return sf::Keyboard::Key::RShift;
+            case engine::KeyCode::LControl: return sf::Keyboard::Key::LControl;
+            case engine::KeyCode::RControl: return sf::Keyboard::Key::RControl;
+            case engine::KeyCode::LAlt: return sf::Keyboard::Key::LAlt;
+            case engine::KeyCode::RAlt: return sf::Keyboard::Key::RAlt;
+            case engine::KeyCode::LSystem: return sf::Keyboard::Key::LSystem;
+            case engine::KeyCode::RSystem: return sf::Keyboard::Key::RSystem;
+            case engine::KeyCode::Enter: return sf::Keyboard::Key::Enter;
+            case engine::KeyCode::Escape: return sf::Keyboard::Key::Escape;
+            case engine::KeyCode::Tab: return sf::Keyboard::Key::Tab;
             // ... add all other key mappings here
             default: return sf::Keyboard::Key::Unknown;
         }
