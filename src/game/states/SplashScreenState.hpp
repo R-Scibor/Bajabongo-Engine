@@ -29,6 +29,8 @@ private:
     float m_logoDuration = 2.0f; // Show logo for 2s
     
     bool m_assetsLoaded = false;
+    int m_renderFrames = 0;
+    int m_lastRenderFrame = -1;
 };
 
 }

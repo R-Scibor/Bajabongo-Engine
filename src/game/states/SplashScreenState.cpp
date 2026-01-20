@@ -38,6 +38,7 @@ void SplashScreenState::onEnter(engine::EngineContext& context) {
     m_phase = Phase::ShowLogo;
     m_logoTimer = 0.f;
     m_assetsLoaded = false;
+    m_renderFrames = 0;
 }
 
 void SplashScreenState::onExit(engine::EngineContext& context) {
@@ -58,25 +59,33 @@ void SplashScreenState::handleEvent(engine::EngineContext& context, const sf::Ev
 void SplashScreenState::update(engine::EngineContext& context, float fixedDeltaTime) {
     switch (m_phase) {
         case Phase::ShowLogo:
-            m_logoTimer += fixedDeltaTime;
-            if (m_logoTimer >= m_logoDuration) {
-                m_phase = Phase::Loading;
-                m_logger->info("Starting asset load...");
+            // Only increment timer if we have rendered a new frame
+            // This prevents the timer from fast-forwarding during the "catch-up" phase after blocking load
+            if (m_renderFrames != m_lastRenderFrame) {
+                m_logoTimer += fixedDeltaTime;
+                m_lastRenderFrame = m_renderFrames;
+            }
+
+            // Trigger asset loading after fade-in (0.5s) to ensure logo is fully visible
+            if (m_logoTimer >= 0.5f && !m_assetsLoaded) {
+                m_logger->info("Starting asset load (blocking)...");
+                if (context.m_assetLoader->load("../../assets/data/resources.json")) {
+                    m_logger->info("Assets loaded successfully.");
+                    m_assetsLoaded = true;
+                } else {
+                    m_logger->error("Failed to load assets!");
+                }
+            }
+
+            // Wait for both duration and asset loading
+            if (m_logoTimer >= m_logoDuration && m_assetsLoaded) {
+                m_phase = Phase::Transitioning;
             }
             break;
 
         case Phase::Loading:
-            // Load assets on first frame of this phase
-            if (!m_assetsLoaded) {
-                if (context.m_assetLoader->load("../../assets/data/resources.json")) {
-                    m_logger->info("Assets loaded successfully.");
-                    m_assetsLoaded = true;
-                    m_phase = Phase::Transitioning;
-                } else {
-                    m_logger->error("Failed to load assets!");
-                    // Optionally: show error screen or crash gracefully
-                }
-            }
+            // Deprecated phase, but keeping for safety if logic drifts
+            m_phase = Phase::Transitioning;
             break;
 
         case Phase::Transitioning:
@@ -87,6 +96,8 @@ void SplashScreenState::update(engine::EngineContext& context, float fixedDeltaT
 }
 
 void SplashScreenState::render(engine::EngineContext& context) {
+    m_renderFrames++;
+
     // Application::render() already calls beginFrame/clear(Black)/endFrame.
     // We just need to overwrite the clear with White and draw content.
     context.m_renderer->clear({255, 255, 255, 255}); // White background
