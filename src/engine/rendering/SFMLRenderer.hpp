@@ -30,6 +30,7 @@ namespace engine
         void* getNativeHandle() const override;
         std::optional<sf::Event> pollEvent() override;
         Vector2u getSize() const override;
+        void setFramerateLimit(unsigned int limit) override;
 
         // --- IRenderer Implementation ---
         void beginFrame() override;

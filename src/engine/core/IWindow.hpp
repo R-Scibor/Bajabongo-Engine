@@ -56,5 +56,11 @@ namespace engine
          * @return The size of the window in pixels.
          */
         virtual Vector2u getSize() const = 0;
+
+        /**
+         * @brief Limit the framerate to a maximum fixed frequency.
+         * @param limit The framerate limit (frames per second). 0 means unlimited.
+         */
+        virtual void setFramerateLimit(unsigned int limit) = 0;
     };
 }

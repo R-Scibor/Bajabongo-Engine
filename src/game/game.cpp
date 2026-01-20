@@ -46,6 +46,7 @@ int main() {
         auto renderer = std::make_shared<engine::SFMLRenderer>();
         renderer->setLogger(logManager->GetLogger("SFMLRenderer"));
         renderer->create("Game Window", 1920, 1080);
+        renderer->setFramerateLimit(120);
         gameLogger->info("Window created successfully.");
 
         // Phase 5A: Create Resource Manager

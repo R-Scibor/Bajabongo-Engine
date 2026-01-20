@@ -59,6 +59,10 @@ namespace engine
         return { size.x, size.y };
     }
 
+    void SFMLRenderer::setFramerateLimit(unsigned int limit) {
+        m_renderWindow.setFramerateLimit(limit);
+    }
+
     // --- Implementacja IRenderer ---
 
     void SFMLRenderer::beginFrame() {
