@@ -779,6 +779,26 @@
             "animations": []
         },
         {
+            "id": "map_hospital_texture",
+            "path": "../../assets/textures/map_hospital.png",
+            "sprites": [
+                {
+                    "id": "map_hospital_sprite",
+                    "region": [
+                        0,
+                        0,
+                        2048,
+                        2048
+                    ],
+                    "origin": [
+                        0.0,
+                        0.0
+                    ]
+                }
+            ],
+            "animations": []
+        },
+        {
             "id": "map_selection_screen_texture",
             "path": "../../assets/textures/map_selection_screen.png",
             "sprites": [

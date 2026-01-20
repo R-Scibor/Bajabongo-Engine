@@ -74,8 +74,8 @@ namespace game {
         // Positions (Guessed based on FHD 1920x1080)
         // Note: MapLoader uses std::ifstream, so paths are relative to the executable (e.g. build/bin).
         spawnMarker("../../assets/data/map_hideout.json", "Hideout", "icon_hideout_sprite", "icon_hideout_text_sprite", {1380.f, 600.f});
-        spawnMarker("../../assets/data/warehouse.json", "Warehouse", "icon_warehouse_sprite", "icon_warehouse_text_sprite", {450.f, 570.f});
-        spawnMarker("../../assets/data/hospital.json", "Hospital", "icon_hospital_sprite", "icon_hospital_text_sprite", {960.f, 540.f});
+        spawnMarker("../../assets/data/map_warehouse.json", "Warehouse", "icon_warehouse_sprite", "icon_warehouse_text_sprite", {450.f, 570.f});
+        spawnMarker("../../assets/data/map_hospital.json", "Hospital", "icon_hospital_sprite", "icon_hospital_text_sprite", {960.f, 540.f});
     }
 
     void MapSelectionState::onExit(engine::EngineContext& context) {
