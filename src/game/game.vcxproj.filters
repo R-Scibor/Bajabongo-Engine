@@ -81,6 +81,9 @@
     <ClCompile Include="states\SplashScreenState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="systems\HitFlashSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="config\logging.ini">
@@ -206,6 +209,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="states\SplashScreenState.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\HitFlashComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\HitFlashSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

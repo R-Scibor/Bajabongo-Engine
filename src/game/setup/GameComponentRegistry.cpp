@@ -1,6 +1,7 @@
 #include "GameComponentRegistry.hpp"
 #include "engine/core/EngineContext.hpp"
 #include "engine/ecs/EntityFactory.hpp"
+#include <cstdint>
 
 // Game Components
 #include "game/components/PlayerComponent.hpp"
@@ -22,6 +23,7 @@
 #include "game/components/SniperBehaviorComponent.hpp"
 #include "game/components/CampBehaviorComponent.hpp"
 #include "game/components/TurretBehaviorComponent.hpp"
+#include "game/components/HitFlashComponent.hpp"
 
 #include "engine/components/TransformComponent.hpp"
 #include <entt/entt.hpp>
@@ -264,6 +266,27 @@ namespace game {
             
             interactable.interactionRadius = data.value("interactionRadius", 100.0f);
             registry.emplace<InteractableComponent>(entity, interactable);
+        });
+
+        // --- 16. Rejestracja HitFlashComponent ---
+        factory.registerComponentLoader("HitFlash", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            HitFlashComponent flash;
+            flash.flashDuration = data.value("duration", 0.15f);
+            flash.flashHoldDuration = data.value("holdDuration", 0.05f);
+
+            if (data.contains("color")) {
+                auto& c = data["color"];
+                if (c.is_array() && c.size() >= 3) {
+                    flash.flashColor.r = static_cast<std::uint8_t>(c[0]);
+                    flash.flashColor.g = static_cast<std::uint8_t>(c[1]);
+                    flash.flashColor.b = static_cast<std::uint8_t>(c[2]);
+                    if (c.size() >= 4) {
+                        flash.flashColor.a = static_cast<std::uint8_t>(c[3]);
+                    }
+                }
+            }
+
+            registry.emplace<HitFlashComponent>(entity, flash);
         });
     }
 }

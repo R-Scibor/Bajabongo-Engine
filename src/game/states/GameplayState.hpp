@@ -22,6 +22,7 @@
 #include "game/systems/FogRenderSystem.hpp"
 #include "game/systems/EnemyAISystem.hpp"
 #include "game/systems/PickupSystem.hpp"
+#include "game/systems/HitFlashSystem.hpp"
 
 #include "engine/systems/AnimationStateMachineSystem.hpp"
 #include <entt/fwd.hpp>
@@ -71,6 +72,7 @@ namespace game {
         FogRenderSystem m_fogRenderSystem;
         EnemyAISystem m_enemyAISystem;
         PickupSystem m_pickupSystem;
+        HitFlashSystem m_hitFlashSystem;
         std::unique_ptr<HudSystem> m_hudSystem;
 
         std::shared_ptr<engine::ILogger> m_logger;

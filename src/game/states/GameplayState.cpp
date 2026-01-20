@@ -59,6 +59,7 @@ namespace game {
         , m_fogRenderSystem(context)
         , m_enemyAISystem(context)
         , m_pickupSystem(context)
+        , m_hitFlashSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
@@ -172,6 +173,7 @@ namespace game {
             m_visibilityTaggingSystem.update();
             m_hierarchySystem.update();
             m_lifetimeSystem.update(fixedDeltaTime);
+            m_hitFlashSystem.update(fixedDeltaTime);
             m_animationStateMachineSystem.update();
             m_animationSystem.update(fixedDeltaTime);
             m_cameraSystem.update(fixedDeltaTime);

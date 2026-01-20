@@ -9,6 +9,7 @@
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/MetaComponent.hpp"
 #include "game/components/DeadBodyComponent.hpp"
+#include "game/components/HitFlashComponent.hpp"
 
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -95,6 +96,22 @@ namespace game {
         if (damageComp && healthComp) {
             healthComp->currentHp -= damageComp->damageValue;
             
+            // Trigger Hit Flash
+            if (auto* flashComp = registry.try_get<HitFlashComponent>(target)) {
+                if (auto* renderable = registry.try_get<engine::RenderableComponent>(target)) {
+                    // Only store original color if we are NOT currently flashing.
+                    // If we are flashing, renderable->color is modified, so we keep the existing originalColor.
+                    if (!flashComp->isFlashing) {
+                        flashComp->originalColor = renderable->color;
+                    }
+
+                    // Start flash
+                    renderable->color = flashComp->flashColor;
+                    flashComp->currentTimer = 0.0f;
+                    flashComp->isFlashing = true;
+                }
+            }
+
             if (m_logger) {
                 m_logger->debug("Entity {} hit Entity {}. Damage: {}. Remaining HP: {}",
                     entt::to_integral(projectile), entt::to_integral(target), damageComp->damageValue, healthComp->currentHp);
@@ -143,6 +160,7 @@ namespace game {
             auto& newRenderable = registry.emplace<engine::RenderableComponent>(deadBody, *renderable);
             // Ensure dead bodies are rendered below living entities if needed, or same layer
             newRenderable.layer = 0; // Move to background layer? Or keep same? Let's try layer 0 for floor.
+            newRenderable.color = sf::Color::White; // Reset color (in case of flash)
 
             // Setup Animation State
             engine::AnimationStateComponent newAnimState;

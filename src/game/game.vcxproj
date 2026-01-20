@@ -153,6 +153,7 @@
     <ClCompile Include="systems\DamageSystem.cpp" />
     <ClCompile Include="systems\EnemyAISystem.cpp" />
     <ClCompile Include="systems\FogRenderSystem.cpp" />
+    <ClCompile Include="systems\HitFlashSystem.cpp" />
     <ClCompile Include="systems\HudSystem.cpp" />
     <ClCompile Include="systems\PickupSystem.cpp" />
     <ClCompile Include="systems\PlayerControllerSystem.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="components\DamageComponent.hpp" />
     <ClInclude Include="components\EnemyComponent.hpp" />
     <ClInclude Include="components\HealthComponent.hpp" />
+    <ClInclude Include="components\HitFlashComponent.hpp" />
     <ClInclude Include="components\MedkitPickupComponent.hpp" />
     <ClInclude Include="components\InteractableComponent.hpp" />
     <ClInclude Include="components\MapMarkerComponent.hpp" />
@@ -191,6 +193,7 @@
     <ClInclude Include="systems\DamageSystem.hpp" />
     <ClInclude Include="systems\EnemyAISystem.hpp" />
     <ClInclude Include="systems\FogRenderSystem.hpp" />
+    <ClInclude Include="systems\HitFlashSystem.hpp" />
     <ClInclude Include="systems\HudSystem.hpp" />
     <ClInclude Include="systems\PickupSystem.hpp" />
     <ClInclude Include="systems\PlayerControllerSystem.hpp" />
