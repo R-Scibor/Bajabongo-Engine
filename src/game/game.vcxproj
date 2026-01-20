@@ -149,6 +149,7 @@
     <ClCompile Include="states\GameplayState.cpp" />
     <ClCompile Include="states\MainMenuState.cpp" />
     <ClCompile Include="states\MapSelectionState.cpp" />
+    <ClCompile Include="states\SplashScreenState.cpp" />
     <ClCompile Include="systems\DamageSystem.cpp" />
     <ClCompile Include="systems\EnemyAISystem.cpp" />
     <ClCompile Include="systems\FogRenderSystem.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="states\GameplayState.hpp" />
     <ClInclude Include="states\MainMenuState.hpp" />
     <ClInclude Include="states\MapSelectionState.hpp" />
+    <ClInclude Include="states\SplashScreenState.hpp" />
     <ClInclude Include="systems\DamageSystem.hpp" />
     <ClInclude Include="systems\EnemyAISystem.hpp" />
     <ClInclude Include="systems\FogRenderSystem.hpp" />

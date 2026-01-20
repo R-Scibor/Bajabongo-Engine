@@ -15,6 +15,7 @@
 #include "game/states/MainMenuState.hpp"
 #include "game/states/GameplayState.hpp"
 #include "game/states/MapSelectionState.hpp"
+#include "game/states/SplashScreenState.hpp"
 #include "engine/core/StateManager.hpp"
 
 #include <box2d/box2d.h>
@@ -85,27 +86,20 @@ int main() {
         context->m_assetLoader = assetLoader;
         context->m_dispatcher   = std::make_shared<entt::dispatcher>();
 
-        // Phase 5.2: Load Assets on Startup
-        if (assetLoader->load("../../assets/data/resources.json")) {
-             gameLogger->info("Assets loaded successfully from manifest.");
-        } else {
-             gameLogger->error("Failed to load assets from manifest!");
-             return 1; // Critical failure
-        }
-
         // Create the state manager, which requires a reference to the context
         auto stateManager = std::make_unique<engine::StateManager>(*context);
 
         // Inject all dependencies into Application
         // === State Registration & Initial State ===
         // Register states directly with the local manager before it's moved.
+        stateManager->registerState<game::SplashScreenState>("Splash");
         stateManager->registerState<game::MainMenuState>("MainMenu");
         stateManager->registerState<game::GameplayState>("Gameplay");
         stateManager->registerState<game::MapSelectionState>("MapSelection");
 
         // Push the first state and process transitions to ensure it's active
         // before the main loop begins.
-        stateManager->requestPush("MainMenu");
+        stateManager->requestPush("Splash");
         stateManager->processTransitions();
 
         // Inject all dependencies into Application.
