@@ -381,8 +381,8 @@
     "Enemy": {
       "detectionRadius": 500.0,
       "alertRadius": 600.0,
-      "moveSpeed": 100.0,
-      "attackRange": 100.0,
+      "moveSpeed": 150.0,
+      "attackRange": 200.0,
       "retreatHpPercent": 0.2
     },
     "PatrolBehavior": {
