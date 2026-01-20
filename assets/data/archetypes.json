@@ -392,7 +392,7 @@
     },
     "RushBehavior": {
       "rushSpeed": 250.0,
-      "rushActivationRange": 150.0
+      "rushActivationRange": 300.0
     },
     "Weapon": {
       "fireRate": 0.8,
