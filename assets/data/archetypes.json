@@ -31,17 +31,7 @@
       "activeSlot": 0
     },
     "Weapon": {
-      "fireRate": 0.8,
-      "damage": 5.0,
-      "projectilesPerShot": 8,
-      "baseSpreadDeg": 10.0,
-      "spreadPerShotDeg": 15.0,
-      "spreadDecayDegPerSec": 10.0,
-      "maxSpreadDeg": 45.0,
-      "recoilKickDeg": 15.0,
-      "recoilReturnDegPerSec": 20.0,
-      "magSize": 8,
-      "totalAmmo": 32
+      "fireRate": 0.0
     },
     "Physics": {
       "type": "dynamic",
@@ -308,7 +298,7 @@
     },
     "Weapon": {
       "fireRate": 0.4,
-      "projectileSpeed": 400.0,
+      "projectileSpeed": 600.0,
       "projectileLifetime": 2.0,
       "damage": 15.0,
       "baseSpreadDeg": 1.0,
@@ -385,7 +375,7 @@
     },
     "Weapon": {
       "fireRate": 0.8,
-      "projectileSpeed": 350.0,
+      "projectileSpeed": 400.0,
       "projectileLifetime": 1.5,
       "damage": 5.0,
       "baseSpreadDeg": 10.0,
@@ -462,7 +452,7 @@
     },
     "Weapon": {
       "fireRate": 0.15,
-      "projectileSpeed": 500.0,
+      "projectileSpeed": 700.0,
       "projectileLifetime": 3.0,
       "damage": 25.0,
       "baseSpreadDeg": 2.0,
@@ -527,8 +517,8 @@
   },
   "Rifle": {
     "Weapon": {
-      "fireRate": 0.15,
-      "projectileSpeed": 500.0,
+      "fireRate": 0.25,
+      "projectileSpeed": 700.0,
       "projectileLifetime": 3.0,
       "damage": 12.0,
       "baseSpreadDeg": 2.0,
@@ -555,7 +545,7 @@
   "Shotgun": {
     "Weapon": {
       "fireRate": 0.8,
-      "projectileSpeed": 350.0,
+      "projectileSpeed": 400.0,
       "projectileLifetime": 1.5,
       "damage": 5.0,
       "baseSpreadDeg": 10.0,
@@ -582,9 +572,9 @@
   "Pistol": {
     "Weapon": {
       "fireRate": 0.4,
-      "projectileSpeed": 400.0,
+      "projectileSpeed": 600.0,
       "projectileLifetime": 2.0,
-      "damage": 15.0,
+      "damage": 10.0,
       "baseSpreadDeg": 1.0,
       "currentSpreadDeg": 0.0,
       "spreadPerShotDeg": 2.0,
@@ -608,22 +598,22 @@
   },
   "PM": {
     "Weapon": {
-      "fireRate": 0.3,
-      "projectileSpeed": 350.0,
+      "fireRate": 0.15,
+      "projectileSpeed": 600.0,
       "projectileLifetime": 1.5,
       "damage": 10.0,
       "baseSpreadDeg": 3.0,
       "currentSpreadDeg": 0.0,
       "spreadPerShotDeg": 3.0,
       "spreadDecayDegPerSec": 6.0,
-      "maxSpreadDeg": 15.0,
+      "maxSpreadDeg": 10.0,
       "recoilKickDeg": 1.5,
       "recoilReturnDegPerSec": 8.0,
       "recoilAngleOffset": 0.0,
       "projectilesPerShot": 1,
-      "magSize": 8,
-      "currentAmmo": 8,
-      "totalAmmo": 32,
+      "magSize": 25,
+      "currentAmmo": 25,
+      "totalAmmo": 100,
       "reloadDuration": 1.2,
       "reloadTimer": 0.0,
       "isReloading": false,
