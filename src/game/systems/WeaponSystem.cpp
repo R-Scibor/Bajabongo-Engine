@@ -191,13 +191,14 @@ namespace game {
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
             // Calculate spawn position (offset from center)
-            float spawnOffset = 30.0f; // Adjust based on entity size?
+            float spawnOffset = 45.0f; // Increased from 30.0f to be further out
+            float heightOffset = WEAPON_MUZZLE_HEIGHT_OFFSET; // Lift up to chest/gun level
             float cosA = std::cos(finalAngle);
             float sinA = std::sin(finalAngle);
             
             engine::Vector2f spawnPos = {
                 bodyPos.x + cosA * spawnOffset,
-                bodyPos.y + sinA * spawnOffset
+                bodyPos.y + sinA * spawnOffset + heightOffset
             };
 
             // Create Projectile Entity
@@ -215,10 +216,12 @@ namespace game {
             engine::FixtureDef fixDef;
             fixDef.size = { 10.0f, 10.0f };
             fixDef.density = 1.0f;
-            fixDef.isSensor = true;
+            fixDef.isSensor = false;
             fixDef.categoryBits = engine::PhysicsCategory::Projectile;
-            // Collide with Walls, Enemies, and PlayerHurtbox (if needed, but usually enemies shoot players)
-            fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Enemy | engine::PhysicsCategory::Hurtbox;
+            // Collide with Walls and Hurtboxes (Player/Enemy sensors).
+            // Exclude Enemy/Player hitboxes to rely solely on Hurtbox for damage.
+            // Exclude LowObstacle to allow shooting over them.
+            fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Hurtbox;
             
             pending.fixtures.push_back(fixDef);
 
@@ -229,7 +232,7 @@ namespace game {
             registry.emplace<engine::RenderableComponent>(projectile, "bullet_sprite", 2, sf::Color::White);
 
             // Game Logic
-            registry.emplace<ProjectileComponent>(projectile, weapon.damage);
+            registry.emplace<ProjectileComponent>(projectile, weapon.damage, entity);
             registry.emplace<DamageComponent>(projectile, weapon.damage);
             registry.emplace<engine::LifetimeComponent>(projectile, weapon.projectileLifetime);
         }

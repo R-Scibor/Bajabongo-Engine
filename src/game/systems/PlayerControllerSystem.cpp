@@ -174,7 +174,8 @@ namespace game {
                 b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
 
                 float dx = mouseWorldPos.x - bodyPos.x;
-                float dy = mouseWorldPos.y - bodyPos.y;
+                // Adjust aim origin to match weapon muzzle height to ensure accuracy
+                float dy = mouseWorldPos.y - (bodyPos.y + WEAPON_MUZZLE_HEIGHT_OFFSET);
 
                 // atan2 returns angle in radians
                 float angle = std::atan2(dy, dx);

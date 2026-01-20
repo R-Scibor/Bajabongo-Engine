@@ -196,9 +196,9 @@ namespace engine {
 
             // Custom logic for Players and Enemies to ensure they collide with correct things
             if (categoryBits == PhysicsCategory::Player) {
-                 maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile | PhysicsCategory::Sensor;
+                 maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Sensor;
             } else if (categoryBits == PhysicsCategory::Enemy) {
-                 maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
+                 maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle;
             }
 
             PendingPhysicsBodyComponent pending{
@@ -261,7 +261,7 @@ namespace engine {
                      } else if (fixDef.categoryBits == PhysicsCategory::Hurtbox) {
                          fixDef.maskBits = PhysicsCategory::Projectile;
                      } else if (fixDef.categoryBits == PhysicsCategory::Enemy) {
-                         fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Projectile;
+                         fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Player | PhysicsCategory::Wall | PhysicsCategory::LowObstacle;
                      } else {
                          fixDef.maskBits = maskBits; // Inherit
                      }

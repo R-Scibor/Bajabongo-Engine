@@ -7,7 +7,10 @@
 #include "game/components/CampBehaviorComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/AnimationStateComponent.hpp"
+#include "engine/components/PhysicsBodyComponent.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
 #include "engine/core/ILoggerManager.hpp"
+#include <box2d/box2d.h>
 #include <cmath>
 #include <numbers>
 
@@ -54,8 +57,39 @@ namespace game::ai {
                 return;
             }
             
-            const auto& targetTransform = registry.get<engine::TransformComponent>(enemy.targetEntity);
-            engine::Vector2f toTarget = targetTransform.position - transform.position;
+            // Calculate Muzzle Position
+            engine::Vector2f muzzlePos = { transform.position.x, transform.position.y + WEAPON_MUZZLE_HEIGHT_OFFSET };
+            
+            // Calculate Target Position (Dynamic Chest Detection)
+            engine::Vector2f targetPos;
+            bool targetFound = false;
+
+            // 1. Try to find Hurtbox Center
+            if (auto* targetBody = registry.try_get<engine::PhysicsBodyComponent>(enemy.targetEntity)) {
+                if (b2Body_IsValid(targetBody->bodyId)) {
+                    b2ShapeId shapes[8];
+                    int shapeCount = b2Body_GetShapes(targetBody->bodyId, shapes, 8);
+                    
+                    for (int i = 0; i < shapeCount; ++i) {
+                        b2Filter filter = b2Shape_GetFilter(shapes[i]);
+                        if (filter.categoryBits & engine::PhysicsCategory::Hurtbox) {
+                            b2AABB aabb = b2Shape_GetAABB(shapes[i]);
+                            targetPos.x = (aabb.lowerBound.x + aabb.upperBound.x) * 0.5f;
+                            targetPos.y = (aabb.lowerBound.y + aabb.upperBound.y) * 0.5f;
+                            targetFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 2. Fallback to constant offset if no Hurtbox found
+            if (!targetFound) {
+                 const auto& targetTransform = registry.get<engine::TransformComponent>(enemy.targetEntity);
+                 targetPos = { targetTransform.position.x, targetTransform.position.y + TARGET_CHEST_HEIGHT_OFFSET };
+            }
+
+            engine::Vector2f toTarget = targetPos - muzzlePos;
             float distanceSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
             
             float desiredAimAngle = std::atan2(toTarget.y, toTarget.x);

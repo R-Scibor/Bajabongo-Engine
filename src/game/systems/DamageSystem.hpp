@@ -14,6 +14,7 @@ namespace game {
         // No update needed, strictly event-based
         
         void onSensorBegin(const engine::PhysicsSensorBeginEvent& event);
+        void onContactBegin(const engine::PhysicsContactBeginEvent& event);
 
     private:
         void handleCollision(entt::entity projectile, entt::entity target, bool isTargetSensor, entt::registry& registry);

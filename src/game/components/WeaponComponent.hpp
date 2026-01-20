@@ -38,4 +38,10 @@ namespace game
         bool wantsToReload = false;
         float aimAngle = 0.0f;
     };
+
+    // Constants for aiming and spawning
+    // Muzzle height relative to entity position (feet/center)
+    constexpr float WEAPON_MUZZLE_HEIGHT_OFFSET = -35.0f;
+    // Target center/chest height relative to entity position (feet/center)
+    constexpr float TARGET_CHEST_HEIGHT_OFFSET = -35.0f;
 }

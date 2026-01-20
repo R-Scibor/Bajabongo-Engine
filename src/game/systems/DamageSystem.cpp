@@ -1,6 +1,7 @@
 #include "engine/pch.h"
 #include "DamageSystem.hpp"
 #include "game/components/DamageComponent.hpp"
+#include "game/components/ProjectileComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
@@ -24,6 +25,7 @@ namespace game {
         
         // Subscribe to events
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&DamageSystem::onSensorBegin>(this);
+        context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().connect<&DamageSystem::onContactBegin>(this);
         
         if (m_logger) {
             m_logger->info("DamageSystem initialized.");
@@ -32,6 +34,25 @@ namespace game {
 
     DamageSystem::~DamageSystem() {
         m_context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().disconnect(this);
+        m_context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().disconnect(this);
+    }
+
+    void DamageSystem::onContactBegin(const engine::PhysicsContactBeginEvent& event) {
+        auto& registry = *m_context.m_registry;
+        entt::entity entityA = event.entityA;
+        entt::entity entityB = event.entityB;
+
+        if (!registry.valid(entityA) || !registry.valid(entityB)) return;
+
+        // Check if A is projectile (and destroy it on contact with solid)
+        if (registry.all_of<ProjectileComponent>(entityA)) {
+            registry.destroy(entityA);
+        }
+        
+        // Check if B is projectile
+        else if (registry.all_of<ProjectileComponent>(entityB)) {
+            registry.destroy(entityB);
+        }
     }
 
     void DamageSystem::onSensorBegin(const engine::PhysicsSensorBeginEvent& event) {
@@ -60,12 +81,14 @@ namespace game {
     void DamageSystem::handleCollision(entt::entity projectile, entt::entity target, bool isTargetSensor, entt::registry& registry) {
         if (!registry.valid(projectile) || !registry.valid(target)) return;
 
-        // 1. If the target is a Sensor (Trigger), do not collide/destroy.
-        if (isTargetSensor) {
-            return;
+        // Check ownership to prevent self-damage
+        if (auto* projComp = registry.try_get<ProjectileComponent>(projectile)) {
+            if (projComp->owner == target) {
+                return;
+            }
         }
 
-        // 2. Apply Damage (if target has Health)
+        // 1. Attempt to apply damage first (Handles Hurtbox sensors)
         auto* damageComp = registry.try_get<DamageComponent>(projectile);
         auto* healthComp = registry.try_get<HealthComponent>(target);
 
@@ -88,9 +111,20 @@ namespace game {
                 // Destroy the original entity
                 registry.destroy(target);
             }
+
+            // Destroy the projectile after dealing damage
+            registry.destroy(projectile);
+            return;
         }
 
-        // 3. Destroy the projectile (because it hit something solid)
+        // 2. If no damage was dealt:
+        // If the target is a Sensor (e.g. Pickup, Zone) and we didn't damage it (no health),
+        // then the projectile should pass through.
+        if (isTargetSensor) {
+            return;
+        }
+
+        // 3. If target was solid (Wall/Obstacle) and not a sensor, destroy the projectile
         registry.destroy(projectile);
     }
 
