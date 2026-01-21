@@ -31,6 +31,7 @@ namespace game {
         std::shared_ptr<engine::ILogger> m_logger;
         std::vector<std::string> m_menuItems;
         int m_selectedItemIndex = 0;
+        float m_timeInState = 0.0f;
     };
 
 } // namespace game

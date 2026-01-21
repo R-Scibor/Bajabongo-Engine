@@ -19,6 +19,7 @@ namespace game {
         }
         m_menuItems = {"START", "LOAD", "CONFIG", "QUIT"};
         m_selectedItemIndex = 0;
+        m_timeInState = 0.0f;
 
         if (context.m_resourceManager) {
             // Path adjusted for execution from build/bin directory (assumed depth 2)
@@ -33,7 +34,7 @@ namespace game {
     }
 
     void MainMenuState::update(engine::EngineContext& context, float fixedDeltaTime) {
-        // Nothing to update in the main menu
+        m_timeInState += fixedDeltaTime;
     }
 
     void MainMenuState::render(engine::EngineContext& context) {
@@ -82,7 +83,12 @@ namespace game {
         const float endY = startY + (m_menuItems.size() * gap);
 
         // Draw Anchor Line (running from Logo top to bottom of buttons)
-        renderer.drawRect({anchorX, logoY}, {1.0f, endY - logoY}, {255, 255, 255, 76});
+        // Animate height growing over 1.5s
+        float fullHeight = endY - logoY;
+        float progress = std::min(m_timeInState / 1.5f, 1.0f);
+        float currentHeight = fullHeight * progress;
+
+        renderer.drawRect({anchorX, logoY}, {1.0f, currentHeight}, {255, 255, 255, 76});
 
         // Connect Anchor Line to Title
         float titleCenterY = logoY + 24.0f; // Approx center of 48px font
@@ -96,6 +102,10 @@ namespace game {
             engine::Color color = {224, 224, 224, 255}; // #E0E0E0
             std::string label = m_menuItems[i];
             float itemY = startY + (i * gap);
+
+            // "Draw Down" reveal: Only draw if the line has passed this item
+            if (logoY + currentHeight < itemY) continue;
+
             uint32_t fontSize = 32;
             bool isBroken = (label == "LOAD" || label == "CONFIG");
             float drawX = textX;
