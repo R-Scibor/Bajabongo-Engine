@@ -2,6 +2,7 @@
 #include "engine/core/math/MathAliases.hpp"
 #include <cstdint>
 #include <vector>
+#include <string>
 
 namespace engine
 {
@@ -27,6 +28,8 @@ namespace engine
         virtual void drawSprite(const struct SpriteDesc& sprite, const struct TransformComponent& transform, const Color& color) = 0;
         virtual void drawCircle(engine::Vector2f position, float radius) = 0;
         virtual void drawRect(engine::Vector2f position, engine::Vector2f size) = 0;
+        virtual void drawRect(engine::Vector2f position, engine::Vector2f size, Color color) = 0;
+        virtual void drawText(const std::string& text, engine::Vector2f position, uint32_t fontSize, Color color) = 0;
         virtual void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) = 0;
         virtual void drawPolygon(const std::vector<engine::Vector2f>& vertices, const Color& color) = 0;
         
@@ -42,6 +45,7 @@ namespace engine
         // This implies adding sf::Texture dependency to IRenderer.
         
         virtual void drawTexture(const void* textureHandle, engine::Vector2f position) = 0;
+        virtual void drawTexture(const void* textureHandle, engine::Vector2f position, engine::Vector2f size) = 0;
         
         // HACK: Allowing drawing of sf::Sprite directly for debug purposes in GameplayState
         virtual void drawSpriteDirect(const void* spriteHandle, engine::Vector2f position) = 0;

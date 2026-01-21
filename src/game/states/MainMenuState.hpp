@@ -6,6 +6,8 @@
 #include "engine/core/ILoggerManager.hpp"
 
 #include <memory>
+#include <vector>
+#include <string>
 
 namespace game {
 
@@ -27,6 +29,8 @@ namespace game {
 
     private:
         std::shared_ptr<engine::ILogger> m_logger;
+        std::vector<std::string> m_menuItems;
+        int m_selectedItemIndex = 0;
     };
 
 } // namespace game

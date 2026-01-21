@@ -759,6 +759,46 @@
             ]
         },
         {
+            "id": "main_menu_bg_texture",
+            "path": "../../assets/textures/main_menu_bg.png",
+            "sprites": [
+                {
+                    "id": "main_menu_bg_sprite",
+                    "region": [
+                        0,
+                        0,
+                        2752,
+                        1536
+                    ],
+                    "origin": [
+                        1376.0,
+                        768.0
+                    ]
+                }
+            ],
+            "animations": [
+                {
+                    "id": "main_menu_bg",
+                    "frameStart": [
+                        0,
+                        0
+                    ],
+                    "frameSize": [
+                        2752,
+                        1536
+                    ],
+                    "origin": [
+                        1376.0,
+                        768.0
+                    ],
+                    "frameCount": 1,
+                    "columns": 1,
+                    "duration": 0.1,
+                    "loop": true
+                }
+            ]
+        },
+        {
             "id": "map_hideout_texture",
             "path": "../../assets/textures/map_hideout.png",
             "sprites": [

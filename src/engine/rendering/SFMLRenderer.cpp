@@ -23,6 +23,14 @@ namespace engine
         m_rectShape.setFillColor(sf::Color::Transparent);
         m_rectShape.setOutlineColor(sf::Color::Green);
         m_rectShape.setOutlineThickness(1.0f);
+
+        // Try to load a font
+        if (!m_font.openFromFile("assets/fonts/default.ttf")) {
+            if (!m_font.openFromFile("../../assets/fonts/default.ttf")) {
+                // Fallback to system font
+                (void)m_font.openFromFile("C:/Windows/Fonts/arial.ttf");
+            }
+        }
     }
 
     SFMLRenderer::~SFMLRenderer() {
@@ -86,10 +94,37 @@ namespace engine
         sf::Vector2f sfmlPosition(position.x, position.y);
         sf::Vector2f sfmlSize(size.x, size.y);
 
+        // Ensure debug style
+        m_rectShape.setFillColor(sf::Color::Transparent);
+        m_rectShape.setOutlineColor(sf::Color::Green);
+        m_rectShape.setOutlineThickness(1.0f);
+
         m_rectShape.setPosition(sfmlPosition);
         m_rectShape.setSize(sfmlSize);
         m_rectShape.setOrigin({sfmlSize.x * 0.5f, sfmlSize.y * 0.5f}); // Center the rect
         m_renderWindow.draw(m_rectShape);
+    }
+
+    void SFMLRenderer::drawRect(engine::Vector2f position, engine::Vector2f size, Color color) {
+        sf::Vector2f sfmlPosition(position.x, position.y);
+        sf::Vector2f sfmlSize(size.x, size.y);
+
+        m_rectShape.setFillColor(sf::Color(color.r, color.g, color.b, color.a));
+        m_rectShape.setOutlineThickness(0.0f);
+
+        m_rectShape.setPosition(sfmlPosition);
+        m_rectShape.setSize(sfmlSize);
+        m_rectShape.setOrigin({0.0f, 0.0f}); // Top-left origin for UI
+        m_renderWindow.draw(m_rectShape);
+    }
+
+    void SFMLRenderer::drawText(const std::string& text, engine::Vector2f position, uint32_t fontSize, Color color) {
+        sf::Text textObj(m_font);
+        textObj.setString(text);
+        textObj.setCharacterSize(fontSize);
+        textObj.setFillColor(sf::Color(color.r, color.g, color.b, color.a));
+        textObj.setPosition({position.x, position.y});
+        m_renderWindow.draw(textObj);
     }
 
     void SFMLRenderer::drawLine(engine::Vector2f start, engine::Vector2f end, Color color) {
@@ -119,6 +154,25 @@ namespace engine
         sprite.setPosition({position.x, position.y});
         
         // We assume we want to draw it as is (1:1)
+        m_renderWindow.draw(sprite);
+    }
+
+    void SFMLRenderer::drawTexture(const void* textureHandle, engine::Vector2f position, engine::Vector2f size) {
+        if (!textureHandle) return;
+        
+        const sf::Texture* texture = static_cast<const sf::Texture*>(textureHandle);
+        sf::Sprite sprite(*texture);
+        sprite.setPosition({position.x, position.y});
+        
+        // Calculate scale
+        sf::Vector2u texSize = texture->getSize();
+        if (texSize.x > 0 && texSize.y > 0) {
+            sprite.setScale({
+                size.x / static_cast<float>(texSize.x),
+                size.y / static_cast<float>(texSize.y)
+            });
+        }
+        
         m_renderWindow.draw(sprite);
     }
 

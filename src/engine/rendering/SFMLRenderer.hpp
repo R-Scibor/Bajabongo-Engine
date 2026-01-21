@@ -5,6 +5,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <memory>
 #include <optional>
 
@@ -37,9 +39,12 @@ namespace engine
         void clear(Color color) override;
         void drawCircle(engine::Vector2f position, float radius) override;
         void drawRect(engine::Vector2f position, engine::Vector2f size) override;
+        void drawRect(engine::Vector2f position, engine::Vector2f size, Color color) override;
+        void drawText(const std::string& text, engine::Vector2f position, uint32_t fontSize, Color color) override;
         void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) override;
         void drawPolygon(const std::vector<engine::Vector2f>& vertices, const Color& color) override;
         void drawTexture(const void* textureHandle, engine::Vector2f position) override;
+        void drawTexture(const void* textureHandle, engine::Vector2f position, engine::Vector2f size) override;
         void drawSpriteDirect(const void* spriteHandle, engine::Vector2f position) override;
         void drawSprite(const SpriteDesc& sprite, const TransformComponent& transform, const Color& color) override;
         engine::Vector2f screenToWorld(engine::Vector2f screenPos) override;
@@ -59,6 +64,7 @@ namespace engine
         std::shared_ptr<class IResourceManager> m_resourceManager;
         sf::CircleShape m_circleShape;
         sf::RectangleShape m_rectShape;
+        sf::Font m_font;
         std::shared_ptr<ILogger> m_logger;
     };
 }
