@@ -371,3 +371,5 @@ FodyWeavers.xsd
 vcpkg_installed/
 /src/game/assets/player.png
 /assets/textures
+/assets/sounds
+/assets/music

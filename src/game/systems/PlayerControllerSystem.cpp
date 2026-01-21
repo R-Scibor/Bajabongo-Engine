@@ -107,6 +107,9 @@ namespace game {
                 moveDir.y /= length;
             }
 
+            // --- Aim Logic (PPM) ---
+            bool isAiming = input->isMouseButtonPressed(engine::MouseCode::Right);
+
             // --- Animation State Machine ---
             if (anim) {
                 // We rely on AnimationStateComponent now.
@@ -116,10 +119,11 @@ namespace game {
                         animState->state = engine::AnimationState::Heal;
                     } else {
                         // 1. Determine State: Idle vs Moving vs Aiming
-                        if (lengthSq > 0.0f) {
-                            animState->state = engine::AnimationState::Walk;
-                        } else if (weapon && weapon->wantsToShoot) {
+                        // Aiming (PPM) overrides Walk to ensure Aim sprite is shown when holding RMB.
+                        if (isAiming) {
                             animState->state = engine::AnimationState::Aim;
+                        } else if (lengthSq > 0.0f) {
+                            animState->state = engine::AnimationState::Walk;
                         } else {
                             animState->state = engine::AnimationState::Idle;
                         }
@@ -210,7 +214,9 @@ namespace game {
                         weapon->wantsToShoot = false;
                         weapon->wantsToReload = false;
                     } else {
-                        weapon->wantsToShoot = input->isMouseButtonPressed(engine::MouseCode::Left);
+                        // Only allow shooting if aiming (PPM held)
+                        bool wantsToFire = input->isMouseButtonPressed(engine::MouseCode::Left);
+                        weapon->wantsToShoot = isAiming && wantsToFire;
                         weapon->wantsToReload = input->isKeyPressed(engine::KeyCode::R);
                     }
                 }

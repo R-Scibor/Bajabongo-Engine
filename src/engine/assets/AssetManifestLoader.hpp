@@ -47,6 +47,9 @@ namespace engine {
         void loadTextures(const nlohmann::json& j);
         void loadSprite(const std::string& textureId, const nlohmann::json& spriteJson);
         void loadAnimation(const std::string& textureId, const nlohmann::json& animJson);
+        
+        void loadSounds(const nlohmann::json& j);
+        void loadMusic(const nlohmann::json& j);
     };
 
 } // namespace engine

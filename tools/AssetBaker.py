@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
 Bajabongo Engine - Asset Baker
-Scans assets/textures and generates resources.json manifest.
+Scans assets/textures, assets/sounds, assets/music and generates resources.json manifest.
 
 Naming Conventions:
   - Static sprites: filename.png
   - Strip animations: basename-N.png (e.g., player_run-8.png)
   - Grid animations: basename-NxM.png (e.g., zombie_walk-4x8.png)
   - Maps: map_*.png (origin set to [0, 0])
+  - Sounds: filename.wav/ogg (short effects)
+  - Music: filename.ogg/wav (long tracks)
 """
 
 import os
@@ -26,6 +28,8 @@ ENTITY_KEYWORDS = ["player", "npc", "enemy", "zombie", "char", "unit", "mob"]
 
 # Paths
 TEXTURE_DIR = Path("../assets/textures")
+SOUND_DIR = Path("../assets/sounds")
+MUSIC_DIR = Path("../assets/music")
 OUTPUT_PATH = Path("../assets/data/resources.json")
 
 
@@ -157,16 +161,11 @@ def scan_textures() -> list:
         print(f"[{sprite_type}] {filename} → static sprite")
         textures.append(process_static_sprite(filepath, img_width, img_height))
 
-        # Generate single-frame animation clip for static sprites that might be used as states (e.g. idle)
-        # This is a requirement because the AnimationSystem will not update the sprite if the requested clip is missing.
-        # So we create a 1-frame clip for every static sprite to be safe and flexible.
+        # Generate single-frame animation clip for static sprites that might be used as states
         if not is_map(filepath.stem):
              basename = filepath.stem
-             # Convention: If the file is "player_idle.png", the clip ID will be "player_idle".
-             # This matches what AnimationStateMachineSystem expects (animSetId + "_idle").
              anim_id = basename 
              
-             # Get the texture entry we just added
              last_texture = textures[-1]
              
              origin = calculate_origin(basename, img_width, img_height)
@@ -186,39 +185,64 @@ def scan_textures() -> list:
     return textures
 
 
-def merge_with_existing(new_textures: list) -> dict:
-    """Merge new texture data with existing manifest (preserve manual edits)."""
+def scan_audio(directory: Path, asset_type: str) -> list:
+    """Scan audio directory and generate entries."""
+    entries = []
+    
+    if not directory.exists():
+        # It's fine if the directory doesn't exist yet, just return empty list
+        return []
+        
+    for filepath in sorted(directory.glob("*.*")):
+        if filepath.suffix.lower() not in ['.wav', '.ogg', '.mp3', '.flac']:
+            continue
+            
+        print(f"[{asset_type.upper()}] {filepath.name}")
+        entries.append({
+            "id": filepath.stem,
+            "path": f"../../assets/{asset_type}/{filepath.name}"
+        })
+    return entries
+
+
+def merge_with_existing(new_textures: list, new_sounds: list, new_music: list) -> dict:
+    """Merge new data with existing manifest (preserve manual edits)."""
     if not OUTPUT_PATH.exists():
-        return {"textures": new_textures, "animations": []}
+        return {"textures": new_textures, "sounds": new_sounds, "music": new_music, "animations": []}
     
     try:
         with open(OUTPUT_PATH, 'r') as f:
             existing = json.load(f)
     except Exception as e:
         print(f"WARNING: Failed to load existing manifest: {e}")
-        return {"textures": new_textures, "animations": []}
+        return {"textures": new_textures, "sounds": new_sounds, "music": new_music, "animations": []}
     
-    # Build lookup map
-    existing_map = {tex["id"]: tex for tex in existing.get("textures", [])}
+    # Merge Textures (preserve animations)
+    existing_tex_map = {tex["id"]: tex for tex in existing.get("textures", [])}
+    merged_textures = []
     
-    merged = []
     for new_tex in new_textures:
         tex_id = new_tex["id"]
-        if tex_id in existing_map:
-            old_tex = existing_map[tex_id]
-            
-            # Preserve manual animation overrides (duration, loop)
+        if tex_id in existing_tex_map:
+            old_tex = existing_tex_map[tex_id]
+            # Preserve manual animation overrides
             if new_tex["animations"] and old_tex.get("animations"):
                 for new_anim in new_tex["animations"]:
                     for old_anim in old_tex["animations"]:
                         if new_anim["id"] == old_anim["id"]:
-                            # Keep manually edited duration/loop
                             new_anim["duration"] = old_anim.get("duration", 0.1)
                             new_anim["loop"] = old_anim.get("loop", True)
-        
-        merged.append(new_tex)
+        merged_textures.append(new_tex)
     
-    return {"textures": merged, "animations": []}
+    # Merge Sounds and Music (simple overwrite for now as they have no complex properties yet)
+    # If we add properties like "volume" or "defaultLoop", we would need logic here.
+    
+    return {
+        "textures": merged_textures,
+        "sounds": new_sounds,
+        "music": new_music,
+        "animations": existing.get("animations", [])
+    }
 
 
 def main():
@@ -226,12 +250,14 @@ def main():
     print(f"Scanning: {TEXTURE_DIR.absolute()}")
     
     textures = scan_textures()
+    sounds = scan_audio(SOUND_DIR, "sounds")
+    music = scan_audio(MUSIC_DIR, "music")
     
-    if not textures:
-        print("No textures found.")
-        return
+    if not textures and not sounds and not music:
+        print("No assets found.")
+        # Don't return, allow writing empty manifest if needed, or just keep existing
     
-    manifest = merge_with_existing(textures)
+    manifest = merge_with_existing(textures, sounds, music)
     
     # Write output
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -240,6 +266,8 @@ def main():
     
     print(f"\n✅ Generated {OUTPUT_PATH}")
     print(f"   Textures: {len(textures)}")
+    print(f"   Sounds:   {len(sounds)}")
+    print(f"   Music:    {len(music)}")
     print(f"   Animations: {sum(len(t['animations']) for t in textures)}")
 
 

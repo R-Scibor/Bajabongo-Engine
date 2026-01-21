@@ -19,6 +19,7 @@ namespace engine {
     class ArchetypeManager;
     class EntityFactory;
     class GuiService;
+    class AudioSystem;
 
     struct DebugSettings {
         bool showPhysics = false;
@@ -70,6 +71,9 @@ namespace engine {
 
         // --- Phase 5C: Tooling ---
         std::shared_ptr<GuiService> m_guiService;
+
+        // --- Phase 4: Audio System ---
+        std::shared_ptr<AudioSystem> m_audioSystem;
 
         // --- Global Settings ---
         static constexpr float MAP_SCALE = 2.0f; // Default map scale

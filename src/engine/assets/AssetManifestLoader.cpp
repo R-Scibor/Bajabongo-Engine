@@ -49,6 +49,14 @@ namespace engine {
             loadTextures(j["textures"]);
         }
 
+        if (j.contains("sounds")) {
+            loadSounds(j["sounds"]);
+        }
+
+        if (j.contains("music")) {
+            loadMusic(j["music"]);
+        }
+
         return true;
     }
 
@@ -193,6 +201,56 @@ namespace engine {
         clip.spriteIds = spriteIds;
 
         m_animationLibrary->registerClip(animId, clip);
+    }
+
+    void AssetManifestLoader::loadSounds(const nlohmann::json& soundArray) {
+        if (!soundArray.is_array()) {
+            if (m_logger) {
+                m_logger->warn("AssetManifestLoader: 'sounds' field is not an array.");
+            }
+            return;
+        }
+
+        for (const auto& soundJson : soundArray) {
+            if (!soundJson.contains("id") || !soundJson.contains("path")) {
+                if (m_logger) {
+                    m_logger->warn("AssetManifestLoader: Skipping invalid sound entry (missing id or path).");
+                }
+                continue;
+            }
+
+            std::string id = soundJson["id"];
+            std::string path = soundJson["path"];
+
+            if (m_resourceManager) {
+                m_resourceManager->loadSoundBuffer(id, path);
+            }
+        }
+    }
+
+    void AssetManifestLoader::loadMusic(const nlohmann::json& musicArray) {
+        if (!musicArray.is_array()) {
+            if (m_logger) {
+                m_logger->warn("AssetManifestLoader: 'music' field is not an array.");
+            }
+            return;
+        }
+
+        for (const auto& musicJson : musicArray) {
+            if (!musicJson.contains("id") || !musicJson.contains("path")) {
+                if (m_logger) {
+                    m_logger->warn("AssetManifestLoader: Skipping invalid music entry (missing id or path).");
+                }
+                continue;
+            }
+
+            std::string id = musicJson["id"];
+            std::string path = musicJson["path"];
+
+            if (m_resourceManager) {
+                m_resourceManager->registerMusicPath(id, path);
+            }
+        }
     }
 
 } // namespace engine

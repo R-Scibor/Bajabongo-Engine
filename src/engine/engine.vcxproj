@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="assets\AssetManifestLoader.hpp" />
     <ClInclude Include="assets\MapLoader.hpp" />
+    <ClInclude Include="audio\AudioSystem.hpp" />
     <ClInclude Include="components\AnimationComponent.hpp" />
     <ClInclude Include="components\AnimationStateComponent.hpp" />
     <ClInclude Include="components\CameraFocusComponent.hpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="core\math\Rect.hpp" />
     <ClInclude Include="core\math\Vector2.hpp" />
     <ClInclude Include="ecs\HierarchySystem.hpp" />
+    <ClInclude Include="events\AudioEvents.hpp" />
     <ClInclude Include="events\StateEvents.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="input\SFMLInputManager.hpp" />
@@ -205,6 +207,7 @@
   <ItemGroup>
     <ClCompile Include="assets\AssetManifestLoader.cpp" />
     <ClCompile Include="assets\MapLoader.cpp" />
+    <ClCompile Include="audio\AudioSystem.cpp" />
     <ClCompile Include="core\Application.cpp" />
     <ClCompile Include="core\GuiService.cpp" />
     <ClCompile Include="core\StateManager.cpp" />

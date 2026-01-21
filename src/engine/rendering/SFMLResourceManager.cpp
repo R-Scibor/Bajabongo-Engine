@@ -4,6 +4,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 
 namespace engine {
 
@@ -64,6 +65,63 @@ namespace engine {
             m_logger->error("Texture not found: {}", id);
         }
         return nullptr;
+    }
+
+    std::shared_ptr<SoundBufferHandle> SFMLResourceManager::loadSoundBuffer(const std::string& id, const std::string& path) {
+        // Check cache first
+        auto it = m_soundBuffers.find(id);
+        if (it != m_soundBuffers.end()) {
+            return it->second;
+        }
+
+        // Load from disk
+        auto buffer = std::make_shared<sf::SoundBuffer>();
+        if (!buffer->loadFromFile(path)) {
+            if (m_logger) {
+                m_logger->error("Failed to load sound buffer: {}", path);
+            }
+            return nullptr;
+        }
+
+        // Cache and return
+        m_soundBuffers[id] = buffer;
+        
+        if (m_logger) {
+            m_logger->info("Loaded sound buffer: {} from {}", id, path);
+        }
+        
+        return buffer;
+    }
+
+    std::shared_ptr<SoundBufferHandle> SFMLResourceManager::getSoundBuffer(const std::string& id) const {
+        auto it = m_soundBuffers.find(id);
+        if (it != m_soundBuffers.end()) {
+            return it->second;
+        }
+
+        if (m_logger) {
+            m_logger->error("Sound buffer not found: {}", id);
+        }
+        return nullptr;
+    }
+
+    void SFMLResourceManager::registerMusicPath(const std::string& id, const std::string& path) {
+        m_musicPaths[id] = path;
+         if (m_logger) {
+            m_logger->info("Registered music path: {} -> {}", id, path);
+        }
+    }
+
+    std::string SFMLResourceManager::getMusicPath(const std::string& id) const {
+        auto it = m_musicPaths.find(id);
+        if (it != m_musicPaths.end()) {
+            return it->second;
+        }
+        
+        if (m_logger) {
+            m_logger->error("Music path not found for id: {}", id);
+        }
+        return "";
     }
 
 } // namespace engine

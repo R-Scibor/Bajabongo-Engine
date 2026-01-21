@@ -10,6 +10,7 @@
 #include "engine/core/ILogger.hpp"
 #include "engine/core/IInputManager.hpp"
 #include "engine/core/GuiService.hpp"
+#include "engine/audio/AudioSystem.hpp"
 
 #include <SFML/Window/Event.hpp>
 #include <box2d/box2d.h>
@@ -37,6 +38,13 @@ namespace engine {
         } else {
             m_logger->error("Failed to initialize GuiService: Window is not SFMLRenderer");
         }
+
+        // Initialize Audio System
+        m_context->m_audioSystem = std::make_shared<AudioSystem>(
+            m_context->m_resourceManager,
+            m_context->m_dispatcher,
+            m_context->m_logManager->GetLogger("Audio")
+        );
 
         m_logger->info("Application starting up.");
     }
@@ -88,6 +96,11 @@ namespace engine {
 
             // 4. Run non-essential updates and process event dispatcher
             update();
+            
+            // Update audio system (fading, cleanup)
+            if (m_context->m_audioSystem) {
+                m_context->m_audioSystem->update(deltaTime);
+            }
 
             // 5. Process all queued state transitions at a safe point
             m_stateManager->processTransitions();

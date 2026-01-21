@@ -1841,5 +1841,12 @@
             ]
         }
     ],
+    "sounds": [],
+    "music": [
+        {
+            "id": "main_menu",
+            "path": "../../assets/music/main_menu.mp3"
+        }
+    ],
     "animations": []
 }
