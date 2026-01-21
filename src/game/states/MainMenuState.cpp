@@ -156,32 +156,84 @@ namespace game {
 
     void MainMenuState::handleEvent(engine::EngineContext& context, const sf::Event& event)
     {
+        bool activate = false;
+
         if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
-            if (keyPressed->code == sf::Keyboard::Key::Up) {
+            if (keyPressed->code == sf::Keyboard::Key::Up || keyPressed->code == sf::Keyboard::Key::W) {
                 m_selectedItemIndex--;
                 if (m_selectedItemIndex < 0) m_selectedItemIndex = static_cast<int>(m_menuItems.size()) - 1;
             }
-            else if (keyPressed->code == sf::Keyboard::Key::Down) {
+            else if (keyPressed->code == sf::Keyboard::Key::Down || keyPressed->code == sf::Keyboard::Key::S) {
                 m_selectedItemIndex++;
                 if (m_selectedItemIndex >= static_cast<int>(m_menuItems.size())) m_selectedItemIndex = 0;
             }
-            else if (keyPressed->code == sf::Keyboard::Key::Enter) {
-                if (m_selectedItemIndex >= 0 && m_selectedItemIndex < static_cast<int>(m_menuItems.size())) {
-                    const auto& item = m_menuItems[m_selectedItemIndex];
-                    if (item == "START") {
-                        if (m_logger) m_logger->info("Starting Game...");
-                        context.m_dispatcher->enqueue<engine::RequestStatePushEvent>("Gameplay");
-                    }
-                    else if (item == "QUIT") {
-                        if (m_logger) m_logger->info("Quitting...");
-                        context.m_dispatcher->enqueue<engine::RequestStateClearEvent>();
-                    }
-                }
+            else if (keyPressed->code == sf::Keyboard::Key::Enter || keyPressed->code == sf::Keyboard::Key::Space) {
+                activate = true;
             }
             else if (keyPressed->code == sf::Keyboard::Key::Escape) {
                  context.m_dispatcher->enqueue<engine::RequestStateClearEvent>();
             }
         }
+        else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>()) {
+            int hit = getItemAt(static_cast<float>(mouseMoved->position.x), static_cast<float>(mouseMoved->position.y));
+            if (hit != -1) {
+                m_selectedItemIndex = hit;
+            }
+        }
+        else if (const auto* mouseBtn = event.getIf<sf::Event::MouseButtonPressed>()) {
+            if (mouseBtn->button == sf::Mouse::Button::Left) {
+                int hit = getItemAt(static_cast<float>(mouseBtn->position.x), static_cast<float>(mouseBtn->position.y));
+                if (hit != -1) {
+                    m_selectedItemIndex = hit;
+                    activate = true;
+                }
+            }
+        }
+
+        if (activate && m_selectedItemIndex >= 0 && m_selectedItemIndex < static_cast<int>(m_menuItems.size())) {
+            const auto& item = m_menuItems[m_selectedItemIndex];
+            if (item == "START") {
+                if (m_logger) m_logger->info("Starting Game...");
+                context.m_dispatcher->enqueue<engine::RequestStatePushEvent>("Gameplay");
+            }
+            else if (item == "QUIT") {
+                if (m_logger) m_logger->info("Quitting...");
+                context.m_dispatcher->enqueue<engine::RequestStateClearEvent>();
+            }
+        }
+    }
+
+    int MainMenuState::getItemAt(float x, float y) const {
+        const float stripX = 1420.0f;
+        const float anchorX = stripX + 40.0f;
+        const float textX = anchorX + 40.0f;
+        const float startY = 400.0f;
+        const float gap = 60.0f;
+        const float logoY = 100.0f;
+        const float endY = startY + (m_menuItems.size() * gap);
+
+        // Check animation progress
+        float fullHeight = endY - logoY;
+        float progress = std::min(m_timeInState / 1.5f, 1.0f);
+        float currentHeight = fullHeight * progress;
+
+        for (size_t i = 0; i < m_menuItems.size(); ++i) {
+            float itemY = startY + (i * gap);
+            
+            // Check visibility (Draw Down effect)
+            if (logoY + currentHeight < itemY) continue;
+            
+            // Hitbox: [textX - 10, itemY] to [textX - 10 + 230, itemY + 40]
+            float boxX = textX - 10.0f;
+            float boxY = itemY;
+            float boxW = 230.0f;
+            float boxH = 40.0f;
+
+            if (x >= boxX && x <= boxX + boxW && y >= boxY && y <= boxY + boxH) {
+                return static_cast<int>(i);
+            }
+        }
+        return -1;
     }
 
 } // namespace game

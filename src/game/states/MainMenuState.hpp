@@ -32,6 +32,9 @@ namespace game {
         std::vector<std::string> m_menuItems;
         int m_selectedItemIndex = 0;
         float m_timeInState = 0.0f;
+
+        // Returns index of menu item at given screen coordinates, or -1 if none
+        int getItemAt(float x, float y) const;
     };
 
 } // namespace game
