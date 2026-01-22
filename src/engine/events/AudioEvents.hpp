@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <entt/entt.hpp>
 
 namespace engine {
 
@@ -9,6 +10,13 @@ namespace engine {
         float volume = 100.0f;
         float pitch = 1.0f;
         bool loop = false;
+        entt::entity sourceEntity = entt::null; // Optional: Entity that produced the sound (for looping control)
+    };
+
+    // Stop a looping sound associated with an entity
+    struct StopSoundEvent {
+        entt::entity sourceEntity;
+        float fadeOutDuration = 0.0f; // Optional fade out (not yet implemented fully for SFX, but good to have)
     };
 
     // Background music event

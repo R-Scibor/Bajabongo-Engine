@@ -66,6 +66,9 @@ namespace game {
         factory.registerComponentLoader("Weapon",
             [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
                 WeaponComponent weapon;
+                weapon.shootSoundId = data.value("shootSoundId", "");
+                weapon.shootSoundLooping = data.value("shootSoundLooping", false);
+
                 weapon.fireRate = data.value("fireRate", 0.2f);
                 weapon.damage = data.value("damage", 10.0f);
                 weapon.projectileSpeed = data.value("projectileSpeed", 300.0f);

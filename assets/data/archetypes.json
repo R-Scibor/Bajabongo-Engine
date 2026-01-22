@@ -475,6 +475,8 @@
       "maxRange": 700.0
     },
     "Weapon": {
+      "shootSoundId": "ak_single",
+      "shootSoundLooping": false,
       "fireRate": 0.15,
       "projectileSpeed": 700.0,
       "projectileLifetime": 3.0,
@@ -544,6 +546,8 @@
   },
   "Rifle": {
     "Weapon": {
+      "shootSoundId": "ak_fullauto",
+      "shootSoundLooping": true,
       "fireRate": 0.25,
       "projectileSpeed": 700.0,
       "projectileLifetime": 3.0,
@@ -625,6 +629,8 @@
   },
   "PM": {
     "Weapon": {
+      "shootSoundId": "smg_burst",
+      "shootSoundLooping": false,
       "fireRate": 0.08,
       "burstCooldown": 0.4,
       "shotsPerBurst": 3,

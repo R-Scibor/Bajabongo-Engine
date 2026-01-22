@@ -12,6 +12,7 @@
 #include "game/components/ProjectileComponent.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
+#include "engine/events/AudioEvents.hpp"
 
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
@@ -103,12 +104,44 @@ namespace game {
                 }
             }
 
+            // Handle Audio Loop Logic (for auto weapons like AK)
+            bool shouldLoop = weapon.wantsToShoot && weapon.currentAmmo > 0 && !weapon.isReloading && weapon.shootSoundLooping;
+            
+            if (shouldLoop && !weapon.isFiringAudioLoop && !weapon.shootSoundId.empty()) {
+                m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
+                    weapon.shootSoundId,
+                    100.0f,
+                    1.0f,
+                    true,
+                    entity
+                });
+                weapon.isFiringAudioLoop = true;
+            }
+            else if (!shouldLoop && weapon.isFiringAudioLoop) {
+                m_context.m_dispatcher->enqueue<engine::StopSoundEvent>({entity});
+                weapon.isFiringAudioLoop = false;
+            }
+
             // Handle Shooting
             if (canFire(weapon)) {
                 // Start burst if applicable
                 if (!weapon.isBursting && weapon.shotsPerBurst > 1) {
                     weapon.isBursting = true;
                     weapon.burstShotsFired = 0;
+                }
+
+                // Play One-Shot Sound (Non-looping)
+                if (!weapon.shootSoundLooping && !weapon.shootSoundId.empty()) {
+                    // Play if not burst, or if it is the first shot of a burst
+                    if (weapon.shotsPerBurst <= 1 || weapon.burstShotsFired == 0) {
+                        m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
+                            weapon.shootSoundId,
+                            100.0f,
+                            1.0f,
+                            false,
+                            entity
+                        });
+                    }
                 }
 
                 applyFiringEffects(weapon, fixedDeltaTime);

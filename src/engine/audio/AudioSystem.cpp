@@ -19,6 +19,7 @@ namespace engine {
 
         // Subscribe to events
         m_connections.push_back(m_dispatcher->sink<PlaySoundEvent>().connect<&AudioSystem::onPlaySound>(this));
+        m_connections.push_back(m_dispatcher->sink<StopSoundEvent>().connect<&AudioSystem::onStopSound>(this));
         m_connections.push_back(m_dispatcher->sink<PlayMusicEvent>().connect<&AudioSystem::onPlayMusic>(this));
         m_connections.push_back(m_dispatcher->sink<StopMusicEvent>().connect<&AudioSystem::onStopMusic>(this));
         m_connections.push_back(m_dispatcher->sink<SetVolumeEvent>().connect<&AudioSystem::onSetVolume>(this));
@@ -64,9 +65,35 @@ namespace engine {
             m_dispatcher->enqueue<MusicFinishedEvent>({ finishedId });
             if (m_logger) m_logger->info("Music finished naturally: {}", finishedId);
         }
+
+        // Clean up tracking map for stopped sounds
+        for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end(); ) {
+            size_t index = it->second;
+            if (index < m_soundPool.size() && m_soundPool[index]->getStatus() == sf::SoundSource::Status::Stopped) {
+                it = m_loopingSounds.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 
     void AudioSystem::onPlaySound(const PlaySoundEvent& event) {
+        // Check if we are already looping this sound for this entity
+        if (event.loop && event.sourceEntity != entt::null) {
+            auto it = m_loopingSounds.find(event.sourceEntity);
+            if (it != m_loopingSounds.end()) {
+                size_t index = it->second;
+                // Verify the sound is still valid and playing
+                if (index < m_soundPool.size() && m_soundPool[index]->getStatus() == sf::SoundSource::Status::Playing) {
+                    // Update parameters if needed? For now just ignore duplicate start
+                    return;
+                } else {
+                    // It stopped, so remove from map and start fresh
+                    m_loopingSounds.erase(it);
+                }
+            }
+        }
+
         auto buffer = m_resourceManager->getSoundBuffer(event.id);
         if (!buffer) {
              if (m_logger) m_logger->warn("AudioSystem: Sound buffer not found: {}", event.id);
@@ -75,18 +102,30 @@ namespace engine {
 
         // Find free sound source
         sf::Sound* candidate = nullptr;
+        size_t chosenIndex = 0;
+
         for (size_t i = 0; i < MAX_SOUNDS; ++i) {
             if (m_soundPool[i]->getStatus() == sf::SoundSource::Status::Stopped) {
                 candidate = m_soundPool[i].get();
+                chosenIndex = i;
                 break;
             }
         }
 
         if (!candidate) {
             // Pool full, steal next index (round robin)
-            candidate = m_soundPool[m_nextSoundIndex].get();
+            chosenIndex = m_nextSoundIndex;
+            candidate = m_soundPool[chosenIndex].get();
             m_nextSoundIndex = (m_nextSoundIndex + 1) % MAX_SOUNDS;
-            // if (m_logger) m_logger->trace("AudioSystem: Pool full, recycling sound source.");
+            
+            // If we stole a sound, check if it was being tracked as a loop and remove it
+            for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end(); ) {
+                if (it->second == chosenIndex) {
+                    it = m_loopingSounds.erase(it);
+                } else {
+                    ++it;
+                }
+            }
         }
 
         candidate->setBuffer(*buffer);
@@ -95,6 +134,24 @@ namespace engine {
         candidate->setPitch(event.pitch);
         candidate->setLooping(event.loop);
         candidate->play();
+
+        // Track looping sounds
+        if (event.loop && event.sourceEntity != entt::null) {
+            m_loopingSounds[event.sourceEntity] = chosenIndex;
+        }
+    }
+
+    void AudioSystem::onStopSound(const StopSoundEvent& event) {
+        if (event.sourceEntity == entt::null) return;
+
+        auto it = m_loopingSounds.find(event.sourceEntity);
+        if (it != m_loopingSounds.end()) {
+            size_t index = it->second;
+            if (index < m_soundPool.size()) {
+                m_soundPool[index]->stop();
+            }
+            m_loopingSounds.erase(it);
+        }
     }
 
     void AudioSystem::onPlayMusic(const PlayMusicEvent& event) {

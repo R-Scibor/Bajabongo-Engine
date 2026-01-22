@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <SFML/Audio.hpp>
 #include <entt/entt.hpp>
 #include "engine/core/IResourceManager.hpp"
@@ -24,6 +25,7 @@ namespace engine {
 
     private:
         void onPlaySound(const PlaySoundEvent& event);
+        void onStopSound(const StopSoundEvent& event);
         void onPlayMusic(const PlayMusicEvent& event);
         void onStopMusic(const StopMusicEvent& event);
         void onSetVolume(const SetVolumeEvent& event);
@@ -58,6 +60,9 @@ namespace engine {
         float m_fadeDuration = 0.0f;
         float m_targetFadeVolume = 0.0f;
         float m_startFadeVolume = 0.0f;
+
+        // Active Looping Sounds (Entity -> Sound Pool Index)
+        std::unordered_map<entt::entity, size_t> m_loopingSounds;
 
         std::vector<entt::scoped_connection> m_connections;
     };

@@ -1,9 +1,15 @@
 #pragma once
+#include <string>
 
 namespace game
 {
     struct WeaponComponent
     {
+        // Audio
+        std::string shootSoundId;
+        bool shootSoundLooping = false;
+        bool isFiringAudioLoop = false; // Runtime state
+
         float cooldownTimer = 0.0f;
         float fireRate = 0.2f;      // Time between shots in seconds
         float projectileSpeed = 500.0f;

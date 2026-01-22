@@ -10,6 +10,7 @@
 #include "game/components/WeaponInventoryComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
+#include "engine/events/AudioEvents.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
@@ -128,10 +129,24 @@ namespace game {
             const auto& weaponData = *weaponDataPtr;
             
             auto& weapon = context.m_registry->get<WeaponComponent>(entity);
+
+            // Stop any existing loop before overwriting stats
+            if (weapon.isFiringAudioLoop) {
+                if (context.m_dispatcher) {
+                    context.m_dispatcher->enqueue<engine::StopSoundEvent>({entity});
+                }
+                weapon.isFiringAudioLoop = false;
+            }
             
-            // Copy stats manually or via reflection if you had it. 
+            // Copy stats manually or via reflection if you had it.
             // Since we don't have full reflection deserialization here in this snippet, we do it manually based on fields.
             // Based on WeaponComponent.hpp:
+
+            if (weaponData.contains("shootSoundId")) weapon.shootSoundId = weaponData["shootSoundId"];
+            else weapon.shootSoundId = ""; // Reset if not present
+
+            if (weaponData.contains("shootSoundLooping")) weapon.shootSoundLooping = weaponData["shootSoundLooping"];
+            else weapon.shootSoundLooping = false;
             
             if (weaponData.contains("fireRate")) weapon.fireRate = weaponData["fireRate"];
             if (weaponData.contains("projectileSpeed")) weapon.projectileSpeed = weaponData["projectileSpeed"];
@@ -169,6 +184,7 @@ namespace game {
             weapon.cooldownTimer = 0.0f;
             weapon.isBursting = false;
             weapon.burstShotsFired = 0;
+            weapon.isFiringAudioLoop = false;
             
         } else {
             auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");

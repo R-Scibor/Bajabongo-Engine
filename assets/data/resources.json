@@ -1841,7 +1841,20 @@
             ]
         }
     ],
-    "sounds": [],
+    "sounds": [
+        {
+            "id": "ak_fullauto",
+            "path": "../../assets/sounds/ak_fullauto.mp3"
+        },
+        {
+            "id": "ak_single",
+            "path": "../../assets/sounds/ak_single.mp3"
+        },
+        {
+            "id": "smg_burst",
+            "path": "../../assets/sounds/smg_burst.mp3"
+        }
+    ],
     "music": [
         {
             "id": "game_music_1",
