@@ -1851,8 +1851,28 @@
             "path": "../../assets/sounds/ak_single.mp3"
         },
         {
+            "id": "pistol",
+            "path": "../../assets/sounds/pistol.mp3"
+        },
+        {
+            "id": "shotgun",
+            "path": "../../assets/sounds/shotgun.mp3"
+        },
+        {
             "id": "smg_burst",
             "path": "../../assets/sounds/smg_burst.mp3"
+        },
+        {
+            "id": "st1-footstep",
+            "path": "../../assets/sounds/st1-footstep.mp3"
+        },
+        {
+            "id": "st2-footstep",
+            "path": "../../assets/sounds/st2-footstep.mp3"
+        },
+        {
+            "id": "st3-footstep-sfx",
+            "path": "../../assets/sounds/st3-footstep-sfx.mp3"
         }
     ],
     "music": [

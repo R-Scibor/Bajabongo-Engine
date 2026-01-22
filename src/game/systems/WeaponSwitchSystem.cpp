@@ -137,6 +137,9 @@ namespace game {
                 }
                 weapon.isFiringAudioLoop = false;
             }
+
+            // Reset weapon data to default before applying new stats
+            weapon = WeaponComponent();
             
             // Copy stats manually or via reflection if you had it.
             // Since we don't have full reflection deserialization here in this snippet, we do it manually based on fields.

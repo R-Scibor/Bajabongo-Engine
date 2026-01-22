@@ -315,6 +315,8 @@
       "loopMode": "loop"
     },
     "Weapon": {
+      "shootSoundId": "pistol",
+      "shootSoundLooping": false,
       "fireRate": 0.4,
       "projectileSpeed": 600.0,
       "projectileLifetime": 2.0,
@@ -395,6 +397,8 @@
       "rushActivationRange": 300.0
     },
     "Weapon": {
+      "shootSoundId": "shotgun",
+      "shootSoundLooping": false,
       "fireRate": 0.8,
       "projectileSpeed": 400.0,
       "projectileLifetime": 1.5,
@@ -575,6 +579,8 @@
   },
   "Shotgun": {
     "Weapon": {
+      "shootSoundId": "shotgun",
+      "shootSoundLooping": false,
       "fireRate": 0.8,
       "projectileSpeed": 400.0,
       "projectileLifetime": 1.5,
@@ -602,6 +608,8 @@
   },
   "Pistol": {
     "Weapon": {
+      "shootSoundId": "pistol",
+      "shootSoundLooping": false,
       "fireRate": 0.4,
       "projectileSpeed": 600.0,
       "projectileLifetime": 2.0,
