@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <entt/entt.hpp>
+#include <optional>
+#include "engine/core/math/MathAliases.hpp"
 
 namespace engine {
 
@@ -11,6 +13,11 @@ namespace engine {
         float pitch = 1.0f;
         bool loop = false;
         entt::entity sourceEntity = entt::null; // Optional: Entity that produced the sound (for looping control)
+        
+        // Spatial Audio
+        std::optional<Vector2f> position = std::nullopt; // If set, sound is spatialized
+        float minDistance = 300.0f;  // Distance at which sound starts attenuating (full volume within this radius)
+        float attenuation = 1.0f;    // Attenuation factor (higher = drops off faster)
     };
 
     // Stop a looping sound associated with an entity

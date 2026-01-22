@@ -219,6 +219,15 @@ namespace game {
             m_animationStateMachineSystem.update();
             m_animationSystem.update(fixedDeltaTime);
             m_cameraSystem.update(fixedDeltaTime);
+
+            // Update Audio Listener Position (to Player)
+            auto playerView = context.m_registry->view<game::PlayerComponent, engine::TransformComponent>();
+            for (auto [entity, player, transform] : playerView.each()) {
+                if (context.m_audioSystem) {
+                    context.m_audioSystem->setListenerPosition(transform.position);
+                }
+                break; // Only one player
+            }
         }
     }
 

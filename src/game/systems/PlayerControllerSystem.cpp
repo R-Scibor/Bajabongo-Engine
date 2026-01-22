@@ -190,7 +190,11 @@ namespace game {
                         m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
                             .id = soundId,
                             .volume = 40.0f,
-                            .pitch = pitch
+                            .pitch = pitch,
+                            .loop = false,
+                            .sourceEntity = entity,
+                            .position = transform.position,
+                            .minDistance = 300.0f
                         });
                     }
                 } else {

@@ -107,13 +107,19 @@ namespace game {
             // Handle Audio Loop Logic (for auto weapons like AK)
             bool shouldLoop = weapon.wantsToShoot && weapon.currentAmmo > 0 && !weapon.isReloading && weapon.shootSoundLooping;
             
+            b2Vec2 b2Pos = b2Body_GetPosition(bodyComp.bodyId);
+            engine::Vector2f weaponPos = {b2Pos.x, b2Pos.y};
+
             if (shouldLoop && !weapon.isFiringAudioLoop && !weapon.shootSoundId.empty()) {
                 m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                    weapon.shootSoundId,
-                    100.0f,
-                    1.0f,
-                    true,
-                    entity
+                    .id = weapon.shootSoundId,
+                    .volume = 100.0f,
+                    .pitch = 1.0f,
+                    .loop = true,
+                    .sourceEntity = entity,
+                    .position = weaponPos,
+                    .minDistance = 500.0f,
+                    .attenuation = 2.0f
                 });
                 weapon.isFiringAudioLoop = true;
             }
@@ -135,11 +141,14 @@ namespace game {
                     // Play if not burst, or if it is the first shot of a burst
                     if (weapon.shotsPerBurst <= 1 || weapon.burstShotsFired == 0) {
                         m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                            weapon.shootSoundId,
-                            100.0f,
-                            1.0f,
-                            false,
-                            entity
+                            .id = weapon.shootSoundId,
+                            .volume = 100.0f,
+                            .pitch = 1.0f,
+                            .loop = false,
+                            .sourceEntity = entity,
+                            .position = weaponPos,
+                            .minDistance = 500.0f,
+                            .attenuation = 2.0f
                         });
                     }
                 }

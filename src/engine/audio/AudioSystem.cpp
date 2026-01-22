@@ -1,6 +1,7 @@
 #include "engine/pch.h"
 #include "AudioSystem.hpp"
 #include <algorithm>
+#include "engine/components/TransformComponent.hpp"
 
 namespace engine {
 
@@ -39,7 +40,12 @@ namespace engine {
         }
     }
 
-    void AudioSystem::update(float dt) {
+    void AudioSystem::setListenerPosition(const Vector2f& position) {
+        m_listenerPosition = position;
+        sf::Listener::setPosition({position.x, position.y, 0.0f});
+    }
+
+    void AudioSystem::update(float dt, entt::registry* registry) {
         // Handle music fading
         if (m_isFading && m_music) {
             m_fadeTimer += dt;
@@ -72,6 +78,12 @@ namespace engine {
             if (index < m_soundPool.size() && m_soundPool[index]->getStatus() == sf::SoundSource::Status::Stopped) {
                 it = m_loopingSounds.erase(it);
             } else {
+                // Update position for looping sounds attached to entities
+                if (registry && registry->valid(it->first)) {
+                    if (auto* transform = registry->try_get<TransformComponent>(it->first)) {
+                        m_soundPool[index]->setPosition({transform->position.x, transform->position.y, 0.0f});
+                    }
+                }
                 ++it;
             }
         }
@@ -133,6 +145,19 @@ namespace engine {
         candidate->setVolume(vol);
         candidate->setPitch(event.pitch);
         candidate->setLooping(event.loop);
+
+        if (event.position.has_value()) {
+            candidate->setPosition({event.position->x, event.position->y, 0.0f});
+            candidate->setRelativeToListener(false);
+            candidate->setMinDistance(event.minDistance);
+            candidate->setAttenuation(event.attenuation);
+        } else {
+            candidate->setRelativeToListener(true);
+            candidate->setPosition({0.0f, 0.0f, 0.0f});
+            candidate->setMinDistance(1.0f);
+            candidate->setAttenuation(1.0f);
+        }
+
         candidate->play();
 
         // Track looping sounds

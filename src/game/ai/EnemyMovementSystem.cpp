@@ -124,7 +124,12 @@ namespace game::ai {
                     mContext.m_dispatcher->enqueue<engine::PlaySoundEvent>({
                         .id = soundId,
                         .volume = 20.0f, // Quieter than player
-                        .pitch = pitch
+                        .pitch = pitch,
+                        .loop = false,
+                        .sourceEntity = entity,
+                        .position = transform.position,
+                        .minDistance = 300.0f,
+                        .attenuation = 2.0f
                     });
                 }
             } else {
@@ -171,8 +176,8 @@ namespace game::ai {
                     }
                 } else {
                     patrol->currentWaypointIndex++;
-                    if (patrol->currentWaypointIndex >= patrol->waypoints.size() - 1) {
-                        patrol->currentWaypointIndex = patrol->waypoints.size() - 1;
+                    if (patrol->currentWaypointIndex >= static_cast<int>(patrol->waypoints.size()) - 1) {
+                        patrol->currentWaypointIndex = static_cast<int>(patrol->waypoints.size()) - 1;
                         patrol->reversing = true;
                     }
                 }

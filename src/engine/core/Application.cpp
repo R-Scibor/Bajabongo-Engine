@@ -99,7 +99,7 @@ namespace engine {
             
             // Update audio system (fading, cleanup)
             if (m_context->m_audioSystem) {
-                m_context->m_audioSystem->update(deltaTime);
+                m_context->m_audioSystem->update(deltaTime, m_context->m_registry.get());
             }
 
             // 5. Process all queued state transitions at a safe point

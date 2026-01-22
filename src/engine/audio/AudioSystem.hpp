@@ -9,6 +9,7 @@
 #include "engine/core/IResourceManager.hpp"
 #include "engine/events/AudioEvents.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/core/math/MathAliases.hpp"
 
 namespace engine {
 
@@ -19,7 +20,9 @@ namespace engine {
                     std::shared_ptr<ILogger> logger);
         ~AudioSystem();
 
-        void update(float dt);
+        void update(float dt, entt::registry* registry = nullptr);
+
+        void setListenerPosition(const Vector2f& position);
 
         std::string getCurrentMusicId() const { return m_currentMusicId; }
 
@@ -63,6 +66,8 @@ namespace engine {
 
         // Active Looping Sounds (Entity -> Sound Pool Index)
         std::unordered_map<entt::entity, size_t> m_loopingSounds;
+
+        Vector2f m_listenerPosition = {0.0f, 0.0f};
 
         std::vector<entt::scoped_connection> m_connections;
     };
