@@ -21,8 +21,11 @@
 #include <box2d/box2d.h>
 #include <iostream>
 #include <memory>
+#include <cstdlib>
+#include <ctime>
 
 int main() {
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
     try {
         // Logging backend (shared so it can be stored in EngineContext)
         auto logManager = std::make_shared<engine::SpdlogManager>("config/logging.ini");

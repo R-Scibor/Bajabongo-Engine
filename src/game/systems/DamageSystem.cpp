@@ -10,12 +10,16 @@
 #include "engine/components/MetaComponent.hpp"
 #include "game/components/DeadBodyComponent.hpp"
 #include "game/components/HitFlashComponent.hpp"
+#include "game/components/PlayerComponent.hpp"
+#include "game/components/EnemyComponent.hpp"
+#include "engine/events/AudioEvents.hpp"
 
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 
 #include <entt/entt.hpp>
+#include <cstdlib>
 
 namespace game {
 
@@ -120,6 +124,61 @@ namespace game {
             if (healthComp->currentHp <= 0.0f) {
                 if (m_logger) {
                     m_logger->info("Entity {} destroyed (HP <= 0).", entt::to_integral(target));
+                }
+
+                // Play Death Sound
+                std::string soundId;
+
+                // Try to get position for spatial audio
+                engine::Vector2f pos = {0.0f, 0.0f};
+                bool hasPos = false;
+                if (auto* tc = registry.try_get<engine::TransformComponent>(target)) {
+                    pos = tc->position;
+                    hasPos = true;
+                }
+
+                if (registry.all_of<PlayerComponent>(target)) {
+                    soundId = "death_player";
+                    
+                    // Also play scav laugh on player death
+                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
+                        .id = "death_scav_laugh",
+                        .volume = 100.0f,
+                        .pitch = 1.0f,
+                        .loop = false,
+                        .sourceEntity = target,
+                        .position = hasPos ? std::make_optional(pos) : std::nullopt,
+                        .minDistance = 500.0f,
+                        .attenuation = 2.0f
+                    });
+
+                } else if (registry.all_of<EnemyComponent>(target)) {
+                    int roll = std::rand() % 100;
+                    if (roll < 5) {
+                        soundId = "death_amogus";
+                    } else if (roll < 10) {
+                        // 5% chance (5 to 9)
+                        soundId = "death_lego_yoda";
+                    } else if (roll < 20) {
+                        // 10% chance (10 to 19)
+                        soundId = "death_scav";
+                    } else {
+                        // Remaining 80% (20 to 99)
+                        soundId = (std::rand() % 2 == 0) ? "death_1" : "death_2";
+                    }
+                }
+
+                if (!soundId.empty()) {
+                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
+                        .id = soundId,
+                        .volume = 100.0f,
+                        .pitch = 1.0f,
+                        .loop = false,
+                        .sourceEntity = target,
+                        .position = hasPos ? std::make_optional(pos) : std::nullopt,
+                        .minDistance = 500.0f,
+                        .attenuation = 2.0f
+                    });
                 }
                 
                 // Spawn Dead Body
