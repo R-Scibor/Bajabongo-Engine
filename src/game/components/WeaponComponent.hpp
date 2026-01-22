@@ -25,6 +25,12 @@ namespace game
         // Multi-projectile (shotgun)
         int projectilesPerShot = 1;
 
+        // Burst Fire
+        int shotsPerBurst = 1;
+        int burstShotsFired = 0;
+        float burstCooldown = 0.0f;
+        bool isBursting = false;
+
         // Ammo & Reload
         int currentAmmo = 30;
         int magSize = 30;

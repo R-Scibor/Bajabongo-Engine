@@ -147,6 +147,9 @@ namespace game {
             if (weaponData.contains("recoilReturnDegPerSec")) weapon.recoilReturnDegPerSec = weaponData["recoilReturnDegPerSec"];
             
             if (weaponData.contains("projectilesPerShot")) weapon.projectilesPerShot = weaponData["projectilesPerShot"];
+
+            if (weaponData.contains("shotsPerBurst")) weapon.shotsPerBurst = weaponData["shotsPerBurst"];
+            if (weaponData.contains("burstCooldown")) weapon.burstCooldown = weaponData["burstCooldown"];
             
             if (weaponData.contains("magSize")) {
                 weapon.magSize = weaponData["magSize"];
@@ -164,6 +167,8 @@ namespace game {
             weapon.isReloading = false;
             weapon.reloadTimer = 0.0f;
             weapon.cooldownTimer = 0.0f;
+            weapon.isBursting = false;
+            weapon.burstShotsFired = 0;
             
         } else {
             auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");

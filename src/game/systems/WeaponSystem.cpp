@@ -81,6 +81,8 @@ namespace game {
                     
                     weapon.isReloading = false;
                     weapon.wantsToReload = false; // Reset flag
+                    weapon.isBursting = false;
+                    weapon.burstShotsFired = 0;
                     
                     if (m_context.m_logManager) {
                          auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
@@ -103,24 +105,41 @@ namespace game {
 
             // Handle Shooting
             if (canFire(weapon)) {
+                // Start burst if applicable
+                if (!weapon.isBursting && weapon.shotsPerBurst > 1) {
+                    weapon.isBursting = true;
+                    weapon.burstShotsFired = 0;
+                }
+
                 applyFiringEffects(weapon, fixedDeltaTime);
 
                 spawnProjectiles(m_context, entity, weapon, bodyComp);
 
                 weapon.currentAmmo--;
-                weapon.cooldownTimer = weapon.fireRate;
-
-                // Debug Log Spread
-                // if (m_context.m_logManager) {
-                //     auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
-                //     if (logger) logger->debug("Fired. Spread: {:.2f}", weapon.currentSpreadDeg);
-                // }
+                
+                if (weapon.isBursting) {
+                    weapon.burstShotsFired++;
+                    if (weapon.burstShotsFired >= weapon.shotsPerBurst) {
+                        // Burst finished
+                        weapon.isBursting = false;
+                        weapon.burstShotsFired = 0;
+                        weapon.cooldownTimer = weapon.burstCooldown;
+                    } else {
+                        // Continue burst
+                        weapon.cooldownTimer = weapon.fireRate;
+                    }
+                } else {
+                    // Normal fire
+                    weapon.cooldownTimer = weapon.fireRate;
+                }
 
             } else {
                  // Out of ammo logic (simplified auto-reload check if desired)
-                 if (weapon.wantsToShoot && weapon.cooldownTimer <= 0.0f && weapon.currentAmmo <= 0) {
-                     // Simple auto-reload trigger if empty and trying to shoot
-                     if (weapon.totalAmmo > 0) {
+                 if (weapon.currentAmmo <= 0) {
+                     weapon.isBursting = false;
+                     weapon.burstShotsFired = 0;
+
+                     if (weapon.wantsToShoot && weapon.cooldownTimer <= 0.0f && weapon.totalAmmo > 0) {
                          weapon.isReloading = true;
                          weapon.reloadTimer = weapon.reloadDuration;
                      }
@@ -130,8 +149,9 @@ namespace game {
     }
 
     bool WeaponSystem::canFire(const WeaponComponent& weapon) const {
-        return weapon.wantsToShoot && 
-               weapon.cooldownTimer <= 0.0f && 
+        bool trigger = weapon.wantsToShoot || weapon.isBursting;
+        return trigger &&
+               weapon.cooldownTimer <= 0.0f &&
                weapon.currentAmmo > 0;
     }
 

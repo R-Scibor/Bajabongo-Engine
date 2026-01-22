@@ -625,7 +625,9 @@
   },
   "PM": {
     "Weapon": {
-      "fireRate": 0.15,
+      "fireRate": 0.08,
+      "burstCooldown": 0.4,
+      "shotsPerBurst": 3,
       "projectileSpeed": 600.0,
       "projectileLifetime": 1.5,
       "damage": 10.0,
@@ -638,9 +640,9 @@
       "recoilReturnDegPerSec": 8.0,
       "recoilAngleOffset": 0.0,
       "projectilesPerShot": 1,
-      "magSize": 25,
-      "currentAmmo": 25,
-      "totalAmmo": 100,
+      "magSize": 27,
+      "currentAmmo": 27,
+      "totalAmmo": 108,
       "reloadDuration": 1.2,
       "reloadTimer": 0.0,
       "isReloading": false,

@@ -87,6 +87,10 @@ namespace game {
                 // Multi-projectile
                 weapon.projectilesPerShot = data.value("projectilesPerShot", 1);
 
+                // Burst Fire
+                weapon.shotsPerBurst = data.value("shotsPerBurst", 1);
+                weapon.burstCooldown = data.value("burstCooldown", 0.0f);
+
                 // Ammo & Reload
                 weapon.magSize = data.value("magSize", 30);
                 weapon.currentAmmo = data.value("currentAmmo", weapon.magSize); // Default to full mag
