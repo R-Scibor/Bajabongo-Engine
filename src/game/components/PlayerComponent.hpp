@@ -12,5 +12,9 @@ namespace game
         int maxMedkits = 5;     // Max carry limit
         bool isHealing = false; // State flag
         float healTimer = 0.0f; // Countdown for the 3s heal channel
+
+        // Audio
+        float stepTimer = 0.0f;
+        float stepInterval = 0.55f;
     };
 }

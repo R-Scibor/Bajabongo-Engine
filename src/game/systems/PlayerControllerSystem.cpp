@@ -16,12 +16,14 @@
 #include "game/components/VisibilityComponent.hpp"
 #include "game/components/InteractableComponent.hpp"
 #include "engine/events/StateEvents.hpp"
+#include "engine/events/AudioEvents.hpp"
 #include "engine/components/AnimationComponent.hpp"
 #include "engine/components/AnimationStateComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 
 #include <box2d/box2d.h>
 #include <cmath>
+#include <cstdlib>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -166,6 +168,34 @@ namespace game {
                 if (lengthSq > 0.0f) {
                     b2Body_SetAwake(bodyComp.bodyId, true);
                     b2Body_SetLinearVelocity(bodyComp.bodyId, velocity);
+
+                    // --- Footstep Sounds ---
+                    player.stepTimer -= fixedDeltaTime;
+                    if (player.stepTimer <= 0.0f) {
+                        player.stepTimer = player.stepInterval;
+                        if (input->isKeyPressed(engine::KeyCode::LShift)) {
+                            player.stepTimer *= 0.6f; // Faster steps when running
+                        }
+
+                        // Randomize sound
+                        int r = std::rand() % 3;
+                        std::string soundId;
+                        if (r == 0) soundId = "st1-footstep";
+                        else if (r == 1) soundId = "st2-footstep";
+                        else soundId = "st3-footstep-sfx";
+
+                        // Randomize pitch slightly (0.9 to 1.1)
+                        float pitch = 0.9f + (static_cast<float>(std::rand() % 21) / 100.0f);
+
+                        m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
+                            .id = soundId,
+                            .volume = 40.0f,
+                            .pitch = pitch
+                        });
+                    }
+                } else {
+                    // Reset timer to allow quick first step
+                    player.stepTimer = 0.05f;
                 }
             }
 

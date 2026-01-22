@@ -50,6 +50,10 @@ struct EnemyComponent {
     // Recovery
     float stunTimer = 0.0f; // Disables movement updates when > 0
     
+    // Audio
+    float stepTimer = 0.0f;
+    float stepInterval = 0.4f; // Enemies slightly slower? Or just distinct
+
     // Flags
     bool hasLineOfSight = false;
     bool isAlerted = false;

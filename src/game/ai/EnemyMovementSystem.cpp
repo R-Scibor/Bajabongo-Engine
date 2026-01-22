@@ -3,6 +3,7 @@
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
 #include "game/components/RushBehaviorComponent.hpp"
+#include "engine/events/AudioEvents.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/components/AnimationStateComponent.hpp"
@@ -10,6 +11,7 @@
 #include "engine/physics/PhysicsConstants.hpp"
 #include <box2d/box2d.h>
 #include <cmath>
+#include <cstdlib>
 
 namespace game::ai {
 
@@ -102,7 +104,34 @@ namespace game::ai {
             }
 
             float velMagSq = finalVelocity.x * finalVelocity.x + finalVelocity.y * finalVelocity.y;
-            if (velMagSq > 1.0f) { 
+            
+            // --- Footsteps ---
+            if (velMagSq > 10.0f) {
+                enemy.stepTimer -= dt;
+                if (enemy.stepTimer <= 0.0f) {
+                    enemy.stepTimer = enemy.stepInterval;
+                    
+                    // Randomize sound
+                    int r = std::rand() % 3;
+                    std::string soundId;
+                    if (r == 0) soundId = "st1-footstep";
+                    else if (r == 1) soundId = "st2-footstep";
+                    else soundId = "st3-footstep-sfx";
+
+                    // Lower volume for enemies, vary pitch
+                    float pitch = 0.85f + (static_cast<float>(std::rand() % 20) / 100.0f);
+
+                    mContext.m_dispatcher->enqueue<engine::PlaySoundEvent>({
+                        .id = soundId,
+                        .volume = 20.0f, // Quieter than player
+                        .pitch = pitch
+                    });
+                }
+            } else {
+                enemy.stepTimer = 0.1f;
+            }
+
+            if (velMagSq > 1.0f) {
                 enemy.lastValidPosition = transform.position;
             } else {
                  if (enemy.lastValidPosition.x == 0.0f && enemy.lastValidPosition.y == 0.0f) {
