@@ -47,6 +47,7 @@ namespace engine {
                 m_music->setVolume(m_targetFadeVolume);
                 if (m_targetFadeVolume <= 0.01f) {
                     m_music->stop();
+                    m_currentMusicId.clear();
                 }
             } else {
                 float t = m_fadeTimer / m_fadeDuration;
@@ -54,6 +55,14 @@ namespace engine {
                 float newVol = m_startFadeVolume + (m_targetFadeVolume - m_startFadeVolume) * t;
                 m_music->setVolume(newVol);
             }
+        }
+
+        // Check for natural finish
+        if (m_music && m_music->getStatus() == sf::SoundSource::Status::Stopped && !m_currentMusicId.empty()) {
+            std::string finishedId = m_currentMusicId;
+            m_currentMusicId.clear(); // Prevent multiple events
+            m_dispatcher->enqueue<MusicFinishedEvent>({ finishedId });
+            if (m_logger) m_logger->info("Music finished naturally: {}", finishedId);
         }
     }
 
@@ -150,6 +159,7 @@ namespace engine {
         } else {
             m_music->stop();
             m_isFading = false;
+            m_currentMusicId.clear();
         }
     }
 

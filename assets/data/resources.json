@@ -1844,6 +1844,14 @@
     "sounds": [],
     "music": [
         {
+            "id": "game_music_1",
+            "path": "../../assets/music/game_music_1.mp3"
+        },
+        {
+            "id": "game_music_2",
+            "path": "../../assets/music/game_music_2.mp3"
+        },
+        {
             "id": "main_menu",
             "path": "../../assets/music/main_menu.mp3"
         }

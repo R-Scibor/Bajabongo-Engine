@@ -4,6 +4,7 @@
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/events/StateEvents.hpp"
+#include "engine/events/AudioEvents.hpp"
 #include "engine/rendering/IRenderer.hpp"
 #include "engine/core/IResourceManager.hpp"
 
@@ -25,6 +26,14 @@ namespace game {
             // Path adjusted for execution from build/bin directory (assumed depth 2)
             context.m_resourceManager->loadTexture("main_menu_bg", "../../assets/textures/main_menu_bg.png");
         }
+
+        // Play Main Menu Music
+        context.m_dispatcher->enqueue<engine::PlayMusicEvent>({
+            .id = "main_menu",
+            .volume = 30.0f,
+            .loop = true,
+            .crossfadeDuration = 2.0f
+        });
     }
 
     void MainMenuState::onExit(engine::EngineContext& context) {

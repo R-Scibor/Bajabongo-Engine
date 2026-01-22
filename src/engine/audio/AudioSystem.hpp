@@ -20,6 +20,8 @@ namespace engine {
 
         void update(float dt);
 
+        std::string getCurrentMusicId() const { return m_currentMusicId; }
+
     private:
         void onPlaySound(const PlaySoundEvent& event);
         void onPlayMusic(const PlayMusicEvent& event);

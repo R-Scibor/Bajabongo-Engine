@@ -29,7 +29,8 @@
 #include <memory>
 
 namespace engine {
-class ILogger;
+    class ILogger;
+    struct MusicFinishedEvent;
 } // namespace engine
 
 namespace game {
@@ -49,6 +50,8 @@ namespace game {
         void handleEvent(engine::EngineContext& context, const sf::Event& event) override;
         void update(engine::EngineContext& context, float fixedDeltaTime) override;
         void render(engine::EngineContext& context) override;
+
+        void onMusicFinished(const engine::MusicFinishedEvent& event);
 
     private:
         void onPhysicsBodyDestroyed(entt::registry& registry, entt::entity entity);
@@ -78,6 +81,12 @@ namespace game {
         std::shared_ptr<engine::ILogger> m_logger;
         entt::connection m_physicsCleanupHook;
         entt::connection m_hierarchyCleanupHook;
+
+        std::shared_ptr<entt::dispatcher> m_dispatcher;
+        entt::scoped_connection m_musicFinishConnection;
+
+        float m_musicTransitionTimer = 0.0f;
+        bool m_waitingForGameMusic = false;
     };
 
 } // namespace game

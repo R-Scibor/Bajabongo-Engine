@@ -36,4 +36,9 @@ namespace engine {
         float volume; // 0.0 to 100.0
     };
 
+    // Event dispatched when a music track finishes playing (if loop=false)
+    struct MusicFinishedEvent {
+        std::string id;
+    };
+
 } // namespace engine

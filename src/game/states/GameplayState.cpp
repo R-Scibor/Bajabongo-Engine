@@ -13,6 +13,7 @@
 #include "engine/components/ChildComponent.hpp"
 #include "engine/core/math/Vector2.hpp"
 #include "engine/events/StateEvents.hpp"
+#include "engine/events/AudioEvents.hpp"
 #include "engine/events/PhysicsEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsEventSystem.hpp"
@@ -31,6 +32,7 @@
 #include "game/systems/VisibilitySystem.hpp"
 #include "game/systems/VisibilityTaggingSystem.hpp"
 #include "game/systems/WeaponSwitchSystem.hpp"
+#include "engine/audio/AudioSystem.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
@@ -61,6 +63,7 @@ namespace game {
         , m_pickupSystem(context)
         , m_hitFlashSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
+        , m_dispatcher(context.m_dispatcher)
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
 
@@ -73,6 +76,27 @@ namespace game {
     void GameplayState::onEnter(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Entering GameplayState.");
         
+        m_waitingForGameMusic = false;
+
+        // Playlist Logic: Check if game music is already playing
+        if (context.m_audioSystem) {
+            std::string current = context.m_audioSystem->getCurrentMusicId();
+            if (current != "game_music_1" && current != "game_music_2") {
+                if (m_logger) m_logger->info("Transitioning to gameplay music.");
+                
+                // Fade out current music
+                m_dispatcher->enqueue<engine::StopMusicEvent>({ .fadeOutDuration = 1.5f });
+                
+                // Queue start of game music
+                m_waitingForGameMusic = true;
+                m_musicTransitionTimer = 1.5f;
+            }
+        }
+
+        // Subscribe to music finish
+        m_musicFinishConnection = m_dispatcher->sink<engine::MusicFinishedEvent>()
+            .connect<&GameplayState::onMusicFinished>(this);
+
         if (!context.m_archetypeManager) {
             context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>(context.m_logManager);
         }
@@ -141,6 +165,8 @@ namespace game {
         }
         if (m_logger) m_logger->info("Cleanup hooks disconnected.");
         
+        m_musicFinishConnection.release();
+
         // Clean up test listeners
         context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().disconnect(this);
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().disconnect(this);
@@ -159,6 +185,22 @@ namespace game {
     }
 
     void GameplayState::update(engine::EngineContext& context, float fixedDeltaTime) {
+        // Handle music transition
+        if (m_waitingForGameMusic) {
+            m_musicTransitionTimer -= fixedDeltaTime;
+            if (m_musicTransitionTimer <= 0.0f) {
+                m_waitingForGameMusic = false;
+                if (m_logger) m_logger->info("Starting game_music_1.");
+                
+                m_dispatcher->enqueue<engine::PlayMusicEvent>({
+                    .id = "game_music_1",
+                    .volume = 15.0f,
+                    .loop = false,
+                    .crossfadeDuration = 1.5f // Fade in
+                });
+            }
+        }
+
         if (!context.debugFlags.pauseGame) {
             m_physicsBodyCreationSystem.update();
             m_playerControllerSystem.update(fixedDeltaTime);
@@ -228,6 +270,26 @@ namespace game {
         // HUD (ammo, health, etc.)
         if (m_hudSystem) {
             m_hudSystem->render();
+        }
+    }
+
+    void GameplayState::onMusicFinished(const engine::MusicFinishedEvent& event) {
+        if (event.id == "game_music_1") {
+            if (m_logger) m_logger->info("Playlist: Switching to game_music_2");
+            m_dispatcher->enqueue<engine::PlayMusicEvent>({
+                .id = "game_music_2",
+                .volume = 30.0f,
+                .loop = false,
+                .crossfadeDuration = 0.0f
+            });
+        } else if (event.id == "game_music_2") {
+            if (m_logger) m_logger->info("Playlist: Switching to game_music_1");
+            m_dispatcher->enqueue<engine::PlayMusicEvent>({
+                .id = "game_music_1",
+                .volume = 30.0f,
+                .loop = false,
+                .crossfadeDuration = 0.0f
+            });
         }
     }
 
