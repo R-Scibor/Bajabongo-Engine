@@ -198,6 +198,10 @@ namespace engine {
             return;
         }
 
+        // Ensure music is relative to listener (so it doesn't fade as player moves)
+        newMusic->setRelativeToListener(true);
+        newMusic->setPosition(sf::Vector3f(0.0f, 0.0f, 0.0f));
+
         float targetVol = event.volume * (getEffectiveVolume(AudioCategory::Music) / 100.0f);
 
         if (event.crossfadeDuration > 0.0f) {
