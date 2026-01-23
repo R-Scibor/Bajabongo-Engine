@@ -30,8 +30,6 @@ namespace engine {
         m_context->m_guiService = std::make_shared<GuiService>();
         m_context->m_guiService->SetLogger(m_context->m_logManager->GetLogger("GuiService"));
         
-        // We need the concrete sf::RenderWindow for ImGui-SFML.
-        // This assumes we are using SFMLRenderer, which is currently the only implementation.
         auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
         if (sfmlRenderer) {
             m_context->m_guiService->Init(sfmlRenderer->getNativeRenderWindow());

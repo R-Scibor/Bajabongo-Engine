@@ -97,7 +97,7 @@ namespace engine {
                 size_t index = it->second;
                 // Verify the sound is still valid and playing
                 if (index < m_soundPool.size() && m_soundPool[index]->getStatus() == sf::SoundSource::Status::Playing) {
-                    // Update parameters if needed? For now just ignore duplicate start
+                    // Ignore if already playing
                     return;
                 } else {
                     // It stopped, so remove from map and start fresh
@@ -205,7 +205,7 @@ namespace engine {
         float targetVol = event.volume * (getEffectiveVolume(AudioCategory::Music) / 100.0f);
 
         if (event.crossfadeDuration > 0.0f) {
-            // If we have existing music, stop it (for now, single channel)
+            // Stop existing music (single channel)
             if (m_music) m_music->stop();
             
             m_music = std::move(newMusic);

@@ -147,6 +147,7 @@ namespace game::ai {
             return;
         }
         
+        // Phase 1: Random Impulse
         if (enemy.stuckCounter == 3) {
             static std::random_device rd;
             static std::mt19937 gen(rd());
@@ -170,13 +171,11 @@ namespace game::ai {
             return; 
         }
         
+        // Phase 2: Teleport to Last Valid Position
         else if (enemy.stuckCounter == 4) {
             if (AIUtils::isPositionVisibleToPlayer(mContext, transform.position)) {
-                 if (mLogger) {
-                    mLogger->warn("Enemy {} is currently visible, skipping teleport to avoid popping", 
-                                  entt::to_integral(entity));
-                }
-                return; 
+                 if (mLogger) mLogger->warn("Enemy {} is visible, skipping teleport", entt::to_integral(entity));
+                return;
             }
 
             if (enemy.lastValidPosition.x != 0.0f || enemy.lastValidPosition.y != 0.0f) {
@@ -202,22 +201,17 @@ namespace game::ai {
                                   wasVisible ? "adjusted for visibility" : "safe");
                 }
             } else {
-                if (mLogger) {
-                    mLogger->warn("Enemy {} has no valid lastValidPosition, skipping attempt 2", 
-                                  entt::to_integral(entity));
-                }
-                enemy.stuckCounter = 5; 
+                if (mLogger) mLogger->warn("Enemy {} has no last valid position, skipping", entt::to_integral(entity));
+                enemy.stuckCounter = 5;
             }
             return;
         }
         
+        // Phase 3: Teleport to Nearest Waypoint
         else if (enemy.stuckCounter == 5) {
             if (AIUtils::isPositionVisibleToPlayer(mContext, transform.position)) {
-                 if (mLogger) {
-                    mLogger->warn("Enemy {} is currently visible, skipping waypoint teleport", 
-                                  entt::to_integral(entity));
-                }
-                return; 
+                 if (mLogger) mLogger->warn("Enemy {} is visible, skipping teleport", entt::to_integral(entity));
+                return;
             }
 
             if (auto* patrol = mContext.m_registry->try_get<PatrolBehaviorComponent>(entity)) {
@@ -276,13 +270,11 @@ namespace game::ai {
             return;
         }
         
+        // Phase 4: Aggressive Shove or Kill
         else if (enemy.stuckCounter >= 6) {
             
             if (AIUtils::isPositionVisibleToPlayer(mContext, transform.position)) {
-                 if (mLogger) {
-                    mLogger->warn("Enemy {} is visible, applying aggressive shove instead of kill", 
-                                  entt::to_integral(entity));
-                }
+                 if (mLogger) mLogger->warn("Enemy {} is visible, attempting shove", entt::to_integral(entity));
                 
                 b2Vec2 directions[4] = {
                     {1.0f, 0.0f},  
@@ -330,10 +322,7 @@ namespace game::ai {
                 return;
             }
 
-            if (mLogger) {
-                mLogger->error("Enemy {} PERMANENTLY STUCK after all recovery attempts. Marking as Dead.", 
-                               entt::to_integral(entity));
-            }
+            if (mLogger) mLogger->error("Enemy {} PERMANENTLY STUCK. Killing.", entt::to_integral(entity));
             
             enemy.currentState = EnemyState::Dead;
             

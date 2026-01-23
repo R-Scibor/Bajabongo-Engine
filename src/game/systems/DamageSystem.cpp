@@ -69,16 +69,12 @@ namespace game {
 
         // Check if sensor is Projectile
         if (registry.all_of<DamageComponent>(sensor)) {
-            // Sensor is Projectile, Visitor is Target
-            // We know 'isVisitorSensor' tells us if the target is a sensor.
             handleCollision(sensor, visitor, isVisitorSensor, registry);
         }
         
         // Check if visitor is Projectile
         if (registry.all_of<DamageComponent>(visitor)) {
             // Visitor is Projectile, Sensor is Target.
-            // Since this event is "SensorBegin", the 'sensor' entity definitely has a sensor shape.
-            // So isTargetSensor = true.
             handleCollision(visitor, sensor, true, registry);
         }
     }
@@ -157,14 +153,17 @@ namespace game {
                     if (roll < 5) {
                         soundId = "death_amogus";
                     } else if (roll < 10) {
-                        // 5% chance (5 to 9)
+                        // 5% chance
                         soundId = "death_lego_yoda";
                     } else if (roll < 20) {
-                        // 10% chance (10 to 19)
+                        // 10% chance
                         soundId = "death_scav";
+                        } else if (roll < 60) {
+                        // 40% chance
+                        soundId = "death_1";
                     } else {
-                        // Remaining 80% (20 to 99)
-                        soundId = (std::rand() % 2 == 0) ? "death_1" : "death_2";
+                        // 40% chance
+                        soundId = "death_2";
                     }
                 }
 
@@ -217,9 +216,9 @@ namespace game {
 
             // Copy Renderable
             auto& newRenderable = registry.emplace<engine::RenderableComponent>(deadBody, *renderable);
-            // Ensure dead bodies are rendered below living entities if needed, or same layer
-            newRenderable.layer = 0; // Move to background layer? Or keep same? Let's try layer 0 for floor.
-            newRenderable.color = sf::Color::White; // Reset color (in case of flash)
+            // Render dead bodies on background layer
+            newRenderable.layer = 0;
+            newRenderable.color = sf::Color::White;
 
             // Setup Animation State
             engine::AnimationStateComponent newAnimState;

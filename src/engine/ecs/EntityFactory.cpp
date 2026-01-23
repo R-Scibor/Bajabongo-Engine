@@ -80,10 +80,7 @@ namespace engine {
                 std::string childArchetype = childDef.value("archetype", "");
                 if (childArchetype.empty()) continue;
 
-                // RECURSION: Spawn the child at (0,0) initially.
-                // The HierarchySystem will move it to the correct spot next frame.
-                // Note: We might want to pass an offset or a flag to prevent Transform init if we cared about perf,
-                // but (0,0) is fine as it gets overwritten by hierarchy.
+                // Recursively spawn child at (0,0); HierarchySystem will position it
                 entt::entity childEntity = spawn(childArchetype, {0.f, 0.f});
 
                 // Read Local Offsets
@@ -184,9 +181,7 @@ namespace engine {
                 else if (cat == "Sensor") categoryBits = PhysicsCategory::Sensor;
             }
 
-            // [Modified] Visibility Blocker Logic
-            // Default to NOT blocking vision unless explicitly set to true
-            // This ensures players/enemies don't block vision by default.
+            // Visibility Blocker Logic (default: false)
             bool blocksVision = data.value("blocksVision", false);
             if (blocksVision) {
                 categoryBits |= PhysicsCategory::VisibilityBlocker;
@@ -227,8 +222,7 @@ namespace engine {
                      fixDef.density = fixData.value("density", 1.0f);
                      fixDef.isSensor = fixData.value("isSensor", false);
                      
-                     // Category/Mask parsing for specific fixtures (if needed)
-                     // For now, let's implement basic string-to-category mapping locally or helper
+                     // Map string categories to bits
                      if (fixData.contains("category")) {
                         std::string c = fixData["category"];
                         if (c == "Player") fixDef.categoryBits = PhysicsCategory::Player;
@@ -243,9 +237,7 @@ namespace engine {
                          fixDef.categoryBits = categoryBits; // Inherit from body default
                      }
 
-                     // Apply blocksVision logic to individual fixtures too
-                     // Note: If inherit from body default, it's already applied. 
-                     // If custom category was set above, we need to apply it again unless overriden by specific fixture property.
+                     // Apply visibility blocking to fixture (inherits from body if not set)
                      bool fixtureBlocksVision = fixData.value("blocksVision", blocksVision);
                      if (fixtureBlocksVision) {
                          fixDef.categoryBits |= PhysicsCategory::VisibilityBlocker;
@@ -253,9 +245,7 @@ namespace engine {
                          fixDef.categoryBits &= ~PhysicsCategory::VisibilityBlocker;
                      }
                      
-                     // Mask parsing could be complex list of strings...
-                     // For MVP, if it's Player Feet, use standard Player mask
-                     // If it's Hurtbox, use Projectile mask
+                     // Apply default masks based on category
                      if (fixDef.categoryBits == PhysicsCategory::Player) {
                          fixDef.maskBits = PhysicsCategory::Default | PhysicsCategory::Enemy | PhysicsCategory::Wall | PhysicsCategory::LowObstacle | PhysicsCategory::Sensor;
                      } else if (fixDef.categoryBits == PhysicsCategory::Hurtbox) {

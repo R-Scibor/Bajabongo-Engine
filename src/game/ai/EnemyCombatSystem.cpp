@@ -37,9 +37,6 @@ namespace game::ai {
             weapon.wantsToReload = false;
             
             // --- Update Animation State for Combat ---
-            // Note: EnemyMovementSystem handles Idle/Walk states. Here we handle Aim state.
-            // If we are shooting or aiming, we override the state.
-            
             auto* animState = registry.try_get<engine::AnimationStateComponent>(entity);
             
             if (enemy.currentState != EnemyState::Shoot && 
@@ -99,18 +96,9 @@ namespace game::ai {
 
             // Handle Aim Animation State
             if (animState) {
-                // If we are about to shoot (or sniping), look at target
-                // Logic below might override wantsToShoot, but we can set Aim state here.
-                
-                // Only set Aim state if we are stationary (managed by MovementSystem, but we can check velocity or just assume if in Shoot/Turret state we are likely still)
-                // Actually, let's just force Aim if we are shooting.
-                // But wait, MovementSystem runs AFTER or BEFORE? 
-                // We should probably coordinate. 
-                // For now, let's set it if we are actually aiming/shooting.
-                
                 // Update Facing based on aim angle
                 float normalizedAim = desiredAimAngle;
-                while (normalizedAim > M_PI) normalizedAim -= 2.0f * M_PI;
+                while (normalizedAim > M_PI) normalizedAim -= 2.0f * M_PI; // TODO: Extract to wrapAngle() helper
                 while (normalizedAim < -M_PI) normalizedAim += 2.0f * M_PI;
                 
                 if (std::abs(normalizedAim) > M_PI / 2.0f) {

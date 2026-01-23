@@ -28,11 +28,7 @@ namespace engine
         {
             if (!m_registry.valid(parentComp.parentId))
             {
-                // Orphan policy: for now, we just log a warning.
-                // In the future, we might want to destroy the entity or detach it.
-                // To avoid spamming logs every frame, we might want a 'dirty' flag or just ensure logic cleans up properly.
-                // For now, let's not spam:
-                // m_logger->warn("Entity {} has invalid parent {}", (uint32_t)entity, (uint32_t)parentComp.parentId);
+                // Orphaned entity: Invalid parent
                 return;
             }
 
@@ -64,11 +60,7 @@ namespace engine
 
             transform.position = parentTransform.position + Vector2f{ rotatedX, rotatedY };
             
-            // Optional: Propagate scale?
-            // Usually hierarchy systems might multiply scale, but sometimes you want child scale to be independent (except for position).
-            // For simple attachment (like holding a gun), usually we just want position/rotation sync.
-            // If we wanted full scene graph scaling: transform.scale = parentTransform.scale * childLocalScale.
-            // Given the current requirements, we'll leave child's own scale alone (it acts as local scale).
+            // Note: Scale is not propagated to child (independent scaling)
         });
     }
 

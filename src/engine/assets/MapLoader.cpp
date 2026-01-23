@@ -115,10 +115,6 @@ namespace engine {
             m_context.m_registry->emplace<RenderableComponent>(entity, textureKey, 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
             
             // Map background should always be visible
-            // Note: VisibleToPlayerComponent is in game namespace, but we are in engine namespace.
-            // We need to ensure we have access to it.
-            // Using full qualification to be safe, although we included the header.
-            // The error said "identifier ... undefined" which usually means namespace issue or bad include.
             game::VisibleToPlayerComponent visComp;
             visComp.alwaysVisible = true;
             m_context.m_registry->emplace<game::VisibleToPlayerComponent>(entity, visComp);
@@ -166,8 +162,7 @@ namespace engine {
                 // Tiled objects can be points or rects.
                 // If it's a point, we just use x,y.
                 // If it's a rect (e.g. for a portal trigger area), we might need center.
-                // Most entities (enemies, player) are likely point objects.
-                // Let's assume point/center logic:
+                // Assume point objects use center logic
                 // Tiled (top-left) -> Center conversion if width/height exist.
                 float w = obj.value("width", 0.0f) * scale;
                 float h = obj.value("height", 0.0f) * scale;

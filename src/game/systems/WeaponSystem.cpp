@@ -104,7 +104,7 @@ namespace game {
                 }
             }
 
-            // Handle Audio Loop Logic (for auto weapons like AK)
+            // Handle Audio Loop Logic
             bool shouldLoop = weapon.wantsToShoot && weapon.currentAmmo > 0 && !weapon.isReloading && weapon.shootSoundLooping;
             
             b2Vec2 b2Pos = b2Body_GetPosition(bodyComp.bodyId);
@@ -204,35 +204,27 @@ namespace game {
             weapon.maxSpreadDeg
         );
 
-        // Add Recoil Kick (Upwards direction relative to aim)
-        // "Up" in world space is (0, -1) which is -PI/2 radians
-        // We want to kick the angle towards -PI/2
-
+        // Kick weapon angle towards vertical up (-PI/2)
         float currentAim = weapon.aimAngle;
         float targetUp = -PI / 2.0f;
 
-        // Calculate shortest angular distance to "up"
         float diff = targetUp - currentAim;
 
         // Wrap to [-PI, PI]
-        while (diff <= -PI) diff += 2 * PI;
+        while (diff <= -PI) diff += 2 * PI; // TODO: Extract to wrapAngle() helper
         while (diff > PI) diff -= 2 * PI;
 
         float kickSign = 0.0f;
         if (std::abs(diff) > 0.001f) {
-            // Standard case: kick towards up
             kickSign = (diff > 0) ? 1.0f : -1.0f;
 
             // Handle 180 degree edge case (aiming straight down)
-            // If aim is close to PI/2 (down), diff is close to -PI or PI
             if (std::abs(std::abs(diff) - PI) < 0.1f) {
-                 // Tie-breaker using aim vector x-component
                  float aimX = std::cos(currentAim);
-                 if (aimX > 0) kickSign = -1.0f; 
+                 if (aimX > 0) kickSign = -1.0f;
                  else kickSign = 1.0f;
             }
         } else {
-            // Already looking up, small jitter
              kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
         }
 
@@ -253,8 +245,8 @@ namespace game {
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
             // Calculate spawn position (offset from center)
-            float spawnOffset = 45.0f; // Increased from 30.0f to be further out
-            float heightOffset = WEAPON_MUZZLE_HEIGHT_OFFSET; // Lift up to chest/gun level
+            float spawnOffset = 45.0f;
+            float heightOffset = WEAPON_MUZZLE_HEIGHT_OFFSET;
             float cosA = std::cos(finalAngle);
             float sinA = std::sin(finalAngle);
             

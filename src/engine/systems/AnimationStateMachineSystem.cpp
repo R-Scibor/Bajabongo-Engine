@@ -43,11 +43,7 @@ void AnimationStateMachineSystem::update() {
                 if (meta->name.find("player") != std::string::npos) {
                     animSet = "player";
                 } else if (meta->name.find("enemy") != std::string::npos) {
-                     // e.g., "enemy_grunt" -> "enemy" (or keep full name if unique assets exist)
-                     // For now, map to generic "player" set if they share assets (like enemy_1 currently does)
-                     // BUT if we want true decoupling, we should rely on what's provided.
-                     // Let's default to the meta name itself if nothing else matches.
-                     animSet = "player"; // HACK for current assets where enemy uses player anims
+                     animSet = "player"; // HACK: Fallback to player anims
                 } else {
                      animSet = meta->name;
                 }
@@ -123,9 +119,7 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
         std::string result = tryResolve(candidateId);
         if (!result.empty()) return result;
 
-        // 2. Apply State-based Fallbacks (within this set)
-        // For Aim: We prefer "Correct Weapon, Wrong State" (Idle) over "Wrong Weapon, Correct State"
-        // so we check for Idle immediately before stripping the set name.
+        // Fallback: Use Idle if Aim missing
         if (state == AnimationState::Aim) {
             std::string idleSuffix = getSuffix(AnimationState::Idle);
             std::string idleId = currentSet + idleSuffix;
@@ -133,8 +127,7 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
             if (!result.empty()) return result;
         }
 
-        // Note: For Heal, we prefer "Wrong Weapon, Correct State" (Generic Heal) over "Correct Weapon, Wrong State" (Idle).
-        // So we skip the local fallback and allow the loop to try the parent set's Heal first.
+        // Note: Heal prefers generic Heal over specific Idle
 
         // 3. Try to strip the set name for the next iteration
         // e.g. "player_ak" -> "player"
@@ -148,7 +141,7 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
 
     // If absolutely nothing found, return the constructed ID for the original request
     
-    // Final Global Fallback for Heal: If we couldn't find Heal in ANY set, try finding Idle in ANY set.
+    // Fallback: Heal -> Idle
     if (state == AnimationState::Heal) {
         return getClipId(AnimationState::Idle, facing, animSetId);
     }

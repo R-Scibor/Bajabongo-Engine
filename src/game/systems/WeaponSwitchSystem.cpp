@@ -19,7 +19,6 @@ namespace game {
 
     void WeaponSwitchSystem::update(engine::EngineContext& context, float dt) {
         // We iterate over entities that have an inventory, a weapon component, and an animation state.
-        // Usually, this is the player or maybe smart AI.
         // For input-based switching, we specifically care about the one controlled by the player (implied by input check, but good to filter).
         
         auto view = context.m_registry->view<WeaponInventoryComponent, WeaponComponent, engine::AnimationStateComponent, PlayerComponent>();
@@ -30,8 +29,6 @@ namespace game {
             if (inv.switchCooldown > 0.0f) {
                 inv.switchCooldown -= dt;
                 // If we're on cooldown, we can't switch.
-                // However, we should continue decay for all entities.
-                // But we shouldn't process input for this entity if it's on cooldown.
             }
 
             if (inv.switchCooldown > 0.0f) {
@@ -63,18 +60,9 @@ namespace game {
                         std::string animSetId = (*archJson)["AnimationSetId"];
                         animState.animationSetId = animSetId;
                     } else {
-                        // Fallback or keep existing if not specified? 
-                        // Prompt implies "Define weapon archetypes with matching AnimationSetIds"
-                        // If missing, maybe warn?
                         // context.m_logManager->GetLogger("WeaponSwitchSystem")->warn("Archetype {} missing AnimationSetId", weaponArchetype);
                     }
                 }
-                
-                // loadWeaponStats handles weapon stats, we just did anim set above.
-                // The original code set animState.animationSetId = weaponArchetype;
-                // But now we want it from the JSON key "AnimationSetId".
-                // I will remove the old direct assignment.
-
                 
                 auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
                 if (logger) {
@@ -109,14 +97,7 @@ namespace game {
              return;
         }
 
-        // We need to extract the WeaponComponent part from the archetype JSON
-        // The archetype JSON usually looks like: { "components": { "WeaponComponent": { ... } } }
-        // BUT some archetypes might be defined as just the component if they are not full entities, 
-        // OR the structure might differ. 
-        // Based on archetypes.json, "TestRifle": { "Weapon": { ... } } 
-        // Note: The key in the JSON is "Weapon", not "WeaponComponent" (based on archetypes.json inspection).
-        // Let's check both or adjust based on archetypes.json.
-        
+        // Extract the WeaponComponent part from the archetype JSON
         const nlohmann::json* weaponDataPtr = nullptr;
 
         if (archJson->contains("Weapon")) {
@@ -141,9 +122,7 @@ namespace game {
             // Reset weapon data to default before applying new stats
             weapon = WeaponComponent();
             
-            // Copy stats manually or via reflection if you had it.
-            // Since we don't have full reflection deserialization here in this snippet, we do it manually based on fields.
-            // Based on WeaponComponent.hpp:
+            // Copy stats
 
             if (weaponData.contains("shootSoundId")) weapon.shootSoundId = weaponData["shootSoundId"];
             else weapon.shootSoundId = ""; // Reset if not present
@@ -171,10 +150,8 @@ namespace game {
             
             if (weaponData.contains("magSize")) {
                 weapon.magSize = weaponData["magSize"];
-                // Optionally reset current ammo on switch? Or keep it? 
-                // Usually in simple games, getting a "new" gun fills it, but if it's inventory based, we might want to store state.
-                // For now, let's reset the mag to full.
-                weapon.currentAmmo = weapon.magSize; 
+                // Reset ammo on switch
+                weapon.currentAmmo = weapon.magSize;
             }
             if (weaponData.contains("totalAmmo")) weapon.totalAmmo = weaponData["totalAmmo"];
             if (weaponData.contains("reloadDuration")) weapon.reloadDuration = weaponData["reloadDuration"];

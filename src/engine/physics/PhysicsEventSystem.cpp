@@ -64,9 +64,7 @@ namespace engine
             auto entityA = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdA);
             auto entityB = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdB);
 
-            // Even if entities are destroyed, we might want to signal end contact?
-            // But if they are destroyed, the registry check will fail.
-            // For now, only dispatch if valid to be safe.
+            // Dispatch EndEvent only if entities are still valid
             if (m_registry->valid(entityA) && m_registry->valid(entityB))
             {
                 m_dispatcher->enqueue<PhysicsContactEndEvent>(entityA, entityB);

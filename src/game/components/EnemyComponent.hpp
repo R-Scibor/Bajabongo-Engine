@@ -1,4 +1,3 @@
-// File: src/game/components/EnemyComponent.hpp
 #pragma once
 #include "engine/core/math/MathAliases.hpp"
 #include <entt/entity/entity.hpp>

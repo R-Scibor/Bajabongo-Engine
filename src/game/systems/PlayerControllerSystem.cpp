@@ -114,14 +114,11 @@ namespace game {
 
             // --- Animation State Machine ---
             if (anim) {
-                // We rely on AnimationStateComponent now.
-                // If it's missing, the entity won't animate correctly (which is expected if we want to enforce the new system).
                 if (auto* animState = registry.try_get<engine::AnimationStateComponent>(entity)) {
                     if (player.isHealing) {
                         animState->state = engine::AnimationState::Heal;
                     } else {
-                        // 1. Determine State: Idle vs Moving vs Aiming
-                        // Aiming (PPM) overrides Walk to ensure Aim sprite is shown when holding RMB.
+                        // Update Animation State
                         if (isAiming) {
                             animState->state = engine::AnimationState::Aim;
                         } else if (lengthSq > 0.0f) {
@@ -137,11 +134,10 @@ namespace game {
                     } else if (moveDir.x > 0.0f) {
                         animState->facing = engine::FacingDirection::Right;
                     } else if ((lengthSq < 0.001f || player.isHealing) && weapon) {
-                        // If standing still (or healing), face the aim direction
-                        // Ideally we should do this if we are aiming
+                        // Face aim direction when standing still
                         float aimAngle = weapon->aimAngle;
-                        // Normalize angle to -PI to PI
-                        while (aimAngle > PI_F) aimAngle -= 2.0f * PI_F;
+                        
+                        while (aimAngle > PI_F) aimAngle -= 2.0f * PI_F; // TODO: Extract to wrapAngle() helper
                         while (aimAngle < -PI_F) aimAngle += 2.0f * PI_F;
 
                         if (std::abs(aimAngle) > PI_F / 2.0f) {
@@ -223,10 +219,7 @@ namespace game {
                 // atan2 returns angle in radians
                 float angle = std::atan2(dy, dx);
 
-                // Set rotation directly
-                // b2Body_SetTransform(bodyComp.bodyId, bodyPos, b2MakeRot(angle));
-
-                // NEW: Update visibility direction with smooth interpolation
+                // Update visibility direction with smooth interpolation
                 visibility.targetViewDirection = angle;
                 
                 // Shortest path interpolation for angle

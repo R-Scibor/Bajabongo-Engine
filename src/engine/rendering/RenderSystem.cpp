@@ -73,57 +73,20 @@ namespace engine
             const auto* spriteDesc = m_spriteManager->getSprite(renderable.spriteId);
             if (!spriteDesc) continue;
             
-            // NEW: Skip entities not in vision cone (unless they're players)
-            // We need to check if they have PlayerComponent or VisibleToPlayerComponent
-            // Since we don't have direct access to check components here easily without registry lookups,
-            // we'll do it. Note: This might be slightly slow if done for every entity, 
-            // but RenderSystem iterates all renderables anyway.
-            
-            // Optimization: If we wanted to avoid registry lookups, we could add a bool to RenderableComponent,
-            // but keeping it in ECS style means querying the registry.
-            // However, `view` only has Transform and Renderable.
-            // We can use m_registry.any_of<T>(entity)
-            
+            // Skip entities not in vision cone (unless they are the player)
             bool isPlayer = m_registry.any_of<game::PlayerComponent>(item.entity);
-            bool isVisible = false;
-            
-            if (auto* visComp = m_registry.try_get<game::VisibleToPlayerComponent>(item.entity)) {
-                isVisible = true; // Tag present means visible
-                // But we also check 'alwaysVisible' flag inside it if we wanted to be redundant,
-                // however the mere presence of the tag usually means "visible now".
-                // Wait, if we use the component as a "status holder" that persists, we should check the bool.
-                // But VisibilityTaggingSystem ADDS/REMOVES the component based on cone visibility.
-                
-                // If we want "always visible", we should probably ensure the component STAYS on the entity
-                // OR we just use the flag if the component is present. 
-                
-                // Let's re-read VisibilityTaggingSystem. It removes the component if not visible.
-                // So if we want "always visible", we need a way to tell TaggingSystem NOT to remove it.
-                // OR we check for a DIFFERENT condition here.
-                
-                // User said: "add a flag to visibletoplayercomponent. by default it is always visible to player."
-                // If the user means "VisibleToPlayerComponent has a flag alwaysVisible", 
-                // but VisibilityTaggingSystem REMOVES the component when not in cone,
-                // then the flag will disappear with the component.
-                
-                // So we must modify VisibilityTaggingSystem to NOT remove it if alwaysVisible is true.
-            }
-            
-            // Re-evaluating RenderSystem logic based on new plan:
-            // TaggingSystem will be responsible for keeping the component if alwaysVisible is true.
-            // RenderSystem just checks for presence of component.
+            bool isVisible = m_registry.any_of<game::VisibleToPlayerComponent>(item.entity);
             
             if (!isPlayer && !isVisible) {
-                // Debug logging to diagnose black screen issue
                 if (renderable.spriteId == "map_sprite") {
                      static int logCounter = 0;
-                     if (logCounter < 10) { // Limit logs
+                     if (logCounter < 10) {
                          auto logger = m_context.m_logManager->GetLogger("RenderSystem");
-                         if (logger) logger->warn("Skipping map_sprite entity because it is not VisibleToPlayer!");
+                         if (logger) logger->warn("Skipping map_sprite: not VisibleToPlayer");
                          logCounter++;
                      }
                 }
-                continue; // Skip rendering
+                continue;
             }
 
             auto texture = m_resourceManager->getTexture(spriteDesc->textureId);
