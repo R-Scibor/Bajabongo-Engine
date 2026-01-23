@@ -6,6 +6,7 @@
 #include "engine/events/StateEvents.hpp"
 #include "engine/events/AudioEvents.hpp"
 #include "engine/rendering/IRenderer.hpp"
+#include "engine/rendering/SFMLRenderer.hpp"
 #include "engine/core/IResourceManager.hpp"
 
 #include <SFML/Window/Event.hpp>
@@ -48,6 +49,20 @@ namespace game {
 
     void MainMenuState::render(engine::EngineContext& context) {
         auto& renderer = *context.m_renderer;
+
+        // Save current view state if possible (to avoid breaking GameplayState camera)
+        sf::View oldView;
+        bool viewSaved = false;
+        auto sfmlRenderer = std::dynamic_pointer_cast<engine::SFMLRenderer>(context.m_renderer);
+        if (sfmlRenderer) {
+            oldView = sfmlRenderer->getNativeRenderWindow().getView();
+            viewSaved = true;
+        }
+
+        // Reset View to Window Defaults (Fixes issue when returning from GameplayState)
+        auto windowSize = renderer.getWindowSize();
+        renderer.setViewSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
+        renderer.setViewCenter({windowSize.x / 2.0f, windowSize.y / 2.0f});
 
         // Draw Background
         if (context.m_resourceManager) {
@@ -160,6 +175,11 @@ namespace game {
             }
 
             renderer.drawText(label, {drawX, drawY}, fontSize, color);
+        }
+
+        // Restore View
+        if (viewSaved && sfmlRenderer) {
+            sfmlRenderer->getNativeRenderWindow().setView(oldView);
         }
     }
 

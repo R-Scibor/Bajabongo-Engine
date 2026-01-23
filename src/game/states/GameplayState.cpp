@@ -232,6 +232,11 @@ namespace game {
     }
 
     void GameplayState::render(engine::EngineContext& context) {
+        // Clear the screen to black to ensure MainMenuState (background) doesn't bleed through
+        if (context.m_renderer) {
+            context.m_renderer->clear({0, 0, 0, 255});
+        }
+
         // =================================================================
         // STEP 1: Capture Game World into Scene Texture (World-Space)
         // =================================================================
