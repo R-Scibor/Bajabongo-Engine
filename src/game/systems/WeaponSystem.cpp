@@ -245,8 +245,8 @@ namespace game {
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
             // Calculate spawn position (offset from center)
-            float spawnOffset = 45.0f;
-            float heightOffset = WEAPON_MUZZLE_HEIGHT_OFFSET;
+            float spawnOffset = 60.0f;
+            float heightOffset = -96.0f; // Muzzle height adjustment TODO: Make configurable per weapon
             float cosA = std::cos(finalAngle);
             float sinA = std::sin(finalAngle);
             
