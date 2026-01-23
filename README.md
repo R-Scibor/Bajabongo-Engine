@@ -1,53 +1,91 @@
-# Bajabongo-Engine
+# Bajabongo Engine
 
-A 2D game engine built in C++20.
+A modular, data-driven 2D game engine built with **C++20**, **SFML 3**, **EnTT**, and **Box2D 3.0**.
 
-## Project Status
+The project is structured into two distinct parts: the **Core Engine** (`src/engine`) which provides reusable systems and abstractions, and the **Game Module** (`src/game`) which implements specific gameplay logic, acting as the composition root.
 
-*   **Current Milestone:** A "Walking Skeleton" architecture is complete. The engine can successfully initialize, run the main loop, and render a basic shape to the screen.
-*   **Technology Stack:** C++20, SFML 3.0.2 (Development Branch)
+## 🚀 Key Features
 
-## Core Architecture
+### Core Technology
+*   **Modern C++20 Codebase**: Utilizes latest standard features for performance and safety.
+*   **Entity Component System (ECS)**: Powered by [EnTT](https://github.com/skypjack/entt) for high-performance entity management.
+*   **Physics Engine**: Integrated **Box2D 3.0** (C API) for reliable 2D physics simulation.
+*   **Rendering**: **SFML 3.0.2** backend with support for sprite batching, animations, and camera control.
+*   **Input System**: Abstracted input handling supporting keyboard and mouse.
+*   **Logging**: Structured, multi-sink logging using [spdlog](https://github.com/gabime/spdlog).
 
-The engine is built upon a foundation of modern C++ and SOLID design principles, emphasizing flexibility and separation of concerns.
+### Engine Systems
+*   **State Management**: Stack-based Finite State Machine (Push, Pop, Swap) handling game flow (Splash -> Menu -> Gameplay).
+*   **Asset Pipeline**: JSON-based asset manifests with hot-reloading capabilities using `tools/AssetBaker.py`.
+*   **Event System**: Decoupled event dispatching for physics collisions, audio triggers, and state changes.
+*   **Animation**: Component-based animation system supporting multiple clips and state-based transitions.
 
-### Key Achievements
+### Gameplay Features
+*   **AI Behavior**: Robust AI system including:
+    *   Enemy detection and state transitions (Idle, Alert, Combat).
+    *   Behavioral archetypes: Patrol, Rush, Sniper, Turret.
+    *   Pathfinding and obstacle avoidance.
+*   **Combat System**:
+    *   Weapon inventory and switching mechanics.
+    *   Projectile ballistics and hit detection.
+    *   Damage handling and visual feedback (Hit Flash).
+*   **Visibility & Fog**: Dynamic visibility system ("Fog of War") based on player line-of-sight.
+*   **Interactive Maps**: JSON-based map loading with defined spawn points, resources, and collision geometry.
 
-1.  **State Management:**
-    *   A stack-based `StateManager` now controls the application flow, with support for deferred transitions (push, pop, swap). This decouples the engine from game-specific logic. See the [State Management Documentation](docs/state_management.md) for more details.
+## 📂 Project Structure
 
-2.  **Main Application Loop:**
-    *   The core engine (`Application`) now delegates all input, update, and rendering logic to the active game state(s), acting as a simple driver for the `StateManager`.
+```
+c:/repos/Bajabongo-Engine/
+├── assets/                 # Game assets (sprites, fonts, data, shaders)
+├── docs/                   # Detailed technical documentation
+├── src/
+│   ├── engine/             # Core Engine Library (Reusable)
+│   │   ├── core/           # Application loop, DI, StateManager
+│   │   ├── ecs/            # Entity Factory, Archetypes, Systems
+│   │   ├── physics/        # Box2D integration
+│   │   ├── rendering/      # SFML wrappers, Animation
+│   │   └── ...
+│   └── game/               # Game Logic (Implementation)
+│       ├── ai/             # Enemy AI logic
+│       ├── components/     # Game-specific components
+│       ├── states/         # Game states (MainMenu, Gameplay)
+│       ├── systems/        # Gameplay systems (Damage, Weapon, Fog)
+│       └── game.cpp        # Composition Root (Main Entry)
+└── tools/                  # Python tools for asset management
+```
 
-3.  **Dependency Injection (DI) and Abstraction:**
-    *   The `Application` class remains completely decoupled from any specific rendering or windowing library.
-    *   It depends exclusively on abstract interfaces (`IWindow&`, `IRenderer&`, etc.), which are bundled into a central `EngineContext` struct.
+## 🛠️ Getting Started
 
-4.  **Module Separation (Engine vs. Game):**
-    *   The `game` project acts as the "Composition Root." It creates all concrete services and registers all game states.
-    *   The `engine` library remains pure, with no knowledge of game-specific logic, ensuring it is reusable and self-contained.
+### Prerequisites
+*   **Visual Studio 2022** (or compatible C++20 compiler)
+*   **vcpkg** package manager
+*   **Python 3.x** (for asset tools)
 
-### Architectural Adaptation
+### Building the Project
+1.  Ensure **vcpkg** is installed and integrated with Visual Studio (`vcpkg integrate install`).
+2.  Open `Bajabongo-Engine.sln` in Visual Studio.
+3.  Select the **Debug** or **Release** configuration (x64 recommended).
+4.  Build the solution (F7). Visual Studio should automatically invoke vcpkg to install missing dependencies (SFML, EnTT, Box2D, Spdlog).
+5.  Run the `game` project.
 
-During initial development, the architecture was adapted to align with the design of the SFML library. The `SFMLRenderer` class now implements both the `IWindow` and `IRenderer` interfaces, managing a single `sf::RenderWindow` object. This change resolved a critical stability issue while fully preserving the core principles of abstraction and dependency injection.
+## 📚 Documentation
 
-## Next Steps
+Detailed documentation for specific subsystems can be found in the `docs/` directory:
 
-With the core architectural patterns (DI, ECS, State Management) in place, the next phase will focus on building out game features within this structure:
+*   [**Asset Pipeline**](docs/asset_pipeline.md): How to add and manage assets.
+*   [**ECS Architecture**](docs/ecs.md): Entity-Component-System patterns and usage.
+*   [**State Management**](docs/state_management.md): How the game flow is structured.
+*   [**Rendering & Animation**](docs/rendering_animation.md): Sprite and animation details.
+*   [**Physics System**](docs/physics.md): Box2D integration and collision handling.
+*   [**Input System**](docs/input.md): Handling user input.
+*   [**Event System**](docs/events.md): Event dispatching architecture.
+*   [**Audio System**](docs/audio.md): Audio playback and management.
+*   [**Logging**](docs/logging.md): Debugging and logging practices.
+*   [**Math Library**](docs/math.md): Vector and geometry utilities.
 
-1.  Expanding the `GameplayState` to include more complex game logic.
-2.  Creating more concrete states, such as a `PauseState` or `OptionsState`.
-3.  Developing more sophisticated rendering techniques within the existing `RenderSystem`.
+## 🏗️ Architecture Overview
 
-## Tools
-
-*   **Asset Baker:** A Python utility for automating resource manifest generation and hot-reloading assets. See [Asset Pipeline](docs/asset_pipeline.md).
-
-## Documentation
-
-*   [State Management System](docs/state_management.md)
-*   [Rendering & Animation Systems](docs/rendering_animation.md)
-*   [Logging System Architecture](docs/logging.md)
-*   [Core Math Library](docs/math.md)
-*   [Physics System Architecture](docs/physics.md)
-*   [Asset Pipeline & Tools](docs/asset_pipeline.md)
+The engine follows **SOLID** principles, heavily utilizing **Dependency Injection (DI)**.
+*   **EngineContext**: A central container holding references to core services (Renderer, Input, Registry, PhysicsWorld).
+*   **Application Class**: Drives the main loop but delegates logic to the active `GameState`.
+*   **Separation of Concerns**: The `engine` project knows nothing about `game` logic. The `game` project ties everything together.
