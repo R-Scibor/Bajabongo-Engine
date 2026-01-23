@@ -7,8 +7,8 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/WindowHandle.hpp>
-#include <SFML/Window/Event.hpp>     
-#include <SFML/Window/VideoMode.hpp> 
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <optional>                 
 
@@ -41,8 +41,12 @@ namespace engine
 
     // --- Implementacja IWindow ---
 
-    void SFMLRenderer::create(const std::string& title, unsigned int width, unsigned int height) {
-        m_renderWindow.create(sf::VideoMode({ width, height }), title, sf::Style::Default);
+    void SFMLRenderer::create(const std::string& title, unsigned int width, unsigned int height, bool fullscreen) {
+        if (fullscreen) {
+            m_renderWindow.create(sf::VideoMode({ width, height }), title, sf::State::Fullscreen);
+        } else {
+            m_renderWindow.create(sf::VideoMode({ width, height }), title, sf::Style::Default);
+        }
     }
 
     void SFMLRenderer::close() {

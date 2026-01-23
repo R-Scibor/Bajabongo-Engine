@@ -24,8 +24,9 @@ namespace engine
          * @param title The title of the window.
          * @param width The width of the window in pixels.
          * @param height The height of the window in pixels.
+         * @param fullscreen Whether to create the window in fullscreen mode.
          */
-        virtual void create(const std::string& title, unsigned int width, unsigned int height) = 0;
+        virtual void create(const std::string& title, unsigned int width, unsigned int height, bool fullscreen = false) = 0;
 
         /**
          * @brief Closes the window.

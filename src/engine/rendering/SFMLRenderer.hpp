@@ -26,7 +26,7 @@ namespace engine
         ~SFMLRenderer() override;
 
         // --- IWindow Implementation ---
-        void create(const std::string& title, unsigned int width, unsigned int height) override;
+        void create(const std::string& title, unsigned int width, unsigned int height, bool fullscreen = false) override;
         void close() override;
         bool isOpen() const override;
         void* getNativeHandle() const override;
