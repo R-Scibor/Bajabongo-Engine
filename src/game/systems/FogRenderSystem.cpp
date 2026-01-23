@@ -29,7 +29,6 @@ namespace game {
         }
         
         // Load fog shader
-        // Assuming the executable is in build/bin/Debug or similar depth
         // Try sf::Shader::Type::Fragment if available, otherwise just rely on context
         if (!m_fogShader.loadFromFile("../../assets/shaders/fog.frag", sf::Shader::Type::Fragment)) {
             if (m_context.m_logManager) {
@@ -106,7 +105,6 @@ namespace game {
         // CRITICAL: Set view to world space (entire map), not viewport
         if (m_usingWorldBounds) {
             // Create a view that covers the entire world/map
-            // SFML 3.x: FloatRect takes pos(Vector2f), size(Vector2f)
             sf::View worldView(sf::FloatRect(
                 {0.f, 0.f},
                 {static_cast<float>(m_currentWidth), static_cast<float>(m_currentHeight)}
@@ -152,7 +150,6 @@ namespace game {
         m_fogShader.setUniform("explorationMap", m_explorationTexture.getTexture());
         
         // Create a sprite that represents the entire world
-        // SFML 3.x: Constructor takes texture directly
         sf::Sprite worldSprite(m_sceneTexture.getTexture());
         worldSprite.setPosition(sf::Vector2f(0.f, 0.f));  // World origin
         
@@ -177,7 +174,7 @@ namespace game {
                 if (bounds.width > 0 && bounds.height > 0) {
                      initializeTextures(static_cast<unsigned int>(std::ceil(bounds.width)), static_cast<unsigned int>(std::ceil(bounds.height)));
                      m_usingWorldBounds = true;
-                     break; // Use the first one found
+                     break; 
                 }
             }
         }
@@ -205,12 +202,6 @@ namespace game {
                 polygon[i].position = sf::Vector2f(points[i].x, points[i].y);
                 polygon[i].color = sf::Color::White;
             }
-
-            // Draw to sight texture with Additive blending (or just Overwrite if we want simple union)
-            // Using Additive might make overlapping cones brighter, which might not be desired for a boolean mask.
-            // Using None (copy) or Alpha (default) is safer for a flat mask. 
-            // We want the union of all visible areas.
-            // If we just draw white polygons on a transparent background, the result is the union.
             m_sightTexture.draw(polygon);
         }
 
@@ -224,16 +215,11 @@ namespace game {
         // Once a pixel is white (1.0), adding more white keeps it white (clamped to 1.0).
         
         sf::Sprite sightSprite(m_sightTexture.getTexture());
-        // We need to flip the sprite vertically because sf::RenderTexture is stored upside down relative to window
-        // But here we are drawing from texture to texture, so coordinate systems might match?
-        // Actually SFML RenderTextures are usually consistent with each other. 
-        // Let's test without flipping first. If it's upside down, we'll fix it.
-        // Wait, getTexture() returns the texture which is "right side up" for sprite drawing usually.
+
         
         // Use sf::BlendAdd to ensure we only "add" light.
         // If exploration has alpha 0, and sight has alpha 1 -> result alpha 1.
         // If exploration has alpha 1, and sight has alpha 0 -> result alpha 1.
-        // This acts like a Boolean OR for visibility.
         m_explorationTexture.draw(sightSprite, sf::BlendAdd);
         m_explorationTexture.display();
     }
