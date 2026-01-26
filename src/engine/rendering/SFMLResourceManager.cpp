@@ -15,16 +15,17 @@ namespace engine {
     }
 
     std::shared_ptr<TextureHandle> SFMLResourceManager::loadTexture(const std::string& id, const std::string& path) {
-        // Check cache first
+        // 1. Check cache first
         auto it = m_textures.find(id);
         if (it != m_textures.end()) {
             return it->second;
         }
 
-        // Load from disk
+        // 2. Load from disk
         auto texture = std::make_shared<sf::Texture>();
         if (!texture->loadFromFile(path)) {
-            // Try user-specified fallback path
+            // 3. Fallback strategy
+            // Try user-specified fallback path (e.g. placeholder asset)
             if (texture->loadFromFile("../../assets/textures/eg.png")) {
                 if (m_logger) {
                     m_logger->warn("Failed to load texture: {}. Used fallback: ../../assets/textures/eg.png", path);
@@ -34,18 +35,20 @@ namespace engine {
                     m_logger->error("Failed to load texture: {} and fallback. Using generated 128x128 magenta.", path);
                 }
                 
-                // Create 128x128 Magenta fallback
+                // 4. Ultimate fallback: Generate 128x128 Magenta texture
+                // This makes missing assets obvious visually without crashing.
                 sf::Image fallbackImage;
-                // SFML 3 uses resize instead of create
+                // Note: SFML 3 API change: create -> resize
                 fallbackImage.resize({128, 128}, sf::Color::Magenta);
                 (void)texture->loadFromImage(fallbackImage);
             }
         }
 
-        // Force nearest-neighbor interpolation for crisp pixel art
+        // Force nearest-neighbor interpolation for crisp pixel art look
+        // (This assumes the engine is 2D pixel-art based. For HD games, this might be a parameter).
         texture->setSmooth(false);
 
-        // Cache and return
+        // 5. Cache and return
         m_textures[id] = texture;
         
         if (m_logger) {
@@ -62,19 +65,19 @@ namespace engine {
         }
 
         if (m_logger) {
+            // Logging error on every frame might spam the console if a texture is missing,
+            // but it's useful for debugging.
             m_logger->error("Texture not found: {}", id);
         }
         return nullptr;
     }
 
     std::shared_ptr<SoundBufferHandle> SFMLResourceManager::loadSoundBuffer(const std::string& id, const std::string& path) {
-        // Check cache first
         auto it = m_soundBuffers.find(id);
         if (it != m_soundBuffers.end()) {
             return it->second;
         }
 
-        // Load from disk
         auto buffer = std::make_shared<sf::SoundBuffer>();
         if (!buffer->loadFromFile(path)) {
             if (m_logger) {
@@ -83,7 +86,6 @@ namespace engine {
             return nullptr;
         }
 
-        // Cache and return
         m_soundBuffers[id] = buffer;
         
         if (m_logger) {

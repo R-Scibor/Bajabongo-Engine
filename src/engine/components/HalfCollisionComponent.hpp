@@ -3,16 +3,17 @@
 namespace engine {
 
     /**
-     * @brief Tag component for entities that should block movement but allow projectiles.
-     * 
-     * Entities with this component will be filtered by the PhysicsSystem (or Game Logic)
-     * to act as "low obstacles" or "shoot-through" walls.
+     * @brief Tag component for entities that act as semi-solid obstacles.
+     * * Entities with this component are typically treated as "low obstacles" (like sandbags or fences)
+     * which block character movement but allow projectiles to pass through (shoot-through walls).
+     * This logic is enforced by the PhysicsSystem or Game Logic filtering.
      */
     struct HalfCollisionComponent {
-        bool dummy = true; // Empty struct, just a tag
+        /// @brief Dummy variable to ensure the struct has a non-zero size (standard C++ requirement), though mostly unused.
+        bool dummy = true; 
     };
 
-    // Alias for LowObstacle for clarity in new code
+    /// @brief Alias for HalfCollisionComponent to improve code readability in gameplay logic.
     using LowObstacleComponent = HalfCollisionComponent;
 
 }

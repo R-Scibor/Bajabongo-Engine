@@ -11,7 +11,9 @@ namespace engine {
         auto logger = context.m_logManager->GetLogger("StateManager");
         logger->info("Initializing StateManager and connecting to dispatcher.");
 
-        // Subscribe to all state-related events from the dispatcher
+        // Subscribe to all state-related events from the dispatcher.
+        // This allows any system (e.g., a button in the UI) to request a state change
+        // without needing a direct reference to the StateManager.
         m_context.m_dispatcher->sink<RequestStatePushEvent>().connect<&StateManager::onPushRequest>(this);
         m_context.m_dispatcher->sink<RequestStatePopEvent>().connect<&StateManager::onPopRequest>(this);
         m_context.m_dispatcher->sink<RequestStateSwapEvent>().connect<&StateManager::onSwapRequest>(this);
@@ -74,6 +76,7 @@ namespace engine {
     }
 
     void StateManager::render() {
+        // Render from bottom to top (Painter's Algorithm)
         for (auto& state : m_states) {
             state->render(m_context);
         }
@@ -82,9 +85,9 @@ namespace engine {
     void StateManager::processTransitions() {
         auto logger = m_context.m_logManager->GetLogger("StateManager");
 
-        // Take a copy of the pending actions and clear the original queue.
-        // This prevents new transitions requested during onEnter/onExit from
-        // interfering with the current batch.
+        // SAFETY: Take a copy of the pending actions and clear the original queue immediately.
+        // Why? Because onEnter() or onExit() of a state might request *new* transitions.
+        // If we iterated over m_pendingActions directly, pushing to it invalidates the iterator.
         auto actionsToProcess = std::move(m_pendingActions);
         m_pendingActions.clear();
 
@@ -92,9 +95,12 @@ namespace engine {
             switch (action.type) {
             case PendingActionType::Push: {
                 if (m_stateFactory.count(action.stateName)) {
+                    // Create new state via factory lambda
                     auto newState = m_stateFactory.at(action.stateName)();
                     logger->info("Pushing state: {}", action.stateName);
+                    
                     m_states.push_back(std::move(newState));
+                    // Initialize the state (Load resources, etc.)
                     m_states.back()->onEnter(m_context);
                 } else {
                     logger->error("Unknown state requested for push: {}", action.stateName);
@@ -105,8 +111,9 @@ namespace engine {
             case PendingActionType::Pop: {
                 if (!m_states.empty()) {
                     logger->info("Popping state.");
-                    m_states.back()->onExit(m_context);
+                    m_states.back()->onExit(m_context); // Cleanup resources
                     m_states.pop_back();
+                    
                     if (m_states.empty()) {
                         logger->warn("State stack is empty. Application may need to close.");
                     }
@@ -118,14 +125,14 @@ namespace engine {
 
             case PendingActionType::Swap: {
                 if (m_stateFactory.count(action.stateName)) {
-                    // Pop current state first
+                    // 1. Remove current
                     if (!m_states.empty()) {
                         logger->info("Swapping state.");
                         m_states.back()->onExit(m_context);
                         m_states.pop_back();
                     }
 
-                    // Then push the new one
+                    // 2. Add new
                     auto newState = m_stateFactory.at(action.stateName)();
                     logger->info("Pushing swapped state: {}", action.stateName);
                     m_states.push_back(std::move(newState));

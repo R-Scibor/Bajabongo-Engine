@@ -2,6 +2,11 @@
 #include "PhysicsBodyCreationSystem.hpp"
 
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file PhysicsBodyCreationSystem.cpp
+ * @brief Implementation of the PhysicsBodyCreationSystem class.
+ */
 #include "engine/components/PendingPhysicsBodyComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/ILoggerManager.hpp"

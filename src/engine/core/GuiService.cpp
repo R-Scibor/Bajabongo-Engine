@@ -29,7 +29,8 @@ namespace engine {
         }
         
         ImGuiIO& io = ImGui::GetIO();
-        // Docking might not be enabled in this build of ImGui
+        // Note: Docking allows dragging ImGui windows outside the main viewport 
+        // or docking them to edges. Requires the docking branch of ImGui.
         // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         m_initialized = true;
@@ -47,22 +48,30 @@ namespace engine {
     bool GuiService::HandleEvent(const sf::Window& window, const sf::Event& event) {
         if (!m_initialized) return false;
 
+        // Feed the event to ImGui (updates key states, mouse pos, etc.)
         ImGui::SFML::ProcessEvent(window, event);
 
+        // Check if ImGui wants to capture inputs
         ImGuiIO& io = ImGui::GetIO();
+        
+        // WantCaptureMouse: True if mouse is hovering an ImGui window
+        // WantCaptureKeyboard: True if an input field is active
         if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
-            return true;
+            return true; // Input consumed by UI
         }
-        return false;
+        
+        return false; // Input available for Game Logic
     }
 
     void GuiService::BeginFrame(sf::RenderWindow& window, const sf::Time& dt) {
         if (!m_initialized) return;
+        // Updates internal ImGui timers and input state
         ImGui::SFML::Update(window, dt);
     }
 
     void GuiService::Render(sf::RenderWindow& window) {
         if (!m_initialized) return;
+        // Generates draw lists and renders them via SFML
         ImGui::SFML::Render(window);
     }
 

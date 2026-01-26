@@ -20,13 +20,16 @@ namespace engine {
     void AnimationSystem::update(float deltaTime) {
         if (!m_context.m_animationLibrary) return;
 
+        // We iterate only over entities that have BOTH an animation state and a renderable sprite.
         auto view = m_context.m_registry->view<AnimationComponent, RenderableComponent>();
 
         view.each([&](AnimationComponent& anim, RenderableComponent& renderable) {
             if (!anim.isPlaying || anim.isFinished) return;
 
+            // Retrieve the shared clip data
             const auto* clip = m_context.m_animationLibrary->getClip(anim.currentClipId);
             if (!clip) {
+                // Log missing clip only once per ID to avoid flooding the console
                 static std::unordered_set<std::string> missingClips;
                 if (missingClips.find(anim.currentClipId) == missingClips.end()) {
                     if (m_logger) {
@@ -37,27 +40,29 @@ namespace engine {
                 return;
             }
 
-            // Update timer
+            // 1. Advance the timer
             anim.timer += deltaTime;
 
-            // Check for frame change
+            // 2. Advance frames based on duration
+            // Using a while loop handles cases where deltaTime > frameDuration (lag spikes)
             while (anim.timer >= clip->frameDuration) {
                 anim.timer -= clip->frameDuration;
                 anim.currentFrameIndex++;
 
-                // Handle looping or finishing
+                // 3. Handle End of Clip
                 if (anim.currentFrameIndex >= clip->spriteIds.size()) {
                     if (clip->loop) {
-                        anim.currentFrameIndex = 0;
+                        anim.currentFrameIndex = 0; // Loop back to start
                     } else {
+                        // Clamp to last frame and mark as finished
                         anim.currentFrameIndex = static_cast<int>(clip->spriteIds.size()) - 1;
                         anim.isFinished = true;
-                        break; // Stop processing if finished
+                        break; 
                     }
                 }
             }
 
-            // Sync sprite ID to RenderableComponent
+            // 4. Update the RenderableComponent (Visual representation)
             if (anim.currentFrameIndex < clip->spriteIds.size()) {
                 renderable.spriteId = clip->spriteIds[anim.currentFrameIndex];
             }

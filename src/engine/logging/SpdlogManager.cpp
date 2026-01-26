@@ -6,10 +6,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm> // For std::transform
 
 namespace engine
 {
-    // Helper function to trim whitespace from a string
+    // --- Helper Functions (Internal linkage) ---
+
+    /**
+     * @brief Removes leading and trailing whitespace from a string.
+     */
     std::string trim(const std::string& str)
     {
         const std::string whitespace = " \t";
@@ -23,7 +28,10 @@ namespace engine
         return str.substr(strBegin, strRange);
     }
 
-    // Helper function to parse level from string
+    /**
+     * @brief Converts a string representation of a log level to spdlog enum.
+     * * Case-insensitive (e.g., "Debug", "debug", "DEBUG").
+     */
     spdlog::level::level_enum level_from_string(const std::string& level_str)
     {
         std::string lower_level = level_str;
@@ -34,33 +42,43 @@ namespace engine
         if (lower_level == "warn") return spdlog::level::warn;
         if (lower_level == "error") return spdlog::level::err;
         if (lower_level == "critical") return spdlog::level::critical;
-        // Default to info
+        
+        // Default fallback
         return spdlog::level::info;
     }
 
+    // --- SpdlogManager Implementation ---
+
     SpdlogManager::SpdlogManager(const std::string& configFilePath)
+        // Format: [Time Zone] [LoggerName] [Level] [ThreadID] Message
         : m_defaultPattern("[%H:%M:%S %z] [%n] [%^%l%$] [thread %t] %v")
     {
+        // Set the global pattern for all new loggers
         spdlog::set_pattern(m_defaultPattern);
         LoadConfiguration(configFilePath);
     }
 
     SpdlogManager::~SpdlogManager()
     {
+        // Ensure all logs are flushed to disk/console before exiting
         spdlog::shutdown();
     }
 
     std::shared_ptr<ILogger> SpdlogManager::GetLogger(const std::string& name)
     {
+        // 1. Check if the logger already exists in our cache
         auto it = m_loggers.find(name);
         if (it != m_loggers.end())
         {
             return std::make_shared<SpdlogLogger>(it->second);
         }
 
-        // If logger not found, create a new one with default settings
+        // 2. If not found, create a new one with default settings
+        // 'stdout_color_mt' creates a multi-threaded safe console logger with colors.
         auto new_logger = spdlog::stdout_color_mt(name);
-        new_logger->set_level(spdlog::level::info); // Default level
+        new_logger->set_level(spdlog::level::info); // Default level is Info
+        
+        // 3. Cache it for future use
         m_loggers[name] = new_logger;
 
         return std::make_shared<SpdlogLogger>(new_logger);
@@ -71,6 +89,7 @@ namespace engine
         std::ifstream configFile(configFilePath);
         if (!configFile.is_open())
         {
+            // Use std::cerr because the logging system itself isn't fully configured yet
             std::cerr << "Warning: Could not open logging config file: " << configFilePath << ". Using default settings." << std::endl;
             return;
         }
@@ -78,7 +97,7 @@ namespace engine
         std::string line;
         while (std::getline(configFile, line))
         {
-            // Skip comments and empty lines
+            // Skip comments (# or ;) and empty lines
             if (line.empty() || line[0] == '#' || line[0] == ';')
                 continue;
 
@@ -88,12 +107,17 @@ namespace engine
                 std::string name = trim(line.substr(0, delimiterPos));
                 std::string level_str = trim(line.substr(delimiterPos + 1));
 
+                // Check if spdlog already has this logger (e.g. created globally)
                 auto logger = spdlog::get(name);
                 if (!logger)
                 {
                     logger = spdlog::stdout_color_mt(name);
                 }
+                
+                // Set the level as defined in the file
                 logger->set_level(level_from_string(level_str));
+                
+                // Store in our map so GetLogger returns this pre-configured instance
                 m_loggers[name] = logger;
             }
         }

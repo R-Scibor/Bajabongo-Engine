@@ -2,6 +2,11 @@
 #include "ArchetypeManager.hpp"
 #include <fstream>
 
+/**
+ * @file ArchetypeManager.cpp
+ * @brief Implementation of the ArchetypeManager class.
+ */
+
 namespace engine {
 
     ArchetypeManager::ArchetypeManager(std::shared_ptr<ILoggerManager> logManager) {

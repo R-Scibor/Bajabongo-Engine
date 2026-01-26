@@ -1,3 +1,8 @@
+/**
+ * @file AudioSystem.cpp
+ * @brief Implementation of the AudioSystem class.
+ */
+
 #include "engine/pch.h"
 #include "AudioSystem.hpp"
 #include <algorithm>
@@ -12,13 +17,13 @@ namespace engine {
         , m_dispatcher(std::move(dispatcher))
         , m_logger(std::move(logger))
     {
-        // Initialize pool
+        // Initialize sound pool with dummy buffer to avoid reallocation
         m_soundPool.reserve(MAX_SOUNDS);
         for (size_t i = 0; i < MAX_SOUNDS; ++i) {
             m_soundPool.push_back(std::make_unique<sf::Sound>(m_dummyBuffer));
         }
 
-        // Subscribe to events
+        // Subscribe to audio-related events
         m_connections.push_back(m_dispatcher->sink<PlaySoundEvent>().connect<&AudioSystem::onPlaySound>(this));
         m_connections.push_back(m_dispatcher->sink<StopSoundEvent>().connect<&AudioSystem::onStopSound>(this));
         m_connections.push_back(m_dispatcher->sink<PlayMusicEvent>().connect<&AudioSystem::onPlayMusic>(this));
@@ -46,39 +51,43 @@ namespace engine {
     }
 
     void AudioSystem::update(float dt, entt::registry* registry) {
-        // Handle music fading
+        // Update music fading logic
         if (m_isFading && m_music) {
             m_fadeTimer += dt;
             if (m_fadeTimer >= m_fadeDuration) {
+                // Fade complete
                 m_isFading = false;
                 m_music->setVolume(m_targetFadeVolume);
+                // If faded out completely, stop the music
                 if (m_targetFadeVolume <= 0.01f) {
                     m_music->stop();
                     m_currentMusicId.clear();
                 }
             } else {
+                // Interpolate volume
                 float t = m_fadeTimer / m_fadeDuration;
-                // Linear fade
                 float newVol = m_startFadeVolume + (m_targetFadeVolume - m_startFadeVolume) * t;
                 m_music->setVolume(newVol);
             }
         }
 
-        // Check for natural finish
+        // Check if music finished playing naturally
         if (m_music && m_music->getStatus() == sf::SoundSource::Status::Stopped && !m_currentMusicId.empty()) {
             std::string finishedId = m_currentMusicId;
-            m_currentMusicId.clear(); // Prevent multiple events
+            m_currentMusicId.clear(); // Clear ID to prevent multiple events
             m_dispatcher->enqueue<MusicFinishedEvent>({ finishedId });
             if (m_logger) m_logger->info("Music finished naturally: {}", finishedId);
         }
 
-        // Clean up tracking map for stopped sounds
+        // Manage active looping sounds attached to entities
         for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end(); ) {
             size_t index = it->second;
+            
+            // Remove if the sound has stopped
             if (index < m_soundPool.size() && m_soundPool[index]->getStatus() == sf::SoundSource::Status::Stopped) {
                 it = m_loopingSounds.erase(it);
             } else {
-                // Update position for looping sounds attached to entities
+                // Update position to match the entity's transform
                 if (registry && registry->valid(it->first)) {
                     if (auto* transform = registry->try_get<TransformComponent>(it->first)) {
                         m_soundPool[index]->setPosition({transform->position.x, transform->position.y, 0.0f});

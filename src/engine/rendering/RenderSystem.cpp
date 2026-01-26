@@ -43,6 +43,8 @@ namespace engine
 
     void RenderSystem::update(sf::RenderTarget& target)
     {
+        // 1. View Collection
+        // We iterate over everything that has a Transform and is Renderable.
         auto view = m_registry.view<TransformComponent, RenderableComponent>();
         
         // Collect and sort by layer (existing logic)
@@ -55,17 +57,21 @@ namespace engine
         std::vector<RenderItem> items;
         items.reserve(view.size_hint());
         
+        // 2. Culling & Collection
         view.each([&](auto entity, const auto& transform, const auto& renderable) {
+            // Optimization: Could check if 'transform.position' is inside camera view here
             items.push_back({entity, renderable.layer, transform.position.y});
         });
         
-        // Sort: layer first, then Y position
+        // 3. Sorting (Painter's Algorithm)
+        // Sort primarily by Layer (background < foreground).
+        // Sort secondarily by Y-position (lower Y < higher Y) for pseudo-3D depth.
         std::sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
             if (a.layer != b.layer) return a.layer < b.layer;
-            return a.yPos < b.yPos;
+            return a.yPos < b.yPos; // Objects higher up on screen are drawn first (behind)
         });
         
-        // Render each entity to the target
+        // 4. Rendering Loop
         for (const auto& item : items) {
             auto& transform = view.get<TransformComponent>(item.entity);
             auto& renderable = view.get<RenderableComponent>(item.entity);
@@ -73,11 +79,13 @@ namespace engine
             const auto* spriteDesc = m_spriteManager->getSprite(renderable.spriteId);
             if (!spriteDesc) continue;
             
-            // Skip entities not in vision cone (unless they are the player)
+            // --- Vision / Fog of War Logic ---
             bool isPlayer = m_registry.any_of<game::PlayerComponent>(item.entity);
             bool isVisible = m_registry.any_of<game::VisibleToPlayerComponent>(item.entity);
             
+            // Don't draw if not visible (unless it's the player themselves)
             if (!isPlayer && !isVisible) {
+                // Debug log to catch map sprite disappearance issues
                 if (renderable.spriteId == "map_sprite") {
                      static int logCounter = 0;
                      if (logCounter < 10) {
@@ -89,29 +97,27 @@ namespace engine
                 continue;
             }
 
+            // Retrieve concrete texture from resource manager
             auto texture = m_resourceManager->getTexture(spriteDesc->textureId);
             if (!texture) continue;
             
-            // Create SFML sprite
-            // SFML 3.x: Constructor requires texture
+            // --- Draw Call Setup (SFML specific) ---
             sf::Sprite sprite(*texture);
             sprite.setTextureRect(spriteDesc->uvRect);
             
-            // SFML 3.x: All transforms take Vector2f (or Angle for rotation)
-            // Use initializer lists for Vector2f construction
+            // Apply Transforms
             sprite.setOrigin({static_cast<float>(spriteDesc->origin.x), static_cast<float>(spriteDesc->origin.y)});
             sprite.setPosition({static_cast<float>(transform.position.x), static_cast<float>(transform.position.y)});
-            sprite.setRotation(sf::radians(transform.rotation)); 
+            sprite.setRotation(sf::radians(transform.rotation)); // Angle in Radians (SFML 3.x)
             sprite.setScale({static_cast<float>(transform.scale.x), static_cast<float>(transform.scale.y)});
             sprite.setColor(renderable.color);
             
-            // Draw to the injected render target
             target.draw(sprite);
         }
         
-        // Debug physics rendering (if enabled)
+       // 5. Physics Debug Rendering
+        // Visualizes colliders for debugging purposes (green outlines).
         if (m_debugDraw) {
-            // Physics debug shapes also draw to target
             auto physicsView = m_registry.view<PhysicsBodyComponent, TransformComponent>();
             physicsView.each([&](entt::entity entity, const auto& bodyComp, const auto& transform) {
                  b2BodyId bodyId = bodyComp.bodyId;

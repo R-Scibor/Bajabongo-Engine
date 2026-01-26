@@ -2,6 +2,11 @@
 #include "PhysicsEventSystem.hpp"
 
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file PhysicsEventSystem.cpp
+ * @brief Implementation of the PhysicsEventSystem class.
+ */
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/events/PhysicsEvents.hpp"

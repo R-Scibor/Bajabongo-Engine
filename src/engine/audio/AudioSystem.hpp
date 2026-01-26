@@ -1,3 +1,8 @@
+/**
+ * @file AudioSystem.hpp
+ * @brief Defines the AudioSystem class, responsible for managing sound effects and music.
+ */
+
 #pragma once
 
 #include <vector>
@@ -13,20 +18,50 @@
 
 namespace engine {
 
+    /**
+     * @brief Manages audio playback, including sound effects and background music.
+     *
+     * Handles sound pooling, spatial audio (listener position), volume control,
+     * and music cross-fading. Listens for audio events from the event dispatcher.
+     */
     class AudioSystem {
     public:
+        /**
+         * @brief Constructs the AudioSystem.
+         * @param resourceManager Shared pointer to the resource manager (for loading audio buffers).
+         * @param dispatcher Shared pointer to the event dispatcher (for receiving audio events).
+         * @param logger Shared pointer to the logger.
+         */
         AudioSystem(std::shared_ptr<IResourceManager> resourceManager,
                     std::shared_ptr<entt::dispatcher> dispatcher,
                     std::shared_ptr<ILogger> logger);
+        
         ~AudioSystem();
 
+        /**
+         * @brief Updates the audio system state.
+         *
+         * Handles music fading and cleans up stopped sounds.
+         *
+         * @param dt Delta time since the last frame.
+         * @param registry Optional pointer to the ECS registry (used for updating spatial sound positions).
+         */
         void update(float dt, entt::registry* registry = nullptr);
 
+        /**
+         * @brief Sets the global listener position for spatial audio.
+         * @param position The position of the listener (usually the camera or player center).
+         */
         void setListenerPosition(const Vector2f& position);
 
+        /**
+         * @brief Gets the ID of the currently playing music track.
+         * @return The string ID of the current music, or empty string if none.
+         */
         std::string getCurrentMusicId() const { return m_currentMusicId; }
 
     private:
+        // Event handlers
         void onPlaySound(const PlaySoundEvent& event);
         void onStopSound(const StopSoundEvent& event);
         void onPlayMusic(const PlayMusicEvent& event);

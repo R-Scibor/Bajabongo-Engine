@@ -8,6 +8,10 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 
 namespace {
+    /**
+     * @brief Helper function to map engine KeyCodes to SFML KeyCodes.
+     * * This translation layer decouples the core engine logic from SFML constants.
+     */
     sf::Keyboard::Key toSFMLKey(engine::KeyCode key) {
         switch (key) {
             case engine::KeyCode::A: return sf::Keyboard::Key::A;
@@ -62,6 +66,10 @@ namespace {
             default: return sf::Keyboard::Key::Unknown;
         }
     }
+
+    /**
+     * @brief Helper function to map engine MouseCodes to SFML Mouse Buttons.
+     */
     sf::Mouse::Button toSFMLMouse(engine::MouseCode button) {
         switch (button) {
             case engine::MouseCode::Left: return sf::Mouse::Button::Left;
@@ -84,8 +92,10 @@ namespace engine {
     }
 
     void SFMLInputManager::processEvent(const sf::Event& event) {
-        // This manager relies on polling, but we keep this hook for future event-driven input handling.
+        // This manager relies on polling for keys, but we keep this hook for event-driven inputs.
         // Currently, events are processed directly by the Application or forwarded to GuiService.
+        
+        // C++23 style check for variant-based SFML events (SFML 3.x)
         if (const auto* wheelEvent = event.getIf<sf::Event::MouseWheelScrolled>()) {
             if (wheelEvent->wheel == sf::Mouse::Wheel::Vertical) {
                 m_scrollDelta += wheelEvent->delta;
@@ -101,10 +111,12 @@ namespace engine {
 
     bool SFMLInputManager::isKeyPressed(engine::KeyCode key) const {
         bool isPressed = sf::Keyboard::isKeyPressed(toSFMLKey(key));
-        if (isPressed)
-        {
+        // Trace logging is commented out or used carefully to avoid flooding logs every frame
+        /*
+        if (isPressed) {
             m_logger->trace("Key {} is pressed.", static_cast<int>(key));
         }
+        */
         return isPressed;
     }
 
@@ -113,15 +125,15 @@ namespace engine {
     }
 
     engine::Vector2i SFMLInputManager::getMousePosition() const {
+        // Get position relative to the active window (client area)
         sf::Vector2i sfmlPosition = sf::Mouse::getPosition(m_window);
         engine::Vector2i position = { sfmlPosition.x, sfmlPosition.y };
-        m_logger->trace("Mouse position: ({}, {})", position.x, position.y);
         return position;
     }
 
     float SFMLInputManager::consumeMouseScrollDelta() {
         float delta = m_scrollDelta;
-        m_scrollDelta = 0.0f;
+        m_scrollDelta = 0.0f; // Reset after consumption
         return delta;
     }
 

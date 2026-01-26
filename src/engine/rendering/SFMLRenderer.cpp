@@ -16,6 +16,8 @@ namespace engine
 {
     SFMLRenderer::SFMLRenderer()
         : IRenderer(*this) {
+        
+        // Initialize reusable debug shapes with default styles (wireframe)
         m_circleShape.setFillColor(sf::Color::Transparent);
         m_circleShape.setOutlineColor(sf::Color::Red);
         m_circleShape.setOutlineThickness(1.0f);
@@ -24,10 +26,13 @@ namespace engine
         m_rectShape.setOutlineColor(sf::Color::Green);
         m_rectShape.setOutlineThickness(1.0f);
 
-        // Try to load a font
+        // Robust Font Loading Strategy:
+        // 1. Try local assets folder
+        // 2. Try relative path (VS debugging context)
+        // 3. Fallback to Windows system font
         if (!m_font.openFromFile("assets/fonts/default.ttf")) {
             if (!m_font.openFromFile("../../assets/fonts/default.ttf")) {
-                // Fallback to system font
+                // Fallback to system font if custom font fails
                 (void)m_font.openFromFile("C:/Windows/Fonts/arial.ttf");
             }
         }
@@ -59,6 +64,7 @@ namespace engine
 
 
     void* SFMLRenderer::getNativeHandle() const {
+        // Cast the OS specific handle (HWND, Window, etc.) to void*
         return reinterpret_cast<void*>(m_renderWindow.getNativeHandle());
     }
 
@@ -78,7 +84,7 @@ namespace engine
     // --- Implementacja IRenderer ---
 
     void SFMLRenderer::beginFrame() {
-        // Cast to void to suppress [[nodiscard]] warning
+        // Cast to void to suppress [[nodiscard]] warning if ignoring result
         (void)m_renderWindow.setActive(true);
     }
 
@@ -90,7 +96,7 @@ namespace engine
         sf::Vector2f sfmlPosition(position.x, position.y);
         m_circleShape.setPosition(sfmlPosition);
         m_circleShape.setRadius(radius);
-        m_circleShape.setOrigin({radius, radius}); // Center the circle
+        m_circleShape.setOrigin({radius, radius}); // Center the circle origin
         m_renderWindow.draw(m_circleShape);
     }
 
@@ -98,14 +104,14 @@ namespace engine
         sf::Vector2f sfmlPosition(position.x, position.y);
         sf::Vector2f sfmlSize(size.x, size.y);
 
-        // Ensure debug style
+        // Reset to debug wireframe style (in case it was changed by fill method)
         m_rectShape.setFillColor(sf::Color::Transparent);
         m_rectShape.setOutlineColor(sf::Color::Green);
         m_rectShape.setOutlineThickness(1.0f);
 
         m_rectShape.setPosition(sfmlPosition);
         m_rectShape.setSize(sfmlSize);
-        m_rectShape.setOrigin({sfmlSize.x * 0.5f, sfmlSize.y * 0.5f}); // Center the rect
+        m_rectShape.setOrigin({sfmlSize.x * 0.5f, sfmlSize.y * 0.5f}); // Center origin
         m_renderWindow.draw(m_rectShape);
     }
 
@@ -113,12 +119,13 @@ namespace engine
         sf::Vector2f sfmlPosition(position.x, position.y);
         sf::Vector2f sfmlSize(size.x, size.y);
 
+        // Fill style for UI
         m_rectShape.setFillColor(sf::Color(color.r, color.g, color.b, color.a));
         m_rectShape.setOutlineThickness(0.0f);
 
         m_rectShape.setPosition(sfmlPosition);
         m_rectShape.setSize(sfmlSize);
-        m_rectShape.setOrigin({0.0f, 0.0f}); // Top-left origin for UI
+        m_rectShape.setOrigin({0.0f, 0.0f}); // Top-left origin for UI elements
         m_renderWindow.draw(m_rectShape);
     }
 
@@ -153,11 +160,11 @@ namespace engine
     void SFMLRenderer::drawTexture(const void* textureHandle, engine::Vector2f position) {
         if (!textureHandle) return;
         
+        // Unsafe cast: relying on caller to pass valid sf::Texture*
         const sf::Texture* texture = static_cast<const sf::Texture*>(textureHandle);
         sf::Sprite sprite(*texture);
         sprite.setPosition({position.x, position.y});
         
-        // We assume we want to draw it as is (1:1)
         m_renderWindow.draw(sprite);
     }
 
@@ -168,7 +175,7 @@ namespace engine
         sf::Sprite sprite(*texture);
         sprite.setPosition({position.x, position.y});
         
-        // Calculate scale
+        // Calculate scaling factors to fit target size
         sf::Vector2u texSize = texture->getSize();
         if (texSize.x > 0 && texSize.y > 0) {
             sprite.setScale({
@@ -182,11 +189,10 @@ namespace engine
 
     void SFMLRenderer::drawSpriteDirect(const void* spriteHandle, engine::Vector2f position) {
         if (!spriteHandle) return;
-        const sf::Sprite* sprite = static_cast<const sf::Sprite*>(spriteHandle);
-        // We draw the sprite as provided, but force position if needed, or assume sprite has position set
-        // But the interface has position argument.
         
-        // If we modify the sprite, we need a copy.
+        const sf::Sprite* sprite = static_cast<const sf::Sprite*>(spriteHandle);
+        
+        // Create a copy to modify position without affecting original
         sf::Sprite copy = *sprite;
         copy.setPosition({position.x, position.y});
         m_renderWindow.draw(copy);
@@ -198,22 +204,22 @@ namespace engine
             return;
         }
 
+        // Resolve Texture ID to concrete SFML Texture
         auto texture = m_resourceManager->getTexture(spriteDesc.textureId);
         if (!texture) {
-            // Texture loading failure already logged by ResourceManager,
-            // but we might want to log that drawing failed too, or just return.
-            // ResourceManager logs error on getTexture failure, so we can just return.
+            // Error already logged by ResourceManager
             return;
         }
 
         sf::Sprite sprite(*texture);
         sprite.setTextureRect(spriteDesc.uvRect);
         sprite.setOrigin(spriteDesc.origin);
-        // Fix: Explicitly construct sf::Vector2f to avoid ambiguity or mismatch
-        sprite.setPosition(sf::Vector2f(transform.position.x, transform.position.y));
         
-        sprite.setRotation(sf::radians(transform.rotation));
+        // Apply ECS Transform
+        sprite.setPosition(sf::Vector2f(transform.position.x, transform.position.y));
+        sprite.setRotation(sf::radians(transform.rotation)); // SFML 3.x uses Radians by default
         sprite.setScale({transform.scale.x, transform.scale.y});
+        
         sprite.setColor(sf::Color(color.r, color.g, color.b, color.a));
 
         m_renderWindow.draw(sprite);
@@ -242,6 +248,7 @@ namespace engine
 
     engine::Vector2f SFMLRenderer::screenToWorld(engine::Vector2f screenPos) {
         sf::Vector2i pixelPos(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y));
+        // Use SFML's built-in coordinate mapping which accounts for current View (camera)
         sf::Vector2f worldPos = m_renderWindow.mapPixelToCoords(pixelPos);
         return { worldPos.x, worldPos.y };
     }

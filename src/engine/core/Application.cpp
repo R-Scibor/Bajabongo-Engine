@@ -23,10 +23,12 @@ namespace engine {
         : m_context{ std::move(context) }
         , m_stateManager{ std::move(stateManager) }
     {
+        // Link the state manager back to the context so States can access it
         m_context->m_stateManager = m_stateManager.get();
         m_logger = m_context->m_logManager->GetLogger("Core");
         
-        // Initialize GuiService
+        // --- Initialize GuiService ---
+        // GUI needs access to the native SFML window to handle inputs and rendering
         m_context->m_guiService = std::make_shared<GuiService>();
         m_context->m_guiService->SetLogger(m_context->m_logManager->GetLogger("GuiService"));
         
@@ -37,7 +39,7 @@ namespace engine {
             m_logger->error("Failed to initialize GuiService: Window is not SFMLRenderer");
         }
 
-        // Initialize Audio System
+        // --- Initialize Audio System ---
         m_context->m_audioSystem = std::make_shared<AudioSystem>(
             m_context->m_resourceManager,
             m_context->m_dispatcher,
@@ -62,7 +64,7 @@ namespace engine {
 
         auto lastTime = std::chrono::high_resolution_clock::now();
 
-        // Main game loop
+        // --- Main Game Loop ---
         while (m_context->m_window->isOpen()) {
             auto currentTime = std::chrono::high_resolution_clock::now();
             float deltaTime =
@@ -71,7 +73,9 @@ namespace engine {
 
             m_accumulator += deltaTime;
 
-            // Prevent spiral of death
+            // "Spiral of Death" prevention:
+            // If the game lags significantly (e.g., breakpoint or heavy load), 
+            // limit the accumulator to avoid trying to catch up too many physics steps at once.
             if (m_accumulator > 0.2f) {
                 m_accumulator = 0.2f;
             }
@@ -87,6 +91,7 @@ namespace engine {
             }
 
             // 3. Run fixed-step updates for physics and game logic
+            // This loop ensures physics always steps by strictly m_fixedTimestep
             while (m_accumulator >= m_fixedTimestep) {
                 fixedUpdate();
                 m_accumulator -= m_fixedTimestep;
@@ -101,6 +106,7 @@ namespace engine {
             }
 
             // 5. Process all queued state transitions at a safe point
+            // (e.g., changing from Menu to Game shouldn't happen mid-update)
             m_stateManager->processTransitions();
 
             if (m_stateManager->isEmpty()) {
@@ -123,7 +129,7 @@ namespace engine {
         // Poll all SFML events and forward them to the active state
         while (auto event = m_context->m_window->pollEvent()) {
             
-            // Pass to GuiService first
+            // Pass to GuiService first (ImGui needs to handle inputs like typing in text boxes)
             bool captured = false;
             auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
             if (sfmlRenderer) {

@@ -3,11 +3,13 @@
 namespace engine
 {
     /**
-     * @brief Component that tracks the remaining lifetime of an entity.
-     * When lifetime reaches 0, the entity should be destroyed by LifetimeSystem.
+     * @brief Component that tracks the finite lifespan of an entity.
+     * * Useful for temporary entities like projectiles, particle effects, or temporary power-ups.
+     * The `LifetimeSystem` typically decrements this value and destroys the entity when it relies <= 0.
      */
     struct LifetimeComponent
     {
-        float lifetime; // Remaining time in seconds
+        /// @brief Remaining time before destruction, in seconds.
+        float lifetime; 
     };
 }

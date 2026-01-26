@@ -2,6 +2,11 @@
 #include "engine/ecs/HierarchySystem.hpp"
 
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file HierarchySystem.cpp
+ * @brief Implementation of the HierarchySystem class.
+ */
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
 

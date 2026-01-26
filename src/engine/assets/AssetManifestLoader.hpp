@@ -1,3 +1,8 @@
+/**
+ * @file AssetManifestLoader.hpp
+ * @brief Defines the AssetManifestLoader class responsible for loading assets from JSON manifests.
+ */
+
 #pragma once
 
 #include <string>
@@ -44,11 +49,37 @@ namespace engine {
         std::shared_ptr<ILogger> m_logger;
 
         // Helper methods for different sections
+
+        /**
+         * @brief Parses and loads textures from the JSON manifest.
+         * @param j JSON object containing the "textures" array.
+         */
         void loadTextures(const nlohmann::json& j);
+
+        /**
+         * @brief Parses and registers a single sprite definition.
+         * @param textureId The ID of the texture this sprite belongs to.
+         * @param spriteJson JSON object defining the sprite (region, origin, etc.).
+         */
         void loadSprite(const std::string& textureId, const nlohmann::json& spriteJson);
+
+        /**
+         * @brief Parses and registers an animation definition.
+         * @param textureId The ID of the texture this animation uses.
+         * @param animJson JSON object defining the animation (frames, duration, etc.).
+         */
         void loadAnimation(const std::string& textureId, const nlohmann::json& animJson);
         
+        /**
+         * @brief Parses and loads sound effects.
+         * @param j JSON object containing the "sounds" array.
+         */
         void loadSounds(const nlohmann::json& j);
+
+        /**
+         * @brief Parses and loads music tracks.
+         * @param j JSON object containing the "music" array.
+         */
         void loadMusic(const nlohmann::json& j);
     };
 

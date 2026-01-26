@@ -2,6 +2,11 @@
 #include "PhysicsSyncSystem.hpp"
 
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file PhysicsSyncSystem.cpp
+ * @brief Implementation of the PhysicsSyncSystem class.
+ */
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/core/math/Vector2.hpp"

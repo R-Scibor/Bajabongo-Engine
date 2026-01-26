@@ -1,3 +1,8 @@
+/**
+ * @file MapLoader.cpp
+ * @brief Implementation of the MapLoader class.
+ */
+
 #include "engine/pch.h"
 #include "MapLoader.hpp"
 #include <fstream>
@@ -56,6 +61,7 @@ namespace engine {
         m_context.mapScale = mapScale;
         if (m_logger) m_logger->info("Map Scale set to: {}", mapScale);
 
+        // Iterate through layers and delegate processing based on type/name
         if (mapJson.contains("layers")) {
             for (const auto& layer : mapJson["layers"]) {
                 std::string type = layer.value("type", "");

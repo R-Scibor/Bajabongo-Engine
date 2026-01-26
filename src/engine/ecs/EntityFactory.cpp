@@ -1,6 +1,11 @@
 #include "engine/pch.h"
 #include "EntityFactory.hpp"
 #include "engine/components/TransformComponent.hpp"
+
+/**
+ * @file EntityFactory.cpp
+ * @brief Implementation of the EntityFactory class.
+ */
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/components/PendingPhysicsBodyComponent.hpp"

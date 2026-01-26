@@ -1,6 +1,11 @@
 #include "engine/pch.h"
 #include "EditorSystem.hpp"
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file EditorSystem.cpp
+ * @brief Implementation of the EditorSystem class.
+ */
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"

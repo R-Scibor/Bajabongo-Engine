@@ -1,6 +1,11 @@
-  #include "engine/pch.h"
+#include "engine/pch.h"
 #include "AnimationStateMachineSystem.hpp"
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file AnimationStateMachineSystem.cpp
+ * @brief Implementation of the AnimationStateMachineSystem class.
+ */
 #include "engine/core/ILoggerManager.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/components/AnimationStateComponent.hpp"

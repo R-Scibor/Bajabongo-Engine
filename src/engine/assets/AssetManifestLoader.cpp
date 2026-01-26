@@ -1,3 +1,8 @@
+/**
+ * @file AssetManifestLoader.cpp
+ * @brief Implementation of the AssetManifestLoader class.
+ */
+
 #include "engine/pch.h"
 #include "AssetManifestLoader.hpp"
 #include "engine/core/IResourceManager.hpp"
@@ -44,15 +49,17 @@ namespace engine {
             m_logger->info("AssetManifestLoader: Loading manifest: {}", manifestPath);
         }
 
-        // Checkpoint 2.3: Implement Texture Loop
+        // Process textures and their associated sprites/animations
         if (j.contains("textures")) {
             loadTextures(j["textures"]);
         }
 
+        // Process sound effects
         if (j.contains("sounds")) {
             loadSounds(j["sounds"]);
         }
 
+        // Process music tracks
         if (j.contains("music")) {
             loadMusic(j["music"]);
         }
@@ -79,18 +86,19 @@ namespace engine {
             std::string id = textureJson["id"];
             std::string path = textureJson["path"];
 
+            // Load the texture resource
             if (m_resourceManager) {
                 m_resourceManager->loadTexture(id, path);
             }
 
-            // Checkpoint 3.2: Connect to Main Loop
+            // Load sub-sprites defined for this texture
             if (textureJson.contains("sprites") && textureJson["sprites"].is_array()) {
                 for (const auto& spriteJson : textureJson["sprites"]) {
                     loadSprite(id, spriteJson);
                 }
             }
 
-            // Checkpoint 4.1: Connect Animation Loop
+            // Load animations defined for this texture
             if (textureJson.contains("animations") && textureJson["animations"].is_array()) {
                 for (const auto& animJson : textureJson["animations"]) {
                     loadAnimation(id, animJson);

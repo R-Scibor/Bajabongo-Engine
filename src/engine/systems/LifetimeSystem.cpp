@@ -1,6 +1,11 @@
 #include "engine/pch.h"
 #include "LifetimeSystem.hpp"
 #include "engine/core/EngineContext.hpp"
+
+/**
+ * @file LifetimeSystem.cpp
+ * @brief Implementation of the LifetimeSystem class.
+ */
 #include "engine/components/LifetimeComponent.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
