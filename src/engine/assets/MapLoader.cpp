@@ -111,7 +111,7 @@ namespace engine {
                 // Remove extension (e.g. "map.png" -> "map")
                 size_t lastDot = filename.find_last_of(".");
                 if (lastDot != std::string::npos) {
-                    filename = filename.substr(0, lastDot);
+                    filename.resize(lastDot);
                 }
                 
                 // Append _sprite

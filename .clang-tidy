@@ -1,0 +1,28 @@
+# Project clang-tidy config for local / CI use with compile_commands.json.
+# bugprone + performance + a small modernize subset that does not rewrite
+# style wholesale (no use-auto, no trailing return).
+Checks: >-
+  -*,
+  bugprone-*,
+  performance-*,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-bool-literals,
+  modernize-deprecated-headers,
+  modernize-use-emplace,
+  modernize-make-unique,
+  modernize-make-shared,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-branch-clone,
+  -bugprone-narrowing-conversions,
+  -bugprone-chained-comparison,
+  -bugprone-forward-declaration-namespace,
+  -performance-avoid-endl,
+  -performance-enum-size,
+  -performance-no-int-to-ptr
+WarningsAsErrors: ''
+HeaderFilterRegex: 'Bajabongo-Engine/src/.*'
+FormatStyle: none
+UseColor: true

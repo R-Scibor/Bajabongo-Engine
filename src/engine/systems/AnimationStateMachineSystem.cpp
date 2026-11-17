@@ -138,7 +138,7 @@ std::string AnimationStateMachineSystem::getClipId(AnimationState state, FacingD
         // e.g. "player_ak" -> "player"
         size_t lastUnderscore = currentSet.find_last_of('_');
         if (lastUnderscore != std::string::npos && lastUnderscore > 0) {
-            currentSet = currentSet.substr(0, lastUnderscore);
+            currentSet.resize(lastUnderscore);
         } else {
             break; // No more parents
         }
