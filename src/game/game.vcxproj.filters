@@ -127,6 +127,9 @@
     <ClInclude Include="components\HealthComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="systems\DamageCollision.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="systems\DamageSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -137,6 +140,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="systems\HudSystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\VisibilityMath.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="systems\VisibilitySystem.hpp">
@@ -173,6 +179,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ai\AIUtils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ai\DetectionMath.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ai\EnemyCombatSystem.hpp">

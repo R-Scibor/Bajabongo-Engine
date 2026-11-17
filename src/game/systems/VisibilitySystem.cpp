@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "VisibilitySystem.hpp"
+#include "VisibilityMath.hpp"
 #include "engine/core/math/Angle.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
@@ -73,11 +74,11 @@ namespace game {
 
             visibility.visibilityPolygon.clear();
 
-            engine::Vector2f origin = transform.position + visibility.offset;
+            engine::Vector2f origin = visibilityOrigin(transform.position, visibility.offset);
             float radius = visibility.viewRadius;
             float minRadius = visibility.minViewRadius;
-            float direction = visibility.viewDirection;                            // Mouse aim direction
-            float halfAngle = visibility.viewAngle * 0.5f * (engine::Pi / 180.0f); // Convert to radians
+            float direction = visibility.viewDirection; // Mouse aim direction
+            float halfAngle = viewHalfAngleRadians(visibility.viewAngle);
 
             // 1. Query walls in view cone range (slightly wider for safety)
             std::vector<engine::Vector2f> wallVertices;
@@ -99,15 +100,8 @@ namespace game {
                 engine::Vector2f dir = v - origin;
                 float angle = std::atan2(dir.y, dir.x);
 
-                // Need to normalize angle difference to [-PI, PI] to correctly check if it is within cone
-                float diff = engine::wrapAngle(angle - direction);
-
                 // Only consider walls within cone field of view OR within min radius
-                float distSq = (v.x - origin.x) * (v.x - origin.x) + (v.y - origin.y) * (v.y - origin.y);
-                bool inMinRadius = distSq <= minRadius * minRadius;
-                bool inCone = diff >= -halfAngle - epsilon && diff <= halfAngle + epsilon;
-
-                if (inCone || inMinRadius) {
+                if (shouldSampleWallVertex(v, origin, direction, halfAngle, minRadius, epsilon)) {
                     angles.push_back(angle);
                     angles.push_back(angle - epsilon);
                     angles.push_back(angle + epsilon);
@@ -145,13 +139,7 @@ namespace game {
                 engine::Vector2f dir(std::cos(angle), std::sin(angle));
 
                 // Determine ray length for this angle
-                // Check if angle is within the cone
-                float diff = engine::wrapAngle(angle - direction);
-
-                float currentRadius = minRadius;
-                if (diff >= -halfAngle - epsilon && diff <= halfAngle + epsilon) {
-                    currentRadius = radius;
-                }
+                float currentRadius = visibilityRayLength(angle, direction, halfAngle, radius, minRadius, epsilon);
 
                 engine::Vector2f end = origin + dir * currentRadius;
                 engine::Vector2f hit = castRay(origin, end);

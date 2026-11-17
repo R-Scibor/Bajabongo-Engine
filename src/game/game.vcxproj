@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ai\AIUtils.hpp" />
+    <ClInclude Include="ai\DetectionMath.hpp" />
     <ClInclude Include="ai\EnemyCombatSystem.hpp" />
     <ClInclude Include="ai\EnemyDetectionSystem.hpp" />
     <ClInclude Include="ai\EnemyMovementSystem.hpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="states\MainMenuState.hpp" />
     <ClInclude Include="states\MapSelectionState.hpp" />
     <ClInclude Include="states\SplashScreenState.hpp" />
+    <ClInclude Include="systems\DamageCollision.hpp" />
     <ClInclude Include="systems\DamageSystem.hpp" />
     <ClInclude Include="systems\EnemyAISystem.hpp" />
     <ClInclude Include="systems\FogRenderSystem.hpp" />
@@ -197,6 +199,7 @@
     <ClInclude Include="systems\HudSystem.hpp" />
     <ClInclude Include="systems\PickupSystem.hpp" />
     <ClInclude Include="systems\PlayerControllerSystem.hpp" />
+    <ClInclude Include="systems\VisibilityMath.hpp" />
     <ClInclude Include="systems\VisibilitySystem.hpp" />
     <ClInclude Include="systems\VisibilityTaggingSystem.hpp" />
     <ClInclude Include="systems\WeaponSwitchSystem.hpp" />

@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "EnemyDetectionSystem.hpp"
+#include "DetectionMath.hpp"
 #include "AIUtils.hpp"
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
@@ -34,18 +35,12 @@ namespace game::ai {
         }
 
         enemyView.each([&](entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
-            if (auto* health = registry.try_get<HealthComponent>(entity)) {
-                if (health->currentHp <= 0.0f) {
-                    enemy.currentState = EnemyState::Dead;
-                    return;
-                }
+            if (isEnemyDefeated(registry.try_get<HealthComponent>(entity))) {
+                enemy.currentState = EnemyState::Dead;
+                return;
             }
 
-            engine::Vector2f toPlayer = playerPos - transform.position;
-            float distanceSq = toPlayer.x * toPlayer.x + toPlayer.y * toPlayer.y;
-            float detectionRadiusSq = enemy.detectionRadius * enemy.detectionRadius;
-
-            bool inRange = distanceSq < detectionRadiusSq;
+            bool inRange = isWithinRadius(transform.position, playerPos, enemy.detectionRadius);
             bool hasLoS = false;
 
             if (inRange) {
@@ -70,7 +65,7 @@ namespace game::ai {
                 // Memory decay
                 if (enemy.targetEntity != entt::null) {
                     enemy.lastSeenTimer += dt; // Use passed delta time
-                    if (enemy.lastSeenTimer > enemy.memoryDuration) {
+                    if (hasForgottenTarget(enemy.lastSeenTimer, enemy.memoryDuration)) {
                         enemy.targetEntity = entt::null;
                     }
                 }
@@ -88,17 +83,13 @@ namespace game::ai {
         auto& sourceEnemy = registry.get<EnemyComponent>(source);
         const auto& sourceTransform = registry.get<engine::TransformComponent>(source);
 
-        float alertRadiusSq = sourceEnemy.alertRadius * sourceEnemy.alertRadius;
         int alertCount = 0;
 
         auto enemyView = registry.view<EnemyComponent, engine::TransformComponent>();
         enemyView.each([&](entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
             if (entity == source) return;
 
-            engine::Vector2f toSource = sourceTransform.position - transform.position;
-            float distSq = toSource.x * toSource.x + toSource.y * toSource.y;
-
-            if (distSq < alertRadiusSq) {
+            if (isWithinRadius(transform.position, sourceTransform.position, sourceEnemy.alertRadius)) {
                 enemy.currentState = EnemyState::Alert;
                 enemy.lastKnownPosition = position;
                 enemy.isAlerted = true;

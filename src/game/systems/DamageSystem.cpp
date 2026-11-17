@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "DamageSystem.hpp"
+#include "DamageCollision.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/ProjectileComponent.hpp"
 #include "game/components/HealthComponent.hpp"
@@ -47,14 +48,17 @@ namespace game {
 
         if (!registry.valid(entityA) || !registry.valid(entityB)) return;
 
-        // Check if A is projectile (and destroy it on contact with solid)
-        if (registry.all_of<ProjectileComponent>(entityA)) {
-            registry.destroy(entityA);
-        }
-
-        // Check if B is projectile
-        else if (registry.all_of<ProjectileComponent>(entityB)) {
-            registry.destroy(entityB);
+        const bool entityAIsProjectile = registry.all_of<ProjectileComponent>(entityA);
+        const bool entityBIsProjectile = registry.all_of<ProjectileComponent>(entityB);
+        switch (contactProjectileToDestroy(entityAIsProjectile, entityBIsProjectile)) {
+            case ContactProjectile::EntityA:
+                registry.destroy(entityA);
+                break;
+            case ContactProjectile::EntityB:
+                registry.destroy(entityB);
+                break;
+            case ContactProjectile::None:
+                break;
         }
     }
 
@@ -82,10 +86,8 @@ namespace game {
         if (!registry.valid(projectile) || !registry.valid(target)) return;
 
         // Check ownership to prevent self-damage
-        if (auto* projComp = registry.try_get<ProjectileComponent>(projectile)) {
-            if (projComp->owner == target) {
-                return;
-            }
+        if (isProjectileOwnedByTarget(registry.try_get<ProjectileComponent>(projectile), target)) {
+            return;
         }
 
         // 1. Attempt to apply damage first (Handles Hurtbox sensors)
@@ -192,11 +194,11 @@ namespace game {
         // 2. If no damage was dealt:
         // If the target is a Sensor (e.g. Pickup, Zone) and we didn't damage it (no health),
         // then the projectile should pass through.
-        if (isTargetSensor) {
+        // 3. If target was solid (Wall/Obstacle) and not a sensor, destroy the projectile
+        if (!shouldDestroyProjectileOnNonDamageHit(isTargetSensor)) {
             return;
         }
 
-        // 3. If target was solid (Wall/Obstacle) and not a sensor, destroy the projectile
         registry.destroy(projectile);
     }
 
