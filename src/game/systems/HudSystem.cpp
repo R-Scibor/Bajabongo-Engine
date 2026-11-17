@@ -27,7 +27,7 @@ namespace game {
             auto* health = registry.try_get<HealthComponent>(entity);
             // Setup ImGui window for HUD
             // Position: Bottom Right
-            ImGuiIO& io = ImGui::GetIO();
+            const ImGuiIO& io = ImGui::GetIO();
             float windowWidth = 260.0f;
             float windowHeight = 140.0f;
             float padding = 20.0f;

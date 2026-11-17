@@ -34,7 +34,7 @@ namespace engine {
         // loadDefaultFont argument is now unused, so the atlas is empty and
         // ImGui::SFML::Update asserts io.Fonts->Fonts.Size > 0. The texture
         // itself is uploaded later by the RendererHasTextures backend.
-        ImGuiIO& io = ImGui::GetIO();
+        const ImGuiIO& io = ImGui::GetIO();
         // Editor / debug UI keeps the baked-in ProggyClean font. The HUD loads
         // Bebas Neue separately and selects it with ImGui::PushFont(font, size)
         // (ImGui 1.92+ API). SetWindowFontScale is obsolete and, with dynamic

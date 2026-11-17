@@ -37,7 +37,7 @@ namespace engine
 
         for (int i = 0; i < events.beginCount; ++i)
         {
-            b2ContactBeginTouchEvent* beginEvent = events.beginEvents + i;
+            const b2ContactBeginTouchEvent* beginEvent = events.beginEvents + i;
             
             b2ShapeId shapeIdA = beginEvent->shapeIdA;
             b2ShapeId shapeIdB = beginEvent->shapeIdB;
@@ -57,7 +57,7 @@ namespace engine
 
         for (int i = 0; i < events.endCount; ++i)
         {
-            b2ContactEndTouchEvent* endEvent = events.endEvents + i;
+            const b2ContactEndTouchEvent* endEvent = events.endEvents + i;
 
             b2ShapeId shapeIdA = endEvent->shapeIdA;
             b2ShapeId shapeIdB = endEvent->shapeIdB;
@@ -87,7 +87,7 @@ namespace engine
 
         for (int i = 0; i < events.beginCount; ++i)
         {
-            b2SensorBeginTouchEvent* beginEvent = events.beginEvents + i;
+            const b2SensorBeginTouchEvent* beginEvent = events.beginEvents + i;
 
             b2ShapeId sensorShapeId = beginEvent->sensorShapeId;
             b2ShapeId visitorShapeId = beginEvent->visitorShapeId;
@@ -108,7 +108,7 @@ namespace engine
 
         for (int i = 0; i < events.endCount; ++i)
         {
-            b2SensorEndTouchEvent* endEvent = events.endEvents + i;
+            const b2SensorEndTouchEvent* endEvent = events.endEvents + i;
 
             b2ShapeId sensorShapeId = endEvent->sensorShapeId;
             b2ShapeId visitorShapeId = endEvent->visitorShapeId;

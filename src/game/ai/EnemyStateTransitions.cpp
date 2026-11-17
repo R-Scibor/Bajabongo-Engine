@@ -169,7 +169,7 @@ namespace game::ai {
         }
 
         if (registry.any_of<RushBehaviorComponent>(entity)) {
-            auto& rush = registry.get<RushBehaviorComponent>(entity);
+            const auto& rush = registry.get<RushBehaviorComponent>(entity);
             if (distSq < rush.rushActivationRange * rush.rushActivationRange && rush.rushCooldownTimer <= 0.0f) {
                 enemy.currentState = EnemyState::Rush;
                 enemy.stateTimer = 0.0f;

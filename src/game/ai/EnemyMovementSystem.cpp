@@ -172,7 +172,7 @@ namespace game::ai {
 
     // --- PATROL MOVEMENT ---
     // Move along predefined waypoints (looping or ping-pong)
-    engine::Vector2f EnemyMovementSystem::calculatePatrolMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    engine::Vector2f EnemyMovementSystem::calculatePatrolMovement(entt::entity entity, const EnemyComponent& enemy, const engine::TransformComponent& transform) {
         auto* patrol = mContext.m_registry->try_get<PatrolBehaviorComponent>(entity);
         if (!patrol || patrol->waypoints.empty()) {
             return {0.0f, 0.0f}; // No patrol behavior, no movement

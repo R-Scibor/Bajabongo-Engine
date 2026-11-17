@@ -195,7 +195,7 @@ namespace game {
             enemy.retreatHpPercent = data.value("retreatHpPercent", 0.3f);
             
             // Initialize stuck detection tracking
-            if (engine::TransformComponent* transform = registry.try_get<engine::TransformComponent>(entity)) {
+            if (const engine::TransformComponent* transform = registry.try_get<engine::TransformComponent>(entity)) {
                 enemy.lastValidPosition = transform->position;
                 enemy.lastCheckedPosition = transform->position;
             }

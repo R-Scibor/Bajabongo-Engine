@@ -22,7 +22,7 @@ namespace game::ai {
         void update(float dt);
 
     private:
-        engine::Vector2f calculatePatrolMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+        engine::Vector2f calculatePatrolMovement(entt::entity entity, const EnemyComponent& enemy, const engine::TransformComponent& transform);
         engine::Vector2f calculateChaseMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
         engine::Vector2f calculateRushMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
         engine::Vector2f calculateRetreatMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
