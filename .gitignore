@@ -22,6 +22,8 @@ plans
 mono_crash.*
 
 # Build results
+# CMake and other out-of-tree builds (presets use build/)
+build/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
