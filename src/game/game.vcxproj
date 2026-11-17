@@ -209,7 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\data\archetypes.json" />
-    <None Include="..\..\assets\data\map.json" />
     <None Include="..\..\assets\data\resources.json" />
     <None Include="..\..\assets\shaders\fog.frag" />
     <None Include="config\logging.ini" />

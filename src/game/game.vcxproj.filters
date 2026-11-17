@@ -92,9 +92,6 @@
     <None Include="..\..\assets\data\archetypes.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\assets\data\map.json">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\..\assets\data\resources.json">
       <Filter>Resource Files</Filter>
     </None>
