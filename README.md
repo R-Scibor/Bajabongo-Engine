@@ -117,7 +117,7 @@ cd build/linux-ninja-debug/out/game/Debug
 
 ### Testing
 
-Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) and do not open a window. The suite currently has 46 cases.
+Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) plus headless ECS system tests (damage, visibility, enemy detection, and Box2D queries) and do not open a window. The suite currently has 78 cases.
 
 `BAJA_BUILD_TESTS` defaults to **OFF**. The Linux presets turn it **ON**. On Windows, pass the option when configuring:
 
@@ -224,6 +224,7 @@ Detailed documentation for specific subsystems can be found in the `docs/` direc
 *   [**Audio System**](docs/audio.md): Audio playback and management.
 *   [**Logging**](docs/logging.md): Debugging and logging practices.
 *   [**Math Library**](docs/math.md): Vector and geometry utilities.
+*   [**Technical debt**](docs/TECH_DEBT.md): TODO, FIXME, and HACK comments still in `src/`.
 
 ## 🏗️ Architecture Overview
 
@@ -232,6 +233,33 @@ The engine follows **SOLID** principles, heavily utilizing **Dependency Injectio
 *   **Application Class**: Drives the main loop but delegates logic to the active `GameState`.
 *   **Separation of Concerns**: The `engine` project knows nothing about `game` logic. The `game` project ties everything together. Engine code must not include headers from `src/game`; CMake enforces this on every build via `cmake/CheckEngineDecoupling.cmake`. Game systems talk to the engine through interfaces, hooks, and configuration rather than reaching into engine internals that would create a reverse dependency.
 *   **Asset paths**: Fallback texture and font locations live in `EngineContext::AssetPathConfig`. The composition root (`src/game/game.cpp`) fills those paths in; the engine does not hardcode game assets such as `eg.png` or `default.ttf`.
+
+```mermaid
+flowchart TB
+    subgraph gameLayer [game]
+        root["game.cpp composition root"]
+        states["States: Splash, Menu, Map select, Gameplay"]
+        gameSys["Game systems: damage, visibility, weapons, AI, HUD, fog"]
+    end
+    subgraph engineLayer [engine]
+        app["Application main loop"]
+        ctx["EngineContext"]
+        engSys["Engine systems: physics, render, animation, audio, input"]
+        ecs["entt registry and dispatcher"]
+        world["Box2D world"]
+    end
+    root --> ctx
+    root --> app
+    app --> states
+    states --> gameSys
+    states --> engSys
+    gameSys --> ctx
+    engSys --> ctx
+    ctx --> ecs
+    ctx --> world
+```
+
+The game owns the composition root and gameplay systems. The engine owns the window, loop, and shared services. Systems receive `EngineContext` and must not introduce an engine-to-game include (enforced at build time).
 
 ## Screenshots and GIFs
 
