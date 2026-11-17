@@ -38,18 +38,39 @@ namespace engine {
         }
     }
 
-    bool MapLoader::load(const std::string& filepath) {
+    bool readMapJsonFile(const std::string& filepath, nlohmann::json& root, std::string* errorMessage) {
         std::ifstream file(filepath);
         if (!file.is_open()) {
-            if (m_logger) m_logger->error("Failed to open map file: {}", filepath);
+            if (errorMessage) *errorMessage = "Failed to open map file: " + filepath;
             return false;
         }
 
-        nlohmann::json mapJson;
         try {
-            file >> mapJson;
+            file >> root;
         } catch (const nlohmann::json::parse_error& e) {
-            if (m_logger) m_logger->error("Failed to parse map JSON: {}", e.what());
+            if (errorMessage) *errorMessage = e.what();
+            return false;
+        }
+        return true;
+    }
+
+    bool isTiledMapJson(const nlohmann::json& root) {
+        if (!root.is_object()) return false;
+        if (root.contains("layers") && !root["layers"].is_array()) return false;
+        return true;
+    }
+
+    bool MapLoader::load(const std::string& filepath) {
+        nlohmann::json mapJson;
+        std::string error;
+        if (!readMapJsonFile(filepath, mapJson, &error)) {
+            if (m_logger) {
+                if (error.rfind("Failed to open map file", 0) == 0) {
+                    m_logger->error("{}", error);
+                } else {
+                    m_logger->error("Failed to parse map JSON: {}", error);
+                }
+            }
             return false;
         }
 

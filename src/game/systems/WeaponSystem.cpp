@@ -60,18 +60,7 @@ namespace game {
                 weapon.reloadTimer -= fixedDeltaTime;
 
                 if (weapon.reloadTimer <= 0.0f) {
-                    // Calculate how much ammo we need
-                    int ammoNeeded = weapon.magSize - weapon.currentAmmo;
-
-                    int ammoToLoad = ammoNeeded;
-                    if (weapon.totalAmmo < ammoToLoad) {
-                        ammoToLoad = weapon.totalAmmo;
-                    }
-
-                    weapon.currentAmmo += ammoToLoad;
-                    weapon.totalAmmo -= ammoToLoad;
-
-                    weapon.isReloading = false;
+                    finishReload(weapon);
                     weapon.wantsToReload = false; // Reset flag
                     weapon.isBursting = false;
                     weapon.burstShotsFired = 0;
@@ -87,9 +76,8 @@ namespace game {
 
             // Handle Reload Request
             if (weapon.wantsToReload) {
-                if (weapon.currentAmmo < weapon.magSize && weapon.totalAmmo > 0) {
-                    weapon.isReloading = true;
-                    weapon.reloadTimer = weapon.reloadDuration;
+                if (canStartReload(weapon)) {
+                    startReload(weapon);
                     // TODO: Play reload sound
                     return;
                 }
@@ -178,8 +166,7 @@ namespace game {
     }
 
     bool WeaponSystem::canFire(const WeaponComponent& weapon) const {
-        bool trigger = weapon.wantsToShoot || weapon.isBursting;
-        return trigger && weapon.cooldownTimer <= 0.0f && weapon.currentAmmo > 0;
+        return weaponCanFire(weapon);
     }
 
     void WeaponSystem::applyFiringEffects(WeaponComponent& weapon, [[maybe_unused]] float dt) {

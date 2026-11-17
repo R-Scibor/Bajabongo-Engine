@@ -14,6 +14,18 @@ namespace engine {
     class ILogger;
 
     /**
+     * @brief Reads and parses a Tiled JSON map file without creating entities.
+     * @param errorMessage Optional receiver for a short failure reason.
+     * @return true if the file was opened and parsed as JSON.
+     */
+    bool readMapJsonFile(const std::string& filepath, nlohmann::json& root, std::string* errorMessage = nullptr);
+
+    /**
+     * @brief True if root is a JSON object and, if present, "layers" is an array.
+     */
+    bool isTiledMapJson(const nlohmann::json& root);
+
+    /**
      * @brief Loads game maps from Tiled JSON export files.
      *
      * Handles creating entities, physics bodies, and visual components based on

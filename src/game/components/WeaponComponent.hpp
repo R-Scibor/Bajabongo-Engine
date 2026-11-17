@@ -54,4 +54,29 @@ namespace game {
     constexpr float WEAPON_MUZZLE_HEIGHT_OFFSET = -35.0f;
     // Target center/chest height relative to entity position (feet/center)
     constexpr float TARGET_CHEST_HEIGHT_OFFSET = -35.0f;
+
+    inline bool weaponCanFire(const WeaponComponent& weapon) {
+        const bool trigger = weapon.wantsToShoot || weapon.isBursting;
+        return trigger && weapon.cooldownTimer <= 0.0f && weapon.currentAmmo > 0;
+    }
+
+    inline bool canStartReload(const WeaponComponent& weapon) {
+        return weapon.currentAmmo < weapon.magSize && weapon.totalAmmo > 0;
+    }
+
+    inline void startReload(WeaponComponent& weapon) {
+        weapon.isReloading = true;
+        weapon.reloadTimer = weapon.reloadDuration;
+    }
+
+    inline void finishReload(WeaponComponent& weapon) {
+        int ammoNeeded = weapon.magSize - weapon.currentAmmo;
+        int ammoToLoad = ammoNeeded;
+        if (weapon.totalAmmo < ammoToLoad) {
+            ammoToLoad = weapon.totalAmmo;
+        }
+        weapon.currentAmmo += ammoToLoad;
+        weapon.totalAmmo -= ammoToLoad;
+        weapon.isReloading = false;
+    }
 } // namespace game

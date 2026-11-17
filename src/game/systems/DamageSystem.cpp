@@ -93,7 +93,7 @@ namespace game {
         auto* healthComp = registry.try_get<HealthComponent>(target);
 
         if (damageComp && healthComp) {
-            healthComp->currentHp -= damageComp->damageValue;
+            applyDamage(*healthComp, damageComp->damageValue);
 
             // Trigger Hit Flash
             if (auto* flashComp = registry.try_get<HitFlashComponent>(target)) {
@@ -116,7 +116,7 @@ namespace game {
                                 entt::to_integral(target), damageComp->damageValue, healthComp->currentHp);
             }
 
-            if (healthComp->currentHp <= 0.0f) {
+            if (isDefeated(*healthComp)) {
                 if (m_logger) {
                     m_logger->info("Entity {} destroyed (HP <= 0).", entt::to_integral(target));
                 }
