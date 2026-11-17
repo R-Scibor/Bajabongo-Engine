@@ -30,8 +30,7 @@ namespace engine {
          */
         AssetManifestLoader(std::shared_ptr<IResourceManager> resourceManager,
                             std::shared_ptr<SpriteManager> spriteManager,
-                            std::shared_ptr<AnimationLibrary> animationLibrary,
-                            std::shared_ptr<ILogger> logger);
+                            std::shared_ptr<AnimationLibrary> animationLibrary, std::shared_ptr<ILogger> logger);
 
         ~AssetManifestLoader() = default;
 
@@ -69,7 +68,7 @@ namespace engine {
          * @param animJson JSON object defining the animation (frames, duration, etc.).
          */
         void loadAnimation(const std::string& textureId, const nlohmann::json& animJson);
-        
+
         /**
          * @brief Parses and loads sound effects.
          * @param j JSON object containing the "sounds" array.

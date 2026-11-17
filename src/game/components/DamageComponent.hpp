@@ -6,4 +6,4 @@ namespace game {
         float damageValue = 10.0f;
     };
 
-}
+} // namespace game

@@ -10,10 +10,10 @@ namespace engine {
      */
     struct HalfCollisionComponent {
         /// @brief Dummy variable to ensure the struct has a non-zero size (standard C++ requirement), though mostly unused.
-        bool dummy = true; 
+        bool dummy = true;
     };
 
     /// @brief Alias for HalfCollisionComponent to improve code readability in gameplay logic.
     using LowObstacleComponent = HalfCollisionComponent;
 
-}
+} // namespace engine

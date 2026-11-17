@@ -26,20 +26,14 @@
 
 namespace game {
 
-    WeaponSystem::WeaponSystem(engine::EngineContext& context)
-        : m_context(context)
-        , m_rng(std::random_device{}())
-    {
-    }
+    WeaponSystem::WeaponSystem(engine::EngineContext& context) : m_context(context), m_rng(std::random_device{}()) {}
 
-    void WeaponSystem::update(float fixedDeltaTime)
-    {
+    void WeaponSystem::update(float fixedDeltaTime) {
         auto& registry = *m_context.m_registry;
         // We need PhysicsBodyComponent to know where to spawn the bullet (origin of the shooter)
         auto view = registry.view<WeaponComponent, engine::PhysicsBodyComponent>();
 
         view.each([&](entt::entity entity, WeaponComponent& weapon, engine::PhysicsBodyComponent& bodyComp) {
-            
             // Ensure physics body is valid
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
 
@@ -72,59 +66,57 @@ namespace game {
                 if (weapon.reloadTimer <= 0.0f) {
                     // Calculate how much ammo we need
                     int ammoNeeded = weapon.magSize - weapon.currentAmmo;
-                    
+
                     int ammoToLoad = ammoNeeded;
                     if (weapon.totalAmmo < ammoToLoad) {
                         ammoToLoad = weapon.totalAmmo;
                     }
-                    
+
                     weapon.currentAmmo += ammoToLoad;
                     weapon.totalAmmo -= ammoToLoad;
-                    
+
                     weapon.isReloading = false;
                     weapon.wantsToReload = false; // Reset flag
                     weapon.isBursting = false;
                     weapon.burstShotsFired = 0;
-                    
+
                     if (m_context.m_logManager) {
-                         auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
-                         if (logger) logger->debug("Reload complete. Ammo: {}/{}", weapon.currentAmmo, weapon.totalAmmo);
+                        auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
+                        if (logger) logger->debug("Reload complete. Ammo: {}/{}", weapon.currentAmmo, weapon.totalAmmo);
                     }
                 }
                 // If reloading, we can't do anything else (shoot/start reload)
-                return; 
+                return;
             }
 
             // Handle Reload Request
             if (weapon.wantsToReload) {
                 if (weapon.currentAmmo < weapon.magSize && weapon.totalAmmo > 0) {
-                     weapon.isReloading = true;
-                     weapon.reloadTimer = weapon.reloadDuration;
-                     // TODO: Play reload sound
-                     return;
+                    weapon.isReloading = true;
+                    weapon.reloadTimer = weapon.reloadDuration;
+                    // TODO: Play reload sound
+                    return;
                 }
             }
 
             // Handle Audio Loop Logic
-            bool shouldLoop = weapon.wantsToShoot && weapon.currentAmmo > 0 && !weapon.isReloading && weapon.shootSoundLooping;
-            
+            bool shouldLoop =
+                weapon.wantsToShoot && weapon.currentAmmo > 0 && !weapon.isReloading && weapon.shootSoundLooping;
+
             b2Vec2 b2Pos = b2Body_GetPosition(bodyComp.bodyId);
             engine::Vector2f weaponPos = {b2Pos.x, b2Pos.y};
 
             if (shouldLoop && !weapon.isFiringAudioLoop && !weapon.shootSoundId.empty()) {
-                m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                    .id = weapon.shootSoundId,
-                    .volume = 100.0f,
-                    .pitch = 1.0f,
-                    .loop = true,
-                    .sourceEntity = entity,
-                    .position = weaponPos,
-                    .minDistance = 500.0f,
-                    .attenuation = 2.0f
-                });
+                m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({.id = weapon.shootSoundId,
+                                                                         .volume = 100.0f,
+                                                                         .pitch = 1.0f,
+                                                                         .loop = true,
+                                                                         .sourceEntity = entity,
+                                                                         .position = weaponPos,
+                                                                         .minDistance = 500.0f,
+                                                                         .attenuation = 2.0f});
                 weapon.isFiringAudioLoop = true;
-            }
-            else if (!shouldLoop && weapon.isFiringAudioLoop) {
+            } else if (!shouldLoop && weapon.isFiringAudioLoop) {
                 m_context.m_dispatcher->enqueue<engine::StopSoundEvent>({entity});
                 weapon.isFiringAudioLoop = false;
             }
@@ -141,16 +133,14 @@ namespace game {
                 if (!weapon.shootSoundLooping && !weapon.shootSoundId.empty()) {
                     // Play if not burst, or if it is the first shot of a burst
                     if (weapon.shotsPerBurst <= 1 || weapon.burstShotsFired == 0) {
-                        m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                            .id = weapon.shootSoundId,
-                            .volume = 100.0f,
-                            .pitch = 1.0f,
-                            .loop = false,
-                            .sourceEntity = entity,
-                            .position = weaponPos,
-                            .minDistance = 500.0f,
-                            .attenuation = 2.0f
-                        });
+                        m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({.id = weapon.shootSoundId,
+                                                                                 .volume = 100.0f,
+                                                                                 .pitch = 1.0f,
+                                                                                 .loop = false,
+                                                                                 .sourceEntity = entity,
+                                                                                 .position = weaponPos,
+                                                                                 .minDistance = 500.0f,
+                                                                                 .attenuation = 2.0f});
                     }
                 }
 
@@ -159,7 +149,7 @@ namespace game {
                 spawnProjectiles(m_context, entity, weapon, bodyComp);
 
                 weapon.currentAmmo--;
-                
+
                 if (weapon.isBursting) {
                     weapon.burstShotsFired++;
                     if (weapon.burstShotsFired >= weapon.shotsPerBurst) {
@@ -177,33 +167,28 @@ namespace game {
                 }
 
             } else {
-                 // Out of ammo logic (simplified auto-reload check if desired)
-                 if (weapon.currentAmmo <= 0) {
-                     weapon.isBursting = false;
-                     weapon.burstShotsFired = 0;
+                // Out of ammo logic (simplified auto-reload check if desired)
+                if (weapon.currentAmmo <= 0) {
+                    weapon.isBursting = false;
+                    weapon.burstShotsFired = 0;
 
-                     if (weapon.wantsToShoot && weapon.cooldownTimer <= 0.0f && weapon.totalAmmo > 0) {
-                         weapon.isReloading = true;
-                         weapon.reloadTimer = weapon.reloadDuration;
-                     }
-                 }
+                    if (weapon.wantsToShoot && weapon.cooldownTimer <= 0.0f && weapon.totalAmmo > 0) {
+                        weapon.isReloading = true;
+                        weapon.reloadTimer = weapon.reloadDuration;
+                    }
+                }
             }
         });
     }
 
     bool WeaponSystem::canFire(const WeaponComponent& weapon) const {
         bool trigger = weapon.wantsToShoot || weapon.isBursting;
-        return trigger &&
-               weapon.cooldownTimer <= 0.0f &&
-               weapon.currentAmmo > 0;
+        return trigger && weapon.cooldownTimer <= 0.0f && weapon.currentAmmo > 0;
     }
 
     void WeaponSystem::applyFiringEffects(WeaponComponent& weapon, [[maybe_unused]] float dt) {
         // Accumulate Spread (bloom)
-        weapon.currentSpreadDeg = std::min(
-            weapon.currentSpreadDeg + weapon.spreadPerShotDeg,
-            weapon.maxSpreadDeg
-        );
+        weapon.currentSpreadDeg = std::min(weapon.currentSpreadDeg + weapon.spreadPerShotDeg, weapon.maxSpreadDeg);
 
         // Kick weapon angle towards vertical up (-PI/2)
         float currentAim = weapon.aimAngle;
@@ -220,27 +205,28 @@ namespace game {
 
             // Handle 180 degree edge case (aiming straight down)
             if (std::abs(std::abs(diff) - PI) < 0.1f) {
-                 float aimX = std::cos(currentAim);
-                 if (aimX > 0) kickSign = -1.0f;
-                 else kickSign = 1.0f;
+                float aimX = std::cos(currentAim);
+                if (aimX > 0) kickSign = -1.0f;
+                else kickSign = 1.0f;
             }
         } else {
-             kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
+            kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
         }
 
         weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (PI / 180.0f);
     }
 
-    void WeaponSystem::spawnProjectiles(engine::EngineContext& context, entt::entity entity, const WeaponComponent& weapon, const engine::PhysicsBodyComponent& bodyComp) {
+    void WeaponSystem::spawnProjectiles(engine::EngineContext& context, entt::entity entity,
+                                        const WeaponComponent& weapon, const engine::PhysicsBodyComponent& bodyComp) {
         auto& registry = *context.m_registry;
         b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
-        
+
         // Loop for multiple projectiles
         for (int i = 0; i < weapon.projectilesPerShot; ++i) {
             // Apply Spread
             std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
-            
-            float spreadOffsetDeg = spreadDist(m_rng); 
+
+            float spreadOffsetDeg = spreadDist(m_rng);
             float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
@@ -249,27 +235,23 @@ namespace game {
             float heightOffset = -96.0f; // Muzzle height adjustment TODO: Make configurable per weapon
             float cosA = std::cos(finalAngle);
             float sinA = std::sin(finalAngle);
-            
-            engine::Vector2f spawnPos = {
-                bodyPos.x + cosA * spawnOffset,
-                bodyPos.y + sinA * spawnOffset + heightOffset
-            };
+
+            engine::Vector2f spawnPos = {bodyPos.x + cosA * spawnOffset, bodyPos.y + sinA * spawnOffset + heightOffset};
 
             // Create Projectile Entity
             auto projectile = registry.create();
 
             // Physics
             engine::PendingPhysicsBodyComponent pending{
-                 .position = spawnPos,
-                 .isStatic = false,
-                 .isBullet = true,
-                 .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
-                 .rotation = finalAngle,
-                 .fixtures = {}
-            };
+                .position = spawnPos,
+                .isStatic = false,
+                .isBullet = true,
+                .initialVelocity = {cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed},
+                .rotation = finalAngle,
+                .fixtures = {}};
 
             engine::FixtureDef fixDef;
-            fixDef.size = { 10.0f, 10.0f };
+            fixDef.size = {10.0f, 10.0f};
             fixDef.density = 1.0f;
             fixDef.isSensor = false;
             fixDef.categoryBits = engine::PhysicsCategory::Projectile;
@@ -277,7 +259,7 @@ namespace game {
             // Exclude Enemy/Player hitboxes to rely solely on Hurtbox for damage.
             // Exclude LowObstacle to allow shooting over them.
             fixDef.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::Hurtbox;
-            
+
             pending.fixtures.push_back(fixDef);
 
             registry.emplace<engine::PendingPhysicsBodyComponent>(projectile, pending);

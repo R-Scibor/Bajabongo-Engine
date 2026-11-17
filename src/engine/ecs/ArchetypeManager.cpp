@@ -35,7 +35,7 @@ namespace engine {
         }
 
         if (!root.is_object()) {
-             if (m_logger) {
+            if (m_logger) {
                 m_logger->error("ArchetypeManager: Root JSON element is not an object in {}", filepath);
             }
             return false;

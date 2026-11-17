@@ -22,9 +22,7 @@ namespace engine {
         : m_resourceManager(std::move(resourceManager))
         , m_spriteManager(std::move(spriteManager))
         , m_animationLibrary(std::move(animationLibrary))
-        , m_logger(std::move(logger))
-    {
-    }
+        , m_logger(std::move(logger)) {}
 
     bool AssetManifestLoader::load(const std::string& manifestPath) {
         std::ifstream file(manifestPath);
@@ -123,7 +121,7 @@ namespace engine {
         auto origin = spriteJson["origin"]; // array of 2 floats
 
         if (!region.is_array() || region.size() != 4 || !origin.is_array() || origin.size() != 2) {
-             if (m_logger) {
+            if (m_logger) {
                 m_logger->warn("AssetManifestLoader: Invalid region/origin format for sprite '{}'", spriteId);
             }
             return;
@@ -132,10 +130,8 @@ namespace engine {
         engine::SpriteDesc desc;
         desc.textureId = textureId;
         // SFML 3 requires Vector2i for position and size
-        desc.uvRect = sf::IntRect(
-            sf::Vector2i(region[0].get<int>(), region[1].get<int>()),
-            sf::Vector2i(region[2].get<int>(), region[3].get<int>())
-        );
+        desc.uvRect = sf::IntRect(sf::Vector2i(region[0].get<int>(), region[1].get<int>()),
+                                  sf::Vector2i(region[2].get<int>(), region[3].get<int>()));
         desc.origin = sf::Vector2f(origin[0].get<float>(), origin[1].get<float>());
 
         m_spriteManager->registerSprite(spriteId, desc);
@@ -144,10 +140,9 @@ namespace engine {
     void AssetManifestLoader::loadAnimation(const std::string& textureId, const nlohmann::json& animJson) {
         if (!m_spriteManager || !m_animationLibrary) return;
 
-        if (!animJson.contains("id") || !animJson.contains("frameStart") ||
-            !animJson.contains("frameSize") || !animJson.contains("frameCount") ||
-            !animJson.contains("duration")) {
-             if (m_logger) {
+        if (!animJson.contains("id") || !animJson.contains("frameStart") || !animJson.contains("frameSize") ||
+            !animJson.contains("frameCount") || !animJson.contains("duration")) {
+            if (m_logger) {
                 m_logger->warn("AssetManifestLoader: Invalid animation definition in texture '{}'", textureId);
             }
             return;
@@ -190,7 +185,7 @@ namespace engine {
             engine::SpriteDesc desc;
             desc.textureId = textureId;
             desc.uvRect = sf::IntRect(sf::Vector2i(x, y), sf::Vector2i(w, h));
-            
+
             if (hasCustomOrigin) {
                 desc.origin = customOrigin;
             } else {

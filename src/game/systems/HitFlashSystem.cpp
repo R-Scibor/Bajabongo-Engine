@@ -6,10 +6,7 @@
 
 namespace game {
 
-    HitFlashSystem::HitFlashSystem(engine::EngineContext& context)
-        : m_context(context)
-    {
-    }
+    HitFlashSystem::HitFlashSystem(engine::EngineContext& context) : m_context(context) {}
 
     void HitFlashSystem::update(float dt) {
         if (!m_context.m_registry) return;
@@ -24,7 +21,7 @@ namespace game {
             // Phase 1: Hold
             if (flash.currentTimer < flash.flashHoldDuration) {
                 renderable.color = flash.flashColor;
-            } 
+            }
             // Phase 2: Lerp
             else {
                 float lerpDuration = flash.flashDuration - flash.flashHoldDuration;
@@ -38,7 +35,8 @@ namespace game {
                 } else {
                     // Linear Interpolation
                     auto lerpChannel = [](std::uint8_t start, std::uint8_t end, float t) -> std::uint8_t {
-                        float val = static_cast<float>(start) + (static_cast<float>(end) - static_cast<float>(start)) * t;
+                        float val =
+                            static_cast<float>(start) + (static_cast<float>(end) - static_cast<float>(start)) * t;
                         if (val < 0.0f) val = 0.0f;
                         if (val > 255.0f) val = 255.0f;
                         return static_cast<std::uint8_t>(val);
@@ -53,4 +51,4 @@ namespace game {
         });
     }
 
-}
+} // namespace game

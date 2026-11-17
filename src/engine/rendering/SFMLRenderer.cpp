@@ -10,13 +10,11 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Graphics/Sprite.hpp>
-#include <optional>                 
+#include <optional>
 
-namespace engine
-{
-    SFMLRenderer::SFMLRenderer()
-        : IRenderer(static_cast<IWindow&>(*this)) {
-        
+namespace engine {
+    SFMLRenderer::SFMLRenderer() : IRenderer(static_cast<IWindow&>(*this)) {
+
         // Initialize reusable debug shapes with default styles (wireframe)
         m_circleShape.setFillColor(sf::Color::Transparent);
         m_circleShape.setOutlineColor(sf::Color::Red);
@@ -48,9 +46,9 @@ namespace engine
 
     void SFMLRenderer::create(const std::string& title, unsigned int width, unsigned int height, bool fullscreen) {
         if (fullscreen) {
-            m_renderWindow.create(sf::VideoMode({ width, height }), title, sf::State::Fullscreen);
+            m_renderWindow.create(sf::VideoMode({width, height}), title, sf::State::Fullscreen);
         } else {
-            m_renderWindow.create(sf::VideoMode({ width, height }), title, sf::Style::Default);
+            m_renderWindow.create(sf::VideoMode({width, height}), title, sf::Style::Default);
         }
     }
 
@@ -61,7 +59,6 @@ namespace engine
     bool SFMLRenderer::isOpen() const {
         return m_renderWindow.isOpen();
     }
-
 
     void* SFMLRenderer::getNativeHandle() const {
         // Cast the OS specific handle (HWND, Window, etc.) to void*
@@ -74,7 +71,7 @@ namespace engine
 
     Vector2u SFMLRenderer::getSize() const {
         sf::Vector2u size = m_renderWindow.getSize();
-        return { size.x, size.y };
+        return {size.x, size.y};
     }
 
     void SFMLRenderer::setFramerateLimit(unsigned int limit) {
@@ -139,10 +136,8 @@ namespace engine
     }
 
     void SFMLRenderer::drawLine(engine::Vector2f start, engine::Vector2f end, Color color) {
-        sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(start.x, start.y), sf::Color(color.r, color.g, color.b, color.a)),
-            sf::Vertex(sf::Vector2f(end.x, end.y), sf::Color(color.r, color.g, color.b, color.a))
-        };
+        sf::Vertex line[] = {sf::Vertex(sf::Vector2f(start.x, start.y), sf::Color(color.r, color.g, color.b, color.a)),
+                             sf::Vertex(sf::Vector2f(end.x, end.y), sf::Color(color.r, color.g, color.b, color.a))};
         m_renderWindow.draw(line, 2, sf::PrimitiveType::Lines);
     }
 
@@ -159,46 +154,44 @@ namespace engine
 
     void SFMLRenderer::drawTexture(const void* textureHandle, engine::Vector2f position) {
         if (!textureHandle) return;
-        
+
         // Unsafe cast: relying on caller to pass valid sf::Texture*
         const sf::Texture* texture = static_cast<const sf::Texture*>(textureHandle);
         sf::Sprite sprite(*texture);
         sprite.setPosition({position.x, position.y});
-        
+
         m_renderWindow.draw(sprite);
     }
 
     void SFMLRenderer::drawTexture(const void* textureHandle, engine::Vector2f position, engine::Vector2f size) {
         if (!textureHandle) return;
-        
+
         const sf::Texture* texture = static_cast<const sf::Texture*>(textureHandle);
         sf::Sprite sprite(*texture);
         sprite.setPosition({position.x, position.y});
-        
+
         // Calculate scaling factors to fit target size
         sf::Vector2u texSize = texture->getSize();
         if (texSize.x > 0 && texSize.y > 0) {
-            sprite.setScale({
-                size.x / static_cast<float>(texSize.x),
-                size.y / static_cast<float>(texSize.y)
-            });
+            sprite.setScale({size.x / static_cast<float>(texSize.x), size.y / static_cast<float>(texSize.y)});
         }
-        
+
         m_renderWindow.draw(sprite);
     }
 
     void SFMLRenderer::drawSpriteDirect(const void* spriteHandle, engine::Vector2f position) {
         if (!spriteHandle) return;
-        
+
         const sf::Sprite* sprite = static_cast<const sf::Sprite*>(spriteHandle);
-        
+
         // Create a copy to modify position without affecting original
         sf::Sprite copy = *sprite;
         copy.setPosition({position.x, position.y});
         m_renderWindow.draw(copy);
     }
 
-    void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform, const Color& color) {
+    void SFMLRenderer::drawSprite(const SpriteDesc& spriteDesc, const TransformComponent& transform,
+                                  const Color& color) {
         if (!m_resourceManager) {
             if (m_logger) m_logger->error("SFMLRenderer: ResourceManager is not set. Cannot draw sprite.");
             return;
@@ -214,12 +207,12 @@ namespace engine
         sf::Sprite sprite(*texture);
         sprite.setTextureRect(spriteDesc.uvRect);
         sprite.setOrigin(spriteDesc.origin);
-        
+
         // Apply ECS Transform
         sprite.setPosition(sf::Vector2f(transform.position.x, transform.position.y));
         sprite.setRotation(sf::radians(transform.rotation)); // SFML 3.x uses Radians by default
         sprite.setScale({transform.scale.x, transform.scale.y});
-        
+
         sprite.setColor(sf::Color(color.r, color.g, color.b, color.a));
 
         m_renderWindow.draw(sprite);
@@ -233,12 +226,12 @@ namespace engine
 
     engine::Vector2f SFMLRenderer::getViewCenter() const {
         const sf::View& view = m_renderWindow.getView();
-        return { view.getCenter().x, view.getCenter().y };
+        return {view.getCenter().x, view.getCenter().y};
     }
 
     void SFMLRenderer::setViewSize(engine::Vector2f size) {
         sf::View view = m_renderWindow.getView();
-        view.setSize({ size.x, size.y });
+        view.setSize({size.x, size.y});
         m_renderWindow.setView(view);
     }
 
@@ -250,7 +243,7 @@ namespace engine
         sf::Vector2i pixelPos(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y));
         // Use SFML's built-in coordinate mapping which accounts for current View (camera)
         sf::Vector2f worldPos = m_renderWindow.mapPixelToCoords(pixelPos);
-        return { worldPos.x, worldPos.y };
+        return {worldPos.x, worldPos.y};
     }
 
     void SFMLRenderer::endFrame() {
@@ -266,4 +259,4 @@ namespace engine
     sf::RenderWindow& SFMLRenderer::getNativeRenderWindow() {
         return m_renderWindow;
     }
-}
+} // namespace engine

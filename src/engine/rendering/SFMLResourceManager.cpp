@@ -34,7 +34,7 @@ namespace engine {
                 if (m_logger) {
                     m_logger->error("Failed to load texture: {} and fallback. Using generated 128x128 magenta.", path);
                 }
-                
+
                 // 4. Ultimate fallback: Generate 128x128 Magenta texture
                 // This makes missing assets obvious visually without crashing.
                 sf::Image fallbackImage;
@@ -50,11 +50,11 @@ namespace engine {
 
         // 5. Cache and return
         m_textures[id] = texture;
-        
+
         if (m_logger) {
             m_logger->info("Loaded texture: {} from {}", id, path);
         }
-        
+
         return texture;
     }
 
@@ -72,7 +72,8 @@ namespace engine {
         return nullptr;
     }
 
-    std::shared_ptr<SoundBufferHandle> SFMLResourceManager::loadSoundBuffer(const std::string& id, const std::string& path) {
+    std::shared_ptr<SoundBufferHandle> SFMLResourceManager::loadSoundBuffer(const std::string& id,
+                                                                            const std::string& path) {
         auto it = m_soundBuffers.find(id);
         if (it != m_soundBuffers.end()) {
             return it->second;
@@ -87,11 +88,11 @@ namespace engine {
         }
 
         m_soundBuffers[id] = buffer;
-        
+
         if (m_logger) {
             m_logger->info("Loaded sound buffer: {} from {}", id, path);
         }
-        
+
         return buffer;
     }
 
@@ -109,7 +110,7 @@ namespace engine {
 
     void SFMLResourceManager::registerMusicPath(const std::string& id, const std::string& path) {
         m_musicPaths[id] = path;
-         if (m_logger) {
+        if (m_logger) {
             m_logger->info("Registered music path: {} -> {}", id, path);
         }
     }
@@ -119,7 +120,7 @@ namespace engine {
         if (it != m_musicPaths.end()) {
             return it->second;
         }
-        
+
         if (m_logger) {
             m_logger->error("Music path not found for id: {}", id);
         }

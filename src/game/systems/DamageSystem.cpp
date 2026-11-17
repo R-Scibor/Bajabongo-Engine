@@ -23,15 +23,13 @@
 
 namespace game {
 
-    DamageSystem::DamageSystem(engine::EngineContext& context)
-        : m_context(context)
-    {
+    DamageSystem::DamageSystem(engine::EngineContext& context) : m_context(context) {
         m_logger = context.m_logManager->GetLogger("DamageSystem");
-        
+
         // Subscribe to events
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&DamageSystem::onSensorBegin>(this);
         context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().connect<&DamageSystem::onContactBegin>(this);
-        
+
         if (m_logger) {
             m_logger->info("DamageSystem initialized.");
         }
@@ -53,7 +51,7 @@ namespace game {
         if (registry.all_of<ProjectileComponent>(entityA)) {
             registry.destroy(entityA);
         }
-        
+
         // Check if B is projectile
         else if (registry.all_of<ProjectileComponent>(entityB)) {
             registry.destroy(entityB);
@@ -71,7 +69,7 @@ namespace game {
         if (registry.all_of<DamageComponent>(sensor)) {
             handleCollision(sensor, visitor, isVisitorSensor, registry);
         }
-        
+
         // Check if visitor is Projectile
         if (registry.all_of<DamageComponent>(visitor)) {
             // Visitor is Projectile, Sensor is Target.
@@ -79,7 +77,8 @@ namespace game {
         }
     }
 
-    void DamageSystem::handleCollision(entt::entity projectile, entt::entity target, bool isTargetSensor, entt::registry& registry) {
+    void DamageSystem::handleCollision(entt::entity projectile, entt::entity target, bool isTargetSensor,
+                                       entt::registry& registry) {
         if (!registry.valid(projectile) || !registry.valid(target)) return;
 
         // Check ownership to prevent self-damage
@@ -95,7 +94,7 @@ namespace game {
 
         if (damageComp && healthComp) {
             healthComp->currentHp -= damageComp->damageValue;
-            
+
             // Trigger Hit Flash
             if (auto* flashComp = registry.try_get<HitFlashComponent>(target)) {
                 if (auto* renderable = registry.try_get<engine::RenderableComponent>(target)) {
@@ -113,8 +112,8 @@ namespace game {
             }
 
             if (m_logger) {
-                m_logger->debug("Entity {} hit Entity {}. Damage: {}. Remaining HP: {}",
-                    entt::to_integral(projectile), entt::to_integral(target), damageComp->damageValue, healthComp->currentHp);
+                m_logger->debug("Entity {} hit Entity {}. Damage: {}. Remaining HP: {}", entt::to_integral(projectile),
+                                entt::to_integral(target), damageComp->damageValue, healthComp->currentHp);
             }
 
             if (healthComp->currentHp <= 0.0f) {
@@ -135,18 +134,17 @@ namespace game {
 
                 if (registry.all_of<PlayerComponent>(target)) {
                     soundId = "death_player";
-                    
+
                     // Also play scav laugh on player death
-                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                        .id = "death_scav_laugh",
-                        .volume = 100.0f,
-                        .pitch = 1.0f,
-                        .loop = false,
-                        .sourceEntity = target,
-                        .position = hasPos ? std::make_optional(pos) : std::nullopt,
-                        .minDistance = 500.0f,
-                        .attenuation = 2.0f
-                    });
+                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>(
+                        {.id = "death_scav_laugh",
+                         .volume = 100.0f,
+                         .pitch = 1.0f,
+                         .loop = false,
+                         .sourceEntity = target,
+                         .position = hasPos ? std::make_optional(pos) : std::nullopt,
+                         .minDistance = 500.0f,
+                         .attenuation = 2.0f});
 
                 } else if (registry.all_of<EnemyComponent>(target)) {
                     int roll = std::rand() % 100;
@@ -158,7 +156,7 @@ namespace game {
                     } else if (roll < 20) {
                         // 10% chance
                         soundId = "death_scav";
-                        } else if (roll < 60) {
+                    } else if (roll < 60) {
                         // 40% chance
                         soundId = "death_1";
                     } else {
@@ -168,18 +166,17 @@ namespace game {
                 }
 
                 if (!soundId.empty()) {
-                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                        .id = soundId,
-                        .volume = 100.0f,
-                        .pitch = 1.0f,
-                        .loop = false,
-                        .sourceEntity = target,
-                        .position = hasPos ? std::make_optional(pos) : std::nullopt,
-                        .minDistance = 500.0f,
-                        .attenuation = 2.0f
-                    });
+                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>(
+                        {.id = soundId,
+                         .volume = 100.0f,
+                         .pitch = 1.0f,
+                         .loop = false,
+                         .sourceEntity = target,
+                         .position = hasPos ? std::make_optional(pos) : std::nullopt,
+                         .minDistance = 500.0f,
+                         .attenuation = 2.0f});
                 }
-                
+
                 // Spawn Dead Body
                 spawnDeadBody(target, registry);
 
@@ -235,20 +232,21 @@ namespace game {
             if (auto* meta = registry.try_get<engine::MetaComponent>(originalEntity)) {
                 registry.emplace<engine::MetaComponent>(deadBody, *meta);
             }
-            
+
             // --- DEBUG: Verify AnimationSetId ---
             if (m_logger) {
-                m_logger->info("Spawned DeadBody {}. AnimationSetId: '{}'. Original ID: '{}'", 
-                    entt::to_integral(deadBody), newAnimState.animationSetId, animState->animationSetId);
+                m_logger->info("Spawned DeadBody {}. AnimationSetId: '{}'. Original ID: '{}'",
+                               entt::to_integral(deadBody), newAnimState.animationSetId, animState->animationSetId);
             }
 
             // Mark as DeadBody
             registry.emplace<DeadBodyComponent>(deadBody);
 
-             if (m_logger) {
-                m_logger->debug("Spawned DeadBody entity {} for original entity {}", entt::to_integral(deadBody), entt::to_integral(originalEntity));
+            if (m_logger) {
+                m_logger->debug("Spawned DeadBody entity {} for original entity {}", entt::to_integral(deadBody),
+                                entt::to_integral(originalEntity));
             }
         }
     }
 
-}
+} // namespace game

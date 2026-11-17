@@ -6,13 +6,11 @@
 #include <memory>
 
 // Forward declaration
-namespace spdlog
-{
+namespace spdlog {
     class logger;
 }
 
-namespace engine
-{
+namespace engine {
     /**
      * @brief Concrete implementation of ILoggerManager using spdlog.
      *
@@ -21,15 +19,14 @@ namespace engine
      * 2. Loading logging configuration from a file (setting levels per subsystem).
      * 3. Creating new loggers on demand (Lazy Initialization).
      */
-    class SpdlogManager : public ILoggerManager
-    {
+    class SpdlogManager : public ILoggerManager {
     public:
         /**
          * @brief Initializes the manager and loads the configuration.
          * @param configFilePath Path to the text file containing logger settings (e.g., "logger.ini").
          */
         explicit SpdlogManager(const std::string& configFilePath);
-        
+
         /**
          * @brief Cleans up spdlog resources (flushes logs, shuts down thread pool).
          */
@@ -53,8 +50,8 @@ namespace engine
 
         /// @brief Cache of active spdlog instances, indexed by name.
         std::unordered_map<std::string, std::shared_ptr<spdlog::logger>> m_loggers;
-        
+
         /// @brief Standard formatting pattern for log messages.
         std::string m_defaultPattern;
     };
-}
+} // namespace engine

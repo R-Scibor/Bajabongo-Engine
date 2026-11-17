@@ -3,7 +3,7 @@
 namespace engine {
     struct EngineContext;
     class EditorSystem;
-}
+} // namespace engine
 
 namespace game {
     // Funkcja, która rejestruje wszystkie nasze game-specific loadery
@@ -12,4 +12,4 @@ namespace game {
     // Game-specific ImGui inspectors (Health / Weapon / Player). Engine editors
     // stay agnostic of these types.
     void RegisterGameEditorInspectors(engine::EditorSystem& editor);
-}
+} // namespace game

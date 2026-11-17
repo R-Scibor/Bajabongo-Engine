@@ -21,11 +21,12 @@ namespace game::ai {
         void update(float dt);
 
     private:
-        void executeUnstuckBehavior(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+        void executeUnstuckBehavior(entt::entity entity, EnemyComponent& enemy,
+                                    const engine::TransformComponent& transform);
         engine::Vector2f findSafeUnstuckPosition(entt::entity entity, const engine::Vector2f& preferredPos);
 
         engine::EngineContext& mContext;
         std::shared_ptr<engine::ILogger> mLogger;
     };
 
-}
+} // namespace game::ai

@@ -4,19 +4,17 @@
 #include <memory>
 #include "engine/core/math/Vector2.hpp"
 
-namespace engine
-{
+namespace engine {
     struct EngineContext;
     class IRenderer;
     class ILogger;
     class IInputManager;
-    
+
     /**
      * @brief System that controls the camera's position and zoom level.
      * * Implements smooth following (interpolation) and mouse wheel zooming.
      */
-    class CameraSystem
-    {
+    class CameraSystem {
     public:
         explicit CameraSystem(EngineContext& context);
 
@@ -33,4 +31,4 @@ namespace engine
         std::shared_ptr<ILogger> m_logger;
         std::shared_ptr<IInputManager> m_inputManager;
     };
-}
+} // namespace engine

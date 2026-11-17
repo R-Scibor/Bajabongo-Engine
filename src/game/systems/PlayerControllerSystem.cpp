@@ -34,20 +34,19 @@ constexpr float PI_F = static_cast<float>(M_PI);
 
 namespace game {
 
-    PlayerControllerSystem::PlayerControllerSystem(engine::EngineContext& context)
-        : m_context(context)
-    {
-    }
+    PlayerControllerSystem::PlayerControllerSystem(engine::EngineContext& context) : m_context(context) {}
 
-    void PlayerControllerSystem::update(float fixedDeltaTime)
-    {
+    void PlayerControllerSystem::update(float fixedDeltaTime) {
         auto& registry = *m_context.m_registry;
         auto input = m_context.m_inputManager;
         auto renderer = m_context.m_renderer;
 
-        auto view = registry.view<PlayerComponent, engine::PhysicsBodyComponent, engine::TransformComponent, VisibilityComponent>();
+        auto view =
+            registry
+                .view<PlayerComponent, engine::PhysicsBodyComponent, engine::TransformComponent, VisibilityComponent>();
 
-        view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp, engine::TransformComponent& transform, VisibilityComponent& visibility) {
+        view.each([&](entt::entity entity, PlayerComponent& player, engine::PhysicsBodyComponent& bodyComp,
+                      engine::TransformComponent& transform, VisibilityComponent& visibility) {
             if (!b2Body_IsValid(bodyComp.bodyId)) return;
 
             auto* weapon = registry.try_get<WeaponComponent>(entity);
@@ -73,9 +72,9 @@ namespace game {
 
                     if (distSq <= interactable.interactionRadius * interactable.interactionRadius) {
                         if (interactable.type == InteractableComponent::Type::MissionTable) {
-                             // Swap to MapSelectionState to ensure current scene is cleared
-                             m_context.m_dispatcher->enqueue<engine::RequestStateSwapEvent>("MapSelection");
-                             break; // Only interact with one thing at a time
+                            // Swap to MapSelectionState to ensure current scene is cleared
+                            m_context.m_dispatcher->enqueue<engine::RequestStateSwapEvent>("MapSelection");
+                            break; // Only interact with one thing at a time
                         }
                     }
                 }
@@ -92,7 +91,7 @@ namespace game {
             }
 
             // --- Movement (WASD) ---
-            engine::Vector2f moveDir{ 0.0f, 0.0f };
+            engine::Vector2f moveDir{0.0f, 0.0f};
 
             if (!player.isHealing) {
                 if (input->isKeyPressed(engine::KeyCode::W)) moveDir.y -= 1.0f;
@@ -103,8 +102,7 @@ namespace game {
 
             // Normalize vector if moving diagonally
             float lengthSq = moveDir.x * moveDir.x + moveDir.y * moveDir.y;
-            if (lengthSq > 0.0f)
-            {
+            if (lengthSq > 0.0f) {
                 float length = std::sqrt(lengthSq);
                 moveDir.x /= length;
                 moveDir.y /= length;
@@ -128,7 +126,7 @@ namespace game {
                             animState->state = engine::AnimationState::Idle;
                         }
                     }
-                    
+
                     // 2. Determine Facing Direction (Left/Right only)
                     if (moveDir.x < 0.0f) {
                         animState->facing = engine::FacingDirection::Left;
@@ -149,14 +147,14 @@ namespace game {
 
             // Apply velocity
             if (player.isHealing) {
-                 b2Body_SetLinearVelocity(bodyComp.bodyId, { 0.0f, 0.0f });
+                b2Body_SetLinearVelocity(bodyComp.bodyId, {0.0f, 0.0f});
             } else {
                 float currentSpeed = player.moveSpeed;
                 if (input->isKeyPressed(engine::KeyCode::LShift)) {
                     currentSpeed *= 2.5f;
                 }
 
-                b2Vec2 velocity = { moveDir.x * currentSpeed, moveDir.y * currentSpeed };
+                b2Vec2 velocity = {moveDir.x * currentSpeed, moveDir.y * currentSpeed};
 
                 // Wake up the body if we are trying to move it, otherwise it might sleep
                 if (lengthSq > 0.0f) {
@@ -181,15 +179,13 @@ namespace game {
                         // Randomize pitch slightly (0.9 to 1.1)
                         float pitch = 0.9f + (static_cast<float>(std::rand() % 21) / 100.0f);
 
-                        m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({
-                            .id = soundId,
-                            .volume = 40.0f,
-                            .pitch = pitch,
-                            .loop = false,
-                            .sourceEntity = entity,
-                            .position = transform.position,
-                            .minDistance = 300.0f
-                        });
+                        m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({.id = soundId,
+                                                                                 .volume = 40.0f,
+                                                                                 .pitch = pitch,
+                                                                                 .loop = false,
+                                                                                 .sourceEntity = entity,
+                                                                                 .position = transform.position,
+                                                                                 .minDistance = 300.0f});
                     }
                 } else {
                     // Reset timer to allow quick first step
@@ -197,16 +193,13 @@ namespace game {
                 }
             }
 
-
             // --- Rotation (Mouse) ---
-            if (renderer)
-            {
+            if (renderer) {
                 engine::Vector2i mouseScreenPos = input->getMousePosition();
 
                 // Need to cast to float for screenToWorld
                 engine::Vector2f mouseWorldPos = renderer->screenToWorld(
-                    engine::Vector2f{ static_cast<float>(mouseScreenPos.x), static_cast<float>(mouseScreenPos.y) }
-                );
+                    engine::Vector2f{static_cast<float>(mouseScreenPos.x), static_cast<float>(mouseScreenPos.y)});
 
                 b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
 
@@ -219,12 +212,12 @@ namespace game {
 
                 // Update visibility direction with smooth interpolation
                 visibility.targetViewDirection = angle;
-                
+
                 // Shortest path interpolation for angle
                 float deltaAngle = angle - visibility.viewDirection;
                 if (deltaAngle > PI_F) deltaAngle -= 2.0f * PI_F;
                 if (deltaAngle < -PI_F) deltaAngle += 2.0f * PI_F;
-                
+
                 visibility.viewDirection += deltaAngle * visibility.viewInterpSpeed * fixedDeltaTime;
 
                 // Wrap angle to keep it clean (optional)
@@ -232,8 +225,7 @@ namespace game {
                 if (visibility.viewDirection < -PI_F) visibility.viewDirection += 2.0f * PI_F;
 
                 // --- Update Weapon State ---
-                if (weapon)
-                {
+                if (weapon) {
                     weapon->aimAngle = angle;
                     if (player.isHealing) {
                         weapon->wantsToShoot = false;

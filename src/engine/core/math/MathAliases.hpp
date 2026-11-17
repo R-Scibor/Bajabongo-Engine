@@ -3,8 +3,7 @@
 #include "Vector2.hpp"
 #include "Rect.hpp"
 
-namespace engine
-{
+namespace engine {
     // --- Vector Aliases ---
 
     /// @brief 2D Vector with float precision. Standard for positions and physics.
@@ -23,4 +22,4 @@ namespace engine
 
     /// @brief Rectangle with integer coordinates. Useful for UI or tile regions.
     using Recti = Rect<int>;
-}
+} // namespace engine

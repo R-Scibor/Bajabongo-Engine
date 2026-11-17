@@ -3,16 +3,14 @@
 #include <memory>
 #include <string>
 
-namespace engine
-{
+namespace engine {
     class ILogger;
 
     /**
      * @brief Interface for a central Logger Registry/Factory.
      * * Manages the lifecycle of named loggers (e.g., "Physics", "Audio", "Core").
      */
-    class ILoggerManager
-    {
+    class ILoggerManager {
     public:
         virtual ~ILoggerManager() = default;
 
@@ -24,4 +22,4 @@ namespace engine
          */
         virtual std::shared_ptr<ILogger> GetLogger(const std::string& name) = 0;
     };
-}
+} // namespace engine

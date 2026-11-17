@@ -4,8 +4,7 @@
 #include <memory>
 #include <SFML/Graphics/RenderTarget.hpp>
 
-namespace engine
-{
+namespace engine {
     struct EngineContext;
     class IRenderer;
     class SpriteManager;
@@ -19,8 +18,7 @@ namespace engine
      * 3. Dispatching draw calls to the IRenderer or RenderTarget.
      * 4. Debug visualization (colliders, wires).
      */
-    class RenderSystem
-    {
+    class RenderSystem {
     public:
         explicit RenderSystem(engine::EngineContext& context);
 
@@ -41,8 +39,8 @@ namespace engine
         std::shared_ptr<engine::IRenderer> m_renderer;
         std::shared_ptr<engine::SpriteManager> m_spriteManager;
         std::shared_ptr<engine::IResourceManager> m_resourceManager;
-        
+
         /// @brief Flag controlling physics debug rendering.
         bool m_debugDraw = false;
     };
-}
+} // namespace engine

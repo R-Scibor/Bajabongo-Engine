@@ -29,12 +29,8 @@ namespace game {
         }
 
         // Play Main Menu Music
-        context.m_dispatcher->enqueue<engine::PlayMusicEvent>({
-            .id = "main_menu",
-            .volume = 30.0f,
-            .loop = true,
-            .crossfadeDuration = 2.0f
-        });
+        context.m_dispatcher->enqueue<engine::PlayMusicEvent>(
+            {.id = "main_menu", .volume = 30.0f, .loop = true, .crossfadeDuration = 2.0f});
     }
 
     void MainMenuState::onExit([[maybe_unused]] engine::EngineContext& context) {
@@ -145,7 +141,7 @@ namespace game {
             if (static_cast<int>(i) == m_selectedItemIndex) {
                 if (isBroken) {
                     color = {255, 0, 0, 255}; // Critical Red
-                    
+
                     // Shake Effect
                     float shakeX = (rand() % 5) - 2.0f;
                     float shakeY = (rand() % 5) - 2.0f;
@@ -160,11 +156,11 @@ namespace game {
                     renderer.drawRect({anchorX, dashY}, {textX - anchorX - 5.0f, 2.0f}, color);
                 } else {
                     color = {255, 150, 79, 255}; // Safety Orange #FF964F
-                    fontSize = 34; // Scale up ~105%
+                    fontSize = 34;               // Scale up ~105%
 
                     // Draw Background Block (faint highlight)
                     renderer.drawRect({textX - 10.0f, itemY}, {230.0f, 40.0f}, {255, 255, 255, 15});
-                    
+
                     // Draw Horizontal Dash connecting Anchor to Text
                     float dashY = itemY + 18.0f;
                     renderer.drawRect({anchorX, dashY}, {textX - anchorX - 5.0f, 2.0f}, color);
@@ -183,33 +179,27 @@ namespace game {
         }
     }
 
-    void MainMenuState::handleEvent(engine::EngineContext& context, const sf::Event& event)
-    {
+    void MainMenuState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
         bool activate = false;
 
         if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()) {
             if (keyPressed->code == sf::Keyboard::Key::Up || keyPressed->code == sf::Keyboard::Key::W) {
                 m_selectedItemIndex--;
                 if (m_selectedItemIndex < 0) m_selectedItemIndex = static_cast<int>(m_menuItems.size()) - 1;
-            }
-            else if (keyPressed->code == sf::Keyboard::Key::Down || keyPressed->code == sf::Keyboard::Key::S) {
+            } else if (keyPressed->code == sf::Keyboard::Key::Down || keyPressed->code == sf::Keyboard::Key::S) {
                 m_selectedItemIndex++;
                 if (m_selectedItemIndex >= static_cast<int>(m_menuItems.size())) m_selectedItemIndex = 0;
-            }
-            else if (keyPressed->code == sf::Keyboard::Key::Enter || keyPressed->code == sf::Keyboard::Key::Space) {
+            } else if (keyPressed->code == sf::Keyboard::Key::Enter || keyPressed->code == sf::Keyboard::Key::Space) {
                 activate = true;
+            } else if (keyPressed->code == sf::Keyboard::Key::Escape) {
+                context.m_dispatcher->enqueue<engine::RequestStateClearEvent>();
             }
-            else if (keyPressed->code == sf::Keyboard::Key::Escape) {
-                 context.m_dispatcher->enqueue<engine::RequestStateClearEvent>();
-            }
-        }
-        else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>()) {
+        } else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>()) {
             int hit = getItemAt(static_cast<float>(mouseMoved->position.x), static_cast<float>(mouseMoved->position.y));
             if (hit != -1) {
                 m_selectedItemIndex = hit;
             }
-        }
-        else if (const auto* mouseBtn = event.getIf<sf::Event::MouseButtonPressed>()) {
+        } else if (const auto* mouseBtn = event.getIf<sf::Event::MouseButtonPressed>()) {
             if (mouseBtn->button == sf::Mouse::Button::Left) {
                 int hit = getItemAt(static_cast<float>(mouseBtn->position.x), static_cast<float>(mouseBtn->position.y));
                 if (hit != -1) {
@@ -224,8 +214,7 @@ namespace game {
             if (item == "START") {
                 if (m_logger) m_logger->info("Starting Game...");
                 context.m_dispatcher->enqueue<engine::RequestStatePushEvent>("Gameplay");
-            }
-            else if (item == "QUIT") {
+            } else if (item == "QUIT") {
                 if (m_logger) m_logger->info("Quitting...");
                 context.m_dispatcher->enqueue<engine::RequestStateClearEvent>();
             }
@@ -248,10 +237,10 @@ namespace game {
 
         for (size_t i = 0; i < m_menuItems.size(); ++i) {
             float itemY = startY + (i * gap);
-            
+
             // Check visibility (Draw Down effect)
             if (logoY + currentHeight < itemY) continue;
-            
+
             // Hitbox: [textX - 10, itemY] to [textX - 10 + 230, itemY + 40]
             float boxX = textX - 10.0f;
             float boxY = itemY;

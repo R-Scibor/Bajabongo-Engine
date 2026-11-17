@@ -15,16 +15,16 @@ namespace engine {
     struct SpriteDesc {
         /// @brief ID of the texture resource (loaded in ResourceManager).
         std::string textureId;
-        
+
         /// @brief The region of the texture to display (Left, Top, Width, Height).
-        sf::IntRect uvRect;      
-        
+        sf::IntRect uvRect;
+
         /**
          * @brief The pivot point of the sprite in local pixels.
          * * (0,0) is top-left. For a character standing on the ground, 
          * this is usually (width/2, height) [bottom-center].
          */
-        sf::Vector2f origin;     
+        sf::Vector2f origin;
     };
 
     /**
@@ -39,9 +39,7 @@ namespace engine {
         /**
          * @brief Registers a sprite definition under a unique ID.
          */
-        void registerSprite(const std::string& id, const SpriteDesc& desc) {
-            m_sprites[id] = desc;
-        }
+        void registerSprite(const std::string& id, const SpriteDesc& desc) { m_sprites[id] = desc; }
 
         /**
          * @brief Retrieves a sprite definition by ID.

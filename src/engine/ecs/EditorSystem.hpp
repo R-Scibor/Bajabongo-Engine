@@ -59,7 +59,7 @@ namespace engine {
          * @tparam T The component type to inspect.
          * @param inspector The function to call when inspecting a component of type T.
          */
-        template <typename T>
+        template<typename T>
         void RegisterInspector(InspectorFunc inspector) {
             m_inspectors[std::type_index(typeid(T))] = [inspector](entt::registry& reg, entt::entity e) {
                 if (reg.all_of<T>(e)) {
@@ -71,29 +71,29 @@ namespace engine {
     private:
         /** @brief Draws the entity hierarchy window. */
         void DrawHierarchy();
-        
+
         /** @brief Draws the inspector window for the selected entity. */
         void DrawInspector();
-        
+
         /** @brief Draws the asset browser and spawner window. */
         void DrawSpawner();
-        
+
         /** @brief Draws the debug settings window. */
         void DrawSettings();
 
         /** @brief Non-owning reference to the engine context. */
         EngineContext& m_context;
-        
+
         /** @brief Logger instance for the EditorSystem. */
         std::shared_ptr<ILogger> m_logger;
-        
+
         /** @brief Currently selected entity in the editor. */
         entt::entity m_selectedEntity = entt::null;
-        
+
         // Spawning State
         /** @brief Flag indicating if the editor is in placement mode. */
         bool m_isPlacing = false;
-        
+
         /** @brief ID of the archetype currently being placed. */
         std::string m_placingArchetype;
 

@@ -20,11 +20,13 @@ namespace game {
     void WeaponSwitchSystem::update(engine::EngineContext& context, float dt) {
         // We iterate over entities that have an inventory, a weapon component, and an animation state.
         // For input-based switching, we specifically care about the one controlled by the player (implied by input check, but good to filter).
-        
-        auto view = context.m_registry->view<WeaponInventoryComponent, WeaponComponent, engine::AnimationStateComponent, PlayerComponent>();
-        
+
+        auto view =
+            context.m_registry
+                ->view<WeaponInventoryComponent, WeaponComponent, engine::AnimationStateComponent, PlayerComponent>();
+
         for (auto [entity, inv, weapon, animState, player] : view.each()) {
-            
+
             // Decay switch cooldown
             if (inv.switchCooldown > 0.0f) {
                 inv.switchCooldown -= dt;
@@ -34,25 +36,23 @@ namespace game {
             if (inv.switchCooldown > 0.0f) {
                 continue;
             }
-            
+
             // Check input (1-9 keys)
             int requestedSlot = getRequestedSlot(context);
-            
+
             // Validate request
-            if (requestedSlot != -1 && 
-                requestedSlot != inv.activeSlot && 
-                requestedSlot >= 0 && 
+            if (requestedSlot != -1 && requestedSlot != inv.activeSlot && requestedSlot >= 0 &&
                 requestedSlot < static_cast<int>(inv.weaponArchetypes.size())) {
-                
+
                 // Perform switch
                 inv.activeSlot = requestedSlot;
                 inv.switchCooldown = inv.switchDelay;
-                
+
                 // Load weapon stats from archetype
                 std::string weaponArchetype = inv.weaponArchetypes[requestedSlot];
 
                 loadWeaponStats(context, entity, weaponArchetype);
-                
+
                 // Update AnimationSetId from archetype if available
                 if (context.m_archetypeManager) {
                     const auto* archJson = context.m_archetypeManager->getArchetype(weaponArchetype);
@@ -63,7 +63,7 @@ namespace game {
                         // context.m_logManager->GetLogger("WeaponSwitchSystem")->warn("Archetype {} missing AnimationSetId", weaponArchetype);
                     }
                 }
-                
+
                 auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
                 if (logger) {
                     logger->info("Switched to weapon slot {}: {}", requestedSlot, weaponArchetype);
@@ -83,18 +83,19 @@ namespace game {
         if (context.m_inputManager->isKeyPressed(engine::KeyCode::Num7)) return 6;
         if (context.m_inputManager->isKeyPressed(engine::KeyCode::Num8)) return 7;
         if (context.m_inputManager->isKeyPressed(engine::KeyCode::Num9)) return 8;
-        
+
         return -1;
     }
 
-    void WeaponSwitchSystem::loadWeaponStats(engine::EngineContext& context, entt::entity entity, const std::string& archetypeId) {
+    void WeaponSwitchSystem::loadWeaponStats(engine::EngineContext& context, entt::entity entity,
+                                             const std::string& archetypeId) {
         if (!context.m_archetypeManager) return;
 
         const auto* archJson = context.m_archetypeManager->getArchetype(archetypeId);
         if (!archJson) {
-             auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
-             if (logger) logger->error("Failed to find weapon archetype: {}", archetypeId);
-             return;
+            auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
+            if (logger) logger->error("Failed to find weapon archetype: {}", archetypeId);
+            return;
         }
 
         // Extract the WeaponComponent part from the archetype JSON
@@ -108,7 +109,7 @@ namespace game {
 
         if (weaponDataPtr) {
             const auto& weaponData = *weaponDataPtr;
-            
+
             auto& weapon = context.m_registry->get<WeaponComponent>(entity);
 
             // Stop any existing loop before overwriting stats
@@ -121,7 +122,7 @@ namespace game {
 
             // Reset weapon data to default before applying new stats
             weapon = WeaponComponent();
-            
+
             // Copy stats
 
             if (weaponData.contains("shootSoundId")) weapon.shootSoundId = weaponData["shootSoundId"];
@@ -129,25 +130,27 @@ namespace game {
 
             if (weaponData.contains("shootSoundLooping")) weapon.shootSoundLooping = weaponData["shootSoundLooping"];
             else weapon.shootSoundLooping = false;
-            
+
             if (weaponData.contains("fireRate")) weapon.fireRate = weaponData["fireRate"];
             if (weaponData.contains("projectileSpeed")) weapon.projectileSpeed = weaponData["projectileSpeed"];
             if (weaponData.contains("projectileLifetime")) weapon.projectileLifetime = weaponData["projectileLifetime"];
             if (weaponData.contains("damage")) weapon.damage = weaponData["damage"];
-            
+
             if (weaponData.contains("baseSpreadDeg")) weapon.baseSpreadDeg = weaponData["baseSpreadDeg"];
             if (weaponData.contains("spreadPerShotDeg")) weapon.spreadPerShotDeg = weaponData["spreadPerShotDeg"];
-            if (weaponData.contains("spreadDecayDegPerSec")) weapon.spreadDecayDegPerSec = weaponData["spreadDecayDegPerSec"];
+            if (weaponData.contains("spreadDecayDegPerSec"))
+                weapon.spreadDecayDegPerSec = weaponData["spreadDecayDegPerSec"];
             if (weaponData.contains("maxSpreadDeg")) weapon.maxSpreadDeg = weaponData["maxSpreadDeg"];
-            
+
             if (weaponData.contains("recoilKickDeg")) weapon.recoilKickDeg = weaponData["recoilKickDeg"];
-            if (weaponData.contains("recoilReturnDegPerSec")) weapon.recoilReturnDegPerSec = weaponData["recoilReturnDegPerSec"];
-            
+            if (weaponData.contains("recoilReturnDegPerSec"))
+                weapon.recoilReturnDegPerSec = weaponData["recoilReturnDegPerSec"];
+
             if (weaponData.contains("projectilesPerShot")) weapon.projectilesPerShot = weaponData["projectilesPerShot"];
 
             if (weaponData.contains("shotsPerBurst")) weapon.shotsPerBurst = weaponData["shotsPerBurst"];
             if (weaponData.contains("burstCooldown")) weapon.burstCooldown = weaponData["burstCooldown"];
-            
+
             if (weaponData.contains("magSize")) {
                 weapon.magSize = weaponData["magSize"];
                 // Reset ammo on switch
@@ -155,7 +158,7 @@ namespace game {
             }
             if (weaponData.contains("totalAmmo")) weapon.totalAmmo = weaponData["totalAmmo"];
             if (weaponData.contains("reloadDuration")) weapon.reloadDuration = weaponData["reloadDuration"];
-            
+
             // Reset runtime states
             weapon.currentSpreadDeg = weapon.baseSpreadDeg;
             weapon.recoilAngleOffset = 0.0f;
@@ -165,7 +168,7 @@ namespace game {
             weapon.isBursting = false;
             weapon.burstShotsFired = 0;
             weapon.isFiringAudioLoop = false;
-            
+
         } else {
             auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
             if (logger) logger->warn("Archetype {} has no WeaponComponent data!", archetypeId);

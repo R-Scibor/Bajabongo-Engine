@@ -16,4 +16,4 @@ namespace game::ai {
         std::shared_ptr<engine::ILogger> mLogger;
     };
 
-}
+} // namespace game::ai

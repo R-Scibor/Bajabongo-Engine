@@ -7,4 +7,4 @@ namespace game {
         float maxHp = 100.0f;
     };
 
-}
+} // namespace game

@@ -30,10 +30,9 @@ namespace engine {
         const std::string LAYER_NAME_COLLISION = "Collision";
         const std::string LAYER_NAME_HALF_COLLISION = "HalfCollision";
         const std::string LAYER_NAME_ENTITIES = "Entities";
-    }
+    } // namespace
 
-    MapLoader::MapLoader(EngineContext& context)
-        : m_context(context) {
+    MapLoader::MapLoader(EngineContext& context) : m_context(context) {
         if (context.m_logManager) {
             m_logger = context.m_logManager->GetLogger("MapLoader");
         }
@@ -97,10 +96,11 @@ namespace engine {
             auto entity = m_context.m_registry->create();
             // Use scale from context
             float scale = m_context.mapScale;
-            
+
             // Image layers usually start at 0,0
-            m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f, Vector2f{scale, scale});
-            
+            m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{0.0f, 0.0f}, 0.0f,
+                                                              Vector2f{scale, scale});
+
             // Image name as texture key
             std::string textureKey = "map_sprite"; // Default fallback
             if (!imageName.empty()) {
@@ -113,22 +113,24 @@ namespace engine {
                 if (lastDot != std::string::npos) {
                     filename.resize(lastDot);
                 }
-                
+
                 // Append _sprite
                 textureKey = filename + "_sprite";
             }
 
-            m_context.m_registry->emplace<RenderableComponent>(entity, textureKey, 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
-            
+            m_context.m_registry->emplace<RenderableComponent>(
+                entity, textureKey, 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
+
             // Map background should always be visible
             VisibleToPlayerComponent visComp;
             visComp.alwaysVisible = true;
             m_context.m_registry->emplace<VisibleToPlayerComponent>(entity, visComp);
-            
+
             // Add WorldBoundsComponent if dimensions are valid
             if (imageWidth > 0 && imageHeight > 0) {
-                 m_context.m_registry->emplace<WorldBoundsComponent>(entity, imageWidth * scale, imageHeight * scale);
-                 if (m_logger) m_logger->info("Added WorldBoundsComponent: {}x{}", imageWidth * scale, imageHeight * scale);
+                m_context.m_registry->emplace<WorldBoundsComponent>(entity, imageWidth * scale, imageHeight * scale);
+                if (m_logger)
+                    m_logger->info("Added WorldBoundsComponent: {}x{}", imageWidth * scale, imageHeight * scale);
             }
 
             if (m_logger) m_logger->info("Created map background entity for image: {}", imageName);
@@ -158,13 +160,15 @@ namespace engine {
                 }
 
                 if (type.empty()) {
-                    if (m_logger) m_logger->warn("MapLoader: Object in Entities layer has no 'type' or 'class' defined. Skipping.");
+                    if (m_logger)
+                        m_logger->warn(
+                            "MapLoader: Object in Entities layer has no 'type' or 'class' defined. Skipping.");
                     continue;
                 }
 
                 float x = obj.value("x", 0.0f) * scale;
                 float y = obj.value("y", 0.0f) * scale;
-                
+
                 // Tiled objects can be points or rects.
                 // If it's a point, we just use x,y.
                 // If it's a rect (e.g. for a portal trigger area), we might need center.
@@ -173,7 +177,7 @@ namespace engine {
                 float w = obj.value("width", 0.0f) * scale;
                 float h = obj.value("height", 0.0f) * scale;
 
-                Vector2f spawnPos = { x + w * 0.5f, y + h * 0.5f };
+                Vector2f spawnPos = {x + w * 0.5f, y + h * 0.5f};
 
                 entt::entity spawnedEntity = m_context.m_entityFactory->spawn(type, spawnPos);
                 if (spawnedEntity != entt::null) {
@@ -182,7 +186,8 @@ namespace engine {
                     if (m_logger) m_logger->warn("MapLoader: Failed to spawn entity of type '{}'", type);
                 }
             }
-            if (m_logger) m_logger->info("Spawned {} entities from layer '{}'.", count, layer.value("name", "Entities"));
+            if (m_logger)
+                m_logger->info("Spawned {} entities from layer '{}'.", count, layer.value("name", "Entities"));
         }
     }
 
@@ -199,7 +204,7 @@ namespace engine {
 
     void MapLoader::createCollisionBody(const nlohmann::json& obj, bool isHalfCollision) {
         float scale = m_context.mapScale;
-        
+
         float x = obj.value("x", 0.0f) * scale;
         float y = obj.value("y", 0.0f) * scale;
         float w = obj.value("width", 0.0f) * scale;
@@ -223,19 +228,17 @@ namespace engine {
             // LowObstacle: Collides with Player, Enemy. Does NOT collide with Projectile.
             maskBits = PhysicsCategory::Player | PhysicsCategory::Enemy;
         }
-        
+
         // Create Physics Body
         // isStatic = true
         // isSensor = false
         // isBullet = false
         // fixedRotation = false (though for static it doesn't matter much)
-        PendingPhysicsBodyComponent pending{
-            .position = Vector2f{centerX, centerY},
-            .isStatic = true,
-            .fixedRotation = false,
-            .rotation = rot * (3.14159f / 180.0f),
-            .fixtures = {}
-        };
+        PendingPhysicsBodyComponent pending{.position = Vector2f{centerX, centerY},
+                                            .isStatic = true,
+                                            .fixedRotation = false,
+                                            .rotation = rot * (3.14159f / 180.0f),
+                                            .fixtures = {}};
 
         // Add single fixture
         FixtureDef fixDef;
@@ -244,13 +247,14 @@ namespace engine {
         fixDef.isSensor = false;
         fixDef.categoryBits = categoryBits;
         fixDef.maskBits = maskBits;
-        
+
         pending.fixtures.push_back(fixDef);
-        
+
         m_context.m_registry->emplace<PendingPhysicsBodyComponent>(entity, pending);
-        
+
         // Visual debug transform (optional, but good for consistency)
-        m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{centerX, centerY}, rot, Vector2f{1.0f, 1.0f});
+        m_context.m_registry->emplace<TransformComponent>(entity, Vector2f{centerX, centerY}, rot,
+                                                          Vector2f{1.0f, 1.0f});
     }
 
 } // namespace engine

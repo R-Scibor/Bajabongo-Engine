@@ -3,8 +3,7 @@
 #include <memory>
 #include <entt/fwd.hpp>
 
-namespace engine
-{
+namespace engine {
     struct EngineContext;
     class ILogger;
 
@@ -36,7 +35,7 @@ namespace engine
     private:
         /** @brief Reference to the EnTT registry. */
         entt::registry& m_registry;
-        
+
         /** @brief Logger instance. */
         std::shared_ptr<ILogger> m_logger;
     };

@@ -5,28 +5,25 @@
 
 // Forward declaration of spdlog::logger to avoid including heavy headers here.
 // This reduces compilation time for files that only include SpdlogLogger.hpp.
-namespace spdlog
-{
+namespace spdlog {
     class logger;
 }
 
-namespace engine
-{
+namespace engine {
     /**
      * @brief Concrete implementation of ILogger using the spdlog library.
      *
      * This class acts as an **Adapter**, wrapping a `spdlog::logger` instance
      * and exposing it through the engine's standard `ILogger` interface.
      */
-    class SpdlogLogger : public ILogger
-    {
+    class SpdlogLogger : public ILogger {
     public:
         /**
          * @brief Constructs the wrapper around an existing spdlog logger.
          * @param logger Shared pointer to the underlying spdlog instance.
          */
         explicit SpdlogLogger(std::shared_ptr<spdlog::logger> logger);
-        
+
         ~SpdlogLogger() override = default;
 
         /**
@@ -41,4 +38,4 @@ namespace engine
         /// @brief The underlying third-party logger instance.
         std::shared_ptr<spdlog::logger> m_logger;
     };
-}
+} // namespace engine

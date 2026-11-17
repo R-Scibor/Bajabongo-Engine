@@ -1,7 +1,6 @@
 #pragma once
 
-namespace engine
-{
+namespace engine {
     /// @brief π as float, shared by angle helpers.
     inline constexpr float Pi = 3.14159265358979323846f;
 
@@ -11,8 +10,7 @@ namespace engine
      * Uses the same loop form as the previous call sites so values already
      * in range are unchanged.
      */
-    inline float wrapAngle(float angle)
-    {
+    inline float wrapAngle(float angle) {
         constexpr float twoPi = 2.0f * Pi;
         while (angle > Pi) {
             angle -= twoPi;
@@ -22,4 +20,4 @@ namespace engine
         }
         return angle;
     }
-}
+} // namespace engine

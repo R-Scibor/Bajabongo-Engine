@@ -10,4 +10,4 @@ namespace engine {
         float width = 0.0f;  ///< Total width of the world in world units.
         float height = 0.0f; ///< Total height of the world in world units.
     };
-}
+} // namespace engine

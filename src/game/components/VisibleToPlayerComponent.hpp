@@ -4,7 +4,6 @@
 // This header keeps existing game includes and the vcxproj entry working.
 #include "engine/components/VisibleToPlayerComponent.hpp"
 
-namespace game
-{
+namespace game {
     using VisibleToPlayerComponent = engine::VisibleToPlayerComponent;
 }

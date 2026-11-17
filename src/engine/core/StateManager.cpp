@@ -32,19 +32,19 @@ namespace engine {
     }
 
     void StateManager::requestPush(const std::string& stateName) {
-        m_pendingActions.push_back({ PendingActionType::Push, stateName });
+        m_pendingActions.push_back({PendingActionType::Push, stateName});
     }
 
     void StateManager::requestPop() {
-        m_pendingActions.push_back({ PendingActionType::Pop, {} });
+        m_pendingActions.push_back({PendingActionType::Pop, {}});
     }
 
     void StateManager::requestSwap(const std::string& stateName) {
-        m_pendingActions.push_back({ PendingActionType::Swap, stateName });
+        m_pendingActions.push_back({PendingActionType::Swap, stateName});
     }
 
     void StateManager::requestClear() {
-        m_pendingActions.push_back({ PendingActionType::Clear, {} });
+        m_pendingActions.push_back({PendingActionType::Clear, {}});
     }
 
     void StateManager::onPushRequest(const RequestStatePushEvent& event) {
@@ -93,65 +93,65 @@ namespace engine {
 
         for (const auto& action : actionsToProcess) {
             switch (action.type) {
-            case PendingActionType::Push: {
-                if (m_stateFactory.count(action.stateName)) {
-                    // Create new state via factory lambda
-                    auto newState = m_stateFactory.at(action.stateName)();
-                    logger->info("Pushing state: {}", action.stateName);
-                    
-                    m_states.push_back(std::move(newState));
-                    // Initialize the state (Load resources, etc.)
-                    m_states.back()->onEnter(m_context);
-                } else {
-                    logger->error("Unknown state requested for push: {}", action.stateName);
-                }
-                break;
-            }
+                case PendingActionType::Push: {
+                    if (m_stateFactory.count(action.stateName)) {
+                        // Create new state via factory lambda
+                        auto newState = m_stateFactory.at(action.stateName)();
+                        logger->info("Pushing state: {}", action.stateName);
 
-            case PendingActionType::Pop: {
-                if (!m_states.empty()) {
-                    logger->info("Popping state.");
-                    m_states.back()->onExit(m_context); // Cleanup resources
-                    m_states.pop_back();
-                    
-                    if (m_states.empty()) {
-                        logger->warn("State stack is empty. Application may need to close.");
+                        m_states.push_back(std::move(newState));
+                        // Initialize the state (Load resources, etc.)
+                        m_states.back()->onEnter(m_context);
+                    } else {
+                        logger->error("Unknown state requested for push: {}", action.stateName);
                     }
-                } else {
-                    logger->warn("Request to pop from an empty state stack.");
+                    break;
                 }
-                break;
-            }
 
-            case PendingActionType::Swap: {
-                if (m_stateFactory.count(action.stateName)) {
-                    // 1. Remove current
+                case PendingActionType::Pop: {
                     if (!m_states.empty()) {
-                        logger->info("Swapping state.");
+                        logger->info("Popping state.");
+                        m_states.back()->onExit(m_context); // Cleanup resources
+                        m_states.pop_back();
+
+                        if (m_states.empty()) {
+                            logger->warn("State stack is empty. Application may need to close.");
+                        }
+                    } else {
+                        logger->warn("Request to pop from an empty state stack.");
+                    }
+                    break;
+                }
+
+                case PendingActionType::Swap: {
+                    if (m_stateFactory.count(action.stateName)) {
+                        // 1. Remove current
+                        if (!m_states.empty()) {
+                            logger->info("Swapping state.");
+                            m_states.back()->onExit(m_context);
+                            m_states.pop_back();
+                        }
+
+                        // 2. Add new
+                        auto newState = m_stateFactory.at(action.stateName)();
+                        logger->info("Pushing swapped state: {}", action.stateName);
+                        m_states.push_back(std::move(newState));
+                        m_states.back()->onEnter(m_context);
+                    } else {
+                        logger->error("Unknown state requested for swap: {}", action.stateName);
+                    }
+                    break;
+                }
+
+                case PendingActionType::Clear: {
+                    logger->info("Clearing all states.");
+                    while (!m_states.empty()) {
                         m_states.back()->onExit(m_context);
                         m_states.pop_back();
                     }
-
-                    // 2. Add new
-                    auto newState = m_stateFactory.at(action.stateName)();
-                    logger->info("Pushing swapped state: {}", action.stateName);
-                    m_states.push_back(std::move(newState));
-                    m_states.back()->onEnter(m_context);
-                } else {
-                    logger->error("Unknown state requested for swap: {}", action.stateName);
+                    logger->warn("State stack is empty. Application may need to close.");
+                    break;
                 }
-                break;
-            }
-
-            case PendingActionType::Clear: {
-                logger->info("Clearing all states.");
-                while (!m_states.empty()) {
-                    m_states.back()->onExit(m_context);
-                    m_states.pop_back();
-                }
-                logger->warn("State stack is empty. Application may need to close.");
-                break;
-            }
             }
         }
     }

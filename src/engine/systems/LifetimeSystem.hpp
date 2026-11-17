@@ -33,4 +33,4 @@ namespace engine {
         /** @brief Reference to the engine context. */
         EngineContext& m_context;
     };
-}
+} // namespace engine

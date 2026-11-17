@@ -1,14 +1,12 @@
 #pragma once
 
-namespace engine
-{
+namespace engine {
     /**
      * @brief Generic axis-aligned rectangle structure.
      * @tparam T The arithmetic type for coordinates and dimensions (e.g., float, int).
      */
     template<typename T>
-    struct Rect
-    {
+    struct Rect {
         T left;   ///< X coordinate of the left edge.
         T top;    ///< Y coordinate of the top edge.
         T width;  ///< Width of the rectangle.
@@ -20,4 +18,4 @@ namespace engine
         /// @brief Parameterized constructor.
         Rect(T left, T top, T width, T height) : left(left), top(top), width(width), height(height) {}
     };
-}
+} // namespace engine

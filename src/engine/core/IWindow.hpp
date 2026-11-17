@@ -8,8 +8,7 @@ namespace sf {
     class Event;
 }
 
-namespace engine
-{
+namespace engine {
     /**
      * @brief Defines a pure abstract interface for the application window.
      * * This decouples the engine core from the specific windowing library (SFML/GLFW).
@@ -26,7 +25,8 @@ namespace engine
          * @param height The height of the client area in pixels.
          * @param fullscreen Whether to create the window in fullscreen exclusive mode.
          */
-        virtual void create(const std::string& title, unsigned int width, unsigned int height, bool fullscreen = false) = 0;
+        virtual void create(const std::string& title, unsigned int width, unsigned int height,
+                            bool fullscreen = false) = 0;
 
         /**
          * @brief Closes the window and destroys the context.
@@ -66,4 +66,4 @@ namespace engine
          */
         virtual void setFramerateLimit(unsigned int limit) = 0;
     };
-}
+} // namespace engine

@@ -21,17 +21,25 @@ namespace game::ai {
         void update(float dt);
 
     private:
-        void transitionFromIdle(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromPatrol(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromAlert(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromChase(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromShoot(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromRush(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromRetreat(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
-        void transitionFromApproach(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform);
+        void transitionFromIdle(entt::entity entity, EnemyComponent& enemy,
+                                const engine::TransformComponent& transform);
+        void transitionFromPatrol(entt::entity entity, EnemyComponent& enemy,
+                                  const engine::TransformComponent& transform);
+        void transitionFromAlert(entt::entity entity, EnemyComponent& enemy,
+                                 const engine::TransformComponent& transform);
+        void transitionFromChase(entt::entity entity, EnemyComponent& enemy,
+                                 const engine::TransformComponent& transform);
+        void transitionFromShoot(entt::entity entity, EnemyComponent& enemy,
+                                 const engine::TransformComponent& transform);
+        void transitionFromRush(entt::entity entity, EnemyComponent& enemy,
+                                const engine::TransformComponent& transform);
+        void transitionFromRetreat(entt::entity entity, EnemyComponent& enemy,
+                                   const engine::TransformComponent& transform);
+        void transitionFromApproach(entt::entity entity, EnemyComponent& enemy,
+                                    const engine::TransformComponent& transform);
 
         engine::EngineContext& mContext;
         std::shared_ptr<engine::ILogger> mLogger;
     };
 
-}
+} // namespace game::ai

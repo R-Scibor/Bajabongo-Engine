@@ -27,9 +27,7 @@
 
 namespace engine {
 
-    EditorSystem::EditorSystem(EngineContext& context)
-        : m_context(context)
-    {
+    EditorSystem::EditorSystem(EngineContext& context) : m_context(context) {
         if (m_context.m_logManager) {
             m_logger = m_context.m_logManager->GetLogger("EditorSystem");
         }
@@ -39,15 +37,15 @@ namespace engine {
                 auto& transform = reg.get<TransformComponent>(e);
                 bool changed = false; // Flaga czy coś zmieniliśmy
 
-                float pos[2] = { transform.position.x, transform.position.y };
+                float pos[2] = {transform.position.x, transform.position.y};
                 if (ImGui::DragFloat2("Position", pos, 0.1f)) {
-                    transform.position = { pos[0], pos[1] };
+                    transform.position = {pos[0], pos[1]};
                     changed = true;
                 }
 
-                float scale[2] = { transform.scale.x, transform.scale.y };
+                float scale[2] = {transform.scale.x, transform.scale.y};
                 if (ImGui::DragFloat2("Scale", scale, 0.01f)) {
-                    transform.scale = { scale[0], scale[1] };
+                    transform.scale = {scale[0], scale[1]};
                     // Skala nie wpływa na fizykę w Box2D (bez przebudowy kształtu),
                     // więc tu zmieniamy tylko grafikę.
                 }
@@ -57,19 +55,19 @@ namespace engine {
                     transform.rotation = rotation;
                     changed = true;
                 }
-                
+
                 // --- SYNC DO BOX2D (Teleportacja) ---
                 if (changed && reg.all_of<PhysicsBodyComponent>(e)) {
                     auto& bodyComp = reg.get<PhysicsBodyComponent>(e);
                     if (b2Body_IsValid(bodyComp.bodyId)) {
                         // Konwersja Deg -> Rad
                         float angleRad = transform.rotation * (3.14159f / 180.0f);
-                        b2Vec2 b2Pos = { transform.position.x, transform.position.y };
+                        b2Vec2 b2Pos = {transform.position.x, transform.position.y};
                         b2Rot b2Rotation = b2MakeRot(angleRad);
 
                         // Hard Reset pozycji w Box2D
                         b2Body_SetTransform(bodyComp.bodyId, b2Pos, b2Rotation);
-                        
+
                         // Ważne: Obudź ciało, inaczej może zostać uśpione w starej pozycji
                         b2Body_SetAwake(bodyComp.bodyId, true);
                     }
@@ -80,16 +78,12 @@ namespace engine {
         RegisterInspector<RenderableComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Renderable", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& renderable = reg.get<RenderableComponent>(e);
-                
+
                 ImGui::InputText("Texture ID", &renderable.spriteId);
                 ImGui::InputInt("Layer", &renderable.layer);
 
-                float color[4] = {
-                    renderable.color.r / 255.0f,
-                    renderable.color.g / 255.0f,
-                    renderable.color.b / 255.0f,
-                    renderable.color.a / 255.0f
-                };
+                float color[4] = {renderable.color.r / 255.0f, renderable.color.g / 255.0f, renderable.color.b / 255.0f,
+                                  renderable.color.a / 255.0f};
                 if (ImGui::ColorEdit4("Color", color)) {
                     renderable.color.r = static_cast<unsigned char>(color[0] * 255);
                     renderable.color.g = static_cast<unsigned char>(color[1] * 255);
@@ -103,45 +97,46 @@ namespace engine {
             if (ImGui::CollapsingHeader("Physics Body", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& body = reg.get<PhysicsBodyComponent>(e);
                 ImGui::Text("Body ID: %d", body.bodyId.index1); // Displaying internal index as info
-                
+
                 // Since physics is managed by Box2D, modifying here might be complex without syncing.
                 // We just display info for now.
                 if (b2Body_IsValid(body.bodyId)) {
-                     b2Vec2 pos = b2Body_GetPosition(body.bodyId);
-                     ImGui::Text("B2 Pos: %.2f, %.2f", pos.x, pos.y);
-                     float angle = b2Body_GetRotation(body.bodyId).c; // Approx
-                     ImGui::Text("B2 Angle (cos): %.2f", angle);
+                    b2Vec2 pos = b2Body_GetPosition(body.bodyId);
+                    ImGui::Text("B2 Pos: %.2f, %.2f", pos.x, pos.y);
+                    float angle = b2Body_GetRotation(body.bodyId).c; // Approx
+                    ImGui::Text("B2 Angle (cos): %.2f", angle);
 
-                     // Inspect Shapes and Filters
-                     int shapeCount = b2Body_GetShapeCount(body.bodyId);
-                     if (shapeCount > 0) {
-                         std::vector<b2ShapeId> shapes(shapeCount);
-                         b2Body_GetShapes(body.bodyId, shapes.data(), shapeCount);
+                    // Inspect Shapes and Filters
+                    int shapeCount = b2Body_GetShapeCount(body.bodyId);
+                    if (shapeCount > 0) {
+                        std::vector<b2ShapeId> shapes(shapeCount);
+                        b2Body_GetShapes(body.bodyId, shapes.data(), shapeCount);
 
-                         if (ImGui::TreeNode("Shapes")) {
-                             for (int i = 0; i < shapeCount; ++i) {
-                                 if (ImGui::TreeNode((void*)(intptr_t)i, "Shape %d", i)) {
-                                     b2Filter filter = b2Shape_GetFilter(shapes[i]);
-                                     ImGui::Text("Category: %llu", static_cast<unsigned long long>(filter.categoryBits));
-                                     ImGui::Text("Mask: %llu", static_cast<unsigned long long>(filter.maskBits));
+                        if (ImGui::TreeNode("Shapes")) {
+                            for (int i = 0; i < shapeCount; ++i) {
+                                if (ImGui::TreeNode((void*)(intptr_t)i, "Shape %d", i)) {
+                                    b2Filter filter = b2Shape_GetFilter(shapes[i]);
+                                    ImGui::Text("Category: %llu", static_cast<unsigned long long>(filter.categoryBits));
+                                    ImGui::Text("Mask: %llu", static_cast<unsigned long long>(filter.maskBits));
 
-                                     // Allow toggling VisibilityBlocker
-                                     bool isVisibilityBlocker = (filter.categoryBits & engine::PhysicsCategory::VisibilityBlocker) != 0;
-                                     if (ImGui::Checkbox("Visibility Blocker", &isVisibilityBlocker)) {
-                                         if (isVisibilityBlocker) {
-                                             filter.categoryBits |= engine::PhysicsCategory::VisibilityBlocker;
-                                         } else {
-                                             filter.categoryBits &= ~engine::PhysicsCategory::VisibilityBlocker;
-                                         }
-                                         b2Shape_SetFilter(shapes[i], filter);
-                                     }
+                                    // Allow toggling VisibilityBlocker
+                                    bool isVisibilityBlocker =
+                                        (filter.categoryBits & engine::PhysicsCategory::VisibilityBlocker) != 0;
+                                    if (ImGui::Checkbox("Visibility Blocker", &isVisibilityBlocker)) {
+                                        if (isVisibilityBlocker) {
+                                            filter.categoryBits |= engine::PhysicsCategory::VisibilityBlocker;
+                                        } else {
+                                            filter.categoryBits &= ~engine::PhysicsCategory::VisibilityBlocker;
+                                        }
+                                        b2Shape_SetFilter(shapes[i], filter);
+                                    }
 
-                                     ImGui::TreePop();
-                                 }
-                             }
-                             ImGui::TreePop();
-                         }
-                     }
+                                    ImGui::TreePop();
+                                }
+                            }
+                            ImGui::TreePop();
+                        }
+                    }
 
                 } else {
                     ImGui::TextColored({1, 0, 0, 1}, "Invalid Body ID");
@@ -163,16 +158,18 @@ namespace engine {
             // Left Click to Spawn (if mouse is not hovering ImGui window)
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
                 auto mousePos = m_context.m_inputManager->getMousePosition();
-                Vector2f spawnPos = { (float)mousePos.x, (float)mousePos.y };
+                Vector2f spawnPos = {(float)mousePos.x, (float)mousePos.y};
 
                 // Convert screen coordinates to world coordinates if renderer is available
                 if (m_context.m_renderer) {
                     spawnPos = m_context.m_renderer->screenToWorld(spawnPos);
                 }
-                
+
                 if (m_context.m_entityFactory) {
                     m_context.m_entityFactory->spawn(m_placingArchetype, spawnPos);
-                    if (m_logger) m_logger->info("Spawned archetype '{}' at ({}, {})", m_placingArchetype, spawnPos.x, spawnPos.y);
+                    if (m_logger)
+                        m_logger->info("Spawned archetype '{}' at ({}, {})", m_placingArchetype, spawnPos.x,
+                                       spawnPos.y);
                 }
             }
 
@@ -187,7 +184,7 @@ namespace engine {
         else {
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
                 auto mousePos = m_context.m_inputManager->getMousePosition();
-                Vector2f worldPos = { (float)mousePos.x, (float)mousePos.y };
+                Vector2f worldPos = {(float)mousePos.x, (float)mousePos.y};
                 if (m_context.m_renderer) {
                     worldPos = m_context.m_renderer->screenToWorld(worldPos);
                 }
@@ -198,7 +195,7 @@ namespace engine {
                 // Since b2World_QueryAABB might vary by version, we iterate physics bodies manually.
                 // This is safe and robust for an editor.
                 float bestDistSq = FLT_MAX;
-                
+
                 // Check Physics Bodies first (Primary)
                 {
                     auto view = m_context.m_registry->view<PhysicsBodyComponent>();
@@ -207,10 +204,10 @@ namespace engine {
                     for (auto [entity, bodyComp] : view.each()) {
                         if (b2Body_IsValid(bodyComp.bodyId)) {
                             b2Vec2 b2Pos = b2Body_GetPosition(bodyComp.bodyId);
-                            
+
                             float dx = b2Pos.x - worldPos.x;
                             float dy = b2Pos.y - worldPos.y;
-                            float distSq = dx*dx + dy*dy;
+                            float distSq = dx * dx + dy * dy;
 
                             if (distSq < thresholdSq && distSq < bestDistSq) {
                                 bestDistSq = distSq;
@@ -229,7 +226,7 @@ namespace engine {
                     for (auto [entity, transform] : view.each()) {
                         float dx = transform.position.x - worldPos.x;
                         float dy = transform.position.y - worldPos.y;
-                        float distSq = dx*dx + dy*dy;
+                        float distSq = dx * dx + dy * dy;
 
                         // Scale threshold by entity scale to make picking larger objects easier
                         float scaleFactor = std::max(std::abs(transform.scale.x), std::abs(transform.scale.y));
@@ -256,11 +253,11 @@ namespace engine {
     void EditorSystem::Render() {
         // Visual Selection Indicator
         if (m_selectedEntity != entt::null && m_context.m_registry->valid(m_selectedEntity)) {
-             // ... (Selection code from before is here, no changes needed to this block unless I accidentally replaced it)
-             // Wait, I'm replacing Render(), so I need to keep the selection indicator code.
-             if (m_context.m_registry->all_of<TransformComponent>(m_selectedEntity)) {
+            // ... (Selection code from before is here, no changes needed to this block unless I accidentally replaced it)
+            // Wait, I'm replacing Render(), so I need to keep the selection indicator code.
+            if (m_context.m_registry->all_of<TransformComponent>(m_selectedEntity)) {
                 const auto& transform = m_context.m_registry->get<TransformComponent>(m_selectedEntity);
-                
+
                 float baseSize = 25.0f;
                 float maxScale = std::max(std::abs(transform.scale.x), std::abs(transform.scale.y));
                 float radius = baseSize * maxScale;
@@ -275,7 +272,7 @@ namespace engine {
         if (m_isPlacing && !m_placingArchetype.empty()) {
             // Get mouse pos in world
             auto mousePos = m_context.m_inputManager->getMousePosition();
-            Vector2f worldPos = { (float)mousePos.x, (float)mousePos.y };
+            Vector2f worldPos = {(float)mousePos.x, (float)mousePos.y};
             if (m_context.m_renderer) {
                 worldPos = m_context.m_renderer->screenToWorld(worldPos);
             }
@@ -285,28 +282,28 @@ namespace engine {
                 const auto* arch = m_context.m_archetypeManager->getArchetype(m_placingArchetype);
                 if (arch && arch->contains("Renderable")) {
                     std::string spriteId = (*arch)["Renderable"].value("spriteId", "");
-                    
+
                     if (!spriteId.empty() && m_context.m_spriteManager) {
-                         const auto* spriteDesc = m_context.m_spriteManager->getSprite(spriteId);
-                         if (spriteDesc) {
-                             // Create temp transform
-                             TransformComponent ghostTransform;
-                             ghostTransform.position = worldPos;
-                             ghostTransform.rotation = 0.f;
-                             ghostTransform.scale = {1.f, 1.f}; // Default, or load from archetype if present
+                        const auto* spriteDesc = m_context.m_spriteManager->getSprite(spriteId);
+                        if (spriteDesc) {
+                            // Create temp transform
+                            TransformComponent ghostTransform;
+                            ghostTransform.position = worldPos;
+                            ghostTransform.rotation = 0.f;
+                            ghostTransform.scale = {1.f, 1.f}; // Default, or load from archetype if present
 
-                             // Parse scale from archetype if exists
-                             if (arch->contains("Transform") && (*arch)["Transform"].contains("scale")) {
-                                 auto& s = (*arch)["Transform"]["scale"];
-                                 if (s.is_array() && s.size() >= 2) {
-                                     ghostTransform.scale = { s[0], s[1] };
-                                 }
-                             }
+                            // Parse scale from archetype if exists
+                            if (arch->contains("Transform") && (*arch)["Transform"].contains("scale")) {
+                                auto& s = (*arch)["Transform"]["scale"];
+                                if (s.is_array() && s.size() >= 2) {
+                                    ghostTransform.scale = {s[0], s[1]};
+                                }
+                            }
 
-                             // Draw ghost
-                             Color ghostColor = {255, 255, 255, 128}; // 50% alpha
-                             m_context.m_renderer->drawSprite(*spriteDesc, ghostTransform, ghostColor);
-                         }
+                            // Draw ghost
+                            Color ghostColor = {255, 255, 255, 128}; // 50% alpha
+                            m_context.m_renderer->drawSprite(*spriteDesc, ghostTransform, ghostColor);
+                        }
                     }
                 }
             }
@@ -317,11 +314,11 @@ namespace engine {
         ImGui::Begin("Hierarchy");
 
         auto& registry = *m_context.m_registry;
-        
+
         // Use a list of entities to avoid iterator invalidation during deletion
         std::vector<entt::entity> entities;
         entities.reserve(registry.storage<entt::entity>().size());
-        for(auto entity : registry.storage<entt::entity>()) {
+        for (auto entity : registry.storage<entt::entity>()) {
             entities.push_back(entity);
         }
 
@@ -329,14 +326,16 @@ namespace engine {
             if (!registry.valid(entity)) continue;
 
             std::string label = "Entity " + std::to_string(static_cast<uint32_t>(entity));
-            
+
             // Use MetaComponent name if available
             if (registry.all_of<MetaComponent>(entity)) {
-                label = registry.get<MetaComponent>(entity).name + " (" + std::to_string(static_cast<uint32_t>(entity)) + ")";
+                label = registry.get<MetaComponent>(entity).name + " (" +
+                        std::to_string(static_cast<uint32_t>(entity)) + ")";
             }
 
-            ImGuiTreeNodeFlags flags = ((m_selectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-            
+            ImGuiTreeNodeFlags flags = ((m_selectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
+                                       ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+
             bool opened = ImGui::TreeNodeEx((void*)(uint64_t)entity, flags, "%s", label.c_str());
             if (ImGui::IsItemClicked()) {
                 m_selectedEntity = entity;
@@ -366,9 +365,9 @@ namespace engine {
 
         if (m_selectedEntity != entt::null && m_context.m_registry->valid(m_selectedEntity)) {
             auto& registry = *m_context.m_registry;
-            
+
             ImGui::Text("Entity ID: %d", static_cast<uint32_t>(m_selectedEntity));
-            
+
             if (registry.all_of<MetaComponent>(m_selectedEntity)) {
                 auto& meta = registry.get<MetaComponent>(m_selectedEntity);
                 ImGui::InputText("Name", &meta.name);
@@ -382,7 +381,7 @@ namespace engine {
 
             ImGui::Separator();
             ImGui::Spacing();
-            
+
             if (ImGui::Button("Destroy Entity", ImVec2(-1, 0))) {
                 registry.destroy(m_selectedEntity);
                 m_selectedEntity = entt::null;
@@ -401,10 +400,10 @@ namespace engine {
         if (ImGui::CollapsingHeader("Archetypes", ImGuiTreeNodeFlags_DefaultOpen)) {
             static int selectedIndex = -1;
             static std::string selectedArchetype;
-            
+
             if (m_context.m_archetypeManager) {
                 auto& archetypes = m_context.m_archetypeManager->getAllArchetypes();
-                
+
                 // Lista wyboru
                 if (ImGui::BeginListBox("##archetypes")) {
                     int i = 0;
@@ -424,9 +423,9 @@ namespace engine {
                 ImGui::Spacing();
                 if (!selectedArchetype.empty()) {
                     bool isCurrent = (m_isPlacing && m_placingArchetype == selectedArchetype);
-                    
+
                     std::string btnLabel = isCurrent ? "Stop Placing" : "Start Placing";
-                    
+
                     if (ImGui::Button(btnLabel.c_str(), ImVec2(-1, 0))) {
                         if (isCurrent) {
                             m_isPlacing = false;
@@ -437,9 +436,10 @@ namespace engine {
                             if (m_logger) m_logger->info("Placement mode started for '{}'", selectedArchetype);
                         }
                     }
-                    
+
                     if (m_isPlacing) {
-                        ImGui::TextColored({0, 1, 0, 1}, "Placement Active! Left click to spawn, Right click to cancel.");
+                        ImGui::TextColored({0, 1, 0, 1},
+                                           "Placement Active! Left click to spawn, Right click to cancel.");
                     }
                 }
             }

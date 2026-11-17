@@ -40,33 +40,31 @@ namespace game {
 
         // --- 1. Rejestracja PlayerComponent ---
         factory.registerComponentLoader("Player",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                PlayerComponent playerComp;
-                playerComp.moveSpeed = data.value("moveSpeed", 5.0f);
-                playerComp.rotSpeed = data.value("rotSpeed", 10.0f);
-                playerComp.medkits = data.value("medkits", 2);
-                playerComp.maxMedkits = data.value("maxMedkits", 5);
-                
-                registry.emplace<PlayerComponent>(entity, playerComp);
-            }
-        );
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            PlayerComponent playerComp;
+                                            playerComp.moveSpeed = data.value("moveSpeed", 5.0f);
+                                            playerComp.rotSpeed = data.value("rotSpeed", 10.0f);
+                                            playerComp.medkits = data.value("medkits", 2);
+                                            playerComp.maxMedkits = data.value("maxMedkits", 5);
+
+                                            registry.emplace<PlayerComponent>(entity, playerComp);
+                                        });
 
         // --- 2. Rejestracja HealthComponent ---
-        factory.registerComponentLoader("Health", 
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                float hp = data.value("maxHp", 100.0f);
-                
-                HealthComponent healthComp;
-                healthComp.maxHp = hp;
-                healthComp.currentHp = hp;
+        factory.registerComponentLoader("Health",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            float hp = data.value("maxHp", 100.0f);
 
-                registry.emplace<HealthComponent>(entity, healthComp);
-            }
-        );
+                                            HealthComponent healthComp;
+                                            healthComp.maxHp = hp;
+                                            healthComp.currentHp = hp;
+
+                                            registry.emplace<HealthComponent>(entity, healthComp);
+                                        });
 
         // --- 3. Rejestracja WeaponComponent ---
-        factory.registerComponentLoader("Weapon",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+        factory.registerComponentLoader(
+            "Weapon", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
                 WeaponComponent weapon;
                 weapon.shootSoundId = data.value("shootSoundId", "");
                 weapon.shootSoundLooping = data.value("shootSoundLooping", false);
@@ -76,7 +74,7 @@ namespace game {
                 weapon.projectileSpeed = data.value("projectileSpeed", 300.0f);
                 weapon.projectileLifetime = data.value("projectileLifetime", 2.0f);
                 weapon.cooldownTimer = data.value("cooldownTimer", 0.0f);
-                
+
                 // Spread
                 weapon.baseSpreadDeg = data.value("baseSpreadDeg", 0.0f);
                 weapon.currentSpreadDeg = data.value("currentSpreadDeg", 0.0f);
@@ -105,202 +103,203 @@ namespace game {
                 weapon.reloadTimer = 0.0f;
 
                 registry.emplace<WeaponComponent>(entity, weapon);
-            }
-        );
+            });
 
         // --- WeaponInventoryComponent ---
-        factory.registerComponentLoader("WeaponInventory",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+        factory.registerComponentLoader(
+            "WeaponInventory", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
                 WeaponInventoryComponent inventory;
-                
+
                 if (data.contains("weaponArchetypes") && data["weaponArchetypes"].is_array()) {
                     for (const auto& w : data["weaponArchetypes"]) {
                         inventory.weaponArchetypes.push_back(w.get<std::string>());
                     }
                 }
-                
+
                 inventory.activeSlot = data.value("activeSlot", 0);
                 inventory.switchDelay = data.value("switchDelay", 0.3f);
-                
+
                 registry.emplace<WeaponInventoryComponent>(entity, inventory);
-            }
-        );
+            });
 
         // --- 4. Rejestracja DamageComponent ---
         factory.registerComponentLoader("Damage",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                DamageComponent damage;
-                damage.damageValue = data.value("damageValue", 10.0f);
-                
-                registry.emplace<DamageComponent>(entity, damage);
-            }
-        );
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            DamageComponent damage;
+                                            damage.damageValue = data.value("damageValue", 10.0f);
+
+                                            registry.emplace<DamageComponent>(entity, damage);
+                                        });
 
         // --- 5. Rejestracja PortalComponent ---
         factory.registerComponentLoader("Portal",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                PortalComponent portal;
-                portal.isOpen = data.value("isOpen", false);
-                portal.isLocked = data.value("isLocked", false);
-                
-                registry.emplace<PortalComponent>(entity, portal);
-            }
-        );
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            PortalComponent portal;
+                                            portal.isOpen = data.value("isOpen", false);
+                                            portal.isLocked = data.value("isLocked", false);
+
+                                            registry.emplace<PortalComponent>(entity, portal);
+                                        });
 
         // --- 6. Rejestracja VisibilityComponent ---
         factory.registerComponentLoader("Visibility",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                VisibilityComponent visibility;
-                visibility.viewRadius = data.value("viewRadius", 500.0f);
-                visibility.minViewRadius = data.value("minViewRadius", 50.0f);
-                visibility.viewAngle = data.value("viewAngle", 90.0f);
-                visibility.viewDirection = data.value("viewDirection", 0.0f);
-                
-                if (data.contains("viewOffset")) {
-                    auto offsetArr = data["viewOffset"];
-                    if (offsetArr.is_array() && offsetArr.size() >= 2) {
-                        visibility.offset.x = offsetArr[0];
-                        visibility.offset.y = offsetArr[1];
-                    }
-                }
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            VisibilityComponent visibility;
+                                            visibility.viewRadius = data.value("viewRadius", 500.0f);
+                                            visibility.minViewRadius = data.value("minViewRadius", 50.0f);
+                                            visibility.viewAngle = data.value("viewAngle", 90.0f);
+                                            visibility.viewDirection = data.value("viewDirection", 0.0f);
 
-                registry.emplace<VisibilityComponent>(entity, visibility);
-            }
-        );
+                                            if (data.contains("viewOffset")) {
+                                                auto offsetArr = data["viewOffset"];
+                                                if (offsetArr.is_array() && offsetArr.size() >= 2) {
+                                                    visibility.offset.x = offsetArr[0];
+                                                    visibility.offset.y = offsetArr[1];
+                                                }
+                                            }
+
+                                            registry.emplace<VisibilityComponent>(entity, visibility);
+                                        });
 
         // --- VisibleToPlayerComponent (Tag) ---
-        // Doesn't strictly need a loader if it's only added at runtime, 
+        // Doesn't strictly need a loader if it's only added at runtime,
         // but useful if we want to force-make something visible in JSON
-        factory.registerComponentLoader("VisibleToPlayer",
-            [](entt::registry& registry, entt::entity entity, [[maybe_unused]] const nlohmann::json& data) {
-                 registry.emplace<VisibleToPlayerComponent>(entity);
-            }
-        );
+        factory.registerComponentLoader("VisibleToPlayer", [](entt::registry& registry, entt::entity entity,
+                                                              [[maybe_unused]] const nlohmann::json& data) {
+            registry.emplace<VisibleToPlayerComponent>(entity);
+        });
 
         // --- 7. Rejestracja WorldBoundsComponent ---
         factory.registerComponentLoader("WorldBounds",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                float w = data.value("width", 0.0f);
-                float h = data.value("height", 0.0f);
-                
-                registry.emplace<engine::WorldBoundsComponent>(entity, w, h);
-            }
-        );
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            float w = data.value("width", 0.0f);
+                                            float h = data.value("height", 0.0f);
+
+                                            registry.emplace<engine::WorldBoundsComponent>(entity, w, h);
+                                        });
 
         // --- 8. Rejestracja EnemyComponent ---
-        factory.registerComponentLoader("Enemy", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+        factory.registerComponentLoader("Enemy", [](entt::registry& registry, entt::entity entity,
+                                                    const nlohmann::json& data) {
             EnemyComponent enemy;
             enemy.detectionRadius = data.value("detectionRadius", 400.0f);
             enemy.alertRadius = data.value("alertRadius", 500.0f);
             enemy.attackRange = data.value("attackRange", 300.0f);
             enemy.moveSpeed = data.value("moveSpeed", 80.0f);
             enemy.retreatHpPercent = data.value("retreatHpPercent", 0.3f);
-            
+
             // Initialize stuck detection tracking
             if (const engine::TransformComponent* transform = registry.try_get<engine::TransformComponent>(entity)) {
                 enemy.lastValidPosition = transform->position;
                 enemy.lastCheckedPosition = transform->position;
             }
-            
+
             enemy.stunTimer = 0.0f; // Ensure initialized
-            
+
             registry.emplace<EnemyComponent>(entity, enemy);
         });
 
         // --- 9. Rejestracja PatrolBehaviorComponent ---
-        factory.registerComponentLoader("PatrolBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            PatrolBehaviorComponent patrol;
-            
-            if (data.contains("waypoints") && data["waypoints"].is_array()) {
-                for (const auto& wp : data["waypoints"]) {
-                    if (wp.is_array() && wp.size() >= 2) {
-                        patrol.waypoints.push_back({wp[0], wp[1]});
-                    }
-                }
-            }
-            
-            patrol.waypointReachThreshold = data.value("waypointReachThreshold", 20.0f);
-            patrol.loopMode = data.value("loopMode", "loop") == "loop";
-            
-            registry.emplace<PatrolBehaviorComponent>(entity, patrol);
-        });
+        factory.registerComponentLoader("PatrolBehavior",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            PatrolBehaviorComponent patrol;
+
+                                            if (data.contains("waypoints") && data["waypoints"].is_array()) {
+                                                for (const auto& wp : data["waypoints"]) {
+                                                    if (wp.is_array() && wp.size() >= 2) {
+                                                        patrol.waypoints.push_back({wp[0], wp[1]});
+                                                    }
+                                                }
+                                            }
+
+                                            patrol.waypointReachThreshold = data.value("waypointReachThreshold", 20.0f);
+                                            patrol.loopMode = data.value("loopMode", "loop") == "loop";
+
+                                            registry.emplace<PatrolBehaviorComponent>(entity, patrol);
+                                        });
 
         // --- 10. Rejestracja RushBehaviorComponent ---
-        factory.registerComponentLoader("RushBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            RushBehaviorComponent rush;
-            rush.rushSpeed = data.value("rushSpeed", 250.0f);
-            rush.rushActivationRange = data.value("rushActivationRange", 150.0f);
-            registry.emplace<RushBehaviorComponent>(entity, rush);
-        });
+        factory.registerComponentLoader("RushBehavior",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            RushBehaviorComponent rush;
+                                            rush.rushSpeed = data.value("rushSpeed", 250.0f);
+                                            rush.rushActivationRange = data.value("rushActivationRange", 150.0f);
+                                            registry.emplace<RushBehaviorComponent>(entity, rush);
+                                        });
 
         // --- 11. Rejestracja SniperBehaviorComponent ---
-        factory.registerComponentLoader("SniperBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            SniperBehaviorComponent sniper;
-            sniper.aimDuration = data.value("aimDuration", 1.5f);
-            sniper.maxRange = data.value("maxRange", 700.0f);
-            registry.emplace<SniperBehaviorComponent>(entity, sniper);
-        });
+        factory.registerComponentLoader("SniperBehavior",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            SniperBehaviorComponent sniper;
+                                            sniper.aimDuration = data.value("aimDuration", 1.5f);
+                                            sniper.maxRange = data.value("maxRange", 700.0f);
+                                            registry.emplace<SniperBehaviorComponent>(entity, sniper);
+                                        });
 
         // --- 12. Rejestracja CampBehaviorComponent ---
-        factory.registerComponentLoader("CampBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            CampBehaviorComponent camp;
-            camp.campDuration = data.value("campDuration", 15.0f);
-            camp.campZoneRadius = data.value("campZoneRadius", 200.0f);
-            registry.emplace<CampBehaviorComponent>(entity, camp);
-        });
+        factory.registerComponentLoader("CampBehavior",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            CampBehaviorComponent camp;
+                                            camp.campDuration = data.value("campDuration", 15.0f);
+                                            camp.campZoneRadius = data.value("campZoneRadius", 200.0f);
+                                            registry.emplace<CampBehaviorComponent>(entity, camp);
+                                        });
 
         // --- 13. Rejestracja TurretBehaviorComponent ---
-        factory.registerComponentLoader("TurretBehavior", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            TurretBehaviorComponent turret;
-            turret.rotationSpeed = data.value("rotationSpeed", 3.0f);
-            turret.shootAngleTolerance = data.value("shootAngleTolerance", 0.1f);
-            registry.emplace<TurretBehaviorComponent>(entity, turret);
-        });
+        factory.registerComponentLoader("TurretBehavior",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            TurretBehaviorComponent turret;
+                                            turret.rotationSpeed = data.value("rotationSpeed", 3.0f);
+                                            turret.shootAngleTolerance = data.value("shootAngleTolerance", 0.1f);
+                                            registry.emplace<TurretBehaviorComponent>(entity, turret);
+                                        });
 
         // --- 14. Rejestracja MedkitPickupComponent ---
-        factory.registerComponentLoader("MedkitPickup", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            MedkitPickupComponent pickup;
-            pickup.medkitsGiven = data.value("medkitsGiven", 1);
-            registry.emplace<MedkitPickupComponent>(entity, pickup);
-        });
+        factory.registerComponentLoader("MedkitPickup",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            MedkitPickupComponent pickup;
+                                            pickup.medkitsGiven = data.value("medkitsGiven", 1);
+                                            registry.emplace<MedkitPickupComponent>(entity, pickup);
+                                        });
 
         // --- 15. Rejestracja InteractableComponent ---
-        factory.registerComponentLoader("Interactable", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            InteractableComponent interactable;
-            
-            std::string typeStr = data.value("type", "MissionTable");
-            if (typeStr == "MissionTable") {
-                interactable.type = InteractableComponent::Type::MissionTable;
-            }
-            
-            interactable.interactionRadius = data.value("interactionRadius", 100.0f);
-            registry.emplace<InteractableComponent>(entity, interactable);
-        });
+        factory.registerComponentLoader("Interactable",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            InteractableComponent interactable;
+
+                                            std::string typeStr = data.value("type", "MissionTable");
+                                            if (typeStr == "MissionTable") {
+                                                interactable.type = InteractableComponent::Type::MissionTable;
+                                            }
+
+                                            interactable.interactionRadius = data.value("interactionRadius", 100.0f);
+                                            registry.emplace<InteractableComponent>(entity, interactable);
+                                        });
 
         // --- 16. Rejestracja HitFlashComponent ---
-        factory.registerComponentLoader("HitFlash", [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-            HitFlashComponent flash;
-            flash.flashDuration = data.value("duration", 0.15f);
-            flash.flashHoldDuration = data.value("holdDuration", 0.05f);
+        factory.registerComponentLoader("HitFlash",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            HitFlashComponent flash;
+                                            flash.flashDuration = data.value("duration", 0.15f);
+                                            flash.flashHoldDuration = data.value("holdDuration", 0.05f);
 
-            if (data.contains("color")) {
-                auto& c = data["color"];
-                if (c.is_array() && c.size() >= 3) {
-                    flash.flashColor.r = static_cast<std::uint8_t>(c[0]);
-                    flash.flashColor.g = static_cast<std::uint8_t>(c[1]);
-                    flash.flashColor.b = static_cast<std::uint8_t>(c[2]);
-                    if (c.size() >= 4) {
-                        flash.flashColor.a = static_cast<std::uint8_t>(c[3]);
-                    }
-                }
-            }
+                                            if (data.contains("color")) {
+                                                auto& c = data["color"];
+                                                if (c.is_array() && c.size() >= 3) {
+                                                    flash.flashColor.r = static_cast<std::uint8_t>(c[0]);
+                                                    flash.flashColor.g = static_cast<std::uint8_t>(c[1]);
+                                                    flash.flashColor.b = static_cast<std::uint8_t>(c[2]);
+                                                    if (c.size() >= 4) {
+                                                        flash.flashColor.a = static_cast<std::uint8_t>(c[3]);
+                                                    }
+                                                }
+                                            }
 
-            registry.emplace<HitFlashComponent>(entity, flash);
-        });
+                                            registry.emplace<HitFlashComponent>(entity, flash);
+                                        });
     }
 
-    void RegisterGameEditorInspectors(engine::EditorSystem& editor)
-    {
+    void RegisterGameEditorInspectors(engine::EditorSystem& editor) {
         editor.RegisterInspector<HealthComponent>([](entt::registry& reg, entt::entity e) {
             if (ImGui::CollapsingHeader("Health", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& health = reg.get<HealthComponent>(e);
@@ -327,4 +326,4 @@ namespace game {
             }
         });
     }
-}
+} // namespace game

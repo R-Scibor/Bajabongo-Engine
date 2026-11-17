@@ -4,13 +4,13 @@
 #include <string>
 
 namespace engine {
-struct EngineContext;
-class ILogger;
-struct AnimationStateComponent;
-enum class AnimationState;
-enum class FacingDirection;
+    struct EngineContext;
+    class ILogger;
+    struct AnimationStateComponent;
+    enum class AnimationState;
+    enum class FacingDirection;
 
-/**
+    /**
  * @class AnimationStateMachineSystem
  * @brief Manages animation state transitions for entities.
  *
@@ -19,42 +19,42 @@ enum class FacingDirection;
  * AnimationComponent with the correct clip ID based on the current state and facing direction.
  * It also handles visual flipping (scale inversion) for direction changes.
  */
-class AnimationStateMachineSystem {
-public:
-    /**
+    class AnimationStateMachineSystem {
+    public:
+        /**
      * @brief Constructs a new AnimationStateMachineSystem.
      *
      * @param context The engine context containing the registry and resource managers.
      */
-    explicit AnimationStateMachineSystem(EngineContext& context);
+        explicit AnimationStateMachineSystem(EngineContext& context);
 
-    /**
+        /**
      * Optional hook used when AnimationStateComponent::animationSetId is empty.
      * Receives the entity's MetaComponent name, or nullptr if the entity has no meta.
      * Install from the game so engine code does not hardcode game archetype names.
      */
-    using EmptyAnimSetResolver = std::function<std::string(const std::string* metaName)>;
-    void setEmptyAnimSetResolver(EmptyAnimSetResolver resolver);
+        using EmptyAnimSetResolver = std::function<std::string(const std::string* metaName)>;
+        void setEmptyAnimSetResolver(EmptyAnimSetResolver resolver);
 
-    /**
+        /**
      * @brief Updates the system.
      *
      * Checks for state changes in AnimationStateComponents and resolves the corresponding
      * animation clip to play. Also handles sprite flipping based on facing direction.
      */
-    void update();
+        void update();
 
-private:
-    /** @brief Reference to the engine context. */
-    EngineContext& m_context;
-    
-    /** @brief Logger instance. */
-    std::shared_ptr<ILogger> m_logger;
+    private:
+        /** @brief Reference to the engine context. */
+        EngineContext& m_context;
 
-    /** @brief Optional game-provided fallback when animationSetId is empty. */
-    EmptyAnimSetResolver m_emptyAnimSetResolver;
-    
-    /**
+        /** @brief Logger instance. */
+        std::shared_ptr<ILogger> m_logger;
+
+        /** @brief Optional game-provided fallback when animationSetId is empty. */
+        EmptyAnimSetResolver m_emptyAnimSetResolver;
+
+        /**
      * @brief Resolves the animation clip ID for a given state and direction.
      *
      * Uses a fallback mechanism to find the most appropriate clip. For example,
@@ -65,7 +65,7 @@ private:
      * @param entityType The base name of the animation set (e.g., "player").
      * @return std::string The resolved animation clip ID.
      */
-    std::string getClipId(AnimationState state, FacingDirection facing, const std::string& entityType);
-};
+        std::string getClipId(AnimationState state, FacingDirection facing, const std::string& entityType);
+    };
 
 } // namespace engine

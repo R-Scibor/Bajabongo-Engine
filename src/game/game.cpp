@@ -38,7 +38,7 @@ int main() {
 
         // Box2D 3.0: Create world using C API
         b2WorldDef worldDef = b2DefaultWorldDef();
-        worldDef.gravity = { 0.0f, 0.0f }; // Top-down, no gravity
+        worldDef.gravity = {0.0f, 0.0f}; // Top-down, no gravity
         b2WorldId physicsWorldId = b2CreateWorld(&worldDef);
 
         gameLogger->info("EnTT registry and Box2D world created.");
@@ -62,17 +62,10 @@ int main() {
         gameLogger->info("Animation Library created.");
 
         auto assetLoader = std::make_shared<engine::AssetManifestLoader>(
-            resourceManager,
-            spriteManager,
-            animationLibrary,
-            logManager->GetLogger("AssetLoader")
-        );
+            resourceManager, spriteManager, animationLibrary, logManager->GetLogger("AssetLoader"));
         gameLogger->info("Asset Manifest Loader created.");
 
-        auto inputManager = std::make_shared<engine::SFMLInputManager>(
-            *logManager,
-            renderer->getNativeRenderWindow()
-        );
+        auto inputManager = std::make_shared<engine::SFMLInputManager>(*logManager, renderer->getNativeRenderWindow());
 
         // Create the engine context object (DI container)
         auto context = std::make_shared<engine::EngineContext>();
@@ -86,7 +79,7 @@ int main() {
         context->m_spriteManager = spriteManager;
         context->m_animationLibrary = animationLibrary;
         context->m_assetLoader = assetLoader;
-        context->m_dispatcher   = std::make_shared<entt::dispatcher>();
+        context->m_dispatcher = std::make_shared<entt::dispatcher>();
 
         // Create the state manager, which requires a reference to the context
         auto stateManager = std::make_unique<engine::StateManager>(*context);
@@ -114,8 +107,7 @@ int main() {
         // Cleanup Box2D world
         b2DestroyWorld(physicsWorldId);
         gameLogger->info("Game shutting down.");
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << "An unhandled exception occurred: " << e.what() << std::endl;
         return 1;
     }

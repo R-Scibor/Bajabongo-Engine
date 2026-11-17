@@ -14,15 +14,15 @@ namespace engine {
     struct AnimationClip {
         /// @brief Unique name of the clip (e.g., "Player_Walk_Down").
         std::string name;
-        
+
         /// @brief Ordered sequence of sprite resource IDs (keys into SpriteManager).
-        std::vector<std::string> spriteIds; 
-        
+        std::vector<std::string> spriteIds;
+
         /// @brief Duration of each frame in seconds. (e.g., 0.1f = 10 FPS).
-        float frameDuration = 0.1f;         
-        
+        float frameDuration = 0.1f;
+
         /// @brief Whether the animation should restart automatically when it ends.
-        bool loop = true;                   
+        bool loop = true;
     };
 
     /**
@@ -36,9 +36,7 @@ namespace engine {
          * @param name The unique identifier for the clip.
          * @param clip The animation data structure.
          */
-        void registerClip(const std::string& name, const AnimationClip& clip) {
-            m_clips[name] = clip;
-        }
+        void registerClip(const std::string& name, const AnimationClip& clip) { m_clips[name] = clip; }
 
         /**
          * @brief Retrieves a pointer to a stored clip.

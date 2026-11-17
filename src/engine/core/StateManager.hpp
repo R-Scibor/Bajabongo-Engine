@@ -103,7 +103,7 @@ namespace engine {
         void registerState(const std::string& stateName) {
             static_assert(std::is_base_of_v<IGameState, T>, "T must be a descendant of IGameState");
             static_assert(std::is_constructible_v<T, EngineContext&> || std::is_constructible_v<T>,
-                "State must be constructible with EngineContext& or default constructible.");
+                          "State must be constructible with EngineContext& or default constructible.");
 
             // Lambda that creates a new instance of T when invoked
             m_stateFactory[stateName] = [this]() -> std::unique_ptr<IGameState> {
@@ -124,20 +124,20 @@ namespace engine {
 
         // --- Internal transition action representation ---
         enum class PendingActionType { Push, Pop, Swap, Clear };
-        
+
         struct PendingAction {
             PendingActionType type;
             std::string stateName; // Only used for Push and Swap
         };
 
         EngineContext& m_context;
-        
+
         /// @brief The stack of active states. Index 0 is bottom, back() is active.
-        std::vector<std::unique_ptr<IGameState>> m_states; 
-        
+        std::vector<std::unique_ptr<IGameState>> m_states;
+
         /// @brief Queue of transitions to apply at the end of the frame.
         std::vector<PendingAction> m_pendingActions;
-        
+
         /// @brief Map of "StateName" -> "Function that creates this State".
         std::map<std::string, std::function<std::unique_ptr<IGameState>()>> m_stateFactory;
     };

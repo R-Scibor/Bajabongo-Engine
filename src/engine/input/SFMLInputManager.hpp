@@ -6,7 +6,7 @@
 namespace sf {
     class RenderWindow;
     class Event;
-}
+} // namespace sf
 
 namespace engine {
     class ILoggerManager;
@@ -73,10 +73,10 @@ namespace engine {
 
     private:
         std::shared_ptr<ILogger> m_logger;
-        
+
         /// @brief Reference to the window, needed for relative mouse coordinates.
         sf::RenderWindow& m_window;
-        
+
         /// @brief Accumulator for mouse wheel movement since the last consume call.
         float m_scrollDelta = 0.0f;
     };

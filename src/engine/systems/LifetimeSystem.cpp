@@ -13,13 +13,9 @@
 
 namespace engine {
 
-    LifetimeSystem::LifetimeSystem(EngineContext& context)
-        : m_context(context)
-    {
-    }
+    LifetimeSystem::LifetimeSystem(EngineContext& context) : m_context(context) {}
 
-    void LifetimeSystem::update(float fixedDeltaTime)
-    {
+    void LifetimeSystem::update(float fixedDeltaTime) {
         auto& registry = *m_context.m_registry;
         auto view = registry.view<LifetimeComponent>();
         auto logger = m_context.m_logManager->GetLogger("LifetimeSystem");

@@ -9,15 +9,13 @@
 #include <fmt/core.h>
 #include <fmt/format.h> // For fmt::format
 
-namespace engine
-{
+namespace engine {
     /**
      * @brief Abstract interface for the Logging System.
      * * Provides a standardized way to log messages with different severity levels.
      * * Integrates with `fmt` library for modern, type-safe string formatting.
      */
-    class ILogger
-    {
+    class ILogger {
     public:
         virtual ~ILogger() = default;
 
@@ -35,7 +33,7 @@ namespace engine
         // formatting API. They delegate the actual logging to the pure virtual `log` method.
 
         // --- Backwards Compatibility / Simple Strings ---
-        
+
         /// @brief Logs a trace message (lowest severity).
         void trace(std::string_view msg) { log(spdlog::level::trace, msg); }
         /// @brief Logs a debug message.
@@ -47,7 +45,6 @@ namespace engine
         /// @brief Logs an error message (high severity).
         void error(std::string_view msg) { log(spdlog::level::err, msg); }
 
-
         // --- Formatted Logging (fmt style) ---
 
         /**
@@ -56,7 +53,7 @@ namespace engine
          * @param fmt The format string (e.g., "Player {} moved to {}").
          * @param args The arguments to insert into the format string.
          */
-        template <typename... Args>
+        template<typename... Args>
         void trace(fmt::format_string<Args...> fmt, Args&&... args) {
             log(spdlog::level::trace, fmt::format(fmt, std::forward<Args>(args)...));
         }
@@ -64,7 +61,7 @@ namespace engine
         /**
          * @brief Logs a formatted debug message.
          */
-        template <typename... Args>
+        template<typename... Args>
         void debug(fmt::format_string<Args...> fmt, Args&&... args) {
             log(spdlog::level::debug, fmt::format(fmt, std::forward<Args>(args)...));
         }
@@ -72,7 +69,7 @@ namespace engine
         /**
          * @brief Logs a formatted info message.
          */
-        template <typename... Args>
+        template<typename... Args>
         void info(fmt::format_string<Args...> fmt, Args&&... args) {
             log(spdlog::level::info, fmt::format(fmt, std::forward<Args>(args)...));
         }
@@ -80,7 +77,7 @@ namespace engine
         /**
          * @brief Logs a formatted warning message.
          */
-        template <typename... Args>
+        template<typename... Args>
         void warn(fmt::format_string<Args...> fmt, Args&&... args) {
             log(spdlog::level::warn, fmt::format(fmt, std::forward<Args>(args)...));
         }
@@ -88,9 +85,9 @@ namespace engine
         /**
          * @brief Logs a formatted error message.
          */
-        template <typename... Args>
+        template<typename... Args>
         void error(fmt::format_string<Args...> fmt, Args&&... args) {
             log(spdlog::level::err, fmt::format(fmt, std::forward<Args>(args)...));
         }
     };
-}
+} // namespace engine

@@ -3,8 +3,7 @@
 #include <entt/fwd.hpp>
 #include <memory>
 
-namespace engine
-{
+namespace engine {
     class ILogger;
     struct EngineContext;
 
@@ -20,8 +19,7 @@ namespace engine
      * @note This system should run after physics and animation updates, but before rendering,
      * to ensure that all attached entities are correctly positioned for the frame.
      */
-    class HierarchySystem
-    {
+    class HierarchySystem {
     public:
         /**
          * @brief Constructs a new HierarchySystem.
@@ -52,8 +50,8 @@ namespace engine
     private:
         /** @brief Reference to the EnTT registry. */
         entt::registry& m_registry;
-        
+
         /** @brief Logger instance for the HierarchySystem. */
         std::shared_ptr<ILogger> m_logger;
     };
-}
+} // namespace engine

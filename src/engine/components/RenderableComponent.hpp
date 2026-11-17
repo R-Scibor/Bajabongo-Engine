@@ -3,16 +3,14 @@
 #include <string>
 #include <SFML/Graphics/Color.hpp>
 
-namespace engine
-{
+namespace engine {
     /**
      * @brief Component containing data required to draw a 2D sprite for the entity.
      */
-    struct RenderableComponent
-    {
+    struct RenderableComponent {
         /// @brief Resource ID for the sprite texture (looked up in ResourceManager).
         std::string spriteId;
-        
+
         /**
          * @brief Rendering order depth.
          * * Higher values are drawn on top of lower values. 
@@ -27,4 +25,4 @@ namespace engine
          */
         sf::Color color = sf::Color::White;
     };
-}
+} // namespace engine

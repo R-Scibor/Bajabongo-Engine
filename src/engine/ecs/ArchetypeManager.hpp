@@ -49,14 +49,12 @@ namespace engine {
          *
          * @return const std::unordered_map<std::string, nlohmann::json>& Reference to the map of all archetypes.
          */
-        const std::unordered_map<std::string, nlohmann::json>& getAllArchetypes() const {
-            return m_archetypes;
-        }
+        const std::unordered_map<std::string, nlohmann::json>& getAllArchetypes() const { return m_archetypes; }
 
     private:
         /** @brief Map storing archetypes keyed by their ID. */
         std::unordered_map<std::string, nlohmann::json> m_archetypes;
-        
+
         /** @brief Logger instance for the ArchetypeManager. */
         std::shared_ptr<ILogger> m_logger;
     };

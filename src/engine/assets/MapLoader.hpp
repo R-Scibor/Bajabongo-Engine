@@ -26,7 +26,7 @@ namespace engine {
          * @param context The EngineContext used to access ECS registry, entity factory, etc.
          */
         explicit MapLoader(EngineContext& context);
-        
+
         ~MapLoader() = default;
 
         /**
@@ -66,4 +66,4 @@ namespace engine {
         EngineContext& m_context;
         std::shared_ptr<ILogger> m_logger;
     };
-}
+} // namespace engine

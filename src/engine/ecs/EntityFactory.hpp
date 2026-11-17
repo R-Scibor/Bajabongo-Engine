@@ -55,10 +55,10 @@ namespace engine {
     private:
         /** @brief Reference to the engine context. */
         EngineContext& m_context;
-        
+
         /** @brief Shared pointer to the archetype manager. */
         std::shared_ptr<ArchetypeManager> m_archetypeManager;
-        
+
         /** @brief Logger instance for the EntityFactory. */
         std::shared_ptr<ILogger> m_logger;
 

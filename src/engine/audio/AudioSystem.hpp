@@ -32,10 +32,9 @@ namespace engine {
          * @param dispatcher Shared pointer to the event dispatcher (for receiving audio events).
          * @param logger Shared pointer to the logger.
          */
-        AudioSystem(std::shared_ptr<IResourceManager> resourceManager,
-                    std::shared_ptr<entt::dispatcher> dispatcher,
+        AudioSystem(std::shared_ptr<IResourceManager> resourceManager, std::shared_ptr<entt::dispatcher> dispatcher,
                     std::shared_ptr<ILogger> logger);
-        
+
         ~AudioSystem();
 
         /**
@@ -86,7 +85,7 @@ namespace engine {
         // Music
         std::unique_ptr<sf::Music> m_music;
         std::string m_currentMusicId;
-        
+
         // Volume (0.0 - 100.0)
         float m_masterVolume = 100.0f;
         float m_musicVolume = 100.0f;

@@ -14,14 +14,14 @@ namespace game {
 
         void update();
         void resize(unsigned int width, unsigned int height);
-        
+
         // Scene capture API
         void beginSceneCapture();
         void endSceneCapture();
-        
+
         // Final composite render
         void renderFinal();
-        
+
         const sf::Texture& getSightTexture() const;
         const sf::Texture& getExplorationTexture() const;
 
@@ -30,19 +30,19 @@ namespace game {
 
     private:
         engine::EngineContext& m_context;
-        
+
         sf::RenderTexture m_sightTexture;
         sf::RenderTexture m_explorationTexture;
         sf::RenderTexture m_sceneTexture;
-        
+
         sf::Shader m_fogShader;
-        
+
         bool m_initialized = false;
         bool m_shaderLoaded = false;
         bool m_usingWorldBounds = false;
         unsigned int m_currentWidth = 0;
         unsigned int m_currentHeight = 0;
-        
+
         void initializeTextures(unsigned int width, unsigned int height);
     };
 

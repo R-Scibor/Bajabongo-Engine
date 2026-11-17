@@ -11,12 +11,10 @@
 namespace engine {
 
     AudioSystem::AudioSystem(std::shared_ptr<IResourceManager> resourceManager,
-                             std::shared_ptr<entt::dispatcher> dispatcher,
-                             std::shared_ptr<ILogger> logger)
+                             std::shared_ptr<entt::dispatcher> dispatcher, std::shared_ptr<ILogger> logger)
         : m_resourceManager(std::move(resourceManager))
         , m_dispatcher(std::move(dispatcher))
-        , m_logger(std::move(logger))
-    {
+        , m_logger(std::move(logger)) {
         // Initialize sound pool with dummy buffer to avoid reallocation
         m_soundPool.reserve(MAX_SOUNDS);
         for (size_t i = 0; i < MAX_SOUNDS; ++i) {
@@ -75,14 +73,14 @@ namespace engine {
         if (m_music && m_music->getStatus() == sf::SoundSource::Status::Stopped && !m_currentMusicId.empty()) {
             std::string finishedId = m_currentMusicId;
             m_currentMusicId.clear(); // Clear ID to prevent multiple events
-            m_dispatcher->enqueue<MusicFinishedEvent>({ finishedId });
+            m_dispatcher->enqueue<MusicFinishedEvent>({finishedId});
             if (m_logger) m_logger->info("Music finished naturally: {}", finishedId);
         }
 
         // Manage active looping sounds attached to entities
-        for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end(); ) {
+        for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end();) {
             size_t index = it->second;
-            
+
             // Remove if the sound has stopped
             if (index < m_soundPool.size() && m_soundPool[index]->getStatus() == sf::SoundSource::Status::Stopped) {
                 it = m_loopingSounds.erase(it);
@@ -117,8 +115,8 @@ namespace engine {
 
         auto buffer = m_resourceManager->getSoundBuffer(event.id);
         if (!buffer) {
-             if (m_logger) m_logger->warn("AudioSystem: Sound buffer not found: {}", event.id);
-             return;
+            if (m_logger) m_logger->warn("AudioSystem: Sound buffer not found: {}", event.id);
+            return;
         }
 
         // Find free sound source
@@ -138,9 +136,9 @@ namespace engine {
             chosenIndex = m_nextSoundIndex;
             candidate = m_soundPool[chosenIndex].get();
             m_nextSoundIndex = (m_nextSoundIndex + 1) % MAX_SOUNDS;
-            
+
             // If we stole a sound, check if it was being tracked as a loop and remove it
-            for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end(); ) {
+            for (auto it = m_loopingSounds.begin(); it != m_loopingSounds.end();) {
                 if (it->second == chosenIndex) {
                     it = m_loopingSounds.erase(it);
                 } else {
@@ -216,19 +214,19 @@ namespace engine {
         if (event.crossfadeDuration > 0.0f) {
             // Stop existing music (single channel)
             if (m_music) m_music->stop();
-            
+
             m_music = std::move(newMusic);
             m_music->setLooping(event.loop);
             m_music->setVolume(0.0f); // Start at 0
             m_music->play();
-            
+
             // Start fade in
             m_isFading = true;
             m_fadeTimer = 0.0f;
             m_fadeDuration = event.crossfadeDuration;
             m_startFadeVolume = 0.0f;
             m_targetFadeVolume = targetVol;
-            
+
         } else {
             if (m_music) m_music->stop();
             m_music = std::move(newMusic);
@@ -237,7 +235,7 @@ namespace engine {
             m_music->play();
             m_isFading = false;
         }
-        
+
         m_currentMusicId = event.id;
         if (m_logger) m_logger->info("AudioSystem: Playing music: {}", event.id);
     }
@@ -262,21 +260,27 @@ namespace engine {
         float* targetVar = nullptr;
 
         switch (event.category) {
-            case AudioCategory::Master: targetVar = &m_masterVolume; break;
-            case AudioCategory::Music: targetVar = &m_musicVolume; break;
-            case AudioCategory::SFX: targetVar = &m_sfxVolume; break;
+            case AudioCategory::Master:
+                targetVar = &m_masterVolume;
+                break;
+            case AudioCategory::Music:
+                targetVar = &m_musicVolume;
+                break;
+            case AudioCategory::SFX:
+                targetVar = &m_sfxVolume;
+                break;
         }
 
         if (targetVar) {
             *targetVar = std::clamp(event.volume, 0.0f, 100.0f);
         }
-        
+
         // Update currently playing music immediately
         if (m_music && !m_isFading) {
-             float vol = getEffectiveVolume(AudioCategory::Music);
-             m_music->setVolume(vol);
+            float vol = getEffectiveVolume(AudioCategory::Music);
+            m_music->setVolume(vol);
         }
-        
+
         if (m_logger) {
             m_logger->info("AudioSystem: Volume set for category {} to {}", (int)event.category, event.volume);
         }
@@ -284,9 +288,12 @@ namespace engine {
 
     float AudioSystem::getEffectiveVolume(AudioCategory category) const {
         switch (category) {
-            case AudioCategory::Master: return m_masterVolume;
-            case AudioCategory::Music: return m_musicVolume * (m_masterVolume / 100.0f);
-            case AudioCategory::SFX: return m_sfxVolume * (m_masterVolume / 100.0f);
+            case AudioCategory::Master:
+                return m_masterVolume;
+            case AudioCategory::Music:
+                return m_musicVolume * (m_masterVolume / 100.0f);
+            case AudioCategory::SFX:
+                return m_sfxVolume * (m_masterVolume / 100.0f);
         }
         return 0.0f;
     }

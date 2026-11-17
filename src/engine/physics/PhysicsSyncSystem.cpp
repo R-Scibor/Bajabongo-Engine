@@ -15,45 +15,35 @@
 
 #include <box2d/box2d.h>
 
-namespace engine
-{
+namespace engine {
 
-    PhysicsSyncSystem::PhysicsSyncSystem(const EngineContext& context)
-        : m_registry{ *context.m_registry }
-    {
+    PhysicsSyncSystem::PhysicsSyncSystem(const EngineContext& context) : m_registry{*context.m_registry} {
         m_logger = context.m_logManager->GetLogger("Physics");
         m_logger->info("PhysicsSyncSystem initialized.");
     }
 
-    void PhysicsSyncSystem::update()
-    {
+    void PhysicsSyncSystem::update() {
         auto view = m_registry.view<TransformComponent, const PhysicsBodyComponent>();
 
         m_logger->trace("Syncing transforms for physics bodies.");
 
-        view.each([this](auto entity, auto& transform, const auto& physicsBody)
-            {
-                if (!b2Body_IsValid(physicsBody.bodyId)) {
-                    m_logger->warn(
-                        "Attempted to sync transform for an invalid bodyId on entity {}",
-                        entt::to_integral(entity)
-                    );
-                    return;
-                }
+        view.each([this](auto entity, auto& transform, const auto& physicsBody) {
+            if (!b2Body_IsValid(physicsBody.bodyId)) {
+                m_logger->warn("Attempted to sync transform for an invalid bodyId on entity {}",
+                               entt::to_integral(entity));
+                return;
+            }
 
-                b2Transform bodyTransform = b2Body_GetTransform(physicsBody.bodyId);
-                b2Vec2 position = bodyTransform.p;
-                float angle = b2Rot_GetAngle(bodyTransform.q);
+            b2Transform bodyTransform = b2Body_GetTransform(physicsBody.bodyId);
+            b2Vec2 position = bodyTransform.p;
+            float angle = b2Rot_GetAngle(bodyTransform.q);
 
-                transform.position = { position.x, position.y };
-                transform.rotation = angle;
+            transform.position = {position.x, position.y};
+            transform.rotation = angle;
 
-                m_logger->trace(
-                    "Synced entity {}: transform.position.y = {}",
-                    entt::to_integral(entity),
-                    transform.position.y
-                );
-            });
+            m_logger->trace("Synced entity {}: transform.position.y = {}", entt::to_integral(entity),
+                            transform.position.y);
+        });
     }
 
 } // namespace engine

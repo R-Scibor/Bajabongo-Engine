@@ -10,8 +10,7 @@
 
 namespace engine {
 
-    AnimationSystem::AnimationSystem(EngineContext& context)
-        : m_context(context) {
+    AnimationSystem::AnimationSystem(EngineContext& context) : m_context(context) {
         if (context.m_logManager) {
             m_logger = context.m_logManager->GetLogger("AnimationSystem");
         }
@@ -57,7 +56,7 @@ namespace engine {
                         // Clamp to last frame and mark as finished
                         anim.currentFrameIndex = static_cast<int>(clip->spriteIds.size()) - 1;
                         anim.isFinished = true;
-                        break; 
+                        break;
                     }
                 }
             }

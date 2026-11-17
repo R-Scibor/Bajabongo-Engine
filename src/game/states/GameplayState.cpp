@@ -63,8 +63,7 @@ namespace game {
         , m_pickupSystem(context)
         , m_hitFlashSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
-        , m_dispatcher(context.m_dispatcher)
-    {
+        , m_dispatcher(context.m_dispatcher) {
         m_logger = context.m_logManager->GetLogger("GameplayState");
         RegisterGameEditorInspectors(*m_editorSystem);
 
@@ -86,7 +85,7 @@ namespace game {
 
     void GameplayState::onEnter(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Entering GameplayState.");
-        
+
         m_waitingForGameMusic = false;
 
         // Playlist Logic: Check if game music is already playing
@@ -94,10 +93,10 @@ namespace game {
             std::string current = context.m_audioSystem->getCurrentMusicId();
             if (current != "game_music_1" && current != "game_music_2") {
                 if (m_logger) m_logger->info("Transitioning to gameplay music.");
-                
+
                 // Fade out current music
-                m_dispatcher->enqueue<engine::StopMusicEvent>({ .fadeOutDuration = 1.5f });
-                
+                m_dispatcher->enqueue<engine::StopMusicEvent>({.fadeOutDuration = 1.5f});
+
                 // Queue start of game music
                 m_waitingForGameMusic = true;
                 m_musicTransitionTimer = 1.5f;
@@ -105,8 +104,8 @@ namespace game {
         }
 
         // Subscribe to music finish
-        m_musicFinishConnection = m_dispatcher->sink<engine::MusicFinishedEvent>()
-            .connect<&GameplayState::onMusicFinished>(this);
+        m_musicFinishConnection =
+            m_dispatcher->sink<engine::MusicFinishedEvent>().connect<&GameplayState::onMusicFinished>(this);
 
         if (!context.m_archetypeManager) {
             context.m_archetypeManager = std::make_shared<engine::ArchetypeManager>(context.m_logManager);
@@ -114,7 +113,7 @@ namespace game {
 
         if (!context.m_entityFactory) {
             context.m_entityFactory = std::make_shared<engine::EntityFactory>(context, context.m_archetypeManager);
-            
+
             game::RegisterGameComponents(context);
         }
 
@@ -130,13 +129,12 @@ namespace game {
 
         // Physics cleanup hook
         m_physicsCleanupHook =
-            registry.on_destroy<engine::PhysicsBodyComponent>()
-                    .connect<&GameplayState::onPhysicsBodyDestroyed>(this);
+            registry.on_destroy<engine::PhysicsBodyComponent>().connect<&GameplayState::onPhysicsBodyDestroyed>(this);
 
         // Hierarchy cleanup hook
         m_hierarchyCleanupHook =
-            registry.on_destroy<engine::ChildComponent>()
-                    .connect<&engine::HierarchySystem::onParentDestroyed>(&m_hierarchySystem);
+            registry.on_destroy<engine::ChildComponent>().connect<&engine::HierarchySystem::onParentDestroyed>(
+                &m_hierarchySystem);
 
         if (m_logger) m_logger->info("Physics and Hierarchy cleanup hooks registered.");
 
@@ -161,11 +159,12 @@ namespace game {
 
     void GameplayState::onExit(engine::EngineContext& context) {
         if (m_logger) m_logger->info("Exiting GameplayState.");
-        
+
         // [HACK] Brute-force Scene Clear
         // We clear the registry to remove all entities.
         // Hooks are still active, so on_destroy events will fire (cleaning up Physics bodies).
-        if (m_logger) m_logger->warn("Executing Brute-force Scene Clear (registry.clear()). Global entities will be lost.");
+        if (m_logger)
+            m_logger->warn("Executing Brute-force Scene Clear (registry.clear()). Global entities will be lost.");
         context.m_registry->clear();
 
         if (m_physicsCleanupHook) {
@@ -175,7 +174,7 @@ namespace game {
             m_hierarchyCleanupHook.release();
         }
         if (m_logger) m_logger->info("Cleanup hooks disconnected.");
-        
+
         m_musicFinishConnection.release();
     }
 
@@ -198,7 +197,7 @@ namespace game {
             if (m_musicTransitionTimer <= 0.0f) {
                 m_waitingForGameMusic = false;
                 if (m_logger) m_logger->info("Starting game_music_1.");
-                
+
                 m_dispatcher->enqueue<engine::PlayMusicEvent>({
                     .id = "game_music_1",
                     .volume = 15.0f,
@@ -247,47 +246,44 @@ namespace game {
         // =================================================================
         // STEP 1: Capture Game World into Scene Texture (World-Space)
         // =================================================================
-        
+
         m_fogRenderSystem.beginSceneCapture();
-        
+
         // Get the scene texture as a render target
         sf::RenderTexture& sceneTarget = m_fogRenderSystem.getSceneRenderTexture();
-        
+
         // Render all game entities to the scene texture
         m_renderSystem.setDebugDraw(context.debugFlags.showPhysics);
-        m_renderSystem.update(sceneTarget);  // Inject scene texture
-        
+        m_renderSystem.update(sceneTarget); // Inject scene texture
+
         m_fogRenderSystem.endSceneCapture();
-        
-        
+
         // =================================================================
         // STEP 2: Calculate Fog Masks (World-Space)
         // =================================================================
-        
+
         // This updates m_sightTexture and m_explorationTexture based on
         // entities with VisibilityComponent
         m_fogRenderSystem.update();
-        
-        
+
         // =================================================================
         // STEP 3: Composite Final Image with Shader (World -> Screen)
         // =================================================================
-        
+
         // Applies shader to combine scene + sight + exploration
         // Camera view transformation happens automatically here
         m_fogRenderSystem.renderFinal();
-        
-        
+
         // =================================================================
         // STEP 4: Render UI Overlay (Screen-Space, Always Visible)
         // =================================================================
-        
+
         // Editor UI
         if (m_editorSystem && context.debugFlags.showEditor) {
             m_editorSystem->Update(0.0f);
             m_editorSystem->Render();
         }
-        
+
         // HUD (ammo, health, etc.)
         if (m_hudSystem) {
             m_hudSystem->render();
@@ -297,20 +293,12 @@ namespace game {
     void GameplayState::onMusicFinished(const engine::MusicFinishedEvent& event) {
         if (event.id == "game_music_1") {
             if (m_logger) m_logger->info("Playlist: Switching to game_music_2");
-            m_dispatcher->enqueue<engine::PlayMusicEvent>({
-                .id = "game_music_2",
-                .volume = 30.0f,
-                .loop = false,
-                .crossfadeDuration = 0.0f
-            });
+            m_dispatcher->enqueue<engine::PlayMusicEvent>(
+                {.id = "game_music_2", .volume = 30.0f, .loop = false, .crossfadeDuration = 0.0f});
         } else if (event.id == "game_music_2") {
             if (m_logger) m_logger->info("Playlist: Switching to game_music_1");
-            m_dispatcher->enqueue<engine::PlayMusicEvent>({
-                .id = "game_music_1",
-                .volume = 30.0f,
-                .loop = false,
-                .crossfadeDuration = 0.0f
-            });
+            m_dispatcher->enqueue<engine::PlayMusicEvent>(
+                {.id = "game_music_1", .volume = 30.0f, .loop = false, .crossfadeDuration = 0.0f});
         }
     }
 

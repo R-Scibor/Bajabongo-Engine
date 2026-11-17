@@ -22,9 +22,9 @@ namespace game {
 
         // Helper to query world for blocking shapes
         void queryWorld(const engine::Vector2f& center, float radius, std::vector<engine::Vector2f>& wallVertices);
-        
+
         // Raycast helper
         engine::Vector2f castRay(const engine::Vector2f& start, const engine::Vector2f& end);
     };
 
-}
+} // namespace game

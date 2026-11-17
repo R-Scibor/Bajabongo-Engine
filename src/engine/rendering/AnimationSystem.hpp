@@ -12,7 +12,7 @@ namespace engine {
     class AnimationSystem {
     public:
         explicit AnimationSystem(EngineContext& context);
-        
+
         /**
          * @brief Advances animation timers and updates sprite frames.
          * @param deltaTime Time elapsed since the last frame (in seconds).
@@ -23,4 +23,4 @@ namespace engine {
         EngineContext& m_context;
         std::shared_ptr<ILogger> m_logger;
     };
-}
+} // namespace engine

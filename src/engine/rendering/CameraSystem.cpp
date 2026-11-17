@@ -10,22 +10,19 @@
 #include <entt/entt.hpp>
 #include <algorithm> // for std::min, std::clamp
 
-namespace engine
-{
+namespace engine {
     CameraSystem::CameraSystem(EngineContext& context)
         : m_registry(*context.m_registry)
         , m_renderer(context.m_renderer)
-        , m_inputManager(context.m_inputManager)
-    {
+        , m_inputManager(context.m_inputManager) {
         m_logger = context.m_logManager->GetLogger("CameraSystem");
     }
 
-    void CameraSystem::update([[maybe_unused]] float fixedDeltaTime)
-    {
+    void CameraSystem::update([[maybe_unused]] float fixedDeltaTime) {
         if (!m_renderer) return;
 
         auto view = m_registry.view<CameraFocusComponent>();
-        
+
         // Currently, we find the first entity with a focus component and follow it.
         // In the future, we might handle multiple focus points or camera priorities.
         for (auto entity : view) {
@@ -61,19 +58,19 @@ namespace engine
             // --- 2. Handle Movement (Follow) ---
             Vector2f currentPos = m_renderer->getViewCenter();
             Vector2f targetPos = transform.position;
-            
+
             // Calculate interpolation factor (t)
-            // Using 'smoothness' directly. For frame-rate independence, this should mathematically 
+            // Using 'smoothness' directly. For frame-rate independence, this should mathematically
             // generally be: 1.0f - std::pow(base, -dt). But for fixed updates, simple factor works.
             float t = std::clamp(focus.smoothness, 0.0f, 1.0f);
-            
+
             // Linear Interpolation (Lerp)
             Vector2f newPos = currentPos + (targetPos - currentPos) * t;
-            
+
             m_renderer->setViewCenter(newPos);
-            
+
             // Only process one camera focus entity per frame
             break;
         }
     }
-}
+} // namespace engine

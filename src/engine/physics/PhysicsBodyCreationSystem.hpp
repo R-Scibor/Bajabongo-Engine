@@ -4,8 +4,7 @@
 #include <entt/fwd.hpp>
 #include <box2d/id.h>
 
-namespace engine
-{
+namespace engine {
     struct EngineContext;
     class ILogger;
 
@@ -37,10 +36,10 @@ namespace engine
     private:
         /** @brief Reference to the EnTT registry. */
         entt::registry& m_registry;
-        
+
         /** @brief ID of the Box2D world. */
         b2WorldId m_worldId;
-        
+
         /** @brief Logger instance. */
         std::shared_ptr<ILogger> m_logger;
     };

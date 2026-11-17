@@ -32,7 +32,7 @@ namespace engine {
          * @param path The relative file path to the image.
          */
         std::shared_ptr<TextureHandle> loadTexture(const std::string& id, const std::string& path) override;
-        
+
         /**
          * @brief Retrieves a cached texture.
          * @return Pointer to the texture, or nullptr if id doesn't exist.
@@ -45,25 +45,25 @@ namespace engine {
          * @param path File path.
          */
         std::shared_ptr<SoundBufferHandle> loadSoundBuffer(const std::string& id, const std::string& path) override;
-        
+
         std::shared_ptr<SoundBufferHandle> getSoundBuffer(const std::string& id) const override;
 
         /**
          * @brief Registers a path for streaming music (does not load into RAM).
          */
         void registerMusicPath(const std::string& id, const std::string& path) override;
-        
+
         std::string getMusicPath(const std::string& id) const override;
 
     private:
         std::shared_ptr<ILogger> m_logger;
-        
+
         /// @brief Cache for textures to avoid reloading the same file twice.
         std::unordered_map<std::string, std::shared_ptr<TextureHandle>> m_textures;
-        
+
         /// @brief Cache for short sound effects.
         std::unordered_map<std::string, std::shared_ptr<SoundBufferHandle>> m_soundBuffers;
-        
+
         /// @brief Registry of paths for music streams.
         std::unordered_map<std::string, std::string> m_musicPaths;
     };

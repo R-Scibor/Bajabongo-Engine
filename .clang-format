@@ -1,0 +1,40 @@
+# Match the dominant existing style in src/engine and src/game:
+# 4-space indent, no tabs, indent inside namespaces, attached braces,
+# Type& / Type* on the left, ~120 columns, short ifs kept on one line.
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++20
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+AccessModifierOffset: -4
+NamespaceIndentation: All
+BreakBeforeBraces: Attach
+PointerAlignment: Left
+SpaceAfterTemplateKeyword: false
+AlwaysBreakTemplateDeclarations: Yes
+SpaceBeforeParens: ControlStatements
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+FixNamespaceComments: true
+ReflowComments: false
+SortIncludes: Never
+SortUsingDeclarations: false
+IncludeBlocks: Preserve
+Cpp11BracedListStyle: true
+AlignAfterOpenBracket: Align
+BinPackArguments: true
+BinPackParameters: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: CurrentLine
+ConstructorInitializerIndentWidth: 4
+IndentCaseLabels: true
+IndentPPDirectives: None
+DerivePointerAlignment: false
+InsertNewlineAtEOF: true

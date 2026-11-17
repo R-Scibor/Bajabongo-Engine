@@ -9,28 +9,28 @@ namespace engine {
 
 namespace game {
 
-class SplashScreenState : public engine::IGameState {
-public:
-    explicit SplashScreenState(engine::EngineContext& context);
+    class SplashScreenState : public engine::IGameState {
+    public:
+        explicit SplashScreenState(engine::EngineContext& context);
 
-    void onEnter(engine::EngineContext& context) override;
-    void onExit(engine::EngineContext& context) override;
-    void handleEvent(engine::EngineContext& context, const sf::Event& event) override;
-    void update(engine::EngineContext& context, float fixedDeltaTime) override;
-    void render(engine::EngineContext& context) override;
+        void onEnter(engine::EngineContext& context) override;
+        void onExit(engine::EngineContext& context) override;
+        void handleEvent(engine::EngineContext& context, const sf::Event& event) override;
+        void update(engine::EngineContext& context, float fixedDeltaTime) override;
+        void render(engine::EngineContext& context) override;
 
-private:
-    std::shared_ptr<engine::ILogger> m_logger;
-    
-    enum class Phase { ShowLogo, Loading, Transitioning };
-    Phase m_phase = Phase::ShowLogo;
-    
-    float m_logoTimer = 0.f;
-    float m_logoDuration = 2.0f; // Show logo for 2s
-    
-    bool m_assetsLoaded = false;
-    int m_renderFrames = 0;
-    int m_lastRenderFrame = -1;
-};
+    private:
+        std::shared_ptr<engine::ILogger> m_logger;
 
-}
+        enum class Phase { ShowLogo, Loading, Transitioning };
+        Phase m_phase = Phase::ShowLogo;
+
+        float m_logoTimer = 0.f;
+        float m_logoDuration = 2.0f; // Show logo for 2s
+
+        bool m_assetsLoaded = false;
+        int m_renderFrames = 0;
+        int m_lastRenderFrame = -1;
+    };
+
+} // namespace game

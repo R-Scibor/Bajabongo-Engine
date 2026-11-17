@@ -21,9 +21,7 @@
 
 namespace game::ai {
 
-    EnemyCombatSystem::EnemyCombatSystem(engine::EngineContext& context)
-        : mContext(context)
-    {
+    EnemyCombatSystem::EnemyCombatSystem(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
             mLogger = context.m_logManager->GetLogger("EnemyCombat");
         }
@@ -32,32 +30,32 @@ namespace game::ai {
     void EnemyCombatSystem::update(float dt) {
         auto& registry = *mContext.m_registry;
         auto view = registry.view<EnemyComponent, engine::TransformComponent, WeaponComponent>();
-        
-        view.each([&](entt::entity entity, EnemyComponent& enemy, engine::TransformComponent& transform, WeaponComponent& weapon) {
+
+        view.each([&](entt::entity entity, EnemyComponent& enemy, engine::TransformComponent& transform,
+                      WeaponComponent& weapon) {
             weapon.wantsToShoot = false;
             weapon.wantsToReload = false;
-            
+
             // --- Update Animation State for Combat ---
             auto* animState = registry.try_get<engine::AnimationStateComponent>(entity);
-            
-            if (enemy.currentState != EnemyState::Shoot && 
-                enemy.currentState != EnemyState::Camp && 
+
+            if (enemy.currentState != EnemyState::Shoot && enemy.currentState != EnemyState::Camp &&
                 enemy.currentState != EnemyState::Turret) {
                 // Not in combat mode
                 return;
             }
-            
+
             if (enemy.targetEntity == entt::null || !registry.valid(enemy.targetEntity)) {
                 return;
             }
-            
+
             if (!enemy.hasLineOfSight) {
                 return;
             }
-            
+
             // Calculate Muzzle Position
-            engine::Vector2f muzzlePos = { transform.position.x, transform.position.y + WEAPON_MUZZLE_HEIGHT_OFFSET };
-            
+            engine::Vector2f muzzlePos = {transform.position.x, transform.position.y + WEAPON_MUZZLE_HEIGHT_OFFSET};
+
             // Calculate Target Position (Dynamic Chest Detection)
             engine::Vector2f targetPos;
             bool targetFound = false;
@@ -67,7 +65,7 @@ namespace game::ai {
                 if (b2Body_IsValid(targetBody->bodyId)) {
                     b2ShapeId shapes[8];
                     int shapeCount = b2Body_GetShapes(targetBody->bodyId, shapes, 8);
-                    
+
                     for (int i = 0; i < shapeCount; ++i) {
                         b2Filter filter = b2Shape_GetFilter(shapes[i]);
                         if (filter.categoryBits & engine::PhysicsCategory::Hurtbox) {
@@ -83,15 +81,15 @@ namespace game::ai {
 
             // 2. Fallback to constant offset if no Hurtbox found
             if (!targetFound) {
-                 const auto& targetTransform = registry.get<engine::TransformComponent>(enemy.targetEntity);
-                 targetPos = { targetTransform.position.x, targetTransform.position.y + TARGET_CHEST_HEIGHT_OFFSET };
+                const auto& targetTransform = registry.get<engine::TransformComponent>(enemy.targetEntity);
+                targetPos = {targetTransform.position.x, targetTransform.position.y + TARGET_CHEST_HEIGHT_OFFSET};
             }
 
             engine::Vector2f toTarget = targetPos - muzzlePos;
             float distanceSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
-            
+
             float desiredAimAngle = std::atan2(toTarget.y, toTarget.x);
-            
+
             // Default to aiming at target
             weapon.aimAngle = desiredAimAngle;
 
@@ -99,7 +97,7 @@ namespace game::ai {
             if (animState) {
                 // Update Facing based on aim angle
                 float normalizedAim = engine::wrapAngle(desiredAimAngle);
-                
+
                 if (std::abs(normalizedAim) > M_PI / 2.0f) {
                     animState->facing = engine::FacingDirection::Left;
                 } else {
@@ -109,29 +107,28 @@ namespace game::ai {
 
             if (auto* turret = registry.try_get<TurretBehaviorComponent>(entity)) {
                 float angleDiff = engine::wrapAngle(desiredAimAngle - weapon.aimAngle);
-                
+
                 float maxRotation = turret->rotationSpeed * dt;
                 if (std::abs(angleDiff) < maxRotation) {
                     weapon.aimAngle = desiredAimAngle;
                 } else {
                     weapon.aimAngle += (angleDiff > 0.0f ? maxRotation : -maxRotation);
                 }
-                
+
                 float scaleX = std::abs(transform.scale.x);
                 if (weapon.aimAngle > M_PI / 2.0f || weapon.aimAngle < -M_PI / 2.0f) {
                     transform.scale.x = -scaleX;
                 } else {
                     transform.scale.x = scaleX;
                 }
-                
+
                 if (std::abs(angleDiff) < turret->shootAngleTolerance) {
                     weapon.wantsToShoot = true;
                     if (animState) animState->state = engine::AnimationState::Aim;
                 }
-            }
-            else if (auto* sniper = registry.try_get<SniperBehaviorComponent>(entity)) {
+            } else if (auto* sniper = registry.try_get<SniperBehaviorComponent>(entity)) {
                 weapon.aimAngle = desiredAimAngle;
-                
+
                 if (!sniper->isAiming) {
                     sniper->isAiming = true;
                     sniper->aimTimer = 0.0f;
@@ -139,9 +136,9 @@ namespace game::ai {
                         mLogger->debug("Enemy {} (Sniper) started aiming", entt::to_integral(entity));
                     }
                 }
-                
+
                 sniper->aimTimer += dt;
-                
+
                 // While aiming, show Aim animation
                 if (animState) animState->state = engine::AnimationState::Aim;
 
@@ -153,21 +150,20 @@ namespace game::ai {
                         mLogger->debug("Enemy {} (Sniper) fired", entt::to_integral(entity));
                     }
                 }
-            }
-            else {
+            } else {
                 // Regular shooter
                 weapon.aimAngle = desiredAimAngle;
-                
+
                 if (distanceSq < enemy.attackRange * enemy.attackRange) {
                     weapon.wantsToShoot = true;
                     if (animState) animState->state = engine::AnimationState::Aim;
                 }
             }
-            
+
             if (weapon.currentAmmo == 0 && weapon.totalAmmo > 0) {
                 weapon.wantsToReload = true;
             }
         });
     }
 
-}
+} // namespace game::ai

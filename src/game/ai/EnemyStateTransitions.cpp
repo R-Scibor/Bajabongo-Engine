@@ -11,9 +11,7 @@
 
 namespace game::ai {
 
-    EnemyStateTransitions::EnemyStateTransitions(engine::EngineContext& context)
-        : mContext(context)
-    {
+    EnemyStateTransitions::EnemyStateTransitions(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
             mLogger = context.m_logManager->GetLogger("EnemyStates");
         }
@@ -22,13 +20,12 @@ namespace game::ai {
     void EnemyStateTransitions::update(float dt) {
         auto& registry = *mContext.m_registry;
         auto view = registry.view<EnemyComponent, engine::TransformComponent>();
-        
+
         view.each([&](entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
-            
             enemy.stateTimer += dt;
-            
+
             EnemyState oldState = enemy.currentState;
-            
+
             switch (enemy.currentState) {
                 case EnemyState::Idle:
                     transitionFromIdle(entity, enemy, transform);
@@ -59,7 +56,7 @@ namespace game::ai {
                 default:
                     break;
             }
-            
+
             if (oldState != enemy.currentState) {
                 if (oldState == EnemyState::Shoot) {
                     if (auto* sniper = registry.try_get<SniperBehaviorComponent>(entity)) {
@@ -69,28 +66,27 @@ namespace game::ai {
                 }
 
                 if (mLogger) {
-                    mLogger->debug("Enemy {} transitioned from {} to {}", 
-                                   entt::to_integral(entity), 
-                                   static_cast<int>(oldState), 
-                                   static_cast<int>(enemy.currentState));
+                    mLogger->debug("Enemy {} transitioned from {} to {}", entt::to_integral(entity),
+                                   static_cast<int>(oldState), static_cast<int>(enemy.currentState));
                 }
             }
         });
     }
 
-    void EnemyStateTransitions::transitionFromIdle(entt::entity entity, EnemyComponent& enemy, [[maybe_unused]] const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromIdle(entt::entity entity, EnemyComponent& enemy,
+                                                   [[maybe_unused]] const engine::TransformComponent& transform) {
         if (mContext.m_registry->any_of<PatrolBehaviorComponent>(entity)) {
             enemy.currentState = EnemyState::Patrol;
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
             enemy.currentState = EnemyState::Chase;
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (enemy.isAlerted && enemy.targetEntity == entt::null) {
             enemy.currentState = EnemyState::Alert;
             enemy.stateTimer = 0.0f;
@@ -98,7 +94,8 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromPatrol(entt::entity entity, EnemyComponent& enemy, [[maybe_unused]] const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromPatrol(entt::entity entity, EnemyComponent& enemy,
+                                                     [[maybe_unused]] const engine::TransformComponent& transform) {
         if (auto* health = mContext.m_registry->try_get<HealthComponent>(entity)) {
             if (health->currentHp < health->maxHp * enemy.retreatHpPercent) {
                 enemy.currentState = EnemyState::Retreat;
@@ -106,13 +103,13 @@ namespace game::ai {
                 return;
             }
         }
-        
+
         if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
             enemy.currentState = EnemyState::Chase;
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (enemy.isAlerted && enemy.targetEntity == entt::null) {
             enemy.currentState = EnemyState::Alert;
             enemy.stateTimer = 0.0f;
@@ -120,19 +117,20 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromAlert(entt::entity entity, EnemyComponent& enemy, [[maybe_unused]] const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromAlert(entt::entity entity, EnemyComponent& enemy,
+                                                    [[maybe_unused]] const engine::TransformComponent& transform) {
         if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
             enemy.currentState = EnemyState::Chase;
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (enemy.targetEntity == entt::null && enemy.isAlerted) {
             enemy.currentState = EnemyState::Approach;
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (enemy.stateTimer > 10.0f) {
             if (mContext.m_registry->any_of<PatrolBehaviorComponent>(entity)) {
                 enemy.currentState = EnemyState::Patrol;
@@ -145,7 +143,8 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromChase(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromChase(entt::entity entity, EnemyComponent& enemy,
+                                                    const engine::TransformComponent& transform) {
         auto& registry = *mContext.m_registry;
 
         if (auto* health = registry.try_get<HealthComponent>(entity)) {
@@ -155,7 +154,7 @@ namespace game::ai {
                 return;
             }
         }
-        
+
         float distSq = std::numeric_limits<float>::max();
 
         if (enemy.targetEntity != entt::null && registry.valid(enemy.targetEntity)) {
@@ -164,7 +163,7 @@ namespace game::ai {
             distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
         } else {
             enemy.targetEntity = entt::null;
-            enemy.currentState = EnemyState::Idle; 
+            enemy.currentState = EnemyState::Idle;
             return;
         }
 
@@ -176,7 +175,7 @@ namespace game::ai {
                 return;
             }
         }
-        
+
         if (enemy.hasLineOfSight) {
             if (distSq < enemy.attackRange * enemy.attackRange) {
                 enemy.currentState = EnemyState::Shoot;
@@ -190,7 +189,8 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromShoot(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromShoot(entt::entity entity, EnemyComponent& enemy,
+                                                    const engine::TransformComponent& transform) {
         auto& registry = *mContext.m_registry;
 
         if (auto* health = registry.try_get<HealthComponent>(entity)) {
@@ -200,19 +200,19 @@ namespace game::ai {
                 return;
             }
         }
-        
+
         if (enemy.targetEntity != entt::null && registry.valid(enemy.targetEntity)) {
             const auto& targetTransform = registry.get<engine::TransformComponent>(enemy.targetEntity);
             engine::Vector2f toTarget = targetTransform.position - transform.position;
             float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
-            
+
             if (distSq >= enemy.attackRange * enemy.attackRange) {
                 enemy.currentState = EnemyState::Chase;
                 enemy.stateTimer = 0.0f;
                 return;
             }
         }
-        
+
         if (!enemy.hasLineOfSight) {
             enemy.currentState = EnemyState::Approach;
             enemy.stateTimer = 0.0f;
@@ -220,7 +220,8 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromRush(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromRush(entt::entity entity, EnemyComponent& enemy,
+                                                   const engine::TransformComponent& transform) {
         auto& registry = *mContext.m_registry;
         auto* rush = registry.try_get<RushBehaviorComponent>(entity);
         if (!rush) {
@@ -228,7 +229,7 @@ namespace game::ai {
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (auto* health = registry.try_get<HealthComponent>(entity)) {
             if (health->currentHp < health->maxHp * enemy.retreatHpPercent) {
                 enemy.currentState = EnemyState::Retreat;
@@ -237,25 +238,25 @@ namespace game::ai {
                 return;
             }
         }
-        
+
         if (enemy.targetEntity == entt::null || !registry.valid(enemy.targetEntity)) {
             enemy.currentState = EnemyState::Idle;
             enemy.stateTimer = 0.0f;
             rush->rushCooldownTimer = rush->rushCooldown;
             return;
         }
-        
+
         const auto& targetTransform = registry.get<engine::TransformComponent>(enemy.targetEntity);
         engine::Vector2f toTarget = targetTransform.position - transform.position;
         float distSq = toTarget.x * toTarget.x + toTarget.y * toTarget.y;
-        
+
         if (distSq < enemy.attackRange * enemy.attackRange && enemy.hasLineOfSight) {
             enemy.currentState = EnemyState::Shoot;
             enemy.stateTimer = 0.0f;
             rush->rushCooldownTimer = rush->rushCooldown;
             return;
         }
-        
+
         if (!enemy.hasLineOfSight || distSq > rush->rushActivationRange * rush->rushActivationRange * 4.0f) {
             enemy.currentState = EnemyState::Chase;
             enemy.stateTimer = 0.0f;
@@ -264,7 +265,8 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromRetreat(entt::entity entity, EnemyComponent& enemy, [[maybe_unused]] const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromRetreat(entt::entity entity, EnemyComponent& enemy,
+                                                      [[maybe_unused]] const engine::TransformComponent& transform) {
         if (auto* health = mContext.m_registry->try_get<HealthComponent>(entity)) {
             if (health->currentHp >= health->maxHp * (enemy.retreatHpPercent + 0.2f)) {
                 enemy.currentState = EnemyState::Chase;
@@ -272,7 +274,7 @@ namespace game::ai {
                 return;
             }
         }
-        
+
         if (enemy.targetEntity == entt::null || !mContext.m_registry->valid(enemy.targetEntity)) {
             enemy.currentState = EnemyState::Idle;
             enemy.stateTimer = 0.0f;
@@ -280,17 +282,18 @@ namespace game::ai {
         }
     }
 
-    void EnemyStateTransitions::transitionFromApproach([[maybe_unused]] entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    void EnemyStateTransitions::transitionFromApproach([[maybe_unused]] entt::entity entity, EnemyComponent& enemy,
+                                                       const engine::TransformComponent& transform) {
         if (enemy.targetEntity != entt::null && enemy.hasLineOfSight) {
             enemy.currentState = EnemyState::Chase;
             enemy.stateTimer = 0.0f;
             return;
         }
-        
+
         if (enemy.targetEntity == entt::null || !mContext.m_registry->valid(enemy.targetEntity)) {
             engine::Vector2f toLastKnown = enemy.lastKnownPosition - transform.position;
             float distSq = toLastKnown.x * toLastKnown.x + toLastKnown.y * toLastKnown.y;
-            
+
             if (distSq < 50.0f * 50.0f) {
                 enemy.currentState = EnemyState::Idle;
                 enemy.stateTimer = 0.0f;
@@ -299,4 +302,4 @@ namespace game::ai {
         }
     }
 
-}
+} // namespace game::ai

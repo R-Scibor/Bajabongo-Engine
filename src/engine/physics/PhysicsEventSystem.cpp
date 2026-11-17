@@ -14,31 +14,26 @@
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 
-namespace engine
-{
+namespace engine {
     PhysicsEventSystem::PhysicsEventSystem(EngineContext& context)
-        : m_worldId{ context.m_physicsWorld }
-        , m_dispatcher{ context.m_dispatcher }
-        , m_registry{ context.m_registry }
-    {
+        : m_worldId{context.m_physicsWorld}
+        , m_dispatcher{context.m_dispatcher}
+        , m_registry{context.m_registry} {
         m_logger = context.m_logManager->GetLogger("PhysicsEventSystem");
         m_logger->info("PhysicsEventSystem initialized.");
     }
 
-    void PhysicsEventSystem::update()
-    {
+    void PhysicsEventSystem::update() {
         pollContacts();
         pollSensors();
     }
 
-    void PhysicsEventSystem::pollContacts()
-    {
+    void PhysicsEventSystem::pollContacts() {
         b2ContactEvents events = b2World_GetContactEvents(m_worldId);
 
-        for (int i = 0; i < events.beginCount; ++i)
-        {
+        for (int i = 0; i < events.beginCount; ++i) {
             const b2ContactBeginTouchEvent* beginEvent = events.beginEvents + i;
-            
+
             b2ShapeId shapeIdA = beginEvent->shapeIdA;
             b2ShapeId shapeIdB = beginEvent->shapeIdB;
 
@@ -49,14 +44,12 @@ namespace engine
             auto entityA = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdA);
             auto entityB = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdB);
 
-            if (m_registry->valid(entityA) && m_registry->valid(entityB))
-            {
+            if (m_registry->valid(entityA) && m_registry->valid(entityB)) {
                 m_dispatcher->enqueue<PhysicsContactBeginEvent>(entityA, entityB);
             }
         }
 
-        for (int i = 0; i < events.endCount; ++i)
-        {
+        for (int i = 0; i < events.endCount; ++i) {
             const b2ContactEndTouchEvent* endEvent = events.endEvents + i;
 
             b2ShapeId shapeIdA = endEvent->shapeIdA;
@@ -70,23 +63,20 @@ namespace engine
             auto entityB = (entt::entity)(uintptr_t)b2Shape_GetUserData(shapeIdB);
 
             // Dispatch EndEvent only if entities are still valid
-            if (m_registry->valid(entityA) && m_registry->valid(entityB))
-            {
+            if (m_registry->valid(entityA) && m_registry->valid(entityB)) {
                 m_dispatcher->enqueue<PhysicsContactEndEvent>(entityA, entityB);
             }
         }
     }
 
-    void PhysicsEventSystem::pollSensors()
-    {
+    void PhysicsEventSystem::pollSensors() {
         b2SensorEvents events = b2World_GetSensorEvents(m_worldId);
 
         if (events.beginCount > 0) {
-             m_logger->debug("PhysicsEventSystem: Found {} SENSOR begin events", events.beginCount);
+            m_logger->debug("PhysicsEventSystem: Found {} SENSOR begin events", events.beginCount);
         }
 
-        for (int i = 0; i < events.beginCount; ++i)
-        {
+        for (int i = 0; i < events.beginCount; ++i) {
             const b2SensorBeginTouchEvent* beginEvent = events.beginEvents + i;
 
             b2ShapeId sensorShapeId = beginEvent->sensorShapeId;
@@ -99,15 +89,13 @@ namespace engine
             auto sensorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(sensorShapeId);
             auto visitorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(visitorShapeId);
 
-            if (m_registry->valid(sensorEntity) && m_registry->valid(visitorEntity))
-            {
+            if (m_registry->valid(sensorEntity) && m_registry->valid(visitorEntity)) {
                 bool isVisitorSensor = b2Shape_IsSensor(visitorShapeId);
                 m_dispatcher->enqueue<PhysicsSensorBeginEvent>(sensorEntity, visitorEntity, isVisitorSensor);
             }
         }
 
-        for (int i = 0; i < events.endCount; ++i)
-        {
+        for (int i = 0; i < events.endCount; ++i) {
             const b2SensorEndTouchEvent* endEvent = events.endEvents + i;
 
             b2ShapeId sensorShapeId = endEvent->sensorShapeId;
@@ -120,8 +108,7 @@ namespace engine
             auto sensorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(sensorShapeId);
             auto visitorEntity = (entt::entity)(uintptr_t)b2Shape_GetUserData(visitorShapeId);
 
-            if (m_registry->valid(sensorEntity) && m_registry->valid(visitorEntity))
-            {
+            if (m_registry->valid(sensorEntity) && m_registry->valid(visitorEntity)) {
                 m_dispatcher->enqueue<PhysicsSensorEndEvent>(sensorEntity, visitorEntity);
             }
         }

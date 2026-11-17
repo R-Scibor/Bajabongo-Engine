@@ -53,8 +53,7 @@ namespace engine {
         for (const char* path : fontPaths) {
             // Probe first: AddFontFromFileTTF asserts in Debug if the file is missing,
             // and we try ./assets before ../../assets to match SFMLRenderer.
-            if (!std::ifstream(path, std::ios::binary))
-                continue;
+            if (!std::ifstream(path, std::ios::binary)) continue;
             if (ImFont* font = io.Fonts->AddFontFromFileTTF(path, 16.0f)) {
                 m_hudFont = font;
                 if (m_logger) m_logger->info("GuiService: Loaded HUD font from {}.", path);
@@ -86,13 +85,13 @@ namespace engine {
 
         // Check if ImGui wants to capture inputs
         ImGuiIO& io = ImGui::GetIO();
-        
+
         // WantCaptureMouse: True if mouse is hovering an ImGui window
         // WantCaptureKeyboard: True if an input field is active
         if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
             return true; // Input consumed by UI
         }
-        
+
         return false; // Input available for Game Logic
     }
 

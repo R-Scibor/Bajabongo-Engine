@@ -18,20 +18,18 @@
 
 namespace engine {
 
-    Application::Application(std::shared_ptr<EngineContext> context,
-                             std::unique_ptr<StateManager> stateManager)
-        : m_context{ std::move(context) }
-        , m_stateManager{ std::move(stateManager) }
-    {
+    Application::Application(std::shared_ptr<EngineContext> context, std::unique_ptr<StateManager> stateManager)
+        : m_context{std::move(context)}
+        , m_stateManager{std::move(stateManager)} {
         // Link the state manager back to the context so States can access it
         m_context->m_stateManager = m_stateManager.get();
         m_logger = m_context->m_logManager->GetLogger("Core");
-        
+
         // --- Initialize GuiService ---
         // GUI needs access to the native SFML window to handle inputs and rendering
         m_context->m_guiService = std::make_shared<GuiService>();
         m_context->m_guiService->SetLogger(m_context->m_logManager->GetLogger("GuiService"));
-        
+
         auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
         if (sfmlRenderer) {
             m_context->m_guiService->Init(sfmlRenderer->getNativeRenderWindow());
@@ -40,17 +38,13 @@ namespace engine {
         }
 
         // --- Initialize Audio System ---
-        m_context->m_audioSystem = std::make_shared<AudioSystem>(
-            m_context->m_resourceManager,
-            m_context->m_dispatcher,
-            m_context->m_logManager->GetLogger("Audio")
-        );
+        m_context->m_audioSystem = std::make_shared<AudioSystem>(m_context->m_resourceManager, m_context->m_dispatcher,
+                                                                 m_context->m_logManager->GetLogger("Audio"));
 
         m_logger->info("Application starting up.");
     }
 
-    Application::~Application()
-    {
+    Application::~Application() {
         m_context->m_guiService->Shutdown();
         m_context->m_stateManager = nullptr;
         if (m_logger) {
@@ -58,8 +52,7 @@ namespace engine {
         }
     }
 
-    void Application::run()
-    {
+    void Application::run() {
         m_logger->info("Starting main loop.");
 
         auto lastTime = std::chrono::high_resolution_clock::now();
@@ -74,7 +67,7 @@ namespace engine {
             m_accumulator += deltaTime;
 
             // "Spiral of Death" prevention:
-            // If the game lags significantly (e.g., breakpoint or heavy load), 
+            // If the game lags significantly (e.g., breakpoint or heavy load),
             // limit the accumulator to avoid trying to catch up too many physics steps at once.
             if (m_accumulator > 0.2f) {
                 m_accumulator = 0.2f;
@@ -99,7 +92,7 @@ namespace engine {
 
             // 4. Run non-essential updates and process event dispatcher
             update();
-            
+
             // Update audio system (fading, cleanup)
             if (m_context->m_audioSystem) {
                 m_context->m_audioSystem->update(deltaTime, m_context->m_registry.get());
@@ -120,26 +113,25 @@ namespace engine {
         m_logger->info("Main loop finished.");
     }
 
-    void Application::processInput()
-    {
+    void Application::processInput() {
         m_logger->trace("Processing input.");
 
         m_context->m_inputManager->update();
 
         // Poll all SFML events and forward them to the active state
         while (auto event = m_context->m_window->pollEvent()) {
-            
+
             // Pass to GuiService first (ImGui needs to handle inputs like typing in text boxes)
             bool captured = false;
             auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
             if (sfmlRenderer) {
-                 captured = m_context->m_guiService->HandleEvent(sfmlRenderer->getNativeRenderWindow(), *event);
+                captured = m_context->m_guiService->HandleEvent(sfmlRenderer->getNativeRenderWindow(), *event);
             }
 
             // If UI captured input, we might want to skip game processing for some events.
             // But we still let the system handle Closed event.
             if (!captured) {
-                 m_stateManager->handleEvent(*event);
+                m_stateManager->handleEvent(*event);
             }
             // Always process input manager events to ensure state is up to date (e.g. key release)
             m_context->m_inputManager->processEvent(*event);
@@ -150,39 +142,35 @@ namespace engine {
         }
     }
 
-    void Application::update()
-    {
+    void Application::update() {
         m_logger->trace("Updating game state and dispatcher.");
         // Process all enqueued events (e.g., RequestStateSwapEvent)
         m_context->m_dispatcher->update();
     }
 
-    void Application::fixedUpdate()
-    {
+    void Application::fixedUpdate() {
         m_logger->trace("Performing fixed update.");
         // Delegate the fixed update to the active game state.
         // The state itself will be responsible for updating physics, ECS systems, etc.
         m_stateManager->update(m_fixedTimestep);
     }
 
-    void Application::render()
-    {
+    void Application::render() {
         m_logger->trace("Rendering frame.");
 
         m_context->m_renderer->beginFrame();
         m_context->m_renderer->clear({0, 0, 0, 255});
-        
+
         // Render Game World
         m_stateManager->render();
 
         // Render GUI on top
         auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
         if (sfmlRenderer) {
-             m_context->m_guiService->Render(sfmlRenderer->getNativeRenderWindow());
+            m_context->m_guiService->Render(sfmlRenderer->getNativeRenderWindow());
         }
 
         m_context->m_renderer->endFrame();
     }
-
 
 } // namespace engine

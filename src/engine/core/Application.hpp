@@ -33,10 +33,7 @@ namespace engine {
          * @param context Shared pointer to the EngineContext containing core systems (Window, Logger, etc.).
          * @param stateManager Unique pointer to the StateManager responsible for game states.
          */
-        Application(
-            std::shared_ptr<EngineContext> context,
-            std::unique_ptr<StateManager> stateManager
-        );
+        Application(std::shared_ptr<EngineContext> context, std::unique_ptr<StateManager> stateManager);
 
         /// @brief Destructor. Shuts down subsystems like GUI and releases resources.
         ~Application();
@@ -89,10 +86,9 @@ namespace engine {
 
         /// @brief The target duration for a single physics step (1/60th of a second).
         const float m_fixedTimestep = 1.0f / 60.0f;
-        
-        /// @brief Accumulator for elapsed time, used to run fixed updates in chunks.
-        float       m_accumulator = 0.0f;
 
+        /// @brief Accumulator for elapsed time, used to run fixed updates in chunks.
+        float m_accumulator = 0.0f;
     };
 
 } // namespace engine

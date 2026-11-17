@@ -22,4 +22,4 @@ namespace game {
         std::shared_ptr<engine::ILogger> m_logger;
     };
 
-}
+} // namespace game

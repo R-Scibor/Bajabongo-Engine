@@ -16,4 +16,4 @@ namespace game {
         engine::EngineContext& m_context;
     };
 
-}
+} // namespace game

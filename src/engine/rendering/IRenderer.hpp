@@ -4,8 +4,7 @@
 #include <vector>
 #include <string>
 
-namespace engine
-{
+namespace engine {
     class IWindow;
     struct SpriteDesc;
     struct TransformComponent;
@@ -36,14 +35,15 @@ namespace engine
          * @brief Clears the screen with a specific background color.
          */
         virtual void clear(Color color) = 0;
-        
+
         /**
          * @brief Draws a sprite based on engine components.
          * @param sprite The sprite metadata (UV rects, texture ID).
          * @param transform The world transform (position, rotation, scale).
          * @param color Tint color.
          */
-        virtual void drawSprite(const struct SpriteDesc& sprite, const struct TransformComponent& transform, const Color& color) = 0;
+        virtual void drawSprite(const struct SpriteDesc& sprite, const struct TransformComponent& transform,
+                                const Color& color) = 0;
 
         // --- Primitives Drawing ---
         virtual void drawCircle(engine::Vector2f position, float radius) = 0;
@@ -52,7 +52,7 @@ namespace engine
         virtual void drawText(const std::string& text, engine::Vector2f position, uint32_t fontSize, Color color) = 0;
         virtual void drawLine(engine::Vector2f start, engine::Vector2f end, Color color) = 0;
         virtual void drawPolygon(const std::vector<engine::Vector2f>& vertices, const Color& color) = 0;
-        
+
         // --- Texture Drawing (Abstraction Leak / Optimization) ---
 
         /**
@@ -62,7 +62,7 @@ namespace engine
          */
         virtual void drawTexture(const void* textureHandle, engine::Vector2f position) = 0;
         virtual void drawTexture(const void* textureHandle, engine::Vector2f position, engine::Vector2f size) = 0;
-        
+
         /**
          * @brief Direct pass-through for drawing a native sprite object.
          * @note HACK: Used for debugging or legacy integration where full component lookup is too slow/complex.
@@ -73,7 +73,7 @@ namespace engine
 
         /// @brief Converts screen pixel coordinates to world game units (useful for mouse picking).
         virtual engine::Vector2f screenToWorld(engine::Vector2f screenPos) = 0;
-        
+
         virtual void setViewCenter(engine::Vector2f center) = 0;
         virtual engine::Vector2f getViewCenter() const = 0;
         virtual void setViewSize(engine::Vector2f size) = 0;
@@ -87,4 +87,4 @@ namespace engine
     protected:
         IWindow& m_window;
     };
-}
+} // namespace engine
