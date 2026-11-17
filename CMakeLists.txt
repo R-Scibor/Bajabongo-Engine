@@ -42,6 +42,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CompilerOptions)
+# Extra warnings: cmake -DBAJA_STRICT_WARNINGS=ON (on by default in linux presets).
 
 # Third-party dependencies from vcpkg.json:
 #   sfml, spdlog, entt, box2d, nlohmann-json, imgui, imgui-sfml

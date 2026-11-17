@@ -32,6 +32,12 @@
 # Runtime library is left at the VS/vcpkg default (/MD, /MDd), set
 # globally in the top-level CMakeLists.txt.
 
+# Opt-in extra warnings for this project's targets only (engine/game).
+# Does not affect vcpkg dependencies. Linux presets set this ON.
+# MSVC stays at /W3: /W4 is untested here and would be a behavior-adjacent
+# churn we cannot verify on this machine.
+option(BAJA_STRICT_WARNINGS "Enable extra compiler warnings (-Wall -Wextra) on engine/game" OFF)
+
 function(bajabongo_apply_compiler_options target)
     target_compile_features(${target} PRIVATE cxx_std_20)
     target_include_directories(${target} PUBLIC "${PROJECT_SOURCE_DIR}/src")
@@ -56,12 +62,21 @@ function(bajabongo_apply_compiler_options target)
             $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},4>:WIN32>
         )
     else()
-        # Reasonable non-MSVC equivalent of /W3. Not /WX or -Werror:
-        # the vcxproj does not enable TreatWarningAsError.
-        target_compile_options(${target} PRIVATE
-            -Wall
-            $<$<CONFIG:Release>:-O2>
-        )
+        # Base: -Wall is a reasonable non-MSVC equivalent of /W3.
+        # BAJA_STRICT_WARNINGS adds -Wextra. Not -Werror / /WX: the vcxproj
+        # does not enable TreatWarningAsError.
+        if(BAJA_STRICT_WARNINGS)
+            target_compile_options(${target} PRIVATE
+                -Wall
+                -Wextra
+                $<$<CONFIG:Release>:-O2>
+            )
+        else()
+            target_compile_options(${target} PRIVATE
+                -Wall
+                $<$<CONFIG:Release>:-O2>
+            )
+        endif()
         target_compile_definitions(${target} PRIVATE
             $<$<CONFIG:Debug>:_DEBUG>
             $<$<CONFIG:Release>:NDEBUG>

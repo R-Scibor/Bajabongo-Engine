@@ -64,12 +64,13 @@
     {
       "name": "linux-ninja-debug",
       "displayName": "Linux Ninja Debug (vcpkg)",
-      "description": "Single-config Ninja Debug build for Linux. Requires VCPKG_ROOT and typical X11/OpenGL dev packages so the SFML port can compile.",
+      "description": "Single-config Ninja Debug build for Linux. Requires VCPKG_ROOT and typical X11/OpenGL dev packages so the SFML port can compile. Enables BAJA_STRICT_WARNINGS (-Wall -Wextra).",
       "inherits": "vcpkg",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/linux-ninja-debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BAJA_STRICT_WARNINGS": "ON"
       },
       "condition": {
         "type": "equals",
@@ -80,12 +81,13 @@
     {
       "name": "linux-ninja-release",
       "displayName": "Linux Ninja Release (vcpkg)",
-      "description": "Single-config Ninja Release build for Linux. Requires VCPKG_ROOT.",
+      "description": "Single-config Ninja Release build for Linux. Requires VCPKG_ROOT. Enables BAJA_STRICT_WARNINGS (-Wall -Wextra).",
       "inherits": "vcpkg",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/linux-ninja-release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "BAJA_STRICT_WARNINGS": "ON"
       },
       "condition": {
         "type": "equals",
