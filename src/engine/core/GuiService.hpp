@@ -5,6 +5,8 @@
 #include <SFML/System/Time.hpp>
 #include <memory>
 
+struct ImFont;
+
 namespace engine {
 
     class ILogger;
@@ -63,9 +65,17 @@ namespace engine {
          */
         void Render(sf::RenderWindow& window);
 
+        /**
+         * @brief Bebas Neue (assets/fonts/default.ttf) for in-game HUD text.
+         * @return Pointer owned by the ImGui font atlas, or nullptr if the TTF
+         *         could not be loaded (caller should fall back to the default font).
+         */
+        ImFont* GetHudFont() const { return m_hudFont; }
+
     private:
         bool m_initialized = false;
         std::shared_ptr<ILogger> m_logger;
+        ImFont* m_hudFont = nullptr;
     };
 
 } // namespace engine

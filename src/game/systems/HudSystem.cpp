@@ -1,6 +1,7 @@
 #include "engine/pch.h"
 #include "HudSystem.hpp"
 #include "engine/core/EngineContext.hpp"
+#include "engine/core/GuiService.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/HealthComponent.hpp"
@@ -27,8 +28,8 @@ namespace game {
             // Setup ImGui window for HUD
             // Position: Bottom Right
             ImGuiIO& io = ImGui::GetIO();
-            float windowWidth = 200.0f;
-            float windowHeight = 100.0f;
+            float windowWidth = 260.0f;
+            float windowHeight = 140.0f;
             float padding = 20.0f;
             
             ImGui::SetNextWindowPos(
@@ -43,20 +44,25 @@ namespace game {
                                            ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings | 
                                            ImGuiWindowFlags_NoInputs;
 
+            // ImGui 1.92+: PushFont(font, size) rasterizes at that size. nullptr
+            // keeps the current font (AddFontDefault fallback if the TTF failed).
+            ImFont* hudFont = m_context.m_guiService ? m_context.m_guiService->GetHudFont() : nullptr;
+            const float ammoSize = 32.0f;
+            const float bodySize = 16.0f;
+
             if (ImGui::Begin("HUD_Ammo", nullptr, windowFlags)) {
                 
-                ImGui::SetWindowFontScale(2.0f); // Make text larger
-                
                 if (weapon.isReloading) {
+                    ImGui::PushFont(hudFont, ammoSize);
                     ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "RELOADING...");
-                    
-                    // Progress bar for reload
+                    ImGui::PopFont();
+
+                    ImGui::PushFont(hudFont, bodySize);
                     float progress = 1.0f - (weapon.reloadTimer / weapon.reloadDuration);
                     ImGui::ProgressBar(progress, ImVec2(-1, 0), "");
+                    ImGui::PopFont();
                     
                 } else {
-                    // Ammo Count: Current / Total
-                    // Using different colors for low ammo?
                     ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
                     if (weapon.currentAmmo == 0) {
                         textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
@@ -64,17 +70,22 @@ namespace game {
                         textColor = ImVec4(1.0f, 0.5f, 0.0f, 1.0f); // Orange
                     }
 
+                    ImGui::PushFont(hudFont, ammoSize);
                     ImGui::TextColored(textColor, "%d / %d", weapon.currentAmmo, weapon.totalAmmo);
-                    
-                    ImGui::SetWindowFontScale(1.0f);
+                    ImGui::PopFont();
+
+                    ImGui::PushFont(hudFont, bodySize);
                     ImGui::Text("Magazine: %d", weapon.magSize);
+                    ImGui::PopFont();
                 }
 
+                ImGui::PushFont(hudFont, bodySize);
                 ImGui::Separator();
                 ImGui::Text("Medkits: %d/%d", player.medkits, player.maxMedkits);
                 if (health) {
                     ImGui::Text("HP: %.0f/%.0f", health->currentHp, health->maxHp);
                 }
+                ImGui::PopFont();
             }
             ImGui::End();
             

@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <imgui-SFML.h>
+#include <fstream>
 
 namespace engine {
 
@@ -34,12 +35,35 @@ namespace engine {
         // ImGui::SFML::Update asserts io.Fonts->Fonts.Size > 0. The texture
         // itself is uploaded later by the RendererHasTextures backend.
         ImGuiIO& io = ImGui::GetIO();
+        // Editor / debug UI keeps the baked-in ProggyClean font. The HUD loads
+        // Bebas Neue separately and selects it with ImGui::PushFont(font, size)
+        // (ImGui 1.92+ API). SetWindowFontScale is obsolete and, with dynamic
+        // fonts, rasterizes extra sizes into the atlas.
         if (io.Fonts->Fonts.Size == 0) {
             io.Fonts->AddFontDefault();
         }
-        // Note: Docking allows dragging ImGui windows outside the main viewport 
-        // or docking them to edges. Requires the docking branch of ImGui.
-        // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        // Same path convention as SFMLRenderer / runtime copy: the exe lives in
+        // out/game/$<CONFIG>/, assets are at ../../assets (or ./assets).
+        const char* fontPaths[] = {
+            "assets/fonts/default.ttf",
+            "../../assets/fonts/default.ttf",
+        };
+        m_hudFont = nullptr;
+        for (const char* path : fontPaths) {
+            // Probe first: AddFontFromFileTTF asserts in Debug if the file is missing,
+            // and we try ./assets before ../../assets to match SFMLRenderer.
+            if (!std::ifstream(path, std::ios::binary))
+                continue;
+            if (ImFont* font = io.Fonts->AddFontFromFileTTF(path, 16.0f)) {
+                m_hudFont = font;
+                if (m_logger) m_logger->info("GuiService: Loaded HUD font from {}.", path);
+                break;
+            }
+        }
+        if (!m_hudFont && m_logger) {
+            m_logger->warn("GuiService: Could not load assets/fonts/default.ttf; HUD will use the default ImGui font.");
+        }
 
         m_initialized = true;
         if (m_logger) m_logger->info("GuiService: Initialized successfully.");
@@ -48,6 +72,7 @@ namespace engine {
     void GuiService::Shutdown() {
         if (m_initialized) {
             ImGui::SFML::Shutdown();
+            m_hudFont = nullptr;
             m_initialized = false;
             if (m_logger) m_logger->info("GuiService: Shut down.");
         }
