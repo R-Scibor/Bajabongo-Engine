@@ -26,12 +26,6 @@
 #include <cmath>
 #include <cstdlib>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-constexpr float PI_F = static_cast<float>(M_PI);
-
 namespace game {
 
     PlayerControllerSystem::PlayerControllerSystem(engine::EngineContext& context) : m_context(context) {}
@@ -136,7 +130,7 @@ namespace game {
                         // Face aim direction when standing still
                         float aimAngle = engine::wrapAngle(weapon->aimAngle);
 
-                        if (std::abs(aimAngle) > PI_F / 2.0f) {
+                        if (std::abs(aimAngle) > engine::Pi / 2.0f) {
                             animState->facing = engine::FacingDirection::Left;
                         } else {
                             animState->facing = engine::FacingDirection::Right;

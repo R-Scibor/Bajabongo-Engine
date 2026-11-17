@@ -8,10 +8,6 @@
 #include <cmath>
 #include <set>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 namespace game {
 
     VisibilitySystem::VisibilitySystem(engine::EngineContext& context)
@@ -80,8 +76,8 @@ namespace game {
             engine::Vector2f origin = transform.position + visibility.offset;
             float radius = visibility.viewRadius;
             float minRadius = visibility.minViewRadius;
-            float direction = visibility.viewDirection;                      // Mouse aim direction
-            float halfAngle = visibility.viewAngle * 0.5f * (M_PI / 180.0f); // Convert to radians
+            float direction = visibility.viewDirection;                            // Mouse aim direction
+            float halfAngle = visibility.viewAngle * 0.5f * (engine::Pi / 180.0f); // Convert to radians
 
             // 1. Query walls in view cone range (slightly wider for safety)
             std::vector<engine::Vector2f> wallVertices;
@@ -129,7 +125,7 @@ namespace game {
             // Add full circle boundary points for minRadius
             const int circleSegments = 90;
             for (int i = 0; i < circleSegments; ++i) {
-                float angle = -M_PI + (float)i / circleSegments * 2.0f * M_PI;
+                float angle = -engine::Pi + (float)i / circleSegments * 2.0f * engine::Pi;
                 angles.push_back(angle);
             }
 

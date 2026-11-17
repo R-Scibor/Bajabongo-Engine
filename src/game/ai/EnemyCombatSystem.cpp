@@ -15,10 +15,6 @@
 #include <cmath>
 #include <numbers>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846f
-#endif
-
 namespace game::ai {
 
     EnemyCombatSystem::EnemyCombatSystem(engine::EngineContext& context) : mContext(context) {
@@ -98,7 +94,7 @@ namespace game::ai {
                 // Update Facing based on aim angle
                 float normalizedAim = engine::wrapAngle(desiredAimAngle);
 
-                if (std::abs(normalizedAim) > M_PI / 2.0f) {
+                if (std::abs(normalizedAim) > engine::Pi / 2.0f) {
                     animState->facing = engine::FacingDirection::Left;
                 } else {
                     animState->facing = engine::FacingDirection::Right;
@@ -116,7 +112,7 @@ namespace game::ai {
                 }
 
                 float scaleX = std::abs(transform.scale.x);
-                if (weapon.aimAngle > M_PI / 2.0f || weapon.aimAngle < -M_PI / 2.0f) {
+                if (weapon.aimAngle > engine::Pi / 2.0f || weapon.aimAngle < -engine::Pi / 2.0f) {
                     transform.scale.x = -scaleX;
                 } else {
                     transform.scale.x = scaleX;

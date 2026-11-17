@@ -18,11 +18,6 @@
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
 #include <cmath>
-#include <numbers>
-
-#ifndef PI
-#define PI 3.14159265359f
-#endif
 
 namespace game {
 
@@ -46,7 +41,8 @@ namespace game {
             // Recoil Return (decay toward zero)
             if (std::abs(weapon.recoilAngleOffset) > 0.01f) {
                 float sign = weapon.recoilAngleOffset > 0 ? -1.0f : 1.0f;
-                weapon.recoilAngleOffset += sign * weapon.recoilReturnDegPerSec * fixedDeltaTime * (PI / 180.0f);
+                weapon.recoilAngleOffset +=
+                    sign * weapon.recoilReturnDegPerSec * fixedDeltaTime * (engine::Pi / 180.0f);
 
                 // Clamp to zero when close
                 if (std::abs(weapon.recoilAngleOffset) < 0.01f) {
@@ -190,13 +186,13 @@ namespace game {
         // Accumulate Spread (bloom)
         weapon.currentSpreadDeg = std::min(weapon.currentSpreadDeg + weapon.spreadPerShotDeg, weapon.maxSpreadDeg);
 
-        // Kick weapon angle towards vertical up (-PI/2)
+        // Kick weapon angle towards vertical up (-engine::Pi/2)
         float currentAim = weapon.aimAngle;
-        float targetUp = -PI / 2.0f;
+        float targetUp = -engine::Pi / 2.0f;
 
         float diff = targetUp - currentAim;
 
-        // Wrap to [-PI, PI]
+        // Wrap to [-engine::Pi, engine::Pi]
         diff = engine::wrapAngle(diff);
 
         float kickSign = 0.0f;
@@ -204,7 +200,7 @@ namespace game {
             kickSign = (diff > 0) ? 1.0f : -1.0f;
 
             // Handle 180 degree edge case (aiming straight down)
-            if (std::abs(std::abs(diff) - PI) < 0.1f) {
+            if (std::abs(std::abs(diff) - engine::Pi) < 0.1f) {
                 float aimX = std::cos(currentAim);
                 if (aimX > 0) kickSign = -1.0f;
                 else kickSign = 1.0f;
@@ -213,7 +209,7 @@ namespace game {
             kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
         }
 
-        weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (PI / 180.0f);
+        weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (engine::Pi / 180.0f);
     }
 
     void WeaponSystem::spawnProjectiles(engine::EngineContext& context, entt::entity entity,
@@ -227,7 +223,7 @@ namespace game {
             std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
 
             float spreadOffsetDeg = spreadDist(m_rng);
-            float spreadOffsetRad = spreadOffsetDeg * (PI / 180.0f);
+            float spreadOffsetRad = spreadOffsetDeg * (engine::Pi / 180.0f);
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
             // Calculate spawn position (offset from center)
