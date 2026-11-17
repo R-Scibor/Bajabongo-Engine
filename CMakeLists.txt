@@ -46,6 +46,7 @@ include(CompilerOptions)
 option(BAJA_BUILD_TESTS "Build unit tests (Catch2) and enable CTest" OFF)
 # Linux presets turn this ON. Requires the catch2 vcpkg dependency.
 # Sanitizers: cmake -DBAJA_SANITIZE=ON, or the linux-ninja-debug-sanitize preset.
+# Coverage: cmake -DBAJA_COVERAGE=ON, or the linux-ninja-debug-coverage preset.
 
 # Third-party dependencies from vcpkg.json:
 #   sfml, spdlog, entt, box2d, nlohmann-json, imgui, imgui-sfml

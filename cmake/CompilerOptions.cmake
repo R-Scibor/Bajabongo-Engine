@@ -47,6 +47,12 @@ option(BAJA_STRICT_WARNINGS "Enable extra compiler warnings on engine/game/tests
 # linux-ninja-debug-sanitize preset turns this ON in a separate build tree.
 option(BAJA_SANITIZE "Enable AddressSanitizer and UndefinedBehaviorSanitizer (GCC/Clang)" OFF)
 
+# Opt-in gcov coverage for this project's targets only (engine/game/tests).
+# Does not rebuild vcpkg dependencies. Linux-only (GCC/Clang). Use a
+# separate build tree (the linux-ninja-debug-coverage preset). Do not
+# combine with BAJA_SANITIZE.
+option(BAJA_COVERAGE "Enable gcov coverage instrumentation (GCC/Clang)" OFF)
+
 function(bajabongo_apply_compiler_options target)
     target_compile_features(${target} PRIVATE cxx_std_20)
     target_include_directories(${target} PUBLIC "${PROJECT_SOURCE_DIR}/src")
@@ -102,6 +108,16 @@ function(bajabongo_apply_compiler_options target)
                 -fsanitize=address,undefined
             )
         endif()
+        if(BAJA_COVERAGE)
+            target_compile_options(${target} PRIVATE
+                --coverage
+                -O0
+                -g
+            )
+            target_link_options(${target} PRIVATE
+                --coverage
+            )
+        endif()
     endif()
 endfunction()
 
@@ -111,4 +127,16 @@ if(BAJA_SANITIZE)
     else()
         message(STATUS "BAJA_SANITIZE: AddressSanitizer + UndefinedBehaviorSanitizer on engine/game/tests")
     endif()
+endif()
+
+if(BAJA_COVERAGE)
+    if(MSVC)
+        message(WARNING "BAJA_COVERAGE is supported on GCC/Clang only and is ignored on MSVC.")
+    else()
+        message(STATUS "BAJA_COVERAGE: gcov instrumentation on engine/game/tests")
+    endif()
+endif()
+
+if(BAJA_COVERAGE AND BAJA_SANITIZE)
+    message(WARNING "BAJA_COVERAGE and BAJA_SANITIZE are both ON. Use separate build trees.")
 endif()

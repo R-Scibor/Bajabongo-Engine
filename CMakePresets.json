@@ -106,6 +106,16 @@
       "cacheVariables": {
         "BAJA_SANITIZE": "ON"
       }
+    },
+    {
+      "name": "linux-ninja-debug-coverage",
+      "displayName": "Linux Ninja Debug + gcov coverage (vcpkg)",
+      "description": "Single-config Ninja Debug build with BAJA_COVERAGE (gcov). Inherits Linux debug settings (strict warnings, tests). Uses a separate build tree. Requires VCPKG_ROOT and GCC or Clang. Do not combine with the sanitizer preset.",
+      "inherits": "linux-ninja-debug",
+      "binaryDir": "${sourceDir}/build/linux-ninja-debug-coverage",
+      "cacheVariables": {
+        "BAJA_COVERAGE": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -138,6 +148,10 @@
     {
       "name": "linux-ninja-debug-sanitize",
       "configurePreset": "linux-ninja-debug-sanitize"
+    },
+    {
+      "name": "linux-ninja-debug-coverage",
+      "configurePreset": "linux-ninja-debug-coverage"
     }
   ]
 }
