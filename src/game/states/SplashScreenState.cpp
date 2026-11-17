@@ -41,7 +41,7 @@ void SplashScreenState::onEnter(engine::EngineContext& context) {
     m_renderFrames = 0;
 }
 
-void SplashScreenState::onExit(engine::EngineContext& context) {
+void SplashScreenState::onExit([[maybe_unused]] engine::EngineContext& context) {
     m_logger->info("Exiting SplashScreenState.");
 }
 

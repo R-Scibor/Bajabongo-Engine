@@ -36,7 +36,7 @@ namespace engine {
     }
 
     void StateManager::requestPop() {
-        m_pendingActions.push_back({ PendingActionType::Pop });
+        m_pendingActions.push_back({ PendingActionType::Pop, {} });
     }
 
     void StateManager::requestSwap(const std::string& stateName) {
@@ -44,14 +44,14 @@ namespace engine {
     }
 
     void StateManager::requestClear() {
-        m_pendingActions.push_back({ PendingActionType::Clear });
+        m_pendingActions.push_back({ PendingActionType::Clear, {} });
     }
 
     void StateManager::onPushRequest(const RequestStatePushEvent& event) {
         requestPush(event.stateName);
     }
 
-    void StateManager::onPopRequest(const RequestStatePopEvent& event) {
+    void StateManager::onPopRequest(const RequestStatePopEvent& /*event*/) {
         requestPop();
     }
 
@@ -59,7 +59,7 @@ namespace engine {
         requestSwap(event.stateName);
     }
 
-    void StateManager::onClearRequest(const RequestStateClearEvent& event) {
+    void StateManager::onClearRequest(const RequestStateClearEvent& /*event*/) {
         requestClear();
     }
 

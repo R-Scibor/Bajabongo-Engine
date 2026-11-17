@@ -37,13 +37,13 @@ namespace game {
         });
     }
 
-    void MainMenuState::onExit(engine::EngineContext& context) {
+    void MainMenuState::onExit([[maybe_unused]] engine::EngineContext& context) {
         if (m_logger) {
             m_logger->info("Exiting MainMenuState.");
         }
     }
 
-    void MainMenuState::update(engine::EngineContext& context, float fixedDeltaTime) {
+    void MainMenuState::update([[maybe_unused]] engine::EngineContext& context, float fixedDeltaTime) {
         m_timeInState += fixedDeltaTime;
     }
 

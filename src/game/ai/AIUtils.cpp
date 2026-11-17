@@ -31,7 +31,7 @@ namespace game::ai {
         auto view = context.m_registry->view<VisibilityComponent, engine::TransformComponent>();
         bool isVisible = false;
         
-        view.each([&](entt::entity entity, const VisibilityComponent& visibility, const engine::TransformComponent& transform) {
+        view.each([&]([[maybe_unused]] entt::entity entity, const VisibilityComponent& visibility, const engine::TransformComponent& transform) {
             if (isVisible) return;
             
             engine::Vector2f viewerPos = transform.position + visibility.offset;

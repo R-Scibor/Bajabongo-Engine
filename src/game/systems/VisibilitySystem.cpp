@@ -20,29 +20,6 @@ namespace game {
         m_logger = context.m_logManager->GetLogger("VisibilitySystem");
     }
 
-    struct RayCastCallbackData {
-        engine::Vector2f hitPoint;
-        float fraction;
-        bool hit;
-    };
-
-    // Callback for Box2D raycast
-    static float RayCastCallback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context) {
-        RayCastCallbackData* data = static_cast<RayCastCallbackData*>(context);
-        
-        b2Filter filter = b2Shape_GetFilter(shapeId);
-        
-        // Only hit visibility blockers
-        if (filter.categoryBits & engine::PhysicsCategory::VisibilityBlocker) {
-            data->hit = true;
-            data->hitPoint = { point.x, point.y };
-            data->fraction = fraction;
-            return fraction; // Clip the ray to this hit
-        }
-        
-        return -1.0f; // Continue raycast, ignore this shape
-    }
-
     // Callback for AABB Query
     struct QueryCallbackData {
         std::vector<engine::Vector2f>* vertices;

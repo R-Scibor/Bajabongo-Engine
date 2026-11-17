@@ -119,7 +119,7 @@ namespace engine
         // Visualizes colliders for debugging purposes (green outlines).
         if (m_debugDraw) {
             auto physicsView = m_registry.view<PhysicsBodyComponent, TransformComponent>();
-            physicsView.each([&](entt::entity entity, const auto& bodyComp, const auto& transform) {
+            physicsView.each([&]([[maybe_unused]] entt::entity entity, const auto& bodyComp, [[maybe_unused]] const auto& transform) {
                  b2BodyId bodyId = bodyComp.bodyId;
                  if (!b2Body_IsValid(bodyId)) return;
 

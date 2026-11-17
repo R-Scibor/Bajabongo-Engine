@@ -233,7 +233,8 @@ namespace engine {
             .position = Vector2f{centerX, centerY},
             .isStatic = true,
             .fixedRotation = false,
-            .rotation = rot * (3.14159f / 180.0f)
+            .rotation = rot * (3.14159f / 180.0f),
+            .fixtures = {}
         };
 
         // Add single fixture

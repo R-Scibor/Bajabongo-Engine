@@ -151,8 +151,8 @@ namespace engine {
                              for (int i = 0; i < shapeCount; ++i) {
                                  if (ImGui::TreeNode((void*)(intptr_t)i, "Shape %d", i)) {
                                      b2Filter filter = b2Shape_GetFilter(shapes[i]);
-                                     ImGui::Text("Category: %u", filter.categoryBits);
-                                     ImGui::Text("Mask: %u", filter.maskBits);
+                                     ImGui::Text("Category: %llu", static_cast<unsigned long long>(filter.categoryBits));
+                                     ImGui::Text("Mask: %llu", static_cast<unsigned long long>(filter.maskBits));
 
                                      // Allow toggling VisibilityBlocker
                                      bool isVisibilityBlocker = (filter.categoryBits & engine::PhysicsCategory::VisibilityBlocker) != 0;
@@ -181,7 +181,7 @@ namespace engine {
 
     EditorSystem::~EditorSystem() = default;
 
-    void EditorSystem::Update(float dt) {
+    void EditorSystem::Update([[maybe_unused]] float dt) {
         DrawHierarchy();
         DrawInspector();
         DrawSpawner();

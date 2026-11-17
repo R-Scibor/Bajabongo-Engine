@@ -20,7 +20,7 @@ namespace engine
         m_logger = context.m_logManager->GetLogger("CameraSystem");
     }
 
-    void CameraSystem::update(float fixedDeltaTime)
+    void CameraSystem::update([[maybe_unused]] float fixedDeltaTime)
     {
         if (!m_renderer) return;
 

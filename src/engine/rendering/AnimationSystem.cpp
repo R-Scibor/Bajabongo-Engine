@@ -50,7 +50,7 @@ namespace engine {
                 anim.currentFrameIndex++;
 
                 // 3. Handle End of Clip
-                if (anim.currentFrameIndex >= clip->spriteIds.size()) {
+                if (anim.currentFrameIndex >= static_cast<int>(clip->spriteIds.size())) {
                     if (clip->loop) {
                         anim.currentFrameIndex = 0; // Loop back to start
                     } else {
@@ -63,7 +63,7 @@ namespace engine {
             }
 
             // 4. Update the RenderableComponent (Visual representation)
-            if (anim.currentFrameIndex < clip->spriteIds.size()) {
+            if (anim.currentFrameIndex < static_cast<int>(clip->spriteIds.size())) {
                 renderable.spriteId = clip->spriteIds[anim.currentFrameIndex];
             }
         });

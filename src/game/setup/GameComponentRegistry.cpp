@@ -170,7 +170,7 @@ namespace game {
         // Doesn't strictly need a loader if it's only added at runtime, 
         // but useful if we want to force-make something visible in JSON
         factory.registerComponentLoader("VisibleToPlayer",
-            [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+            [](entt::registry& registry, entt::entity entity, [[maybe_unused]] const nlohmann::json& data) {
                  registry.emplace<VisibleToPlayerComponent>(entity);
             }
         );

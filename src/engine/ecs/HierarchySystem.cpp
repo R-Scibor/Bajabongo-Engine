@@ -29,7 +29,7 @@ namespace engine
     {
         auto view = m_registry.view<ParentComponent, TransformComponent>();
 
-        view.each([this](entt::entity entity, const ParentComponent& parentComp, TransformComponent& transform)
+        view.each([this]([[maybe_unused]] entt::entity entity, const ParentComponent& parentComp, TransformComponent& transform)
         {
             if (!m_registry.valid(parentComp.parentId))
             {

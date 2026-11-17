@@ -197,7 +197,7 @@ namespace game {
                weapon.currentAmmo > 0;
     }
 
-    void WeaponSystem::applyFiringEffects(WeaponComponent& weapon, float dt) {
+    void WeaponSystem::applyFiringEffects(WeaponComponent& weapon, [[maybe_unused]] float dt) {
         // Accumulate Spread (bloom)
         weapon.currentSpreadDeg = std::min(
             weapon.currentSpreadDeg + weapon.spreadPerShotDeg,
@@ -264,7 +264,8 @@ namespace game {
                  .isStatic = false,
                  .isBullet = true,
                  .initialVelocity = { cosA * weapon.projectileSpeed, sinA * weapon.projectileSpeed },
-                 .rotation = finalAngle
+                 .rotation = finalAngle,
+                 .fixtures = {}
             };
 
             engine::FixtureDef fixDef;

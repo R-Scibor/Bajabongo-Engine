@@ -179,7 +179,7 @@ namespace game::ai {
         }
         
         // Bounds check (shouldn't happen, but defensive)
-        if (patrol->currentWaypointIndex >= patrol->waypoints.size()) {
+        if (patrol->currentWaypointIndex >= static_cast<int>(patrol->waypoints.size())) {
             patrol->currentWaypointIndex = 0;
         }
         
@@ -239,7 +239,7 @@ namespace game::ai {
 
     // --- CHASE/APPROACH MOVEMENT ---
     // Move toward player's last known position (or real-time if LOS)
-    engine::Vector2f EnemyMovementSystem::calculateChaseMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    engine::Vector2f EnemyMovementSystem::calculateChaseMovement([[maybe_unused]] entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
         if (enemy.targetEntity == entt::null || !mContext.m_registry->valid(enemy.targetEntity)) {
             return {0.0f, 0.0f}; // No valid target, no movement
         }
@@ -307,7 +307,7 @@ namespace game::ai {
 
     // --- RETREAT MOVEMENT ---
     // Move away from player (or back to lastValidPosition if no target)
-    engine::Vector2f EnemyMovementSystem::calculateRetreatMovement(entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
+    engine::Vector2f EnemyMovementSystem::calculateRetreatMovement([[maybe_unused]] entt::entity entity, EnemyComponent& enemy, const engine::TransformComponent& transform) {
         // If no valid target, retreat to cached safe position
         if (enemy.targetEntity == entt::null || !mContext.m_registry->valid(enemy.targetEntity)) {
             engine::Vector2f safePos = enemy.lastValidPosition;
