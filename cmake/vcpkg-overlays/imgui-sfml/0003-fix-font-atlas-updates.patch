@@ -1,0 +1,61 @@
+--- a/imgui-SFML.cpp
++++ b/imgui-SFML.cpp
+@@ -643,6 +643,9 @@
+ 
+     if (tex->Status == ImTextureStatus_WantCreate)
+     {
++        // Default ImGui atlas format is RGBA32; SFML Texture::update() expects that.
++        assert(tex->BytesPerPixel == 4);
++
+         auto sfml_texture = std::make_unique<sf::Texture>();
+         [[maybe_unused]] auto res = sfml_texture->resize(sf::Vector2u(sf::Vector2(tex->Width, tex->Height)));
+         sfml_texture->update(reinterpret_cast<std::uint8_t*>(tex->GetPixels()));
+@@ -654,23 +657,39 @@
+     else if (tex->Status == ImTextureStatus_WantUpdates)
+     {
+         auto it = textureMap.find(tex->GetTexID());
+-        if (it != textureMap.end()) {
++        if (it != textureMap.end())
++        {
++            // sf::Texture::update(pixels, size, dest) requires a tightly packed
++            // RGBA buffer of size.x * size.y pixels. GetPixelsAt() points into
++            // the full atlas, whose pitch is Width * BytesPerPixel, so we must
++            // copy each dirty row into a packed scratch buffer. Passing the
++            // atlas pointer directly (vcpkg 0002-support-imgui-1.92.patch)
++            // reads the next row from the wrong offset and garbles new glyphs.
++            const int pitch = tex->GetPitch();
++            const int bpp   = tex->BytesPerPixel;
+             for (ImTextureRect& r : tex->Updates)
+             {
+-                it->second->update(
+-                    reinterpret_cast<std::uint8_t*>(tex->GetPixelsAt(r.x, r.y)),
+-                    sf::Vector2u(sf::Vector2(r.w, r.h)),
+-                    sf::Vector2u(sf::Vector2(r.x, r.y)));
+-                tex->SetStatus(ImTextureStatus_OK);
++                std::vector<std::uint8_t> packed(static_cast<std::size_t>(r.w) * r.h * bpp);
++                const auto* src = static_cast<const std::uint8_t*>(tex->GetPixelsAt(r.x, r.y));
++                for (int row = 0; row < r.h; ++row)
++                {
++                    std::memcpy(packed.data() + static_cast<std::size_t>(row) * r.w * bpp,
++                                src + static_cast<std::size_t>(row) * pitch,
++                                static_cast<std::size_t>(r.w) * bpp);
++                }
++                it->second->update(packed.data(),
++                                   sf::Vector2u(sf::Vector2(r.w, r.h)),
++                                   sf::Vector2u(sf::Vector2(r.x, r.y)));
+             }
+-
++            tex->SetStatus(ImTextureStatus_OK);
+         }
+     }
+-    else
++    else if (tex->Status == ImTextureStatus_WantDestroy)
+     {
++        const ImTextureID id = tex->GetTexID();
+         tex->SetTexID(ImTextureID_Invalid);
+         tex->SetStatus(ImTextureStatus_Destroyed);
+-        textureMap.erase(tex->GetTexID());
++        textureMap.erase(id);
+     }
+ }
+ 
