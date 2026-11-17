@@ -156,6 +156,19 @@ The sanitized executable is written to `build/linux-ninja-debug-sanitize/out/gam
 
 The local CI workflow in `.github/workflows/ci.yml` includes Linux jobs for the regular Debug build, the sanitizer preset, and clang-tidy, plus a Windows VS 2022 Debug + CTest job. The workflow file is in the tree; it is not published until the branch is pushed.
 
+### Coverage
+
+On Linux, line and function coverage for `src/` is opt-in via `BAJA_COVERAGE` (GCC/Clang, gcov). The flags apply to engine, game, and tests, not to vcpkg dependencies. Use a separate build tree; do not combine this with `BAJA_SANITIZE`.
+
+```bash
+export VCPKG_ROOT=/path/to/vcpkg
+cmake --preset linux-ninja-debug-coverage
+cmake --build --preset linux-ninja-debug-coverage
+tools/run-coverage.sh
+```
+
+`tools/run-coverage.sh` runs CTest in that tree and writes `build/linux-ninja-debug-coverage/coverage/summary.txt` (and `summary.json`). You can pass another build directory as the first argument. `gcov` must be on `PATH`. The default report covers `src/` files exercised by the test binary. Game-only translation units are not included unless you also run the game from that build tree.
+
 ### Dev map flag
 
 Launching `game` with no arguments starts the normal flow (splash, then menu). For local smoke tests you can skip splash and menu and load a map directly:
