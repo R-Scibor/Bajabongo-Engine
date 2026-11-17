@@ -21,9 +21,39 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
+#include <string>
 
-int main() {
+int main(int argc, char* argv[]) {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    // Dev-only shortcut: --map hideout|hospital skips splash/menu and loads Gameplay
+    // with that mission. With no flag, startup is unchanged (Splash -> Menu).
+    std::string devMap;
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--help" || arg == "-h") {
+            std::cerr << "Usage: game [--map hideout|hospital]\n"
+                      << "  --map <name>  Skip splash/menu and load that map directly (dev).\n";
+            return 0;
+        }
+        if (arg == "--map") {
+            if (i + 1 >= argc) {
+                std::cerr << "game: --map requires hideout or hospital\n";
+                return 2;
+            }
+            devMap = argv[++i];
+        } else if (arg.rfind("--map=", 0) == 0) {
+            devMap = arg.substr(6);
+        } else {
+            std::cerr << "game: unknown argument: " << arg << "\n";
+            return 2;
+        }
+    }
+    if (!devMap.empty() && devMap != "hideout" && devMap != "hospital") {
+        std::cerr << "game: --map must be hideout or hospital\n";
+        return 2;
+    }
+
     try {
         // Logging backend (shared so it can be stored in EngineContext)
         auto logManager = std::make_shared<engine::SpdlogManager>("config/logging.ini");
@@ -94,7 +124,20 @@ int main() {
 
         // Push the first state and process transitions to ensure it's active
         // before the main loop begins.
-        stateManager->requestPush("Splash");
+        if (!devMap.empty()) {
+            // Splash normally loads the asset manifest; do that here when skipping it.
+            if (!assetLoader->load("../../assets/data/resources.json")) {
+                gameLogger->error("Dev --map: failed to load ../../assets/data/resources.json");
+                return 1;
+            }
+            const std::string display = (devMap == "hospital") ? "Hospital" : "Hideout";
+            context->currentMission = engine::EngineContext::MissionConfig{
+                .mapFile = "../../assets/data/map_" + devMap + ".json", .displayName = display};
+            gameLogger->info("Dev --map {}: skipping splash/menu, loading Gameplay directly.", devMap);
+            stateManager->requestPush("Gameplay");
+        } else {
+            stateManager->requestPush("Splash");
+        }
         stateManager->processTransitions();
 
         // Inject all dependencies into Application.
