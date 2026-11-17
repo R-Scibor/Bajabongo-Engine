@@ -53,6 +53,11 @@ option(BAJA_SANITIZE "Enable AddressSanitizer and UndefinedBehaviorSanitizer (GC
 # combine with BAJA_SANITIZE.
 option(BAJA_COVERAGE "Enable gcov coverage instrumentation (GCC/Clang)" OFF)
 
+# Opt-in precompiled header for this project's targets (engine/game/tests).
+# Uses src/engine/pch.h (framework.h + EnTT). Off by default: the vcxproj
+# creates the PCH but sets PrecompiledHeader=NotUsing on every other TU.
+option(BAJA_PCH "Precompile src/engine/pch.h for engine, game, and tests" OFF)
+
 function(bajabongo_apply_compiler_options target)
     target_compile_features(${target} PRIVATE cxx_std_20)
     target_include_directories(${target} PUBLIC "${PROJECT_SOURCE_DIR}/src")
@@ -119,6 +124,10 @@ function(bajabongo_apply_compiler_options target)
             )
         endif()
     endif()
+
+    if(BAJA_PCH)
+        target_precompile_headers(${target} PRIVATE "${PROJECT_SOURCE_DIR}/src/engine/pch.h")
+    endif()
 endfunction()
 
 if(BAJA_SANITIZE)
@@ -139,4 +148,8 @@ endif()
 
 if(BAJA_COVERAGE AND BAJA_SANITIZE)
     message(WARNING "BAJA_COVERAGE and BAJA_SANITIZE are both ON. Use separate build trees.")
+endif()
+
+if(BAJA_PCH)
+    message(STATUS "BAJA_PCH: precompiling src/engine/pch.h for engine/game/tests")
 endif()
