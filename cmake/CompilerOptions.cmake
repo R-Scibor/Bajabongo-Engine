@@ -3,7 +3,11 @@
 #
 # Shared settings (all configs, x64 and Win32):
 #   LanguageStandard        stdcpp20
-#   WarningLevel            Level3          -> /W3
+#   WarningLevel            Level3 in the vcxproj. CMake project targets
+#                           use /W4 when BAJA_STRICT_WARNINGS is on (Linux
+#                           presets already set that; Windows CMake users
+#                           can turn it on). Default MSVC stays at /W3 so
+#                           a VS .sln build is unchanged.
 #   SDLCheck                true            -> /sdl
 #   ConformanceMode         true            -> /permissive-
 #   AdditionalOptions       /utf-8
@@ -32,11 +36,11 @@
 # Runtime library is left at the VS/vcpkg default (/MD, /MDd), set
 # globally in the top-level CMakeLists.txt.
 
-# Opt-in extra warnings for this project's targets only (engine/game).
+# Opt-in extra warnings for this project's targets only (engine/game/tests).
 # Does not affect vcpkg dependencies. Linux presets set this ON.
-# MSVC stays at /W3: /W4 is untested here and would be a behavior-adjacent
-# churn we cannot verify on this machine.
-option(BAJA_STRICT_WARNINGS "Enable extra compiler warnings (-Wall -Wextra) on engine/game" OFF)
+# Linux/GCC/Clang: -Wall -Wextra -Wshadow -Wconversion.
+# MSVC: /W4 (CMake only; the .vcxproj WarningLevel stays Level3).
+option(BAJA_STRICT_WARNINGS "Enable extra compiler warnings on engine/game/tests" OFF)
 
 # Opt-in ASan + UBSan for this project's targets only (engine/game/tests).
 # Does not rebuild vcpkg dependencies. Linux-only (GCC/Clang). The
@@ -49,7 +53,7 @@ function(bajabongo_apply_compiler_options target)
 
     if(MSVC)
         target_compile_options(${target} PRIVATE
-            /W3
+            $<IF:$<BOOL:${BAJA_STRICT_WARNINGS}>,/W4,/W3>
             /sdl
             /permissive-
             /utf-8
@@ -68,12 +72,14 @@ function(bajabongo_apply_compiler_options target)
         )
     else()
         # Base: -Wall is a reasonable non-MSVC equivalent of /W3.
-        # BAJA_STRICT_WARNINGS adds -Wextra. Not -Werror / /WX: the vcxproj
-        # does not enable TreatWarningAsError.
+        # BAJA_STRICT_WARNINGS adds -Wextra -Wshadow -Wconversion.
+        # Not -Werror / /WX: the vcxproj does not enable TreatWarningAsError.
         if(BAJA_STRICT_WARNINGS)
             target_compile_options(${target} PRIVATE
                 -Wall
                 -Wextra
+                -Wshadow
+                -Wconversion
                 $<$<CONFIG:Release>:-O2>
             )
         else()

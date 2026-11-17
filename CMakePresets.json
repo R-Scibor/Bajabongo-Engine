@@ -64,7 +64,7 @@
     {
       "name": "linux-ninja-debug",
       "displayName": "Linux Ninja Debug (vcpkg)",
-      "description": "Single-config Ninja Debug build for Linux. Requires VCPKG_ROOT and typical X11/OpenGL dev packages so the SFML port can compile. Enables BAJA_STRICT_WARNINGS (-Wall -Wextra). Enables BAJA_BUILD_TESTS (Catch2 + CTest).",
+      "description": "Single-config Ninja Debug build for Linux. Requires VCPKG_ROOT and typical X11/OpenGL dev packages so the SFML port can compile. Enables BAJA_STRICT_WARNINGS (-Wall -Wextra -Wshadow -Wconversion). Enables BAJA_BUILD_TESTS (Catch2 + CTest).",
       "inherits": "vcpkg",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/linux-ninja-debug",
@@ -82,7 +82,7 @@
     {
       "name": "linux-ninja-release",
       "displayName": "Linux Ninja Release (vcpkg)",
-      "description": "Single-config Ninja Release build for Linux. Requires VCPKG_ROOT. Enables BAJA_STRICT_WARNINGS (-Wall -Wextra). Enables BAJA_BUILD_TESTS (Catch2 + CTest).",
+      "description": "Single-config Ninja Release build for Linux. Requires VCPKG_ROOT. Enables BAJA_STRICT_WARNINGS (-Wall -Wextra -Wshadow -Wconversion). Enables BAJA_BUILD_TESTS (Catch2 + CTest).",
       "inherits": "vcpkg",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/linux-ninja-release",
