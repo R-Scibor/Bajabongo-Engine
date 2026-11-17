@@ -21,7 +21,7 @@ namespace engine {
 
     AnimationStateMachineSystem::AnimationStateMachineSystem(EngineContext& context) : m_context(context) {
         if (context.m_logManager) {
-            m_logger = context.m_logManager->GetLogger("AnimStateMachine");
+            m_logger = context.m_logManager->getLogger("AnimStateMachine");
         }
     }
 

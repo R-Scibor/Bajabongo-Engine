@@ -60,11 +60,11 @@ namespace game {
                         std::string animSetId = (*archJson)["AnimationSetId"];
                         animState.animationSetId = animSetId;
                     } else {
-                        // context.m_logManager->GetLogger("WeaponSwitchSystem")->warn("Archetype {} missing AnimationSetId", weaponArchetype);
+                        // context.m_logManager->getLogger("WeaponSwitchSystem")->warn("Archetype {} missing AnimationSetId", weaponArchetype);
                     }
                 }
 
-                auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
+                auto logger = context.m_logManager->getLogger("WeaponSwitchSystem");
                 if (logger) {
                     logger->info("Switched to weapon slot {}: {}", requestedSlot, weaponArchetype);
                 }
@@ -93,7 +93,7 @@ namespace game {
 
         const auto* archJson = context.m_archetypeManager->getArchetype(archetypeId);
         if (!archJson) {
-            auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
+            auto logger = context.m_logManager->getLogger("WeaponSwitchSystem");
             if (logger) logger->error("Failed to find weapon archetype: {}", archetypeId);
             return;
         }
@@ -170,7 +170,7 @@ namespace game {
             weapon.isFiringAudioLoop = false;
 
         } else {
-            auto logger = context.m_logManager->GetLogger("WeaponSwitchSystem");
+            auto logger = context.m_logManager->getLogger("WeaponSwitchSystem");
             if (logger) logger->warn("Archetype {} has no WeaponComponent data!", archetypeId);
         }
     }

@@ -39,14 +39,14 @@ namespace engine {
          * @param name The subsystem name (e.g., "Physics", "AI").
          * @return Shared pointer to the ILogger interface.
          */
-        std::shared_ptr<ILogger> GetLogger(const std::string& name) override;
+        std::shared_ptr<ILogger> getLogger(const std::string& name) override;
 
     private:
         /**
          * @brief Parses the configuration file to set initial log levels.
          * * Expected format: `LoggerName=Level` (e.g., `Physics=Debug`).
          */
-        void LoadConfiguration(const std::string& configFilePath);
+        void loadConfiguration(const std::string& configFilePath);
 
         /// @brief Cache of active spdlog instances, indexed by name.
         std::unordered_map<std::string, std::shared_ptr<spdlog::logger>> m_loggers;

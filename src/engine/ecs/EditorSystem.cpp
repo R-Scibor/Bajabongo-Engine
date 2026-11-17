@@ -29,7 +29,7 @@ namespace engine {
 
     EditorSystem::EditorSystem(EngineContext& context) : m_context(context) {
         if (m_context.m_logManager) {
-            m_logger = m_context.m_logManager->GetLogger("EditorSystem");
+            m_logger = m_context.m_logManager->getLogger("EditorSystem");
         }
 
         RegisterInspector<TransformComponent>([](entt::registry& reg, entt::entity e) {

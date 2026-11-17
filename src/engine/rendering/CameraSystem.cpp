@@ -15,7 +15,7 @@ namespace engine {
         : m_registry(*context.m_registry)
         , m_renderer(context.m_renderer)
         , m_inputManager(context.m_inputManager) {
-        m_logger = context.m_logManager->GetLogger("CameraSystem");
+        m_logger = context.m_logManager->getLogger("CameraSystem");
     }
 
     void CameraSystem::update([[maybe_unused]] float fixedDeltaTime) {

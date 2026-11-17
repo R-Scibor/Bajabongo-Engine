@@ -14,7 +14,7 @@ namespace engine {
         Shutdown();
     }
 
-    void GuiService::SetLogger(std::shared_ptr<ILogger> logger) {
+    void GuiService::setLogger(std::shared_ptr<ILogger> logger) {
         m_logger = std::move(logger);
     }
 

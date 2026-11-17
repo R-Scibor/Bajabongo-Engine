@@ -17,7 +17,7 @@ namespace game::ai {
 
     EnemyStuckRecoverySystem::EnemyStuckRecoverySystem(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
-            mLogger = context.m_logManager->GetLogger("EnemyStuck");
+            mLogger = context.m_logManager->getLogger("EnemyStuck");
         }
     }
 

@@ -25,7 +25,7 @@ namespace engine {
          * @brief Sets the logger for this service to report initialization status and errors.
          * @param logger Shared pointer to the logger instance.
          */
-        void SetLogger(std::shared_ptr<ILogger> logger);
+        void setLogger(std::shared_ptr<ILogger> logger);
 
         /**
          * @brief Initializes the ImGui-SFML context.

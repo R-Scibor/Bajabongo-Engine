@@ -23,7 +23,7 @@ namespace game::ai {
 
     EnemyCombatSystem::EnemyCombatSystem(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
-            mLogger = context.m_logManager->GetLogger("EnemyCombat");
+            mLogger = context.m_logManager->getLogger("EnemyCombat");
         }
     }
 

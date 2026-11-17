@@ -18,7 +18,7 @@ namespace engine {
     void LifetimeSystem::update(float fixedDeltaTime) {
         auto& registry = *m_context.m_registry;
         auto view = registry.view<LifetimeComponent>();
-        auto logger = m_context.m_logManager->GetLogger("LifetimeSystem");
+        auto logger = m_context.m_logManager->getLogger("LifetimeSystem");
 
         view.each([&](entt::entity entity, LifetimeComponent& lifetime) {
             lifetime.lifetime -= fixedDeltaTime;

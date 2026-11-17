@@ -34,7 +34,7 @@ namespace engine {
 
     MapLoader::MapLoader(EngineContext& context) : m_context(context) {
         if (context.m_logManager) {
-            m_logger = context.m_logManager->GetLogger("MapLoader");
+            m_logger = context.m_logManager->getLogger("MapLoader");
         }
     }
 

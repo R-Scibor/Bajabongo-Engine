@@ -12,7 +12,7 @@ namespace game {
 
     EnemyAISystem::EnemyAISystem(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
-            mLogger = context.m_logManager->GetLogger("EnemyAI");
+            mLogger = context.m_logManager->getLogger("EnemyAI");
         }
 
         if (mLogger) {

@@ -84,7 +84,7 @@ namespace engine {
                 if (renderable.spriteId == "map_sprite") {
                     static int logCounter = 0;
                     if (logCounter < 10) {
-                        auto logger = m_context.m_logManager->GetLogger("RenderSystem");
+                        auto logger = m_context.m_logManager->getLogger("RenderSystem");
                         if (logger) logger->warn("Skipping map_sprite: not VisibleToPlayer");
                         logCounter++;
                     }

@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     try {
         // Logging backend (shared so it can be stored in EngineContext)
         auto logManager = std::make_shared<engine::SpdlogManager>("config/logging.ini");
-        auto gameLogger = logManager->GetLogger("Game");
+        auto gameLogger = logManager->getLogger("Game");
 
         gameLogger->info("Game is initializing...");
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 
         // Create rendering and input
         auto renderer = std::make_shared<engine::SFMLRenderer>();
-        renderer->setLogger(logManager->GetLogger("SFMLRenderer"));
+        renderer->setLogger(logManager->getLogger("SFMLRenderer"));
         renderer->create("Game Window", 1920, 1080, true);
         renderer->setFramerateLimit(120);
         gameLogger->info("Window created successfully.");
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
         gameLogger->info("Animation Library created.");
 
         auto assetLoader = std::make_shared<engine::AssetManifestLoader>(
-            resourceManager, spriteManager, animationLibrary, logManager->GetLogger("AssetLoader"));
+            resourceManager, spriteManager, animationLibrary, logManager->getLogger("AssetLoader"));
         gameLogger->info("Asset Manifest Loader created.");
 
         auto inputManager = std::make_shared<engine::SFMLInputManager>(*logManager, renderer->getNativeRenderWindow());

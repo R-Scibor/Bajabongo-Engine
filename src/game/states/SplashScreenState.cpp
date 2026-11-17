@@ -21,7 +21,7 @@
 namespace game {
 
     SplashScreenState::SplashScreenState(engine::EngineContext& context)
-        : m_logger(context.m_logManager->GetLogger("SplashScreen")) {}
+        : m_logger(context.m_logManager->getLogger("SplashScreen")) {}
 
     void SplashScreenState::onEnter(engine::EngineContext& context) {
         m_logger->info("Entering SplashScreenState.");

@@ -20,7 +20,7 @@ namespace game {
         initializeTextures(size.x, size.y);
 
         if (m_context.m_logManager) {
-            auto logger = m_context.m_logManager->GetLogger("FogRenderSystem");
+            auto logger = m_context.m_logManager->getLogger("FogRenderSystem");
             logger->warn("FogRenderSystem: Initialized with window size {}x{} (temporary). "
                          "Will resize to world bounds automatically.",
                          size.x, size.y);
@@ -30,14 +30,14 @@ namespace game {
         // Try sf::Shader::Type::Fragment if available, otherwise just rely on context
         if (!m_fogShader.loadFromFile("../../assets/shaders/fog.frag", sf::Shader::Type::Fragment)) {
             if (m_context.m_logManager) {
-                auto logger = m_context.m_logManager->GetLogger("FogRenderSystem");
+                auto logger = m_context.m_logManager->getLogger("FogRenderSystem");
                 logger->error("Failed to load fog.frag shader! Fog will not render correctly.");
             }
             m_shaderLoaded = false;
         } else {
             m_shaderLoaded = true;
             if (m_context.m_logManager) {
-                auto logger = m_context.m_logManager->GetLogger("FogRenderSystem");
+                auto logger = m_context.m_logManager->getLogger("FogRenderSystem");
                 logger->info("Fog shader loaded successfully.");
             }
         }
@@ -52,14 +52,14 @@ namespace game {
         if (!m_sightTexture.resize({width, height})) {
             // Handle error
             if (m_context.m_logManager) {
-                m_context.m_logManager->GetLogger("FogRenderSystem")->error("Failed to create sight render texture");
+                m_context.m_logManager->getLogger("FogRenderSystem")->error("Failed to create sight render texture");
             }
         }
 
         if (!m_explorationTexture.resize({width, height})) {
             // Handle error
             if (m_context.m_logManager) {
-                m_context.m_logManager->GetLogger("FogRenderSystem")
+                m_context.m_logManager->getLogger("FogRenderSystem")
                     ->error("Failed to create exploration render texture");
             }
         } else {
@@ -69,7 +69,7 @@ namespace game {
 
         if (!m_sceneTexture.resize({width, height})) {
             if (m_context.m_logManager) {
-                m_context.m_logManager->GetLogger("FogRenderSystem")->error("Failed to create scene render texture");
+                m_context.m_logManager->getLogger("FogRenderSystem")->error("Failed to create scene render texture");
             }
         }
 
@@ -78,7 +78,7 @@ namespace game {
         m_initialized = true;
 
         if (m_context.m_logManager) {
-            m_context.m_logManager->GetLogger("FogRenderSystem")
+            m_context.m_logManager->getLogger("FogRenderSystem")
                 ->info("Fog textures initialized to {}x{}", width, height);
         }
     }

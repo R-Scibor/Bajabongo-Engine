@@ -35,7 +35,7 @@ namespace engine {
         : m_context(context)
         , m_archetypeManager(archetypeManager) {
         if (m_context.m_logManager) {
-            m_logger = m_context.m_logManager->GetLogger("EntityFactory");
+            m_logger = m_context.m_logManager->getLogger("EntityFactory");
         }
         registerDefaultLoaders();
     }

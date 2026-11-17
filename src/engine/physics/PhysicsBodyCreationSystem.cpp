@@ -19,7 +19,7 @@ namespace engine {
     PhysicsBodyCreationSystem::PhysicsBodyCreationSystem(const EngineContext& context)
         : m_registry{*context.m_registry}
         , m_worldId{context.m_physicsWorld} {
-        m_logger = context.m_logManager->GetLogger("Physics");
+        m_logger = context.m_logManager->getLogger("Physics");
         m_logger->info("PhysicsBodyCreationSystem initialized.");
     }
 

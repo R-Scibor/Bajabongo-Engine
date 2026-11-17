@@ -17,7 +17,7 @@ namespace game::ai {
 
     EnemyMovementSystem::EnemyMovementSystem(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
-            mLogger = context.m_logManager->GetLogger("EnemyMovement");
+            mLogger = context.m_logManager->getLogger("EnemyMovement");
         }
     }
 

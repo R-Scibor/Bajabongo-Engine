@@ -11,7 +11,7 @@ namespace game::ai {
 
     EnemyDetectionSystem::EnemyDetectionSystem(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
-            mLogger = context.m_logManager->GetLogger("EnemyDetection");
+            mLogger = context.m_logManager->getLogger("EnemyDetection");
         }
     }
 

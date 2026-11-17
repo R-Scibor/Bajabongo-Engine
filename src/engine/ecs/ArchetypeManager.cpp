@@ -11,7 +11,7 @@ namespace engine {
 
     ArchetypeManager::ArchetypeManager(std::shared_ptr<ILoggerManager> logManager) {
         if (logManager) {
-            m_logger = logManager->GetLogger("ArchetypeManager");
+            m_logger = logManager->getLogger("ArchetypeManager");
         }
     }
 

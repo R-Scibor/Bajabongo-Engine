@@ -23,12 +23,12 @@ namespace engine {
         , m_stateManager{std::move(stateManager)} {
         // Link the state manager back to the context so States can access it
         m_context->m_stateManager = m_stateManager.get();
-        m_logger = m_context->m_logManager->GetLogger("Core");
+        m_logger = m_context->m_logManager->getLogger("Core");
 
         // --- Initialize GuiService ---
         // GUI needs access to the native SFML window to handle inputs and rendering
         m_context->m_guiService = std::make_shared<GuiService>();
-        m_context->m_guiService->SetLogger(m_context->m_logManager->GetLogger("GuiService"));
+        m_context->m_guiService->setLogger(m_context->m_logManager->getLogger("GuiService"));
 
         auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
         if (sfmlRenderer) {
@@ -39,7 +39,7 @@ namespace engine {
 
         // --- Initialize Audio System ---
         m_context->m_audioSystem = std::make_shared<AudioSystem>(m_context->m_resourceManager, m_context->m_dispatcher,
-                                                                 m_context->m_logManager->GetLogger("Audio"));
+                                                                 m_context->m_logManager->getLogger("Audio"));
 
         m_logger->info("Application starting up.");
     }

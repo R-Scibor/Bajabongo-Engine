@@ -140,7 +140,7 @@ namespace {
 namespace engine {
 
     SFMLInputManager::SFMLInputManager(ILoggerManager& logManager, sf::RenderWindow& window) : m_window(window) {
-        m_logger = logManager.GetLogger("Input");
+        m_logger = logManager.getLogger("Input");
         m_logger->info("SFMLInputManager initialized.");
     }
 

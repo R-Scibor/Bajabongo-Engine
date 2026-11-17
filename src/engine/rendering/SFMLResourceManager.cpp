@@ -10,7 +10,7 @@ namespace engine {
 
     SFMLResourceManager::SFMLResourceManager(std::shared_ptr<ILoggerManager> loggerManager) {
         if (loggerManager) {
-            m_logger = loggerManager->GetLogger("SFMLResourceManager");
+            m_logger = loggerManager->getLogger("SFMLResourceManager");
         }
     }
 

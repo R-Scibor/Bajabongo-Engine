@@ -20,6 +20,6 @@ namespace engine {
          * @param name The name of the subsystem (e.g., "Physics").
          * @return Shared pointer to the requested logger instance.
          */
-        virtual std::shared_ptr<ILogger> GetLogger(const std::string& name) = 0;
+        virtual std::shared_ptr<ILogger> getLogger(const std::string& name) = 0;
     };
 } // namespace engine

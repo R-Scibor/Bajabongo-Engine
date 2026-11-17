@@ -64,7 +64,7 @@ namespace game {
         , m_hitFlashSystem(context)
         , m_hudSystem(std::make_unique<HudSystem>(context))
         , m_dispatcher(context.m_dispatcher) {
-        m_logger = context.m_logManager->GetLogger("GameplayState");
+        m_logger = context.m_logManager->getLogger("GameplayState");
         RegisterGameEditorInspectors(*m_editorSystem);
 
         // Same empty-set heuristic that used to live in AnimationStateMachineSystem.

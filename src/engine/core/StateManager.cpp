@@ -8,7 +8,7 @@
 namespace engine {
 
     StateManager::StateManager(EngineContext& context) : m_context(context) {
-        auto logger = context.m_logManager->GetLogger("StateManager");
+        auto logger = context.m_logManager->getLogger("StateManager");
         logger->info("Initializing StateManager and connecting to dispatcher.");
 
         // Subscribe to all state-related events from the dispatcher.
@@ -21,7 +21,7 @@ namespace engine {
     }
 
     StateManager::~StateManager() {
-        auto logger = m_context.m_logManager->GetLogger("StateManager");
+        auto logger = m_context.m_logManager->getLogger("StateManager");
         logger->info("Shutting down StateManager and disconnecting from dispatcher.");
 
         // It's crucial to disconnect to avoid dangling pointers if the dispatcher outlives the manager
@@ -83,7 +83,7 @@ namespace engine {
     }
 
     void StateManager::processTransitions() {
-        auto logger = m_context.m_logManager->GetLogger("StateManager");
+        auto logger = m_context.m_logManager->getLogger("StateManager");
 
         // SAFETY: Take a copy of the pending actions and clear the original queue immediately.
         // Why? Because onEnter() or onExit() of a state might request *new* transitions.

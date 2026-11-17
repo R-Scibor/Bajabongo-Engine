@@ -22,7 +22,7 @@ namespace game {
         : m_renderSystem(std::make_unique<engine::RenderSystem>(context)) {}
 
     void MapSelectionState::onEnter(engine::EngineContext& context) {
-        m_logger = context.m_logManager->GetLogger("MapSelectionState");
+        m_logger = context.m_logManager->getLogger("MapSelectionState");
         if (m_logger) m_logger->info("Entering MapSelectionState");
 
         // Reset View to Default (Screen Space) to ensure UI is visible

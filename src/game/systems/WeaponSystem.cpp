@@ -81,7 +81,7 @@ namespace game {
                     weapon.burstShotsFired = 0;
 
                     if (m_context.m_logManager) {
-                        auto logger = m_context.m_logManager->GetLogger("WeaponSystem");
+                        auto logger = m_context.m_logManager->getLogger("WeaponSystem");
                         if (logger) logger->debug("Reload complete. Ammo: {}/{}", weapon.currentAmmo, weapon.totalAmmo);
                     }
                 }

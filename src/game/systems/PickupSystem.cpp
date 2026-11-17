@@ -10,7 +10,7 @@
 namespace game {
 
     PickupSystem::PickupSystem(engine::EngineContext& context) : m_context(context) {
-        m_logger = context.m_logManager->GetLogger("PickupSystem");
+        m_logger = context.m_logManager->getLogger("PickupSystem");
 
         // Subscribe to sensor events
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&PickupSystem::onSensorBegin>(this);

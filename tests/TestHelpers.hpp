@@ -17,7 +17,7 @@ namespace baja::test {
 
     class NullLoggerManager : public engine::ILoggerManager {
     public:
-        std::shared_ptr<engine::ILogger> GetLogger(const std::string&) override {
+        std::shared_ptr<engine::ILogger> getLogger(const std::string&) override {
             if (!m_logger) {
                 m_logger = std::make_shared<NullLogger>();
             }

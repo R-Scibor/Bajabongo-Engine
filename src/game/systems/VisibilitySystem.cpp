@@ -17,7 +17,7 @@ namespace game {
     VisibilitySystem::VisibilitySystem(engine::EngineContext& context)
         : m_context(context)
         , m_worldId(context.m_physicsWorld) {
-        m_logger = context.m_logManager->GetLogger("VisibilitySystem");
+        m_logger = context.m_logManager->getLogger("VisibilitySystem");
     }
 
     // Callback for AABB Query

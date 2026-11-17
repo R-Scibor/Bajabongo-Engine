@@ -24,7 +24,7 @@
 namespace game {
 
     DamageSystem::DamageSystem(engine::EngineContext& context) : m_context(context) {
-        m_logger = context.m_logManager->GetLogger("DamageSystem");
+        m_logger = context.m_logManager->getLogger("DamageSystem");
 
         // Subscribe to events
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&DamageSystem::onSensorBegin>(this);

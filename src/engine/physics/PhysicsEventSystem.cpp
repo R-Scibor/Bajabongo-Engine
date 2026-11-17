@@ -19,7 +19,7 @@ namespace engine {
         : m_worldId{context.m_physicsWorld}
         , m_dispatcher{context.m_dispatcher}
         , m_registry{context.m_registry} {
-        m_logger = context.m_logManager->GetLogger("PhysicsEventSystem");
+        m_logger = context.m_logManager->getLogger("PhysicsEventSystem");
         m_logger->info("PhysicsEventSystem initialized.");
     }
 

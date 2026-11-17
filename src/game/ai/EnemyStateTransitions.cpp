@@ -13,7 +13,7 @@ namespace game::ai {
 
     EnemyStateTransitions::EnemyStateTransitions(engine::EngineContext& context) : mContext(context) {
         if (context.m_logManager) {
-            mLogger = context.m_logManager->GetLogger("EnemyStates");
+            mLogger = context.m_logManager->getLogger("EnemyStates");
         }
     }
 

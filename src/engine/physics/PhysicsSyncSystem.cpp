@@ -18,7 +18,7 @@
 namespace engine {
 
     PhysicsSyncSystem::PhysicsSyncSystem(const EngineContext& context) : m_registry{*context.m_registry} {
-        m_logger = context.m_logManager->GetLogger("Physics");
+        m_logger = context.m_logManager->getLogger("Physics");
         m_logger->info("PhysicsSyncSystem initialized.");
     }
 

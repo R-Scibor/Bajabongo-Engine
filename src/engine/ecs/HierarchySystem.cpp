@@ -18,7 +18,7 @@
 
 namespace engine {
     HierarchySystem::HierarchySystem(const EngineContext& context) : m_registry(*context.m_registry) {
-        m_logger = context.m_logManager->GetLogger("HierarchySystem");
+        m_logger = context.m_logManager->getLogger("HierarchySystem");
         m_logger->info("HierarchySystem initialized.");
     }
 

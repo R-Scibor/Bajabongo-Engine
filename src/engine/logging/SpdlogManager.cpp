@@ -50,7 +50,7 @@ namespace engine {
         : m_defaultPattern("[%H:%M:%S %z] [%n] [%^%l%$] [thread %t] %v") {
         // Set the global pattern for all new loggers
         spdlog::set_pattern(m_defaultPattern);
-        LoadConfiguration(configFilePath);
+        loadConfiguration(configFilePath);
     }
 
     SpdlogManager::~SpdlogManager() {
@@ -58,7 +58,7 @@ namespace engine {
         spdlog::shutdown();
     }
 
-    std::shared_ptr<ILogger> SpdlogManager::GetLogger(const std::string& name) {
+    std::shared_ptr<ILogger> SpdlogManager::getLogger(const std::string& name) {
         // 1. Check if the logger already exists in our cache
         auto it = m_loggers.find(name);
         if (it != m_loggers.end()) {
@@ -76,7 +76,7 @@ namespace engine {
         return std::make_shared<SpdlogLogger>(new_logger);
     }
 
-    void SpdlogManager::LoadConfiguration(const std::string& configFilePath) {
+    void SpdlogManager::loadConfiguration(const std::string& configFilePath) {
         std::ifstream configFile(configFilePath);
         if (!configFile.is_open()) {
             // Use std::cerr because the logging system itself isn't fully configured yet
@@ -104,7 +104,7 @@ namespace engine {
                 // Set the level as defined in the file
                 logger->set_level(level_from_string(level_str));
 
-                // Store in our map so GetLogger returns this pre-configured instance
+                // Store in our map so getLogger returns this pre-configured instance
                 m_loggers[name] = logger;
             }
         }

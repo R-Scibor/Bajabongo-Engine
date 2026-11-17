@@ -19,7 +19,7 @@ namespace game {
     class MainMenuState : public engine::IGameState {
     public:
         explicit MainMenuState(engine::EngineContext& context)
-            : m_logger(context.m_logManager->GetLogger("MainMenu")) {}
+            : m_logger(context.m_logManager->getLogger("MainMenu")) {}
 
         void onEnter(engine::EngineContext& context) override;
         void onExit(engine::EngineContext& context) override;
