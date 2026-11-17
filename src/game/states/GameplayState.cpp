@@ -55,6 +55,7 @@ namespace game {
         , m_playerControllerSystem(context)
         , m_weaponSystem(context)
         , m_lifetimeSystem(context)
+        , m_editorSystem(std::make_unique<engine::EditorSystem>(context))
         , m_hierarchySystem(context)
         , m_visibilitySystem(context)
         , m_visibilityTaggingSystem(context)
@@ -66,11 +67,6 @@ namespace game {
         , m_dispatcher(context.m_dispatcher)
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
-
-        // Note: Create a non-owning shared_ptr for EditorSystem since it expects shared_ptr<EngineContext>.
-        // This is safe because GameplayState and EditorSystem are owned by Application which owns the Context.
-        auto sharedContext = std::shared_ptr<engine::EngineContext>(&context, [](engine::EngineContext*){});
-        m_editorSystem = std::make_unique<engine::EditorSystem>(sharedContext);
     }
 
     void GameplayState::onEnter(engine::EngineContext& context) {

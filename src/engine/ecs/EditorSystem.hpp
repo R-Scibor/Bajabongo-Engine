@@ -29,7 +29,7 @@ namespace engine {
          *
          * @param context Shared pointer to the engine context.
          */
-        explicit EditorSystem(std::shared_ptr<EngineContext> context);
+        explicit EditorSystem(EngineContext& context);
 
         /** @brief Destructor for EditorSystem. */
         ~EditorSystem();
@@ -81,8 +81,8 @@ namespace engine {
         /** @brief Draws the debug settings window. */
         void DrawSettings();
 
-        /** @brief Shared pointer to the engine context. */
-        std::shared_ptr<EngineContext> m_context;
+        /** @brief Non-owning reference to the engine context. */
+        EngineContext& m_context;
         
         /** @brief Logger instance for the EditorSystem. */
         std::shared_ptr<ILogger> m_logger;

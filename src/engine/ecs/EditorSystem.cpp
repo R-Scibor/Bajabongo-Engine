@@ -30,11 +30,11 @@
 
 namespace engine {
 
-    EditorSystem::EditorSystem(std::shared_ptr<EngineContext> context)
-        : m_context(std::move(context))
+    EditorSystem::EditorSystem(EngineContext& context)
+        : m_context(context)
     {
-        if (m_context->m_logManager) {
-            m_logger = m_context->m_logManager->GetLogger("EditorSystem");
+        if (m_context.m_logManager) {
+            m_logger = m_context.m_logManager->GetLogger("EditorSystem");
         }
 
         RegisterInspector<game::HealthComponent>([](entt::registry& reg, entt::entity e) {
@@ -191,16 +191,16 @@ namespace engine {
         if (m_isPlacing && !m_placingArchetype.empty()) {
             // Left Click to Spawn (if mouse is not hovering ImGui window)
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
-                auto mousePos = m_context->m_inputManager->getMousePosition();
+                auto mousePos = m_context.m_inputManager->getMousePosition();
                 Vector2f spawnPos = { (float)mousePos.x, (float)mousePos.y };
 
                 // Convert screen coordinates to world coordinates if renderer is available
-                if (m_context->m_renderer) {
-                    spawnPos = m_context->m_renderer->screenToWorld(spawnPos);
+                if (m_context.m_renderer) {
+                    spawnPos = m_context.m_renderer->screenToWorld(spawnPos);
                 }
                 
-                if (m_context->m_entityFactory) {
-                    m_context->m_entityFactory->spawn(m_placingArchetype, spawnPos);
+                if (m_context.m_entityFactory) {
+                    m_context.m_entityFactory->spawn(m_placingArchetype, spawnPos);
                     if (m_logger) m_logger->info("Spawned archetype '{}' at ({}, {})", m_placingArchetype, spawnPos.x, spawnPos.y);
                 }
             }
@@ -215,10 +215,10 @@ namespace engine {
         // Selection Mode (Click to Select)
         else {
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::GetIO().WantCaptureMouse) {
-                auto mousePos = m_context->m_inputManager->getMousePosition();
+                auto mousePos = m_context.m_inputManager->getMousePosition();
                 Vector2f worldPos = { (float)mousePos.x, (float)mousePos.y };
-                if (m_context->m_renderer) {
-                    worldPos = m_context->m_renderer->screenToWorld(worldPos);
+                if (m_context.m_renderer) {
+                    worldPos = m_context.m_renderer->screenToWorld(worldPos);
                 }
 
                 entt::entity pickedEntity = entt::null;
@@ -230,7 +230,7 @@ namespace engine {
                 
                 // Check Physics Bodies first (Primary)
                 {
-                    auto view = m_context->m_registry->view<PhysicsBodyComponent>();
+                    auto view = m_context.m_registry->view<PhysicsBodyComponent>();
                     float thresholdSq = 30.0f * 30.0f;
 
                     for (auto [entity, bodyComp] : view.each()) {
@@ -252,7 +252,7 @@ namespace engine {
                 // 2. Graphics Pick (Fallback)
                 // If no physics body was close enough, try transforms
                 if (pickedEntity == entt::null) {
-                    auto view = m_context->m_registry->view<TransformComponent>();
+                    auto view = m_context.m_registry->view<TransformComponent>();
                     float thresholdSq = 30.0f * 30.0f; // 30 pixels threshold
 
                     for (auto [entity, transform] : view.each()) {
@@ -284,18 +284,18 @@ namespace engine {
     // Helper to check mouse placement
     void EditorSystem::Render() {
         // Visual Selection Indicator
-        if (m_selectedEntity != entt::null && m_context->m_registry->valid(m_selectedEntity)) {
+        if (m_selectedEntity != entt::null && m_context.m_registry->valid(m_selectedEntity)) {
              // ... (Selection code from before is here, no changes needed to this block unless I accidentally replaced it)
              // Wait, I'm replacing Render(), so I need to keep the selection indicator code.
-             if (m_context->m_registry->all_of<TransformComponent>(m_selectedEntity)) {
-                auto& transform = m_context->m_registry->get<TransformComponent>(m_selectedEntity);
+             if (m_context.m_registry->all_of<TransformComponent>(m_selectedEntity)) {
+                const auto& transform = m_context.m_registry->get<TransformComponent>(m_selectedEntity);
                 
                 float baseSize = 25.0f;
                 float maxScale = std::max(std::abs(transform.scale.x), std::abs(transform.scale.y));
                 float radius = baseSize * maxScale;
 
-                if (m_context->m_renderer) {
-                    m_context->m_renderer->drawCircle(transform.position, radius);
+                if (m_context.m_renderer) {
+                    m_context.m_renderer->drawCircle(transform.position, radius);
                 }
             }
         }
@@ -303,20 +303,20 @@ namespace engine {
         // Ghost Placement Preview
         if (m_isPlacing && !m_placingArchetype.empty()) {
             // Get mouse pos in world
-            auto mousePos = m_context->m_inputManager->getMousePosition();
+            auto mousePos = m_context.m_inputManager->getMousePosition();
             Vector2f worldPos = { (float)mousePos.x, (float)mousePos.y };
-            if (m_context->m_renderer) {
-                worldPos = m_context->m_renderer->screenToWorld(worldPos);
+            if (m_context.m_renderer) {
+                worldPos = m_context.m_renderer->screenToWorld(worldPos);
             }
 
             // Get archetype data
-            if (m_context->m_archetypeManager) {
-                const auto* arch = m_context->m_archetypeManager->getArchetype(m_placingArchetype);
+            if (m_context.m_archetypeManager) {
+                const auto* arch = m_context.m_archetypeManager->getArchetype(m_placingArchetype);
                 if (arch && arch->contains("Renderable")) {
                     std::string spriteId = (*arch)["Renderable"].value("spriteId", "");
                     
-                    if (!spriteId.empty() && m_context->m_spriteManager) {
-                         const auto* spriteDesc = m_context->m_spriteManager->getSprite(spriteId);
+                    if (!spriteId.empty() && m_context.m_spriteManager) {
+                         const auto* spriteDesc = m_context.m_spriteManager->getSprite(spriteId);
                          if (spriteDesc) {
                              // Create temp transform
                              TransformComponent ghostTransform;
@@ -334,7 +334,7 @@ namespace engine {
 
                              // Draw ghost
                              Color ghostColor = {255, 255, 255, 128}; // 50% alpha
-                             m_context->m_renderer->drawSprite(*spriteDesc, ghostTransform, ghostColor);
+                             m_context.m_renderer->drawSprite(*spriteDesc, ghostTransform, ghostColor);
                          }
                     }
                 }
@@ -345,7 +345,7 @@ namespace engine {
     void EditorSystem::DrawHierarchy() {
         ImGui::Begin("Hierarchy");
 
-        auto& registry = *m_context->m_registry;
+        auto& registry = *m_context.m_registry;
         
         // Use a list of entities to avoid iterator invalidation during deletion
         std::vector<entt::entity> entities;
@@ -393,8 +393,8 @@ namespace engine {
     void EditorSystem::DrawInspector() {
         ImGui::Begin("Inspector");
 
-        if (m_selectedEntity != entt::null && m_context->m_registry->valid(m_selectedEntity)) {
-            auto& registry = *m_context->m_registry;
+        if (m_selectedEntity != entt::null && m_context.m_registry->valid(m_selectedEntity)) {
+            auto& registry = *m_context.m_registry;
             
             ImGui::Text("Entity ID: %d", static_cast<uint32_t>(m_selectedEntity));
             
@@ -431,8 +431,8 @@ namespace engine {
             static int selectedIndex = -1;
             static std::string selectedArchetype;
             
-            if (m_context->m_archetypeManager) {
-                auto& archetypes = m_context->m_archetypeManager->getAllArchetypes();
+            if (m_context.m_archetypeManager) {
+                auto& archetypes = m_context.m_archetypeManager->getAllArchetypes();
                 
                 // Lista wyboru
                 if (ImGui::BeginListBox("##archetypes")) {
@@ -478,9 +478,9 @@ namespace engine {
 
     void EditorSystem::DrawSettings() {
         ImGui::Begin("Debug Settings");
-        ImGui::Checkbox("Show Physics Wireframe", &m_context->debugFlags.showPhysics);
-        ImGui::Checkbox("Show Hitboxes", &m_context->debugFlags.showHitboxes);
-        ImGui::Checkbox("Pause Simulation", &m_context->debugFlags.pauseGame);
+        ImGui::Checkbox("Show Physics Wireframe", &m_context.debugFlags.showPhysics);
+        ImGui::Checkbox("Show Hitboxes", &m_context.debugFlags.showHitboxes);
+        ImGui::Checkbox("Pause Simulation", &m_context.debugFlags.pauseGame);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::End();
     }
