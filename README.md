@@ -1,6 +1,6 @@
 # Bajabongo Engine
 
-A modular, data-driven 2D game engine built with **C++20**, **SFML 3**, **EnTT**, and **Box2D 3.0**.
+A modular, data-driven 2D game engine built with **C++20**, **SFML 3.1**, **EnTT**, and **Box2D 3.2**.
 
 The project is structured into two distinct parts: the **Core Engine** (`src/engine`) which provides reusable systems and abstractions, and the **Game Module** (`src/game`) which implements specific gameplay logic, acting as the composition root.
 
@@ -9,8 +9,8 @@ The project is structured into two distinct parts: the **Core Engine** (`src/eng
 ### Core Technology
 *   **Modern C++20 Codebase**: Utilizes latest standard features for performance and safety.
 *   **Entity Component System (ECS)**: Powered by [EnTT](https://github.com/skypjack/entt) for high-performance entity management.
-*   **Physics Engine**: Integrated **Box2D 3.0** (C API) for reliable 2D physics simulation.
-*   **Rendering**: **SFML 3.0.2** backend with support for sprite batching, animations, and camera control.
+*   **Physics Engine**: Integrated **Box2D 3.2** (C API) for reliable 2D physics simulation.
+*   **Rendering**: **SFML 3.1** backend with support for sprite batching, animations, and camera control.
 *   **Input System**: Abstracted input handling supporting keyboard and mouse.
 *   **Logging**: Structured, multi-sink logging using [spdlog](https://github.com/gabime/spdlog).
 
@@ -35,8 +35,9 @@ The project is structured into two distinct parts: the **Core Engine** (`src/eng
 ## 📂 Project Structure
 
 ```
-c:/repos/Bajabongo-Engine/
+Bajabongo-Engine/
 ├── assets/                 # Game assets (sprites, fonts, data, shaders)
+├── cmake/                  # Compiler options, runtime layout, decoupling check
 ├── docs/                   # Detailed technical documentation
 ├── src/
 │   ├── engine/             # Core Engine Library (Reusable)
@@ -51,22 +52,127 @@ c:/repos/Bajabongo-Engine/
 │       ├── states/         # Game states (MainMenu, Gameplay)
 │       ├── systems/        # Gameplay systems (Damage, Weapon, Fog)
 │       └── game.cpp        # Composition Root (Main Entry)
-└── tools/                  # Python tools for asset management
+├── tests/                  # Catch2 unit tests (no window required)
+├── tools/                  # Python tools for asset management
+├── CMakeLists.txt
+└── CMakePresets.json
 ```
 
 ## 🛠️ Getting Started
 
 ### Prerequisites
-*   **Visual Studio 2022** (or compatible C++20 compiler)
-*   **vcpkg** package manager
+*   **CMake 3.21** or newer
+*   A **C++20** compiler: **Visual Studio 2022** on Windows, or a recent GCC or Clang on Linux
+*   **vcpkg** in manifest mode (`vcpkg.json` at the repo root). Use Visual Studio's bundled vcpkg, or a standalone clone. In both cases set `VCPKG_ROOT` (the CMake presets load `$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake`).
+*   **Ninja** for the Linux presets (and the optional Windows Ninja presets)
 *   **Python 3.x** (for asset tools)
 
-### Building the Project
+Dependencies are resolved from `vcpkg.json` (SFML, EnTT, Box2D, spdlog, nlohmann-json, Dear ImGui, imgui-sfml, Catch2).
+
+### Windows (CMake + Visual Studio 2022)
+
+1.  Install Visual Studio 2022 with the "Desktop development with C++" workload.
+2.  Provide vcpkg and set `VCPKG_ROOT`:
+    *   **VS-bundled vcpkg**: install the Visual Studio "C++ vcpkg package manager" component, then point `VCPKG_ROOT` at that copy (commonly `C:\Program Files\Microsoft Visual Studio\2022\<Edition>\VC\vcpkg`).
+    *   **Standalone vcpkg**: clone [vcpkg](https://github.com/microsoft/vcpkg) and set `VCPKG_ROOT` to that directory.
+3.  From the repo root, in a Developer Command Prompt or any shell where `cmake` and `VCPKG_ROOT` are available:
+
+```bat
+cmake --preset windows-vs2022
+cmake --build --preset windows-vs2022-debug
+```
+
+Use `windows-vs2022-release` for a Release build. The executable is written to `build/windows-vs2022/out/game/Debug/game.exe` (or `Release`). Run it from that folder so the copied `../../assets` and `config/logging.ini` paths resolve.
+
+Optional single-config Ninja presets, if Ninja is on PATH: `windows-ninja-debug` and `windows-ninja-release`.
+
+### Visual Studio solution (alternative)
+
+The `Bajabongo-Engine.sln` / `.vcxproj` files remain a supported Windows/MSVC workflow:
+
 1.  Ensure **vcpkg** is installed and integrated with Visual Studio (`vcpkg integrate install`).
 2.  Open `Bajabongo-Engine.sln` in Visual Studio.
 3.  Select the **Debug** or **Release** configuration (x64 recommended).
 4.  Build the solution (F7). Visual Studio should automatically invoke vcpkg to install missing dependencies (SFML, EnTT, Box2D, Spdlog).
-5.  Run the `game` project.
+5.  Run the `game` project. The Visual Studio debugger defaults the working directory to `src/game`, which is how the classic relative asset paths resolve in this workflow.
+
+### Linux (CMake + Ninja)
+
+Install Ninja, CMake 3.21+, a C++20 toolchain, and typical X11 / OpenGL development packages so the SFML vcpkg port can compile. Then:
+
+```bash
+export VCPKG_ROOT=/path/to/vcpkg
+cmake --preset linux-ninja-debug
+cmake --build --preset linux-ninja-debug
+```
+
+The Linux presets also turn on `BAJA_STRICT_WARNINGS` (`-Wall -Wextra`) and `BAJA_BUILD_TESTS`. Use `linux-ninja-release` for a Release build.
+
+The executable is written to `build/linux-ninja-debug/out/game/Debug/game` (or the Release equivalent). Run it from that folder:
+
+```bash
+cd build/linux-ninja-debug/out/game/Debug
+./game
+```
+
+### Running tests
+
+Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (math, JSON parsing, ammo/reload, health, state stack) and do not open a window.
+
+`BAJA_BUILD_TESTS` defaults to **OFF**. The Linux presets turn it **ON**. On Windows, pass the option when configuring:
+
+```bat
+cmake --preset windows-vs2022 -DBAJA_BUILD_TESTS=ON
+cmake --build --preset windows-vs2022-debug
+ctest --test-dir build/windows-vs2022 -C Debug --output-on-failure
+```
+
+On Linux, after a `linux-ninja-debug` (or release) build:
+
+```bash
+ctest --test-dir build/linux-ninja-debug --output-on-failure
+```
+
+### Dev map flag
+
+Launching `game` with no arguments starts the normal flow (splash, then menu). For local smoke tests you can skip splash and menu and load a map directly:
+
+```text
+game --map hideout
+game --map hospital
+```
+
+`--map=hideout` and `--map=hospital` are accepted as well. `game --help` (or `-h`) prints usage. Any other map name is rejected. This flag is a development aid; default behavior is unchanged when it is omitted.
+
+## Controls
+
+Derived from the current input handling in the game module.
+
+**Splash**
+*   Enter or Space: continue
+
+**Main menu**
+*   W / Up Arrow, S / Down Arrow: move the selection
+*   Enter or Space: confirm
+*   Escape: quit
+*   Left mouse button: click a menu entry
+
+**Map selection**
+*   Left mouse button: choose a map marker
+*   Escape: return to Hideout gameplay
+
+**Gameplay**
+*   W A S D: move
+*   Left Shift: run
+*   Mouse: face the cursor
+*   Right mouse button: aim
+*   Left mouse button: fire (while aiming)
+*   R: reload
+*   1-9: switch weapons
+*   H: use a medkit (requires a medkit, and current HP below max)
+*   E: interact (for example the Mission Table, which opens map selection)
+*   Escape: return to the previous state
+*   F1: toggle the in-game editor
 
 ## 📚 Documentation
 
@@ -88,4 +194,16 @@ Detailed documentation for specific subsystems can be found in the `docs/` direc
 The engine follows **SOLID** principles, heavily utilizing **Dependency Injection (DI)**.
 *   **EngineContext**: A central container holding references to core services (Renderer, Input, Registry, PhysicsWorld).
 *   **Application Class**: Drives the main loop but delegates logic to the active `GameState`.
-*   **Separation of Concerns**: The `engine` project knows nothing about `game` logic. The `game` project ties everything together.
+*   **Separation of Concerns**: The `engine` project knows nothing about `game` logic. The `game` project ties everything together. Engine code must not include headers from `src/game`; CMake enforces this on every build via `cmake/CheckEngineDecoupling.cmake`. Game systems talk to the engine through interfaces, hooks, and configuration rather than reaching into engine internals that would create a reverse dependency.
+
+## Screenshots and GIFs
+
+> **PLACEHOLDER (Rafał will provide):** screenshots and short GIFs of the game belong in this section. Add images here when they are ready. Do not leave marketing shots out of this heading; this block is only a stand-in.
+
+_No screenshots or GIFs have been added yet._
+
+## License
+
+Source code and documentation are released under the [MIT License](LICENSE).
+
+Files under `assets/` have their own terms. See [assets/CREDITS.md](assets/CREDITS.md).
