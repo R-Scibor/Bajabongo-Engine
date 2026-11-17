@@ -15,6 +15,7 @@
 #include "engine/rendering/AnimationClip.hpp"
 #include <entt/entt.hpp>
 #include <cmath>
+#include <utility>
 
 namespace engine {
 
@@ -23,6 +24,10 @@ AnimationStateMachineSystem::AnimationStateMachineSystem(EngineContext& context)
     if (context.m_logManager) {
         m_logger = context.m_logManager->GetLogger("AnimStateMachine");
     }
+}
+
+void AnimationStateMachineSystem::setEmptyAnimSetResolver(EmptyAnimSetResolver resolver) {
+    m_emptyAnimSetResolver = std::move(resolver);
 }
 
 void AnimationStateMachineSystem::update() {
@@ -42,18 +47,15 @@ void AnimationStateMachineSystem::update() {
         std::string animSet = stateComp.animationSetId;
         
         if (animSet.empty()) {
-            // Fallback: Try MetaComponent (Archetype Name)
+            const std::string* metaName = nullptr;
             if (auto* meta = registry.try_get<MetaComponent>(entity)) {
-                // Heuristic: If archetype name contains "player" or "enemy", guess the set
-                if (meta->name.find("player") != std::string::npos) {
-                    animSet = "player";
-                } else if (meta->name.find("enemy") != std::string::npos) {
-                     animSet = "player"; // HACK: Fallback to player anims
-                } else {
-                     animSet = meta->name;
-                }
-            } else {
-                animSet = "player"; // Absolute fallback
+                metaName = &meta->name;
+            }
+            if (m_emptyAnimSetResolver) {
+                animSet = m_emptyAnimSetResolver(metaName);
+            } else if (metaName) {
+                // Generic fallback when no game hook is installed: use the archetype name.
+                animSet = *metaName;
             }
         }
         

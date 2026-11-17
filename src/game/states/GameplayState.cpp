@@ -68,6 +68,21 @@ namespace game {
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
         RegisterGameEditorInspectors(*m_editorSystem);
+
+        // Same empty-set heuristic that used to live in AnimationStateMachineSystem.
+        m_animationStateMachineSystem.setEmptyAnimSetResolver([](const std::string* metaName) {
+            if (metaName) {
+                // Heuristic: If archetype name contains "player" or "enemy", guess the set
+                if (metaName->find("player") != std::string::npos) {
+                    return std::string("player");
+                } else if (metaName->find("enemy") != std::string::npos) {
+                    return std::string("player"); // HACK: Fallback to player anims
+                } else {
+                    return *metaName;
+                }
+            }
+            return std::string("player"); // Absolute fallback
+        });
     }
 
     void GameplayState::onEnter(engine::EngineContext& context) {
