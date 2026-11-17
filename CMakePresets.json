@@ -1,0 +1,125 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "VCPKG_MANIFEST_MODE": "ON"
+      }
+    },
+    {
+      "name": "windows-vs2022",
+      "displayName": "Windows VS 2022 x64 (vcpkg)",
+      "description": "Multi-config Visual Studio 2022 generator, x64. Requires VCPKG_ROOT. Build with --config Debug or --config Release.",
+      "inherits": "vcpkg",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/windows-vs2022",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-ninja-debug",
+      "displayName": "Windows Ninja Debug (vcpkg)",
+      "description": "Single-config Ninja Debug build. Requires VCPKG_ROOT and Ninja on PATH.",
+      "inherits": "vcpkg",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/windows-ninja-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-ninja-release",
+      "displayName": "Windows Ninja Release (vcpkg)",
+      "description": "Single-config Ninja Release build. Requires VCPKG_ROOT and Ninja on PATH.",
+      "inherits": "vcpkg",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/windows-ninja-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "linux-ninja-debug",
+      "displayName": "Linux Ninja Debug (vcpkg)",
+      "description": "Single-config Ninja Debug build for Linux. Requires VCPKG_ROOT and typical X11/OpenGL dev packages so the SFML port can compile.",
+      "inherits": "vcpkg",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-ninja-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-ninja-release",
+      "displayName": "Linux Ninja Release (vcpkg)",
+      "description": "Single-config Ninja Release build for Linux. Requires VCPKG_ROOT.",
+      "inherits": "vcpkg",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/linux-ninja-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-vs2022-debug",
+      "configurePreset": "windows-vs2022",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-vs2022-release",
+      "configurePreset": "windows-vs2022",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-ninja-debug",
+      "configurePreset": "windows-ninja-debug"
+    },
+    {
+      "name": "windows-ninja-release",
+      "configurePreset": "windows-ninja-release"
+    },
+    {
+      "name": "linux-ninja-debug",
+      "configurePreset": "linux-ninja-debug"
+    },
+    {
+      "name": "linux-ninja-release",
+      "configurePreset": "linux-ninja-release"
+    }
+  ]
+}
