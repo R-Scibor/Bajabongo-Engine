@@ -67,6 +67,7 @@ namespace game {
         , m_dispatcher(context.m_dispatcher)
     {
         m_logger = context.m_logManager->GetLogger("GameplayState");
+        RegisterGameEditorInspectors(*m_editorSystem);
     }
 
     void GameplayState::onEnter(engine::EngineContext& context) {

@@ -1,5 +1,7 @@
 #include "GameComponentRegistry.hpp"
 #include "engine/core/EngineContext.hpp"
+#include "engine/ecs/EditorSystem.hpp"
+#include <imgui.h>
 #include "engine/ecs/EntityFactory.hpp"
 #include <cstdint>
 
@@ -294,6 +296,35 @@ namespace game {
             }
 
             registry.emplace<HitFlashComponent>(entity, flash);
+        });
+    }
+
+    void RegisterGameEditorInspectors(engine::EditorSystem& editor)
+    {
+        editor.RegisterInspector<HealthComponent>([](entt::registry& reg, entt::entity e) {
+            if (ImGui::CollapsingHeader("Health", ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto& health = reg.get<HealthComponent>(e);
+                ImGui::DragFloat("Current HP", &health.currentHp, 1.0f, 0.0f, health.maxHp);
+                ImGui::DragFloat("Max HP", &health.maxHp, 1.0f, 1.0f, 10000.0f);
+            }
+        });
+
+        editor.RegisterInspector<WeaponComponent>([](entt::registry& reg, entt::entity e) {
+            if (ImGui::CollapsingHeader("Weapon", ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto& weapon = reg.get<WeaponComponent>(e);
+                ImGui::DragFloat("Fire Rate", &weapon.fireRate, 0.01f, 0.01f, 5.0f);
+                ImGui::DragFloat("Damage", &weapon.damage, 1.0f, 0.0f, 1000.0f);
+                ImGui::DragInt("Current Ammo", &weapon.currentAmmo, 1, 0, weapon.magSize);
+                ImGui::DragInt("Mag Size", &weapon.magSize, 1, 1, 1000);
+                ImGui::DragInt("Total Ammo", &weapon.totalAmmo, 10, 0, 10000);
+            }
+        });
+
+        editor.RegisterInspector<PlayerComponent>([](entt::registry& reg, entt::entity e) {
+            if (ImGui::CollapsingHeader("Player Stats", ImGuiTreeNodeFlags_DefaultOpen)) {
+                auto& player = reg.get<PlayerComponent>(e);
+                ImGui::DragFloat("Move Speed", &player.moveSpeed, 0.1f, 0.0f, 100.0f);
+            }
         });
     }
 }
