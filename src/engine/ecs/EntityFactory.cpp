@@ -1,4 +1,5 @@
 #include "engine/pch.h"
+#include <cstdint>
 #include "EntityFactory.hpp"
 #include "engine/components/TransformComponent.hpp"
 
@@ -137,10 +138,10 @@ namespace engine {
                                     if (data.contains("color") && data["color"].is_array()) {
                                         auto& c = data["color"];
                                         if (c.size() >= 3) {
-                                            color.r = c[0].get<int>();
-                                            color.g = c[1].get<int>();
-                                            color.b = c[2].get<int>();
-                                            color.a = c.size() > 3 ? c[3].get<int>() : 255;
+                                            color.r = static_cast<std::uint8_t>(c[0].get<int>());
+                                            color.g = static_cast<std::uint8_t>(c[1].get<int>());
+                                            color.b = static_cast<std::uint8_t>(c[2].get<int>());
+                                            color.a = static_cast<std::uint8_t>(c.size() > 3 ? c[3].get<int>() : 255);
                                         }
                                     }
 

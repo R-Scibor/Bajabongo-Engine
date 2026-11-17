@@ -193,7 +193,8 @@ namespace game::ai {
             // Advance to next waypoint based on mode
             if (patrol->loopMode) {
                 // Loop mode: 0 -> 1 -> 2 -> 0 -> ...
-                patrol->currentWaypointIndex = (patrol->currentWaypointIndex + 1) % patrol->waypoints.size();
+                patrol->currentWaypointIndex =
+                    (patrol->currentWaypointIndex + 1) % static_cast<int>(patrol->waypoints.size());
             } else {
                 // Ping-pong mode: 0 -> 1 -> 2 -> 1 -> 0 -> ...
                 if (patrol->reversing) {

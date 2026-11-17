@@ -61,7 +61,7 @@ namespace game {
                     ImVec4 textColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
                     if (weapon.currentAmmo == 0) {
                         textColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
-                    } else if (weapon.currentAmmo < weapon.magSize * 0.3f) {
+                    } else if (static_cast<float>(weapon.currentAmmo) < static_cast<float>(weapon.magSize) * 0.3f) {
                         textColor = ImVec4(1.0f, 0.5f, 0.0f, 1.0f); // Orange
                     }
 

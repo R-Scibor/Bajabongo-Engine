@@ -58,7 +58,7 @@ namespace engine {
      */
     template<typename T, typename U>
     Vector2<T> operator*(const Vector2<T>& left, U scalar) {
-        return Vector2<T>(left.x * scalar, left.y * scalar);
+        return Vector2<T>(static_cast<T>(left.x * scalar), static_cast<T>(left.y * scalar));
     }
 
     /**

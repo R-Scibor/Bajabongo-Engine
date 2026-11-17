@@ -189,7 +189,8 @@ namespace engine {
             if (hasCustomOrigin) {
                 desc.origin = customOrigin;
             } else {
-                desc.origin = sf::Vector2f(w * 0.5f, h * 0.5f); // Default pivot: Center
+                desc.origin =
+                    sf::Vector2f(static_cast<float>(w) * 0.5f, static_cast<float>(h) * 0.5f); // Default pivot: Center
             }
 
             m_spriteManager->registerSprite(frameId, desc);

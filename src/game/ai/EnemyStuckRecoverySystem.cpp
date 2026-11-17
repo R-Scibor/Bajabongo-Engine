@@ -212,7 +212,7 @@ namespace game::ai {
                         if (distSq < minDistSq) {
                             minDistSq = distSq;
                             nearestWaypoint = wp;
-                            nearestIndex = i;
+                            nearestIndex = static_cast<int>(i);
                         }
                     }
 

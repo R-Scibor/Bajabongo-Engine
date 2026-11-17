@@ -58,7 +58,7 @@ namespace game {
         // Reset View to Window Defaults (Fixes issue when returning from GameplayState)
         auto windowSize = renderer.getWindowSize();
         renderer.setViewSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
-        renderer.setViewCenter({windowSize.x / 2.0f, windowSize.y / 2.0f});
+        renderer.setViewCenter({static_cast<float>(windowSize.x) / 2.0f, static_cast<float>(windowSize.y) / 2.0f});
 
         // Draw Background
         if (context.m_resourceManager) {
@@ -100,7 +100,7 @@ namespace game {
         const float logoY = 100.0f;
         const float startY = 400.0f;
         const float gap = 60.0f;
-        const float endY = startY + (m_menuItems.size() * gap);
+        const float endY = startY + (static_cast<float>(m_menuItems.size()) * gap);
 
         // Draw Anchor Line (running from Logo top to bottom of buttons)
         // Animate height growing over 1.5s
@@ -121,7 +121,7 @@ namespace game {
         for (size_t i = 0; i < m_menuItems.size(); ++i) {
             engine::Color color = {224, 224, 224, 255}; // #E0E0E0
             std::string label = m_menuItems[i];
-            float itemY = startY + (i * gap);
+            float itemY = startY + (static_cast<float>(i) * gap);
 
             // "Draw Down" reveal: Only draw if the line has passed this item
             if (logoY + currentHeight < itemY) continue;
@@ -143,8 +143,8 @@ namespace game {
                     color = {255, 0, 0, 255}; // Critical Red
 
                     // Shake Effect
-                    float shakeX = (rand() % 5) - 2.0f;
-                    float shakeY = (rand() % 5) - 2.0f;
+                    float shakeX = static_cast<float>(rand() % 5) - 2.0f;
+                    float shakeY = static_cast<float>(rand() % 5) - 2.0f;
                     drawX += shakeX;
                     drawY += shakeY;
 
@@ -228,7 +228,7 @@ namespace game {
         const float startY = 400.0f;
         const float gap = 60.0f;
         const float logoY = 100.0f;
-        const float endY = startY + (m_menuItems.size() * gap);
+        const float endY = startY + (static_cast<float>(m_menuItems.size()) * gap);
 
         // Check animation progress
         float fullHeight = endY - logoY;
@@ -236,7 +236,7 @@ namespace game {
         float currentHeight = fullHeight * progress;
 
         for (size_t i = 0; i < m_menuItems.size(); ++i) {
-            float itemY = startY + (i * gap);
+            float itemY = startY + (static_cast<float>(i) * gap);
 
             // Check visibility (Draw Down effect)
             if (logoY + currentHeight < itemY) continue;
