@@ -74,31 +74,49 @@ namespace engine {
             return false;
         }
 
+        if (!isTiledMapJson(mapJson)) {
+            if (m_logger) m_logger->error("Map file is not a Tiled JSON object: {}", filepath);
+            return false;
+        }
+
         if (m_logger) m_logger->info("Loading map from {}", filepath);
 
-        // Read mapScale from JSON, defaulting to global default if not present
-        float mapScale = mapJson.value("mapScale", EngineContext::MAP_SCALE);
-        m_context.mapScale = mapScale;
-        if (m_logger) m_logger->info("Map Scale set to: {}", mapScale);
+        try {
+            // Read mapScale from JSON, defaulting to global default if not present
+            if (mapJson.contains("mapScale") && !mapJson["mapScale"].is_number()) {
+                if (m_logger) m_logger->error("Map 'mapScale' must be a number in {}", filepath);
+                return false;
+            }
+            float mapScale = mapJson.value("mapScale", EngineContext::MAP_SCALE);
+            m_context.mapScale = mapScale;
+            if (m_logger) m_logger->info("Map Scale set to: {}", mapScale);
 
-        // Iterate through layers and delegate processing based on type/name
-        if (mapJson.contains("layers")) {
-            for (const auto& layer : mapJson["layers"]) {
-                std::string type = layer.value("type", "");
-                std::string name = layer.value("name", "");
+            // Iterate through layers and delegate processing based on type/name
+            if (mapJson.contains("layers")) {
+                for (const auto& layer : mapJson["layers"]) {
+                    if (!layer.is_object()) {
+                        if (m_logger) m_logger->warn("MapLoader: Skipping a non-object layer entry.");
+                        continue;
+                    }
+                    std::string type = layer.value("type", "");
+                    std::string name = layer.value("name", "");
 
-                if (type == LAYER_TYPE_IMAGE) {
-                    processImageLayer(layer);
-                } else if (type == LAYER_TYPE_OBJECT) {
-                    if (name == LAYER_NAME_COLLISION) {
-                        processObjectLayer(layer, false);
-                    } else if (name == LAYER_NAME_HALF_COLLISION) {
-                        processObjectLayer(layer, true);
-                    } else if (name == LAYER_NAME_ENTITIES) {
-                        processEntityLayer(layer);
+                    if (type == LAYER_TYPE_IMAGE) {
+                        processImageLayer(layer);
+                    } else if (type == LAYER_TYPE_OBJECT) {
+                        if (name == LAYER_NAME_COLLISION) {
+                            processObjectLayer(layer, false);
+                        } else if (name == LAYER_NAME_HALF_COLLISION) {
+                            processObjectLayer(layer, true);
+                        } else if (name == LAYER_NAME_ENTITIES) {
+                            processEntityLayer(layer);
+                        }
                     }
                 }
             }
+        } catch (const nlohmann::json::exception& e) {
+            if (m_logger) m_logger->error("Invalid map JSON in {}: {}", filepath, e.what());
+            return false;
         }
 
         return true;
@@ -165,10 +183,18 @@ namespace engine {
         }
 
         if (layer.contains("objects")) {
+            if (!layer["objects"].is_array()) {
+                if (m_logger) m_logger->warn("MapLoader: Entities layer 'objects' is not an array.");
+                return;
+            }
             int count = 0;
             float scale = m_context.mapScale;
 
             for (const auto& obj : layer["objects"]) {
+                if (!obj.is_object()) {
+                    if (m_logger) m_logger->warn("MapLoader: Skipping a non-object entity entry.");
+                    continue;
+                }
                 // Tiled renamed "Type" to "Class" in recent versions.
                 // We check "type" first (legacy), then "class" (new), then fallback to "name".
                 std::string type = obj.value("type", "");
@@ -214,8 +240,16 @@ namespace engine {
 
     void MapLoader::processObjectLayer(const nlohmann::json& layer, bool isHalfCollision) {
         if (layer.contains("objects")) {
+            if (!layer["objects"].is_array()) {
+                if (m_logger) m_logger->warn("MapLoader: Collision layer 'objects' is not an array.");
+                return;
+            }
             int count = 0;
             for (const auto& obj : layer["objects"]) {
+                if (!obj.is_object()) {
+                    if (m_logger) m_logger->warn("MapLoader: Skipping a non-object collision entry.");
+                    continue;
+                }
                 createCollisionBody(obj, isHalfCollision);
                 count++;
             }

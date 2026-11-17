@@ -43,23 +43,37 @@ namespace engine {
             return false;
         }
 
+        if (!j.is_object()) {
+            if (m_logger) {
+                m_logger->error("AssetManifestLoader: Root JSON element is not an object in {}", manifestPath);
+            }
+            return false;
+        }
+
         if (m_logger) {
             m_logger->info("AssetManifestLoader: Loading manifest: {}", manifestPath);
         }
 
-        // Process textures and their associated sprites/animations
-        if (j.contains("textures")) {
-            loadTextures(j["textures"]);
-        }
+        try {
+            // Process textures and their associated sprites/animations
+            if (j.contains("textures")) {
+                loadTextures(j["textures"]);
+            }
 
-        // Process sound effects
-        if (j.contains("sounds")) {
-            loadSounds(j["sounds"]);
-        }
+            // Process sound effects
+            if (j.contains("sounds")) {
+                loadSounds(j["sounds"]);
+            }
 
-        // Process music tracks
-        if (j.contains("music")) {
-            loadMusic(j["music"]);
+            // Process music tracks
+            if (j.contains("music")) {
+                loadMusic(j["music"]);
+            }
+        } catch (const nlohmann::json::exception& e) {
+            if (m_logger) {
+                m_logger->error("AssetManifestLoader: Invalid manifest JSON in {}: {}", manifestPath, e.what());
+            }
+            return false;
         }
 
         return true;
@@ -74,15 +88,16 @@ namespace engine {
         }
 
         for (const auto& textureJson : textureArray) {
-            if (!textureJson.contains("id") || !textureJson.contains("path")) {
+            if (!textureJson.is_object() || !textureJson.contains("id") || !textureJson.contains("path") ||
+                !textureJson["id"].is_string() || !textureJson["path"].is_string()) {
                 if (m_logger) {
                     m_logger->warn("AssetManifestLoader: Skipping invalid texture entry (missing id or path).");
                 }
                 continue;
             }
 
-            std::string id = textureJson["id"];
-            std::string path = textureJson["path"];
+            std::string id = textureJson["id"].get<std::string>();
+            std::string path = textureJson["path"].get<std::string>();
 
             // Load the texture resource
             if (m_resourceManager) {
@@ -109,7 +124,8 @@ namespace engine {
     void AssetManifestLoader::loadSprite(const std::string& textureId, const nlohmann::json& spriteJson) {
         if (!m_spriteManager) return;
 
-        if (!spriteJson.contains("id") || !spriteJson.contains("region") || !spriteJson.contains("origin")) {
+        if (!spriteJson.is_object() || !spriteJson.contains("id") || !spriteJson.contains("region") ||
+            !spriteJson.contains("origin") || !spriteJson["id"].is_string()) {
             if (m_logger) {
                 m_logger->warn("AssetManifestLoader: Invalid sprite definition in texture '{}'", textureId);
             }
@@ -140,8 +156,9 @@ namespace engine {
     void AssetManifestLoader::loadAnimation(const std::string& textureId, const nlohmann::json& animJson) {
         if (!m_spriteManager || !m_animationLibrary) return;
 
-        if (!animJson.contains("id") || !animJson.contains("frameStart") || !animJson.contains("frameSize") ||
-            !animJson.contains("frameCount") || !animJson.contains("duration")) {
+        if (!animJson.is_object() || !animJson.contains("id") || !animJson.contains("frameStart") ||
+            !animJson.contains("frameSize") || !animJson.contains("frameCount") || !animJson.contains("duration") ||
+            !animJson["id"].is_string()) {
             if (m_logger) {
                 m_logger->warn("AssetManifestLoader: Invalid animation definition in texture '{}'", textureId);
             }
@@ -216,15 +233,16 @@ namespace engine {
         }
 
         for (const auto& soundJson : soundArray) {
-            if (!soundJson.contains("id") || !soundJson.contains("path")) {
+            if (!soundJson.is_object() || !soundJson.contains("id") || !soundJson.contains("path") ||
+                !soundJson["id"].is_string() || !soundJson["path"].is_string()) {
                 if (m_logger) {
                     m_logger->warn("AssetManifestLoader: Skipping invalid sound entry (missing id or path).");
                 }
                 continue;
             }
 
-            std::string id = soundJson["id"];
-            std::string path = soundJson["path"];
+            std::string id = soundJson["id"].get<std::string>();
+            std::string path = soundJson["path"].get<std::string>();
 
             if (m_resourceManager) {
                 m_resourceManager->loadSoundBuffer(id, path);
@@ -241,15 +259,16 @@ namespace engine {
         }
 
         for (const auto& musicJson : musicArray) {
-            if (!musicJson.contains("id") || !musicJson.contains("path")) {
+            if (!musicJson.is_object() || !musicJson.contains("id") || !musicJson.contains("path") ||
+                !musicJson["id"].is_string() || !musicJson["path"].is_string()) {
                 if (m_logger) {
                     m_logger->warn("AssetManifestLoader: Skipping invalid music entry (missing id or path).");
                 }
                 continue;
             }
 
-            std::string id = musicJson["id"];
-            std::string path = musicJson["path"];
+            std::string id = musicJson["id"].get<std::string>();
+            std::string path = musicJson["path"].get<std::string>();
 
             if (m_resourceManager) {
                 m_resourceManager->registerMusicPath(id, path);

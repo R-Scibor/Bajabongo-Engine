@@ -91,14 +91,23 @@ namespace engine {
 
                 // Recursively spawn child at (0,0); HierarchySystem will position it
                 entt::entity childEntity = spawn(childArchetype, {0.f, 0.f});
+                if (childEntity == entt::null) {
+                    if (m_logger)
+                        m_logger->warn("EntityFactory: Failed to spawn child archetype '{}' for '{}'", childArchetype,
+                                       archetypeId);
+                    continue;
+                }
 
                 // Read Local Offsets
                 Vector2f localPos = {0.f, 0.f};
-                if (childDef.contains("offset") && childDef["offset"].is_array()) {
-                    localPos.x = childDef["offset"][0];
-                    localPos.y = childDef["offset"][1];
+                if (childDef.contains("offset") && childDef["offset"].is_array() && childDef["offset"].size() >= 2) {
+                    if (childDef["offset"][0].is_number()) localPos.x = childDef["offset"][0];
+                    if (childDef["offset"][1].is_number()) localPos.y = childDef["offset"][1];
                 }
-                float localRot = childDef.value("rotation", 0.f);
+                float localRot = 0.f;
+                if (childDef.contains("rotation") && childDef["rotation"].is_number()) {
+                    localRot = childDef["rotation"];
+                }
 
                 // AUTO-LINKING: Add ParentComponent to child
                 m_context.m_registry->emplace<ParentComponent>(childEntity,

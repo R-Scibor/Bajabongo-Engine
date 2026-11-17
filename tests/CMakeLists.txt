@@ -21,6 +21,7 @@ add_executable(baja_tests
     test_entity_factory.cpp
     test_map_loader.cpp
     test_map_integration.cpp
+    test_json_robustness.cpp
     ../src/game/systems/DamageSystem.cpp
     ../src/game/systems/VisibilitySystem.cpp
     ../src/game/ai/EnemyDetectionSystem.cpp
