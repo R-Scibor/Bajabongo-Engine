@@ -22,11 +22,11 @@ namespace engine {
         }
 
         // Subscribe to audio-related events
-        m_connections.push_back(m_dispatcher->sink<PlaySoundEvent>().connect<&AudioSystem::onPlaySound>(this));
-        m_connections.push_back(m_dispatcher->sink<StopSoundEvent>().connect<&AudioSystem::onStopSound>(this));
-        m_connections.push_back(m_dispatcher->sink<PlayMusicEvent>().connect<&AudioSystem::onPlayMusic>(this));
-        m_connections.push_back(m_dispatcher->sink<StopMusicEvent>().connect<&AudioSystem::onStopMusic>(this));
-        m_connections.push_back(m_dispatcher->sink<SetVolumeEvent>().connect<&AudioSystem::onSetVolume>(this));
+        m_connections.emplace_back(m_dispatcher->sink<PlaySoundEvent>().connect<&AudioSystem::onPlaySound>(this));
+        m_connections.emplace_back(m_dispatcher->sink<StopSoundEvent>().connect<&AudioSystem::onStopSound>(this));
+        m_connections.emplace_back(m_dispatcher->sink<PlayMusicEvent>().connect<&AudioSystem::onPlayMusic>(this));
+        m_connections.emplace_back(m_dispatcher->sink<StopMusicEvent>().connect<&AudioSystem::onStopMusic>(this));
+        m_connections.emplace_back(m_dispatcher->sink<SetVolumeEvent>().connect<&AudioSystem::onSetVolume>(this));
 
         if (m_logger) {
             m_logger->info("AudioSystem initialized with {} sound sources.", MAX_SOUNDS);

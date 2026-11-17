@@ -207,7 +207,7 @@ namespace game {
                                             if (data.contains("waypoints") && data["waypoints"].is_array()) {
                                                 for (const auto& wp : data["waypoints"]) {
                                                     if (wp.is_array() && wp.size() >= 2) {
-                                                        patrol.waypoints.push_back({wp[0], wp[1]});
+                                                        patrol.waypoints.emplace_back(wp[0], wp[1]);
                                                     }
                                                 }
                                             }

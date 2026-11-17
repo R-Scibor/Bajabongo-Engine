@@ -45,15 +45,15 @@ namespace game {
             b2Polygon poly = b2Shape_GetPolygon(shapeId);
             for (int i = 0; i < poly.count; ++i) {
                 b2Vec2 worldPoint = b2TransformPoint(transform, poly.vertices[i]);
-                data->vertices->push_back({worldPoint.x, worldPoint.y});
+                data->vertices->emplace_back(worldPoint.x, worldPoint.y);
             }
         } else if (type == b2_chainSegmentShape) {
             b2ChainSegment segment = b2Shape_GetChainSegment(shapeId);
             // Chain segment has point1 and point2
             b2Vec2 p1 = b2TransformPoint(transform, segment.segment.point1);
             b2Vec2 p2 = b2TransformPoint(transform, segment.segment.point2);
-            data->vertices->push_back({p1.x, p1.y});
-            data->vertices->push_back({p2.x, p2.y});
+            data->vertices->emplace_back(p1.x, p1.y);
+            data->vertices->emplace_back(p2.x, p2.y);
         }
         // Add other shapes if necessary, but map uses chains mostly for walls.
 
