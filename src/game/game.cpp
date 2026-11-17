@@ -73,15 +73,22 @@ int main(int argc, char* argv[]) {
 
         gameLogger->info("EnTT registry and Box2D world created.");
 
+        // Game-owned asset locations consumed by engine services (no engine hardcodes).
+        engine::EngineContext::AssetPathConfig assetPaths;
+        assetPaths.missingTexturePath = "../../assets/textures/eg.png";
+        assetPaths.fontPaths = {"assets/fonts/default.ttf", "../../assets/fonts/default.ttf"};
+
         // Create rendering and input
         auto renderer = std::make_shared<engine::SFMLRenderer>();
         renderer->setLogger(logManager->getLogger("SFMLRenderer"));
+        renderer->loadFonts(assetPaths.fontPaths);
         renderer->create("Game Window", 1920, 1080, true);
         renderer->setFramerateLimit(120);
         gameLogger->info("Window created successfully.");
 
         // Phase 5A: Create Resource Manager
         auto resourceManager = std::make_shared<engine::SFMLResourceManager>(logManager);
+        resourceManager->setMissingTexturePath(assetPaths.missingTexturePath);
         renderer->setResourceManager(resourceManager);
         gameLogger->info("Resource Manager created.");
 
@@ -99,6 +106,7 @@ int main(int argc, char* argv[]) {
 
         // Create the engine context object (DI container)
         auto context = std::make_shared<engine::EngineContext>();
+        context->assetPaths = assetPaths;
         context->m_logManager = logManager;
         context->m_registry = registry;
         context->m_physicsWorld = physicsWorldId;

@@ -23,17 +23,17 @@ namespace engine {
         m_rectShape.setFillColor(sf::Color::Transparent);
         m_rectShape.setOutlineColor(sf::Color::Green);
         m_rectShape.setOutlineThickness(1.0f);
+    }
 
-        // Robust Font Loading Strategy:
-        // 1. Try local assets folder
-        // 2. Try relative path (VS debugging context)
-        // 3. Fallback to Windows system font
-        if (!m_font.openFromFile("assets/fonts/default.ttf")) {
-            if (!m_font.openFromFile("../../assets/fonts/default.ttf")) {
-                // Fallback to system font if custom font fails
-                (void)m_font.openFromFile("C:/Windows/Fonts/arial.ttf");
+    void SFMLRenderer::loadFonts(const std::vector<std::string>& paths) {
+        for (const std::string& path : paths) {
+            if (m_font.openFromFile(path)) {
+                return;
             }
         }
+        // Last-resort platform font for debug text when no configured file loaded.
+        // Not a game asset; the game supplies default.ttf via AssetPathConfig.
+        (void)m_font.openFromFile("C:/Windows/Fonts/arial.ttf");
     }
 
     SFMLRenderer::~SFMLRenderer() {

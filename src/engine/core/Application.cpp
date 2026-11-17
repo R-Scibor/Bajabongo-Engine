@@ -29,6 +29,7 @@ namespace engine {
         // GUI needs access to the native SFML window to handle inputs and rendering
         m_context->m_guiService = std::make_shared<GuiService>();
         m_context->m_guiService->setLogger(m_context->m_logManager->getLogger("GuiService"));
+        m_context->m_guiService->setFontPaths(m_context->assetPaths.fontPaths);
 
         auto sfmlRenderer = std::dynamic_pointer_cast<SFMLRenderer>(m_context->m_window);
         if (sfmlRenderer) {

@@ -18,6 +18,10 @@ namespace engine {
         m_logger = std::move(logger);
     }
 
+    void GuiService::setFontPaths(std::vector<std::string> paths) {
+        m_fontPaths = std::move(paths);
+    }
+
     void GuiService::Init(sf::RenderWindow& window) {
         if (m_initialized) {
             if (m_logger) m_logger->warn("GuiService: Already initialized.");
@@ -43,25 +47,20 @@ namespace engine {
             io.Fonts->AddFontDefault();
         }
 
-        // Same path convention as SFMLRenderer / runtime copy: the exe lives in
-        // out/game/$<CONFIG>/, assets are at ../../assets (or ./assets).
-        const char* fontPaths[] = {
-            "assets/fonts/default.ttf",
-            "../../assets/fonts/default.ttf",
-        };
+        // Font paths are supplied by the game (typically ./assets then ../../assets).
         m_hudFont = nullptr;
-        for (const char* path : fontPaths) {
-            // Probe first: AddFontFromFileTTF asserts in Debug if the file is missing,
-            // and we try ./assets before ../../assets to match SFMLRenderer.
+        for (const std::string& path : m_fontPaths) {
+            // Probe first: AddFontFromFileTTF asserts in Debug if the file is missing.
             if (!std::ifstream(path, std::ios::binary)) continue;
-            if (ImFont* font = io.Fonts->AddFontFromFileTTF(path, 16.0f)) {
+            if (ImFont* font = io.Fonts->AddFontFromFileTTF(path.c_str(), 16.0f)) {
                 m_hudFont = font;
                 if (m_logger) m_logger->info("GuiService: Loaded HUD font from {}.", path);
                 break;
             }
         }
         if (!m_hudFont && m_logger) {
-            m_logger->warn("GuiService: Could not load assets/fonts/default.ttf; HUD will use the default ImGui font.");
+            m_logger->warn("GuiService: Could not load a HUD font from the configured paths; HUD will use the default "
+                           "ImGui font.");
         }
 
         m_initialized = true;

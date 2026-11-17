@@ -4,6 +4,7 @@
 #include <entt/fwd.hpp>
 #include <box2d/id.h>
 #include <string>
+#include <vector>
 #include <optional>
 
 namespace engine {
@@ -58,6 +59,23 @@ namespace engine {
 
         /// @brief Current state of debug visualization options.
         DebugSettings debugFlags;
+
+        /**
+         * @brief Game-provided asset locations used by engine services.
+         *
+         * The engine does not hardcode game asset paths. The composition root
+         * fills this in before constructing Application (and before any texture
+         * or font load). Empty values mean "no file fallback".
+         */
+        struct AssetPathConfig {
+            /// Placeholder texture if a requested file cannot be loaded.
+            /// If this is empty or also fails to load, a magenta square is generated.
+            std::string missingTexturePath;
+            /// Font files tried in order for the HUD (GuiService) and debug text
+            /// (SFMLRenderer).
+            std::vector<std::string> fontPaths;
+        };
+        AssetPathConfig assetPaths;
 
         // --- Core Services ---
         std::shared_ptr<IWindow> m_window;             ///< Window management interface.

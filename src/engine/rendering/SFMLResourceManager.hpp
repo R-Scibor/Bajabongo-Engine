@@ -24,6 +24,9 @@ namespace engine {
         explicit SFMLResourceManager(std::shared_ptr<ILoggerManager> loggerManager);
         ~SFMLResourceManager() override = default;
 
+        /// @brief Optional placeholder texture used when loadTexture cannot open the requested file.
+        void setMissingTexturePath(std::string path);
+
         /**
          * @brief Loads a texture from disk into VRAM.
          * * If loading fails, it attempts a fallback path, and finally generates a 128x128 Magenta square.
@@ -66,6 +69,8 @@ namespace engine {
 
         /// @brief Registry of paths for music streams.
         std::unordered_map<std::string, std::string> m_musicPaths;
+
+        std::string m_missingTexturePath;
     };
 
 } // namespace engine

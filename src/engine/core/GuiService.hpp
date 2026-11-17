@@ -4,6 +4,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Time.hpp>
 #include <memory>
+#include <string>
+#include <vector>
 
 struct ImFont;
 
@@ -26,6 +28,9 @@ namespace engine {
          * @param logger Shared pointer to the logger instance.
          */
         void setLogger(std::shared_ptr<ILogger> logger);
+
+        /// @brief Font files tried in order for the HUD. Must be set before Init.
+        void setFontPaths(std::vector<std::string> paths);
 
         /**
          * @brief Initializes the ImGui-SFML context.
@@ -66,7 +71,7 @@ namespace engine {
         void Render(sf::RenderWindow& window);
 
         /**
-         * @brief Bebas Neue (assets/fonts/default.ttf) for in-game HUD text.
+         * @brief HUD text font loaded from the paths supplied via setFontPaths.
          * @return Pointer owned by the ImGui font atlas, or nullptr if the TTF
          *         could not be loaded (caller should fall back to the default font).
          */
@@ -76,6 +81,7 @@ namespace engine {
         bool m_initialized = false;
         std::shared_ptr<ILogger> m_logger;
         ImFont* m_hudFont = nullptr;
+        std::vector<std::string> m_fontPaths;
     };
 
 } // namespace engine

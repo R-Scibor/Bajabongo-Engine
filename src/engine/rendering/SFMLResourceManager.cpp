@@ -14,6 +14,10 @@ namespace engine {
         }
     }
 
+    void SFMLResourceManager::setMissingTexturePath(std::string path) {
+        m_missingTexturePath = std::move(path);
+    }
+
     std::shared_ptr<TextureHandle> SFMLResourceManager::loadTexture(const std::string& id, const std::string& path) {
         // 1. Check cache first
         auto it = m_textures.find(id);
@@ -25,10 +29,11 @@ namespace engine {
         auto texture = std::make_shared<sf::Texture>();
         if (!texture->loadFromFile(path)) {
             // 3. Fallback strategy
-            // Try user-specified fallback path (e.g. placeholder asset)
-            if (texture->loadFromFile("../../assets/textures/eg.png")) {
+            // Try the game-configured placeholder, if one was set.
+            const bool usedFileFallback = !m_missingTexturePath.empty() && texture->loadFromFile(m_missingTexturePath);
+            if (usedFileFallback) {
                 if (m_logger) {
-                    m_logger->warn("Failed to load texture: {}. Used fallback: ../../assets/textures/eg.png", path);
+                    m_logger->warn("Failed to load texture: {}. Used fallback: {}", path, m_missingTexturePath);
                 }
             } else {
                 if (m_logger) {
