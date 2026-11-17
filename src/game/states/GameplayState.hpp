@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/core/IGameState.hpp"
-#include "engine/events/PhysicsEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/physics/PhysicsEventSystem.hpp"

@@ -2,8 +2,6 @@
 
 #include "engine/core/Application.hpp"
 #include "engine/core/EngineContext.hpp"
-#include "engine/core/Application.hpp"
-#include "engine/core/EngineContext.hpp"
 #include "engine/rendering/SFMLRenderer.hpp"
 #include "engine/rendering/SFMLResourceManager.hpp"
 #include "engine/rendering/Sprite.hpp"

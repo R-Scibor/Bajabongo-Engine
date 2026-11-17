@@ -6,6 +6,9 @@
 internal_docs
 plans
 
+# ImGui runtime window layout (per-machine)
+imgui.ini
+
 # User-specific files
 *.rsuser
 *.suo

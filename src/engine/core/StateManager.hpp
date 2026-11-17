@@ -105,7 +105,7 @@ namespace engine {
             static_assert(std::is_constructible_v<T, EngineContext&> || std::is_constructible_v<T>,
                 "State must be constructible with EngineContext& or default constructible.");
 
-            // Lamda that creates a new instance of T when invoked
+            // Lambda that creates a new instance of T when invoked
             m_stateFactory[stateName] = [this]() -> std::unique_ptr<IGameState> {
                 if constexpr (std::is_constructible_v<T, EngineContext&>) {
                     return std::make_unique<T>(m_context);

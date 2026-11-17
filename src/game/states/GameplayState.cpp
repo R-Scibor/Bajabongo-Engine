@@ -14,7 +14,6 @@
 #include "engine/core/math/Vector2.hpp"
 #include "engine/events/StateEvents.hpp"
 #include "engine/events/AudioEvents.hpp"
-#include "engine/events/PhysicsEvents.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsEventSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
@@ -178,10 +177,6 @@ namespace game {
         if (m_logger) m_logger->info("Cleanup hooks disconnected.");
         
         m_musicFinishConnection.release();
-
-        // Clean up test listeners
-        context.m_dispatcher->sink<engine::PhysicsContactBeginEvent>().disconnect(this);
-        context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().disconnect(this);
     }
 
     void GameplayState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
