@@ -41,3 +41,9 @@ if(MSVC)
 endif()
 
 target_link_libraries(game PRIVATE bajabongo::engine)
+
+# Place the exe two directory levels below a copied assets/ tree so the
+# hardcoded ../../assets and config/logging.ini paths resolve. Also sets
+# the Visual Studio debugger working directory to the exe folder.
+include(CopyRuntimeAssets)
+bajabongo_setup_game_runtime(game)
