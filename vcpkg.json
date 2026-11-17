@@ -9,6 +9,7 @@
     "box2d",
     "nlohmann-json",
     "imgui",
-    "imgui-sfml"
+    "imgui-sfml",
+    "catch2"
   ]
 }

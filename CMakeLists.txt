@@ -43,6 +43,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CompilerOptions)
 # Extra warnings: cmake -DBAJA_STRICT_WARNINGS=ON (on by default in linux presets).
+option(BAJA_BUILD_TESTS "Build unit tests (Catch2) and enable CTest" OFF)
+# Linux presets turn this ON. Requires the catch2 vcpkg dependency.
 
 # Third-party dependencies from vcpkg.json:
 #   sfml, spdlog, entt, box2d, nlohmann-json, imgui, imgui-sfml
@@ -59,3 +61,9 @@ find_package(ImGui-SFML CONFIG REQUIRED)
 add_subdirectory(src/engine)
 # engine CMakeLists runs CheckEngineDecoupling (no engine -> game includes).
 add_subdirectory(src/game)
+
+if(BAJA_BUILD_TESTS)
+    enable_testing()
+    find_package(Catch2 3 CONFIG REQUIRED)
+    add_subdirectory(tests)
+endif()
