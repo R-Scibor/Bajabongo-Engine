@@ -15,7 +15,7 @@
 namespace engine
 {
     SFMLRenderer::SFMLRenderer()
-        : IRenderer(*this) {
+        : IRenderer(static_cast<IWindow&>(*this)) {
         
         // Initialize reusable debug shapes with default styles (wireframe)
         m_circleShape.setFillColor(sf::Color::Transparent);
