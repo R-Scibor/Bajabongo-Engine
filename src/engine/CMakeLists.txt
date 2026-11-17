@@ -52,3 +52,20 @@ target_link_libraries(engine
         imgui::imgui
         ImGui-SFML::ImGui-SFML
 )
+
+# Fail configure/build if any engine source includes a game/ header.
+# Include dirs still use ${PROJECT_SOURCE_DIR}/src so #include "engine/..."
+# works; this check (not a narrower include path) is the enforcement.
+set(ENGINE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+include("${PROJECT_SOURCE_DIR}/cmake/CheckEngineDecoupling.cmake")
+
+# Custom target (not PRE_BUILD): Ninja treats PRE_BUILD as PRE_LINK, and a
+# phony target is reliable on every generator. engine depends on this check.
+add_custom_target(check_engine_decoupling ALL
+    COMMAND "${CMAKE_COMMAND}"
+        "-DENGINE_SRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+        -P "${PROJECT_SOURCE_DIR}/cmake/CheckEngineDecoupling.cmake"
+    COMMENT "Checking that engine sources do not include game/ headers"
+    VERBATIM
+)
+add_dependencies(engine check_engine_decoupling)
