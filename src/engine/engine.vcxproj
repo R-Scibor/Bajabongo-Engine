@@ -179,6 +179,7 @@
     <ClInclude Include="core\ILogger.hpp" />
     <ClInclude Include="core\ILoggerManager.hpp" />
     <ClInclude Include="core\math\MathAliases.hpp" />
+    <ClInclude Include="core\math\MathJson.hpp" />
     <ClInclude Include="core\math\Rect.hpp" />
     <ClInclude Include="core\math\Vector2.hpp" />
     <ClInclude Include="ecs\HierarchySystem.hpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="input\SFMLInputManager.hpp" />
     <ClInclude Include="logging\SpdlogLogger.hpp" />
+    <ClInclude Include="logging\LogConfig.hpp" />
     <ClInclude Include="logging\SpdlogManager.hpp" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="physics\PhysicsBodyCreationSystem.hpp" />

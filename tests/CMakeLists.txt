@@ -9,6 +9,11 @@ add_executable(baja_tests
     test_health.cpp
     test_state_manager.cpp
     test_map_json.cpp
+    test_rect_aabb.cpp
+    test_vector2.cpp
+    test_geometry.cpp
+    test_log_config.cpp
+    test_math_json.cpp
 )
 
 bajabongo_apply_compiler_options(baja_tests)

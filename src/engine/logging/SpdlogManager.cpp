@@ -1,48 +1,14 @@
-﻿#include "SpdlogManager.hpp"
+#include "SpdlogManager.hpp"
 #include "SpdlogLogger.hpp"
+#include "LogConfig.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <algorithm> // For std::transform
 
 namespace engine {
-    // --- Helper Functions (Internal linkage) ---
-
-    /**
-     * @brief Removes leading and trailing whitespace from a string.
-     */
-    std::string trim(const std::string& str) {
-        const std::string whitespace = " \t";
-        const auto strBegin = str.find_first_not_of(whitespace);
-        if (strBegin == std::string::npos) return ""; // no content
-
-        const auto strEnd = str.find_last_not_of(whitespace);
-        const auto strRange = strEnd - strBegin + 1;
-
-        return str.substr(strBegin, strRange);
-    }
-
-    /**
-     * @brief Converts a string representation of a log level to spdlog enum.
-     * * Case-insensitive (e.g., "Debug", "debug", "DEBUG").
-     */
-    spdlog::level::level_enum level_from_string(const std::string& level_str) {
-        std::string lower_level = level_str;
-        std::transform(lower_level.begin(), lower_level.end(), lower_level.begin(), ::tolower);
-
-        if (lower_level == "trace") return spdlog::level::trace;
-        if (lower_level == "debug") return spdlog::level::debug;
-        if (lower_level == "warn") return spdlog::level::warn;
-        if (lower_level == "error") return spdlog::level::err;
-        if (lower_level == "critical") return spdlog::level::critical;
-
-        // Default fallback
-        return spdlog::level::info;
-    }
-
     // --- SpdlogManager Implementation ---
 
     SpdlogManager::SpdlogManager(const std::string& configFilePath)
@@ -87,26 +53,21 @@ namespace engine {
 
         std::string line;
         while (std::getline(configFile, line)) {
-            // Skip comments (# or ;) and empty lines
-            if (line.empty() || line[0] == '#' || line[0] == ';') continue;
+            std::string name;
+            std::string level_str;
+            if (!parseLogConfigLine(line, name, level_str)) continue;
 
-            auto delimiterPos = line.find('=');
-            if (delimiterPos != std::string::npos) {
-                std::string name = trim(line.substr(0, delimiterPos));
-                std::string level_str = trim(line.substr(delimiterPos + 1));
-
-                // Check if spdlog already has this logger (e.g. created globally)
-                auto logger = spdlog::get(name);
-                if (!logger) {
-                    logger = spdlog::stdout_color_mt(name);
-                }
-
-                // Set the level as defined in the file
-                logger->set_level(level_from_string(level_str));
-
-                // Store in our map so getLogger returns this pre-configured instance
-                m_loggers[name] = logger;
+            // Check if spdlog already has this logger (e.g. created globally)
+            auto logger = spdlog::get(name);
+            if (!logger) {
+                logger = spdlog::stdout_color_mt(name);
             }
+
+            // Set the level as defined in the file
+            logger->set_level(levelFromString(level_str));
+
+            // Store in our map so getLogger returns this pre-configured instance
+            m_loggers[name] = logger;
         }
     }
 } // namespace engine

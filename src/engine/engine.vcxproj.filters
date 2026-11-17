@@ -45,6 +45,9 @@
     <ClInclude Include="logging\SpdlogLogger.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="logging\LogConfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="logging\SpdlogManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\math\MathAliases.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\math\MathJson.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\math\Rect.hpp">
