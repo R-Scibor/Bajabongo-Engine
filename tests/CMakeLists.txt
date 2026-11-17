@@ -20,6 +20,7 @@ add_executable(baja_tests
     test_box2d_headless.cpp
     test_entity_factory.cpp
     test_map_loader.cpp
+    test_map_integration.cpp
     ../src/game/systems/DamageSystem.cpp
     ../src/game/systems/VisibilitySystem.cpp
     ../src/game/ai/EnemyDetectionSystem.cpp
@@ -33,6 +34,12 @@ target_link_libraries(baja_tests
         bajabongo::engine
         Catch2::Catch2WithMain
 )
+
+target_compile_definitions(baja_tests
+    PRIVATE
+        BAJA_ASSETS_DIR="${PROJECT_SOURCE_DIR}/assets"
+)
+
 
 include(Catch)
 catch_discover_tests(baja_tests)
