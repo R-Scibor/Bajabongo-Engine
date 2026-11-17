@@ -22,8 +22,8 @@
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include "engine/core/IResourceManager.hpp"
-#include "game/components/PlayerComponent.hpp"
-#include "game/components/VisibleToPlayerComponent.hpp"
+#include "engine/components/CameraFocusComponent.hpp"
+#include "engine/components/VisibleToPlayerComponent.hpp"
 
 namespace engine
 {
@@ -80,11 +80,11 @@ namespace engine
             if (!spriteDesc) continue;
             
             // --- Vision / Fog of War Logic ---
-            bool isPlayer = m_registry.any_of<game::PlayerComponent>(item.entity);
-            bool isVisible = m_registry.any_of<game::VisibleToPlayerComponent>(item.entity);
+            bool isViewer = m_registry.any_of<CameraFocusComponent>(item.entity);
+            bool isVisible = m_registry.any_of<VisibleToPlayerComponent>(item.entity);
             
             // Don't draw if not visible (unless it's the player themselves)
-            if (!isPlayer && !isVisible) {
+            if (!isViewer && !isVisible) {
                 // Debug log to catch map sprite disappearance issues
                 if (renderable.spriteId == "map_sprite") {
                      static int logCounter = 0;

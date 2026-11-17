@@ -163,6 +163,7 @@
     <ClInclude Include="components\PhysicsBodyComponent.hpp" />
     <ClInclude Include="components\RenderableComponent.hpp" />
     <ClInclude Include="components\TransformComponent.hpp" />
+    <ClInclude Include="components\VisibleToPlayerComponent.hpp" />
     <ClInclude Include="core\Application.hpp" />
     <ClInclude Include="core\EngineContext.hpp" />
     <ClInclude Include="core\GuiService.hpp" />

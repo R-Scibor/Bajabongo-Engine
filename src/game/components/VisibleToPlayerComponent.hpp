@@ -1,11 +1,10 @@
 #pragma once
 
+// The component lives in the engine (MapLoader / RenderSystem need it).
+// This header keeps existing game includes and the vcxproj entry working.
+#include "engine/components/VisibleToPlayerComponent.hpp"
+
 namespace game
 {
-    // Tag component: Entity is currently in at least one player's vision cone
-    struct VisibleToPlayerComponent
-    {
-        bool wasVisibleLastFrame = false;  // For "last seen" logic later
-        bool alwaysVisible = false;        // If true, overrides visibility check
-    };
+    using VisibleToPlayerComponent = engine::VisibleToPlayerComponent;
 }

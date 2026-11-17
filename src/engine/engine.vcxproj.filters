@@ -144,6 +144,9 @@
     <ClInclude Include="components\CameraFocusComponent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="components\VisibleToPlayerComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="rendering\CameraSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

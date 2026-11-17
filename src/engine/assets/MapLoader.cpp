@@ -18,7 +18,7 @@
 #include "engine/components/HalfCollisionComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
 #include "engine/ecs/EntityFactory.hpp"
-#include "game/components/VisibleToPlayerComponent.hpp"
+#include "engine/components/VisibleToPlayerComponent.hpp"
 #include <entt/entt.hpp>
 
 namespace engine {
@@ -121,9 +121,9 @@ namespace engine {
             m_context.m_registry->emplace<RenderableComponent>(entity, textureKey, 0, sf::Color(255, 255, 255, static_cast<std::uint8_t>(opacity * 255)));
             
             // Map background should always be visible
-            game::VisibleToPlayerComponent visComp;
+            VisibleToPlayerComponent visComp;
             visComp.alwaysVisible = true;
-            m_context.m_registry->emplace<game::VisibleToPlayerComponent>(entity, visComp);
+            m_context.m_registry->emplace<VisibleToPlayerComponent>(entity, visComp);
             
             // Add WorldBoundsComponent if dimensions are valid
             if (imageWidth > 0 && imageHeight > 0) {
