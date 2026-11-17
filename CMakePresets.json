@@ -96,6 +96,16 @@
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
       }
+    },
+    {
+      "name": "linux-ninja-debug-sanitize",
+      "displayName": "Linux Ninja Debug + ASan/UBSan (vcpkg)",
+      "description": "Single-config Ninja Debug build with BAJA_SANITIZE (ASan + UBSan). Inherits Linux debug settings (strict warnings, tests). Uses a separate build tree. Requires VCPKG_ROOT and GCC or Clang.",
+      "inherits": "linux-ninja-debug",
+      "binaryDir": "${sourceDir}/build/linux-ninja-debug-sanitize",
+      "cacheVariables": {
+        "BAJA_SANITIZE": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -124,6 +134,10 @@
     {
       "name": "linux-ninja-release",
       "configurePreset": "linux-ninja-release"
+    },
+    {
+      "name": "linux-ninja-debug-sanitize",
+      "configurePreset": "linux-ninja-debug-sanitize"
     }
   ]
 }

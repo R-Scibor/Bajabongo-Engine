@@ -38,6 +38,11 @@
 # churn we cannot verify on this machine.
 option(BAJA_STRICT_WARNINGS "Enable extra compiler warnings (-Wall -Wextra) on engine/game" OFF)
 
+# Opt-in ASan + UBSan for this project's targets only (engine/game/tests).
+# Does not rebuild vcpkg dependencies. Linux-only (GCC/Clang). The
+# linux-ninja-debug-sanitize preset turns this ON in a separate build tree.
+option(BAJA_SANITIZE "Enable AddressSanitizer and UndefinedBehaviorSanitizer (GCC/Clang)" OFF)
+
 function(bajabongo_apply_compiler_options target)
     target_compile_features(${target} PRIVATE cxx_std_20)
     target_include_directories(${target} PUBLIC "${PROJECT_SOURCE_DIR}/src")
@@ -81,5 +86,23 @@ function(bajabongo_apply_compiler_options target)
             $<$<CONFIG:Debug>:_DEBUG>
             $<$<CONFIG:Release>:NDEBUG>
         )
+        if(BAJA_SANITIZE)
+            target_compile_options(${target} PRIVATE
+                -fsanitize=address,undefined
+                -fno-omit-frame-pointer
+                -fno-sanitize-recover=address,undefined
+            )
+            target_link_options(${target} PRIVATE
+                -fsanitize=address,undefined
+            )
+        endif()
     endif()
 endfunction()
+
+if(BAJA_SANITIZE)
+    if(MSVC)
+        message(WARNING "BAJA_SANITIZE is supported on GCC/Clang only and is ignored on MSVC.")
+    else()
+        message(STATUS "BAJA_SANITIZE: AddressSanitizer + UndefinedBehaviorSanitizer on engine/game/tests")
+    endif()
+endif()
