@@ -43,5 +43,16 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CompilerOptions)
 
-# Targets and find_package() calls are added in subsequent CMake lists
-# (src/engine, src/game).
+# Third-party dependencies from vcpkg.json:
+#   sfml, spdlog, entt, box2d, nlohmann-json, imgui, imgui-sfml
+# The vcxproj does not list these as AdditionalDependencies; vcpkg's
+# MSBuild integration injects them. CMake does the same via CONFIG packages.
+find_package(SFML 3 CONFIG REQUIRED COMPONENTS Graphics Window Audio System)
+find_package(spdlog CONFIG REQUIRED)
+find_package(EnTT CONFIG REQUIRED)
+find_package(box2d CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(ImGui-SFML CONFIG REQUIRED)
+
+add_subdirectory(src/engine)
