@@ -214,15 +214,9 @@ namespace game {
                 visibility.targetViewDirection = angle;
 
                 // Shortest path interpolation for angle
-                float deltaAngle = angle - visibility.viewDirection;
-                if (deltaAngle > PI_F) deltaAngle -= 2.0f * PI_F;
-                if (deltaAngle < -PI_F) deltaAngle += 2.0f * PI_F;
-
-                visibility.viewDirection += deltaAngle * visibility.viewInterpSpeed * fixedDeltaTime;
-
-                // Wrap angle to keep it clean (optional)
-                if (visibility.viewDirection > PI_F) visibility.viewDirection -= 2.0f * PI_F;
-                if (visibility.viewDirection < -PI_F) visibility.viewDirection += 2.0f * PI_F;
+                float deltaAngle = engine::wrapAngle(angle - visibility.viewDirection);
+                visibility.viewDirection = engine::wrapAngle(visibility.viewDirection +
+                                                             deltaAngle * visibility.viewInterpSpeed * fixedDeltaTime);
 
                 // --- Update Weapon State ---
                 if (weapon) {

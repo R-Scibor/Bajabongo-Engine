@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "VisibilitySystem.hpp"
+#include "engine/core/math/Angle.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
 #include "engine/core/ILoggerManager.hpp"
@@ -103,9 +104,7 @@ namespace game {
                 float angle = std::atan2(dir.y, dir.x);
 
                 // Need to normalize angle difference to [-PI, PI] to correctly check if it is within cone
-                float diff = angle - direction;
-                while (diff > M_PI) diff -= 2 * M_PI;
-                while (diff < -M_PI) diff += 2 * M_PI;
+                float diff = engine::wrapAngle(angle - direction);
 
                 // Only consider walls within cone field of view OR within min radius
                 float distSq = (v.x - origin.x) * (v.x - origin.x) + (v.y - origin.y) * (v.y - origin.y);
@@ -151,9 +150,7 @@ namespace game {
 
                 // Determine ray length for this angle
                 // Check if angle is within the cone
-                float diff = angle - direction;
-                while (diff > M_PI) diff -= 2 * M_PI;
-                while (diff < -M_PI) diff += 2 * M_PI;
+                float diff = engine::wrapAngle(angle - direction);
 
                 float currentRadius = minRadius;
                 if (diff >= -halfAngle - epsilon && diff <= halfAngle + epsilon) {
