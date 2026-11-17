@@ -1,0 +1,103 @@
+# Local CI workflow (not pushed). Linux: configure/build with the linux-ninja-debug
+# preset (Catch2 + CTest, vcpkg cache). Windows: VS 2022 Debug + ctest.
+# Binary cache key includes vcpkg.json, overlays, and the pinned baseline.
+
+name: CI
+
+on:
+  push:
+    branches: [master, main, build/cmake, cleanup/code-quality]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  VCPKG_COMMIT: 528cfa41f4b1578b16ac6b2f6d2e6f98e5308d2d
+
+jobs:
+  linux:
+    name: Linux (Ninja Debug, CTest)
+    runs-on: ubuntu-24.04
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build cmake pkg-config \
+            libx11-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libxext-dev libxrender-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libudev-dev
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            .vcpkg-cache
+            vcpkg
+          key: vcpkg-linux-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/vcpkg-overlays/**') }}
+          restore-keys: |
+            vcpkg-linux-${{ env.VCPKG_COMMIT }}-
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -x vcpkg/vcpkg ]; then
+            rm -rf vcpkg
+            git clone --filter=blob:none https://github.com/microsoft/vcpkg.git
+            git -C vcpkg checkout "$VCPKG_COMMIT"
+            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+      - name: Configure
+        run: cmake --preset linux-ninja-debug
+
+      - name: Build
+        run: cmake --build --preset linux-ninja-debug --parallel
+
+      - name: Test
+        run: ctest --test-dir build/linux-ninja-debug --output-on-failure --parallel
+
+  windows:
+    name: Windows (VS 2022 Debug, CTest)
+    runs-on: windows-2022
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            .vcpkg-cache
+            vcpkg
+          key: vcpkg-windows-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/vcpkg-overlays/**') }}
+          restore-keys: |
+            vcpkg-windows-${{ env.VCPKG_COMMIT }}-
+
+      - name: Setup vcpkg
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "vcpkg/vcpkg.exe")) {
+            if (Test-Path vcpkg) { Remove-Item -Recurse -Force vcpkg }
+            git clone --filter=blob:none https://github.com/microsoft/vcpkg.git
+            git -C vcpkg checkout $env:VCPKG_COMMIT
+            & ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          }
+          New-Item -ItemType Directory -Force -Path $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+
+      - name: Configure
+        run: cmake --preset windows-vs2022 -DBAJA_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build --preset windows-vs2022-debug --parallel
+
+      - name: Test
+        run: ctest --test-dir build/windows-vs2022 -C Debug --output-on-failure --parallel
