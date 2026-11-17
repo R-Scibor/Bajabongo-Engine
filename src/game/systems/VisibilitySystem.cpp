@@ -4,6 +4,8 @@
 #include "engine/core/math/Angle.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
+#include <box2d/box2d.h>
+#include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include <algorithm>
 #include <cmath>

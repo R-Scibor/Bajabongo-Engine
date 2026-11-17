@@ -1,11 +1,15 @@
 #pragma once
 
 #include "engine/core/EngineContext.hpp"
-#include "engine/core/ILogger.hpp"
 #include "game/components/VisibilityComponent.hpp"
-#include <box2d/box2d.h>
-#include <vector>
+
+#include <box2d/id.h>
 #include <memory>
+#include <vector>
+
+namespace engine {
+    class ILogger;
+}
 
 namespace game {
 

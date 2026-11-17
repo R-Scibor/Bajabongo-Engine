@@ -1,9 +1,14 @@
 #pragma once
+
 #include "engine/core/EngineContext.hpp"
-#include <entt/entt.hpp>
-#include <memory>
-#include "engine/core/ILogger.hpp"
 #include "engine/core/math/MathAliases.hpp"
+
+#include <entt/fwd.hpp>
+#include <memory>
+
+namespace engine {
+    class ILogger;
+}
 
 namespace game::ai {
 

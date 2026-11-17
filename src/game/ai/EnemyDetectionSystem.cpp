@@ -6,6 +6,7 @@
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
+#include "engine/core/ILogger.hpp"
 #include "engine/core/ILoggerManager.hpp"
 
 namespace game::ai {

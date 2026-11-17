@@ -1,8 +1,13 @@
 #pragma once
 
 #include "engine/core/EngineContext.hpp"
-#include "engine/core/ILogger.hpp"
 #include "engine/events/PhysicsEvents.hpp"
+
+#include <memory>
+
+namespace engine {
+    class ILogger;
+}
 
 namespace game {
 
