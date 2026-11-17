@@ -27,8 +27,16 @@ namespace engine {
             if (m_logger) m_logger->error("GuiService: Failed to initialize ImGui-SFML.");
             return;
         }
-        
+
+        // imgui-sfml 3.0 (vcpkg patch for imgui 1.92+) dropped the Init path that
+        // used to build the default font atlas via GetTexDataAsRGBA32. The
+        // loadDefaultFont argument is now unused, so the atlas is empty and
+        // ImGui::SFML::Update asserts io.Fonts->Fonts.Size > 0. The texture
+        // itself is uploaded later by the RendererHasTextures backend.
         ImGuiIO& io = ImGui::GetIO();
+        if (io.Fonts->Fonts.Size == 0) {
+            io.Fonts->AddFontDefault();
+        }
         // Note: Docking allows dragging ImGui windows outside the main viewport 
         // or docking them to edges. Requires the docking branch of ImGui.
         // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
