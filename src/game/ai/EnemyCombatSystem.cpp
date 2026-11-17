@@ -70,7 +70,7 @@ namespace game::ai {
                     for (int i = 0; i < shapeCount; ++i) {
                         b2Filter filter = b2Shape_GetFilter(shapes[i]);
                         if (filter.categoryBits & engine::PhysicsCategory::Hurtbox) {
-                            b2AABB aabb = b2Shape_GetAABB(shapes[i]);
+                            b2AABB aabb = b2Shape_GetBounds(shapes[i]);
                             targetPos.x = (aabb.lowerBound.x + aabb.upperBound.x) * 0.5f;
                             targetPos.y = (aabb.lowerBound.y + aabb.upperBound.y) * 0.5f;
                             targetFound = true;

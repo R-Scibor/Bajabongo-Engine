@@ -210,7 +210,7 @@ namespace game {
         data.center = center;
         data.radiusSq = radius * radius;
 
-        b2World_OverlapAABB(m_worldId, aabb, b2DefaultQueryFilter(), QueryCallback, &data);
+        b2World_OverlapAABB(m_worldId, b2Pos_zero, aabb, b2DefaultQueryFilter(), QueryCallback, &data);
     }
 
     engine::Vector2f VisibilitySystem::castRay(const engine::Vector2f& start, const engine::Vector2f& end) {

@@ -41,7 +41,7 @@ namespace engine
             b2BodyDef bodyDef = b2DefaultBodyDef();
             bodyDef.type = pending.isStatic ? b2_staticBody : b2_dynamicBody;
             bodyDef.position = { pending.position.x, pending.position.y };
-            bodyDef.fixedRotation = pending.fixedRotation;
+            bodyDef.motionLocks.angularZ = pending.fixedRotation;
             bodyDef.linearDamping = pending.linearDamping;
             bodyDef.isBullet = pending.isBullet;
             bodyDef.linearVelocity = { pending.initialVelocity.x, pending.initialVelocity.y };
