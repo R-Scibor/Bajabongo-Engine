@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "PlayerControllerSystem.hpp"
+#include "engine/core/math/Angle.hpp"
 
 #include <entt/entt.hpp>
 #include "engine/core/EngineContext.hpp"
@@ -135,10 +136,7 @@ namespace game {
                         animState->facing = engine::FacingDirection::Right;
                     } else if ((lengthSq < 0.001f || player.isHealing) && weapon) {
                         // Face aim direction when standing still
-                        float aimAngle = weapon->aimAngle;
-                        
-                        while (aimAngle > PI_F) aimAngle -= 2.0f * PI_F; // TODO: Extract to wrapAngle() helper
-                        while (aimAngle < -PI_F) aimAngle += 2.0f * PI_F;
+                        float aimAngle = engine::wrapAngle(weapon->aimAngle);
 
                         if (std::abs(aimAngle) > PI_F / 2.0f) {
                             animState->facing = engine::FacingDirection::Left;

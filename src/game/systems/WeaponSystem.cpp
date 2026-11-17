@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "WeaponSystem.hpp"
+#include "engine/core/math/Angle.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
@@ -211,8 +212,7 @@ namespace game {
         float diff = targetUp - currentAim;
 
         // Wrap to [-PI, PI]
-        while (diff <= -PI) diff += 2 * PI; // TODO: Extract to wrapAngle() helper
-        while (diff > PI) diff -= 2 * PI;
+        diff = engine::wrapAngle(diff);
 
         float kickSign = 0.0f;
         if (std::abs(diff) > 0.001f) {

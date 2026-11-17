@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "EnemyCombatSystem.hpp"
+#include "engine/core/math/Angle.hpp"
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
 #include "game/components/TurretBehaviorComponent.hpp"
@@ -97,9 +98,7 @@ namespace game::ai {
             // Handle Aim Animation State
             if (animState) {
                 // Update Facing based on aim angle
-                float normalizedAim = desiredAimAngle;
-                while (normalizedAim > M_PI) normalizedAim -= 2.0f * M_PI; // TODO: Extract to wrapAngle() helper
-                while (normalizedAim < -M_PI) normalizedAim += 2.0f * M_PI;
+                float normalizedAim = engine::wrapAngle(desiredAimAngle);
                 
                 if (std::abs(normalizedAim) > M_PI / 2.0f) {
                     animState->facing = engine::FacingDirection::Left;
@@ -109,10 +108,7 @@ namespace game::ai {
             }
 
             if (auto* turret = registry.try_get<TurretBehaviorComponent>(entity)) {
-                float angleDiff = desiredAimAngle - weapon.aimAngle;
-                
-                while (angleDiff > M_PI) angleDiff -= 2.0f * M_PI;
-                while (angleDiff < -M_PI) angleDiff += 2.0f * M_PI;
+                float angleDiff = engine::wrapAngle(desiredAimAngle - weapon.aimAngle);
                 
                 float maxRotation = turret->rotationSpeed * dt;
                 if (std::abs(angleDiff) < maxRotation) {
