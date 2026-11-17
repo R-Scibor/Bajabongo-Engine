@@ -1,5 +1,7 @@
 # Local CI workflow (not pushed). Linux: configure/build with the linux-ninja-debug
-# preset (Catch2 + CTest, vcpkg cache). Windows: VS 2022 Debug + ctest.
+# preset (Catch2 + CTest, vcpkg cache). A second Linux job builds with
+# BAJA_SANITIZE and runs CTest under ASan/UBSan. A third job configures the
+# debug tree and runs tools/run-clang-tidy.sh. Windows: VS 2022 Debug + ctest.
 # Binary cache key includes vcpkg.json, overlays, and the pinned baseline.
 
 name: CI
@@ -101,3 +103,98 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build/windows-vs2022 -C Debug --output-on-failure --parallel
+
+  linux-sanitize:
+    name: Linux (ASan + UBSan, CTest)
+    runs-on: ubuntu-24.04
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+      ASAN_OPTIONS: halt_on_error=1:abort_on_error=1:detect_leaks=1
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build cmake pkg-config \
+            libx11-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libxext-dev libxrender-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libudev-dev
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            .vcpkg-cache
+            vcpkg
+          key: vcpkg-linux-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/vcpkg-overlays/**') }}
+          restore-keys: |
+            vcpkg-linux-${{ env.VCPKG_COMMIT }}-
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -x vcpkg/vcpkg ]; then
+            rm -rf vcpkg
+            git clone --filter=blob:none https://github.com/microsoft/vcpkg.git
+            git -C vcpkg checkout "$VCPKG_COMMIT"
+            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+      - name: Configure
+        run: cmake --preset linux-ninja-debug-sanitize
+
+      - name: Build
+        run: cmake --build --preset linux-ninja-debug-sanitize --parallel
+
+      - name: Test
+        run: ctest --test-dir build/linux-ninja-debug-sanitize --output-on-failure --parallel
+
+  clang-tidy:
+    name: Linux (clang-tidy)
+    runs-on: ubuntu-24.04
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build cmake pkg-config clang-tidy \
+            libx11-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libxext-dev libxrender-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libudev-dev
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            .vcpkg-cache
+            vcpkg
+          key: vcpkg-linux-${{ env.VCPKG_COMMIT }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/vcpkg-overlays/**') }}
+          restore-keys: |
+            vcpkg-linux-${{ env.VCPKG_COMMIT }}-
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -x vcpkg/vcpkg ]; then
+            rm -rf vcpkg
+            git clone --filter=blob:none https://github.com/microsoft/vcpkg.git
+            git -C vcpkg checkout "$VCPKG_COMMIT"
+            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+      - name: Configure
+        run: cmake --preset linux-ninja-debug
+
+      - name: clang-tidy
+        run: tools/run-clang-tidy.sh build/linux-ninja-debug
