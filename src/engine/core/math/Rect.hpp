@@ -18,7 +18,11 @@ namespace engine {
         Rect() : left(0), top(0), width(0), height(0) {}
 
         /// @brief Parameterized constructor.
-        Rect(T left, T top, T width, T height) : left(left), top(top), width(width), height(height) {}
+        Rect(T leftValue, T topValue, T widthValue, T heightValue)
+            : left(leftValue)
+            , top(topValue)
+            , width(widthValue)
+            , height(heightValue) {}
     };
 
     /// @brief Exclusive-of-nothing right edge: left + width.

@@ -15,7 +15,7 @@ namespace engine {
         Vector2() : x(0), y(0) {}
 
         /// @brief Parameterized constructor.
-        Vector2(T x, T y) : x(x), y(y) {}
+        Vector2(T xValue, T yValue) : x(xValue), y(yValue) {}
 
         /// @brief Adds another vector to this one component-wise.
         Vector2<T>& operator+=(const Vector2<T>& other) {
