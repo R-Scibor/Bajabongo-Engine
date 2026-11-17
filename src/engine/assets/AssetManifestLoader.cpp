@@ -117,8 +117,8 @@ namespace engine {
         }
 
         std::string spriteId = spriteJson["id"];
-        auto region = spriteJson["region"]; // array of 4 ints
-        auto origin = spriteJson["origin"]; // array of 2 floats
+        const auto& region = spriteJson["region"]; // array of 4 ints
+        const auto& origin = spriteJson["origin"]; // array of 2 floats
 
         if (!region.is_array() || region.size() != 4 || !origin.is_array() || origin.size() != 2) {
             if (m_logger) {
@@ -149,8 +149,8 @@ namespace engine {
         }
 
         std::string animId = animJson["id"];
-        auto frameStart = animJson["frameStart"]; // [x, y]
-        auto frameSize = animJson["frameSize"];   // [w, h]
+        const auto& frameStart = animJson["frameStart"]; // [x, y]
+        const auto& frameSize = animJson["frameSize"];   // [w, h]
         int frameCount = animJson["frameCount"];
         float duration = animJson["duration"];
         bool loop = animJson.value("loop", false);

@@ -23,7 +23,7 @@ namespace engine {
          *
          * @param logManager Shared pointer to the logger manager for logging operations.
          */
-        explicit ArchetypeManager(std::shared_ptr<ILoggerManager> logManager = nullptr);
+        explicit ArchetypeManager(const std::shared_ptr<ILoggerManager>& logManager = nullptr);
 
         /**
          * @brief Loads archetypes from a specified JSON file.

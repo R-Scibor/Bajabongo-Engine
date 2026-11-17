@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <memory>
+#include <utility>
 #include <optional>
 #include <string>
 #include <vector>
@@ -125,7 +126,7 @@ namespace engine {
          */
         void setResourceManager(std::shared_ptr<class IResourceManager> resourceManager);
 
-        void setLogger(std::shared_ptr<ILogger> logger) { m_logger = logger; }
+        void setLogger(std::shared_ptr<ILogger> logger) { m_logger = std::move(logger); }
 
         /// @brief Load the debug text font from game-provided paths, tried in order.
         void loadFonts(const std::vector<std::string>& paths);

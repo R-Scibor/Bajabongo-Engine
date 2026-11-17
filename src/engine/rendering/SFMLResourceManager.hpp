@@ -21,7 +21,7 @@ namespace engine {
          * @brief Constructs the manager and acquires a logger instance.
          * @param loggerManager Reference to the central logger factory.
          */
-        explicit SFMLResourceManager(std::shared_ptr<ILoggerManager> loggerManager);
+        explicit SFMLResourceManager(const std::shared_ptr<ILoggerManager>& loggerManager);
         ~SFMLResourceManager() override = default;
 
         /// @brief Optional placeholder texture used when loadTexture cannot open the requested file.

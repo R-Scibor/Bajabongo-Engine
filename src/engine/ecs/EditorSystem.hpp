@@ -60,7 +60,7 @@ namespace engine {
          * @param inspector The function to call when inspecting a component of type T.
          */
         template<typename T>
-        void RegisterInspector(InspectorFunc inspector) {
+        void RegisterInspector(const InspectorFunc& inspector) {
             m_inspectors[std::type_index(typeid(T))] = [inspector](entt::registry& reg, entt::entity e) {
                 if (reg.all_of<T>(e)) {
                     inspector(reg, e);

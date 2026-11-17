@@ -33,7 +33,7 @@ namespace engine {
 
     EntityFactory::EntityFactory(EngineContext& context, std::shared_ptr<ArchetypeManager> archetypeManager)
         : m_context(context)
-        , m_archetypeManager(archetypeManager) {
+        , m_archetypeManager(std::move(archetypeManager)) {
         if (m_context.m_logManager) {
             m_logger = m_context.m_logManager->getLogger("EntityFactory");
         }
@@ -41,7 +41,7 @@ namespace engine {
     }
 
     void EntityFactory::registerComponentLoader(const std::string& componentName, ComponentLoaderFn loader) {
-        m_componentRegistry[componentName] = loader;
+        m_componentRegistry[componentName] = std::move(loader);
     }
 
     entt::entity EntityFactory::spawn(const std::string& archetypeId, const Vector2f& position) {

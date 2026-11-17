@@ -130,7 +130,7 @@ namespace engine {
                 std::string filename = (lastSlash != std::string::npos) ? imageName.substr(lastSlash + 1) : imageName;
 
                 // Remove extension (e.g. "map.png" -> "map")
-                size_t lastDot = filename.find_last_of(".");
+                size_t lastDot = filename.find_last_of('.');
                 if (lastDot != std::string::npos) {
                     filename.resize(lastDot);
                 }

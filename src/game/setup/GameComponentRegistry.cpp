@@ -151,7 +151,7 @@ namespace game {
                                             visibility.viewDirection = data.value("viewDirection", 0.0f);
 
                                             if (data.contains("viewOffset")) {
-                                                auto offsetArr = data["viewOffset"];
+                                                const auto& offsetArr = data["viewOffset"];
                                                 if (offsetArr.is_array() && offsetArr.size() >= 2) {
                                                     visibility.offset.x = offsetArr[0];
                                                     visibility.offset.y = offsetArr[1];
