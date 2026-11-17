@@ -115,9 +115,9 @@ cd build/linux-ninja-debug/out/game/Debug
 ./game
 ```
 
-### Running tests
+### Testing
 
-Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (math, JSON parsing, ammo/reload, health, state stack) and do not open a window.
+Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) and do not open a window. The suite currently has 46 cases.
 
 `BAJA_BUILD_TESTS` defaults to **OFF**. The Linux presets turn it **ON**. On Windows, pass the option when configuring:
 
@@ -132,6 +132,29 @@ On Linux, after a `linux-ninja-debug` (or release) build:
 ```bash
 ctest --test-dir build/linux-ninja-debug --output-on-failure
 ```
+
+For a local clang-tidy pass over `src/` (same checks as `.clang-tidy`), configure a build so `compile_commands.json` exists, then run:
+
+```bash
+tools/run-clang-tidy.sh build/linux-ninja-debug
+```
+
+The script adds the GCC builtin include path so Clang can find `stddef.h` when the compile database was produced by GCC, and it exits with a non-zero status if a project warning is reported.
+
+### Sanitizers
+
+On Linux, AddressSanitizer and UndefinedBehaviorSanitizer are opt-in via `BAJA_SANITIZE` (GCC/Clang only). The flags apply to engine, game, and tests, not to vcpkg dependencies. A separate build tree keeps the regular Debug build clean:
+
+```bash
+export VCPKG_ROOT=/path/to/vcpkg
+cmake --preset linux-ninja-debug-sanitize
+cmake --build --preset linux-ninja-debug-sanitize
+ASAN_OPTIONS=halt_on_error=1:abort_on_error=1:detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ctest --test-dir build/linux-ninja-debug-sanitize --output-on-failure
+```
+
+The sanitized executable is written to `build/linux-ninja-debug-sanitize/out/game/Debug/game`. For a gameplay smoke, run it with `--map hideout` or `--map hospital`. Leak detection is useful for CTest (clean process exit). A smoke that stops the game with SIGTERM is not a clean shutdown, so leave `detect_leaks=0` for those runs.
+
+The local CI workflow in `.github/workflows/ci.yml` includes Linux jobs for the regular Debug build, the sanitizer preset, and clang-tidy, plus a Windows VS 2022 Debug + CTest job. The workflow file is in the tree; it is not published until the branch is pushed.
 
 ### Dev map flag
 
@@ -195,6 +218,7 @@ The engine follows **SOLID** principles, heavily utilizing **Dependency Injectio
 *   **EngineContext**: A central container holding references to core services (Renderer, Input, Registry, PhysicsWorld).
 *   **Application Class**: Drives the main loop but delegates logic to the active `GameState`.
 *   **Separation of Concerns**: The `engine` project knows nothing about `game` logic. The `game` project ties everything together. Engine code must not include headers from `src/game`; CMake enforces this on every build via `cmake/CheckEngineDecoupling.cmake`. Game systems talk to the engine through interfaces, hooks, and configuration rather than reaching into engine internals that would create a reverse dependency.
+*   **Asset paths**: Fallback texture and font locations live in `EngineContext::AssetPathConfig`. The composition root (`src/game/game.cpp`) fills those paths in; the engine does not hardcode game assets such as `eg.png` or `default.ttf`.
 
 ## Screenshots and GIFs
 
