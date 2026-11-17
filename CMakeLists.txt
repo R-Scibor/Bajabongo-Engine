@@ -56,3 +56,4 @@ find_package(imgui CONFIG REQUIRED)
 find_package(ImGui-SFML CONFIG REQUIRED)
 
 add_subdirectory(src/engine)
+add_subdirectory(src/game)
