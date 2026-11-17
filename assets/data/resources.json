@@ -1897,10 +1897,6 @@
         {
             "id": "st3-footstep-sfx",
             "path": "../../assets/sounds/st3-footstep-sfx.mp3"
-        },
-        {
-            "id": "death_scav_laugh",
-            "path": "../../assets/sounds/Gopniks/tarkov-scav-laughing-3.mp3"
         }
     ],
     "music": [
