@@ -11,7 +11,8 @@ Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Noth
 - A CMake build that mirrors the Visual Studio 2022 solution: `engine` static library, `game` executable, and presets for Windows (`windows-vs2022`, optional Ninja) and Linux (Ninja Debug/Release, plus sanitizer and coverage trees).
 - vcpkg manifest mode with a pinned builtin baseline (Box2D 3.2 and the rest of the dependency set are reproducible).
 - Opt-in flags: `BAJA_BUILD_TESTS`, `BAJA_STRICT_WARNINGS`, `BAJA_SANITIZE`, `BAJA_COVERAGE`, `BAJA_PCH`, and `BAJA_BUILD_BENCH`.
-- Catch2 and CTest suite (103 cases): pure logic, headless ECS systems, EntityFactory and MapLoader, shipped hideout/hospital integration, JSON robustness, a fixed-dt headless simulation, and `engine::Random` seed/range tests.
+- Catch2 and CTest suite (115 cases): pure logic, headless ECS systems, EntityFactory and MapLoader, shipped hideout/hospital integration, JSON robustness, a fixed-dt headless simulation, `engine::Random` seed/range tests, spawn-relative patrol checks, feet-collider slide helpers, and a hospital enemy-AI regression (seed 1, 1800 frames).
+- `baja_enemy_ai_diag` headless tool (map assets, seed, seconds) that prints stuck-check, teleport, and displacement totals for hideout and hospital.
 - Dev launch flags: `game --map hideout` or `game --map hospital` to skip splash and menu, and `game --seed <n>` to seed the shared RNG.
 - Repo hygiene: `.editorconfig`, `.gitattributes` (no bulk renormalize of existing files), GitHub issue and pull request templates, and this changelog.
 - Local CI workflow (Linux Debug, ASan/UBSan, clang-tidy, Windows VS 2022 Debug plus CTest). The file is in the tree; it is unpublished until the branch is pushed.
@@ -37,6 +38,8 @@ Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Noth
 - `MapLoader` and `AssetManifestLoader` reject corrupted JSON without throwing; `EntityFactory` no longer aborts when a child archetype is missing.
 - Gameplay code no longer uses `srand` / `rand()` or per-system `mt19937` engines; all rolls go through `engine::Random`.
 - The stock `Doxyfile` and machine-specific `.vscode/c_cpp_properties.json` are no longer tracked (left on disk and gitignored). `Doxyfile.engine` / `Doxyfile.game` were not present and were not changed.
+- Patrol waypoints from an archetype are treated as offsets from each spawn and scaled by `mapScale`, or as a wander box around the spawn when the list is empty. Absolute waypoint lists on the map object (including a Tiled `waypoints` property) still override the archetype.
+- Enemy wall-slide rays start at the solid feet fixture, not the sprite origin, with a lookahead of at least 48 units. `lastValidPosition` is cached only after the body actually moved. Stuck recovery tries an open-side impulse before teleporting, rejects wall overlaps, and shoves when the player can see the enemy instead of skipping recovery.
 
 ### Security
 

@@ -27,9 +27,14 @@ add_executable(baja_tests
     test_patrol_waypoints.cpp
     test_patrol_spawn.cpp
     test_enemy_navigation.cpp
+    test_enemy_ai_hospital.cpp
     ../src/game/systems/DamageSystem.cpp
     ../src/game/systems/VisibilitySystem.cpp
     ../src/game/ai/EnemyDetectionSystem.cpp
+    ../src/game/ai/EnemyMovementSystem.cpp
+    ../src/game/ai/EnemyStuckRecoverySystem.cpp
+    ../src/game/ai/EnemyStateTransitions.cpp
+    ../src/game/ai/EnemyCombatSystem.cpp
     ../src/game/ai/AIUtils.cpp
     ../src/game/setup/GameComponentRegistry.cpp
 )
@@ -47,6 +52,21 @@ target_compile_definitions(baja_tests
         BAJA_ASSETS_DIR="${PROJECT_SOURCE_DIR}/assets"
 )
 
+add_executable(baja_enemy_ai_diag
+    tool_enemy_ai_diag.cpp
+    ../src/game/systems/DamageSystem.cpp
+    ../src/game/systems/VisibilitySystem.cpp
+    ../src/game/ai/EnemyDetectionSystem.cpp
+    ../src/game/ai/EnemyMovementSystem.cpp
+    ../src/game/ai/EnemyStuckRecoverySystem.cpp
+    ../src/game/ai/EnemyStateTransitions.cpp
+    ../src/game/ai/EnemyCombatSystem.cpp
+    ../src/game/ai/AIUtils.cpp
+    ../src/game/setup/GameComponentRegistry.cpp
+)
+bajabongo_apply_compiler_options(baja_enemy_ai_diag)
+target_link_libraries(baja_enemy_ai_diag PRIVATE bajabongo::engine)
+target_compile_definitions(baja_enemy_ai_diag PRIVATE BAJA_ASSETS_DIR="${PROJECT_SOURCE_DIR}/assets")
 
 include(Catch)
 catch_discover_tests(baja_tests)
