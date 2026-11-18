@@ -45,7 +45,7 @@ flowchart LR
     life --> anim["Animation and camera"]
 ```
 
-Render, fog, HUD, and the ImGui editor run after the simulation tick and need a window. Headless tests and `baja_bench` reuse the simulation systems only.
+Render, fog, HUD, and the ImGui editor run after the simulation tick and need a window. Headless tests and `baja_bench` reuse the simulation systems only, including detection, state transitions, movement, and stuck recovery in `HeadlessGameplayLoop`.
 
 ## High-level graph
 

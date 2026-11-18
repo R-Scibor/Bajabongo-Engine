@@ -11,9 +11,10 @@ Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Noth
 - A CMake build that mirrors the Visual Studio 2022 solution: `engine` static library, `game` executable, and presets for Windows (`windows-vs2022`, optional Ninja) and Linux (Ninja Debug/Release, plus sanitizer and coverage trees).
 - vcpkg manifest mode with a pinned builtin baseline (Box2D 3.2 and the rest of the dependency set are reproducible).
 - Opt-in flags: `BAJA_BUILD_TESTS`, `BAJA_STRICT_WARNINGS`, `BAJA_SANITIZE`, `BAJA_COVERAGE`, `BAJA_PCH`, and `BAJA_BUILD_BENCH`.
-- Catch2 and CTest suite (122 cases): pure logic, headless ECS systems, EntityFactory and MapLoader, shipped hideout/hospital integration, JSON robustness, a fixed-dt headless simulation, `engine::Random` seed/range tests, spawn-relative patrol checks, feet-collider slide helpers, and a hospital enemy-AI regression (seed 1, 1800 frames).
+- Catch2 and CTest suite (123 cases): pure logic, headless ECS systems, EntityFactory and MapLoader, shipped hideout/hospital integration, JSON robustness, a fixed-dt headless simulation, `engine::Random` seed/range tests, spawn-relative patrol checks, feet-collider slide helpers, and a hospital enemy-AI regression (seed 1, 1800 frames).
 - `baja_enemy_ai_diag` headless tool (map assets, seed, seconds) that prints stuck-check, teleport, and displacement totals for hideout and hospital.
 - A short enemy-AI section in `docs/ARCHITECTURE.md` (states, per-spawn waypoints, unstuck) and how to run `baja_enemy_ai_diag`.
+- `HeadlessGameplayLoop` now runs state transitions, movement, and stuck recovery (same order as gameplay, before the Box2D step).
 - Dev launch flags: `game --map hideout` or `game --map hospital` to skip splash and menu, and `game --seed <n>` to seed the shared RNG.
 - Repo hygiene: `.editorconfig`, `.gitattributes` (no bulk renormalize of existing files), GitHub issue and pull request templates, and this changelog.
 - Local CI workflow (Linux Debug, ASan/UBSan, clang-tidy, Windows VS 2022 Debug plus CTest). The file is in the tree; it is unpublished until the branch is pushed.

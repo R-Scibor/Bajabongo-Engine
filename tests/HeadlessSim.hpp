@@ -10,6 +10,9 @@
 #include "engine/physics/PhysicsSyncSystem.hpp"
 #include "engine/systems/LifetimeSystem.hpp"
 #include "game/ai/EnemyDetectionSystem.hpp"
+#include "game/ai/EnemyStuckRecoverySystem.hpp"
+#include "game/ai/EnemyStateTransitions.hpp"
+#include "game/ai/EnemyMovementSystem.hpp"
 #include "game/systems/DamageSystem.hpp"
 #include "game/systems/VisibilitySystem.hpp"
 
@@ -50,6 +53,9 @@ namespace baja::test {
         engine::LifetimeSystem lifetime;
         game::VisibilitySystem visibility;
         game::ai::EnemyDetectionSystem detection;
+        game::ai::EnemyStateTransitions state;
+        game::ai::EnemyMovementSystem movement;
+        game::ai::EnemyStuckRecoverySystem stuck;
         game::DamageSystem damage;
 
         explicit HeadlessGameplayLoop(HeadlessScene& headlessScene)
@@ -61,16 +67,22 @@ namespace baja::test {
             , lifetime(headlessScene.context)
             , visibility(headlessScene.context)
             , detection(headlessScene.context)
+            , state(headlessScene.context)
+            , movement(headlessScene.context)
+            , stuck(headlessScene.context)
             , damage(headlessScene.context) {}
 
         void step(float dt) {
             bodyCreation.update();
+            detection.update(dt);
+            state.update(dt);
+            movement.update(dt);
+            stuck.update(dt);
             b2World_Step(scene.context.m_physicsWorld, dt, 8);
             physicsEvents.update();
             scene.dispatcher->update();
             physicsSync.update();
             visibility.update();
-            detection.update(dt);
             hierarchy.update();
             lifetime.update(dt);
         }

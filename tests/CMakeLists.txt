@@ -80,6 +80,9 @@ if(BAJA_BUILD_BENCH)
         ../src/game/systems/DamageSystem.cpp
         ../src/game/systems/VisibilitySystem.cpp
         ../src/game/ai/EnemyDetectionSystem.cpp
+        ../src/game/ai/EnemyMovementSystem.cpp
+        ../src/game/ai/EnemyStuckRecoverySystem.cpp
+        ../src/game/ai/EnemyStateTransitions.cpp
         ../src/game/ai/AIUtils.cpp
     )
     bajabongo_apply_compiler_options(baja_bench)
