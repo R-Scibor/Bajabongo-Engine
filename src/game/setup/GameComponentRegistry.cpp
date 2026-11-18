@@ -21,6 +21,7 @@
 // AI Components
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
+#include "game/ai/PatrolWaypoints.hpp"
 #include "game/components/RushBehaviorComponent.hpp"
 #include "game/components/SniperBehaviorComponent.hpp"
 #include "game/components/CampBehaviorComponent.hpp"
@@ -200,23 +201,27 @@ namespace game {
         });
 
         // --- 9. Rejestracja PatrolBehaviorComponent ---
-        factory.registerComponentLoader("PatrolBehavior",
-                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
-                                            PatrolBehaviorComponent patrol;
+        factory.registerComponentLoader(
+            "PatrolBehavior", [&context](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                PatrolBehaviorComponent patrol;
 
-                                            if (data.contains("waypoints") && data["waypoints"].is_array()) {
-                                                for (const auto& wp : data["waypoints"]) {
-                                                    if (wp.is_array() && wp.size() >= 2) {
-                                                        patrol.waypoints.emplace_back(wp[0], wp[1]);
-                                                    }
-                                                }
-                                            }
+                PatrolWaypointSpec spec;
+                spec.absolute = data.value("absolute", false);
+                spec.wanderRadius = data.value("wanderRadius", 150.0f);
+                if (data.contains("waypoints")) {
+                    parseWaypointList(data["waypoints"], spec.raw);
+                }
 
-                                            patrol.waypointReachThreshold = data.value("waypointReachThreshold", 20.0f);
-                                            patrol.loopMode = data.value("loopMode", "loop") == "loop";
+                engine::Vector2f spawn{0.0f, 0.0f};
+                if (const auto* transform = registry.try_get<engine::TransformComponent>(entity)) {
+                    spawn = transform->position;
+                }
+                patrol.waypoints = resolvePatrolWaypoints(spawn, context.mapScale, spec);
+                patrol.waypointReachThreshold = data.value("waypointReachThreshold", 20.0f);
+                patrol.loopMode = data.value("loopMode", "loop") == "loop";
 
-                                            registry.emplace<PatrolBehaviorComponent>(entity, patrol);
-                                        });
+                registry.emplace<PatrolBehaviorComponent>(entity, patrol);
+            });
 
         // --- 10. Rejestracja RushBehaviorComponent ---
         factory.registerComponentLoader("RushBehavior",
@@ -297,6 +302,32 @@ namespace game {
 
                                             registry.emplace<HitFlashComponent>(entity, flash);
                                         });
+
+        factory.setInstancePropertiesHandler([&context](entt::entity entity, const nlohmann::json& tiledObject) {
+            std::vector<engine::Vector2f> mapWaypoints;
+            if (!tryReadMapWaypoints(tiledObject, mapWaypoints)) return;
+
+            auto& registry = *context.m_registry;
+            engine::Vector2f spawn{0.0f, 0.0f};
+            if (const auto* transform = registry.try_get<engine::TransformComponent>(entity)) {
+                spawn = transform->position;
+            }
+
+            PatrolWaypointSpec spec;
+            spec.raw = std::move(mapWaypoints);
+            spec.absolute = true;
+            auto world = resolvePatrolWaypoints(spawn, context.mapScale, spec);
+
+            if (auto* patrol = registry.try_get<PatrolBehaviorComponent>(entity)) {
+                patrol->waypoints = std::move(world);
+                patrol->currentWaypointIndex = 0;
+                patrol->reversing = false;
+            } else {
+                PatrolBehaviorComponent created;
+                created.waypoints = std::move(world);
+                registry.emplace<PatrolBehaviorComponent>(entity, created);
+            }
+        });
     }
 
     void RegisterGameEditorInspectors(engine::EditorSystem& editor) {

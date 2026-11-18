@@ -168,6 +168,7 @@
     <ClInclude Include="ai\EnemyCombatSystem.hpp" />
     <ClInclude Include="ai\EnemyDetectionSystem.hpp" />
     <ClInclude Include="ai\EnemyMovementSystem.hpp" />
+    <ClInclude Include="ai\PatrolWaypoints.hpp" />
     <ClInclude Include="ai\EnemyStateTransitions.hpp" />
     <ClInclude Include="ai\EnemyStuckRecoverySystem.hpp" />
     <ClInclude Include="components\CampBehaviorComponent.hpp" />

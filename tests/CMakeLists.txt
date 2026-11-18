@@ -24,10 +24,13 @@ add_executable(baja_tests
     test_map_integration.cpp
     test_json_robustness.cpp
     test_headless_simulation.cpp
+    test_patrol_waypoints.cpp
+    test_patrol_spawn.cpp
     ../src/game/systems/DamageSystem.cpp
     ../src/game/systems/VisibilitySystem.cpp
     ../src/game/ai/EnemyDetectionSystem.cpp
     ../src/game/ai/AIUtils.cpp
+    ../src/game/setup/GameComponentRegistry.cpp
 )
 
 bajabongo_apply_compiler_options(baja_tests)

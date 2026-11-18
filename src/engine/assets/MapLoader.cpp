@@ -228,6 +228,7 @@ namespace engine {
 
                 entt::entity spawnedEntity = m_context.m_entityFactory->spawn(type, spawnPos);
                 if (spawnedEntity != entt::null) {
+                    m_context.m_entityFactory->applyInstanceProperties(spawnedEntity, obj);
                     count++;
                 } else {
                     if (m_logger) m_logger->warn("MapLoader: Failed to spawn entity of type '{}'", type);

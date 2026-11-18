@@ -52,6 +52,11 @@ namespace engine {
          */
         void registerComponentLoader(const std::string& componentName, ComponentLoaderFn loader);
 
+        /// Optional hook for per-instance map-object data (Tiled properties, etc.).
+        using InstancePropertiesFn = std::function<void(entt::entity, const nlohmann::json& tiledObject)>;
+        void setInstancePropertiesHandler(InstancePropertiesFn handler);
+        void applyInstanceProperties(entt::entity entity, const nlohmann::json& tiledObject) const;
+
     private:
         /** @brief Reference to the engine context. */
         EngineContext& m_context;
@@ -64,6 +69,7 @@ namespace engine {
 
         /** @brief Map of registered component loaders keyed by component name. */
         std::unordered_map<std::string, ComponentLoaderFn> m_componentRegistry;
+        InstancePropertiesFn m_instancePropertiesHandler;
 
         /**
          * @brief Registers the default set of engine component loaders.

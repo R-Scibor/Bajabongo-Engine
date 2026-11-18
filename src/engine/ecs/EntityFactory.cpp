@@ -45,6 +45,16 @@ namespace engine {
         m_componentRegistry[componentName] = std::move(loader);
     }
 
+    void EntityFactory::setInstancePropertiesHandler(InstancePropertiesFn handler) {
+        m_instancePropertiesHandler = std::move(handler);
+    }
+
+    void EntityFactory::applyInstanceProperties(entt::entity entity, const nlohmann::json& tiledObject) const {
+        if (m_instancePropertiesHandler && entity != entt::null) {
+            m_instancePropertiesHandler(entity, tiledObject);
+        }
+    }
+
     entt::entity EntityFactory::spawn(const std::string& archetypeId, const Vector2f& position) {
         const auto* archetypeData = m_archetypeManager->getArchetype(archetypeId);
         if (!archetypeData) {
