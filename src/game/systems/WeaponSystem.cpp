@@ -21,7 +21,7 @@
 
 namespace game {
 
-    WeaponSystem::WeaponSystem(engine::EngineContext& context) : m_context(context), m_rng(std::random_device{}()) {}
+    WeaponSystem::WeaponSystem(engine::EngineContext& context) : m_context(context) {}
 
     void WeaponSystem::update(float fixedDeltaTime) {
         auto& registry = *m_context.m_registry;
@@ -193,7 +193,7 @@ namespace game {
                 else kickSign = 1.0f;
             }
         } else {
-            kickSign = (m_rng() % 2 == 0) ? 1.0f : -1.0f;
+            kickSign = (m_context.m_random.below(2) == 0) ? 1.0f : -1.0f;
         }
 
         weapon.recoilAngleOffset += kickSign * weapon.recoilKickDeg * (engine::Pi / 180.0f);
@@ -207,9 +207,7 @@ namespace game {
         // Loop for multiple projectiles
         for (int i = 0; i < weapon.projectilesPerShot; ++i) {
             // Apply Spread
-            std::uniform_real_distribution<float> spreadDist(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
-
-            float spreadOffsetDeg = spreadDist(m_rng);
+            float spreadOffsetDeg = m_context.m_random.real(-weapon.currentSpreadDeg, weapon.currentSpreadDeg);
             float spreadOffsetRad = spreadOffsetDeg * (engine::Pi / 180.0f);
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
