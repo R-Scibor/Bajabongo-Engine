@@ -51,6 +51,8 @@ Linux presets turn on `BAJA_STRICT_WARNINGS` (`-Wall -Wextra -Wshadow -Wconversi
 ctest --test-dir build/linux-ninja-debug --output-on-failure
 ```
 
+When tests are enabled, the build also compiles `baja_header_check`: one generated translation unit per header under `src/engine`, each including only that header. A missing include in an engine header fails this target.
+
 ### Sanitizers
 
 `linux-ninja-debug-sanitize` is a separate tree with `BAJA_SANITIZE` (ASan + UBSan on engine, game, and tests; not on vcpkg deps):

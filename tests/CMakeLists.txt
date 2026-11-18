@@ -46,6 +46,8 @@ target_compile_definitions(baja_tests
 include(Catch)
 catch_discover_tests(baja_tests)
 
+include("${PROJECT_SOURCE_DIR}/cmake/CheckEngineHeaders.cmake")
+
 option(BAJA_BUILD_BENCH "Build the optional headless gameplay benchmark (baja_bench)" OFF)
 if(BAJA_BUILD_BENCH)
     add_executable(baja_bench bench_headless.cpp
