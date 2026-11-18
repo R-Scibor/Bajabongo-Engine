@@ -378,3 +378,9 @@ vcpkg_installed/
 /assets/textures
 /assets/sounds
 /assets/music
+
+# Stock Doxyfile and machine-specific VS Code IntelliSense paths stay on
+# disk for local use but are not tracked. Do not ignore Doxyfile.engine or
+# Doxyfile.game if those are added later.
+Doxyfile
+.vscode/c_cpp_properties.json
