@@ -17,23 +17,41 @@
 #include "engine/core/StateManager.hpp"
 
 #include <box2d/box2d.h>
+#include <cstdint>
 #include <iostream>
+#include <limits>
 #include <memory>
-#include <cstdlib>
-#include <ctime>
+#include <optional>
 #include <string>
 
-int main(int argc, char* argv[]) {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+namespace {
+    std::optional<std::uint32_t> parseSeed(const std::string& text) {
+        if (text.empty()) return std::nullopt;
+        try {
+            std::size_t idx = 0;
+            const unsigned long value = std::stoul(text, &idx, 10);
+            if (idx != text.size() || value > std::numeric_limits<std::uint32_t>::max()) {
+                return std::nullopt;
+            }
+            return static_cast<std::uint32_t>(value);
+        } catch (const std::exception&) {
+            return std::nullopt;
+        }
+    }
+} // namespace
 
-    // Dev-only shortcut: --map hideout|hospital skips splash/menu and loads Gameplay
-    // with that mission. With no flag, startup is unchanged (Splash -> Menu).
+int main(int argc, char* argv[]) {
+    // Dev shortcuts: --map hideout|hospital skips splash/menu and loads Gameplay
+    // with that mission. --seed <n> makes the shared RNG repeatable. With no
+    // flags, startup is unchanged (Splash -> Menu) and the RNG uses random_device.
     std::string devMap;
+    std::optional<std::uint32_t> rngSeed;
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--help" || arg == "-h") {
-            std::cerr << "Usage: game [--map hideout|hospital]\n"
-                      << "  --map <name>  Skip splash/menu and load that map directly (dev).\n";
+            std::cerr << "Usage: game [--map hideout|hospital] [--seed <uint>]\n"
+                      << "  --map <name>  Skip splash/menu and load that map directly (dev).\n"
+                      << "  --seed <n>    Seed the engine RNG (dev; repeatable smokes and sessions).\n";
             return 0;
         }
         if (arg == "--map") {
@@ -44,6 +62,22 @@ int main(int argc, char* argv[]) {
             devMap = argv[++i];
         } else if (arg.rfind("--map=", 0) == 0) {
             devMap = arg.substr(6);
+        } else if (arg == "--seed") {
+            if (i + 1 >= argc) {
+                std::cerr << "game: --seed requires an unsigned integer\n";
+                return 2;
+            }
+            rngSeed = parseSeed(argv[++i]);
+            if (!rngSeed) {
+                std::cerr << "game: --seed must be an unsigned 32-bit integer\n";
+                return 2;
+            }
+        } else if (arg.rfind("--seed=", 0) == 0) {
+            rngSeed = parseSeed(arg.substr(7));
+            if (!rngSeed) {
+                std::cerr << "game: --seed must be an unsigned 32-bit integer\n";
+                return 2;
+            }
         } else {
             std::cerr << "game: unknown argument: " << arg << "\n";
             return 2;
@@ -118,6 +152,10 @@ int main(int argc, char* argv[]) {
         context->m_animationLibrary = animationLibrary;
         context->m_assetLoader = assetLoader;
         context->m_dispatcher = std::make_shared<entt::dispatcher>();
+        if (rngSeed) {
+            context->m_random.seed(*rngSeed);
+        }
+        gameLogger->info("RNG seed: {}", context->m_random.currentSeed());
 
         // Create the state manager, which requires a reference to the context
         auto stateManager = std::make_unique<engine::StateManager>(*context);
