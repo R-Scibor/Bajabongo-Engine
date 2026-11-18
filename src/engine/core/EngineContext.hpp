@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include "engine/core/math/Random.hpp"
 
 namespace engine {
     class IWindow;
@@ -120,6 +121,10 @@ namespace engine {
 
         // --- Audio (Phase 4) ---
         std::shared_ptr<AudioSystem> m_audioSystem; ///< Audio playback and management.
+
+        // --- Randomness ---
+        /// Shared generator. Seeded from random_device unless the composition root calls seed().
+        Random m_random;
 
         // --- Global Settings ---
         static constexpr float MAP_SCALE = 2.0f; ///< Default scaling factor for map visuals.

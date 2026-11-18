@@ -182,6 +182,7 @@
     <ClInclude Include="core\math\MathJson.hpp" />
     <ClInclude Include="core\math\Rect.hpp" />
     <ClInclude Include="core\math\Vector2.hpp" />
+    <ClInclude Include="core\math\Random.hpp" />
     <ClInclude Include="ecs\HierarchySystem.hpp" />
     <ClInclude Include="events\AudioEvents.hpp" />
     <ClInclude Include="events\StateEvents.hpp" />

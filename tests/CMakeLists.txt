@@ -11,6 +11,7 @@ add_executable(baja_tests
     test_map_json.cpp
     test_rect_aabb.cpp
     test_vector2.cpp
+    test_random.cpp
     test_geometry.cpp
     test_log_config.cpp
     test_math_json.cpp

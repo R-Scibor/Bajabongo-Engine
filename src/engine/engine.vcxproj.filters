@@ -87,6 +87,9 @@
     <ClInclude Include="core\math\Vector2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\math\Random.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="physics\PhysicsSyncSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
