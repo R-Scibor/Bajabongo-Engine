@@ -199,6 +199,9 @@
     <ClInclude Include="ai\PatrolWaypoints.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ai\PatrolWaypointValidation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ai\EnemyStateTransitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -36,6 +36,7 @@
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/EditorSystem.hpp"
 #include "engine/assets/MapLoader.hpp"
+#include "game/ai/PatrolWaypointValidation.hpp"
 #include <box2d/box2d.h>
 #include <entt/entt.hpp>
 #include <SFML/Window/Event.hpp>
@@ -155,6 +156,10 @@ namespace game {
             // Load map.json which is relative to assets folder, but MapLoader uses ifstream directly.
             mapLoader.load("../../assets/data/map_hideout.json");
         }
+
+        // Collision bodies are pending until this flush; validate patrols against walls after.
+        m_physicsBodyCreationSystem.update();
+        validateLoadedPatrolWaypoints(context);
     }
 
     void GameplayState::onExit(engine::EngineContext& context) {

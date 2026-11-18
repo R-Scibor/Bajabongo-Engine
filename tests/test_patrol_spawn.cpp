@@ -6,6 +6,9 @@
 #include "engine/ecs/EntityFactory.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
 #include "game/setup/GameComponentRegistry.hpp"
+#include "game/ai/PatrolWaypointValidation.hpp"
+#include "game/ai/EnemyNavigation.hpp"
+#include "engine/physics/PhysicsBodyCreationSystem.hpp"
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -35,6 +38,9 @@ TEST_CASE("Hospital patrol waypoints stay near each enemy spawn") {
 
     engine::MapLoader loader(scene.context);
     REQUIRE(loader.load(mapPath.string()));
+    engine::PhysicsBodyCreationSystem bodyCreation(scene.context);
+    bodyCreation.update();
+    game::validateLoadedPatrolWaypoints(scene.context);
 
     int patrols = 0;
     auto view = scene.registry->view<game::PatrolBehaviorComponent, engine::TransformComponent>();
@@ -51,6 +57,7 @@ TEST_CASE("Hospital patrol waypoints stay near each enemy spawn") {
         // Shared absolute archetype points (100, 200) would be thousands of units away.
         CHECK(dist < 800.0f);
         CHECK_FALSE((std::abs(first.x - 100.0f) < 1.0f && std::abs(first.y - 200.0f) < 1.0f));
+        CHECK_FALSE(game::ai::areaBlockedByWalls(scene.worldId, first, 16.0f, 6.0f));
     }
     CHECK(patrols == 16);
 }

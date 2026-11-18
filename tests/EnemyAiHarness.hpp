@@ -18,6 +18,7 @@
 #include "game/ai/EnemyStuckRecoverySystem.hpp"
 #include "game/components/EnemyComponent.hpp"
 #include "game/setup/GameComponentRegistry.hpp"
+#include "game/ai/PatrolWaypointValidation.hpp"
 #include "game/systems/VisibilitySystem.hpp"
 
 #include <box2d/box2d.h>
@@ -124,6 +125,7 @@ namespace baja::test {
         game::ai::EnemyStuckRecoverySystem stuck(scene.context);
 
         bodyCreation.update();
+        game::validateLoadedPatrolWaypoints(scene.context);
 
         struct StartPos {
             std::uint32_t id = 0;
