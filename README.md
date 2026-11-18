@@ -60,6 +60,8 @@ Bajabongo-Engine/
 
 ## 🛠️ Getting Started
 
+Full install, preset, and troubleshooting notes are in [docs/BUILDING.md](docs/BUILDING.md). A short summary follows.
+
 ### Prerequisites
 *   **CMake 3.21** or newer
 *   A **C++20** compiler: **Visual Studio 2022** on Windows, or a recent GCC or Clang on Linux
@@ -106,7 +108,7 @@ cmake --preset linux-ninja-debug
 cmake --build --preset linux-ninja-debug
 ```
 
-The Linux presets also turn on `BAJA_STRICT_WARNINGS` (`-Wall -Wextra`) and `BAJA_BUILD_TESTS`. Use `linux-ninja-release` for a Release build.
+The Linux presets also turn on `BAJA_STRICT_WARNINGS` (`-Wall -Wextra -Wshadow -Wconversion`) and `BAJA_BUILD_TESTS`. Use `linux-ninja-release` for a Release build.
 
 The executable is written to `build/linux-ninja-debug/out/game/Debug/game` (or the Release equivalent). Run it from that folder:
 
@@ -117,7 +119,7 @@ cd build/linux-ninja-debug/out/game/Debug
 
 ### Testing
 
-Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) plus headless ECS system tests (damage, visibility, enemy detection, and Box2D queries) and do not open a window. The suite currently has 78 cases.
+Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) plus headless ECS system tests (damage, visibility, enemy detection, and Box2D queries), EntityFactory and MapLoader, integration loads of the shipped hideout and hospital maps, JSON robustness cases, and a fixed-dt headless simulation. They do not open a window. The suite currently has 98 cases.
 
 `BAJA_BUILD_TESTS` defaults to **OFF**. The Linux presets turn it **ON**. On Windows, pass the option when configuring:
 
@@ -214,6 +216,9 @@ Derived from the current input handling in the game module.
 
 Detailed documentation for specific subsystems can be found in the `docs/` directory:
 
+*   [**Architecture**](docs/ARCHITECTURE.md): Layers, EngineContext, data flow, and mermaid diagrams.
+*   [**Building**](docs/BUILDING.md): Windows (VS2022/CMake), Linux, vcpkg, and troubleshooting.
+*   [**Contributing**](CONTRIBUTING.md): Style, clang-format, and tests.
 *   [**Asset Pipeline**](docs/asset_pipeline.md): How to add and manage assets.
 *   [**ECS Architecture**](docs/ecs.md): Entity-Component-System patterns and usage.
 *   [**State Management**](docs/state_management.md): How the game flow is structured.
@@ -227,6 +232,8 @@ Detailed documentation for specific subsystems can be found in the `docs/` direc
 *   [**Technical debt**](docs/TECH_DEBT.md): TODO, FIXME, and HACK comments still in `src/`.
 
 ## 🏗️ Architecture Overview
+
+A longer public write-up is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 The engine follows **SOLID** principles, heavily utilizing **Dependency Injection (DI)**.
 *   **EngineContext**: A central container holding references to core services (Renderer, Input, Registry, PhysicsWorld).
