@@ -171,6 +171,18 @@ tools/run-coverage.sh
 
 `tools/run-coverage.sh` runs CTest in that tree and writes `build/linux-ninja-debug-coverage/coverage/summary.txt` (and `summary.json`). You can pass another build directory as the first argument. `gcov` must be on `PATH`. The default report covers `src/` files exercised by the test binary. Game-only translation units are not included unless you also run the game from that build tree.
 
+### Headless benchmark
+
+An optional target `baja_bench` (off by default) times 600 fixed-dt frames of the hideout map without a window:
+
+```bash
+cmake --preset linux-ninja-release -DBAJA_BUILD_BENCH=ON
+cmake --build --preset linux-ninja-release --target baja_bench
+./build/linux-ninja-release/tests/baja_bench
+```
+
+Example measurement recorded on 18 Nov 2026 (Europe/Warsaw): `linux-ninja-release`, g++ 14.2.0, CMake 3.31.8, 8-core Intel Xeon KVM guest with 15 GiB RAM, Linux 6.12. After a warmup run, two further runs of 600 frames took 10.4 ms and 9.3 ms (about 0.016-0.017 ms/frame, 126 entities, all transforms finite). This is a single-machine sample of the headless loop, not a shipping frame-rate claim.
+
 ### Dev map flag
 
 Launching `game` with no arguments starts the normal flow (splash, then menu). For local smoke tests you can skip splash and menu and load a map directly:
