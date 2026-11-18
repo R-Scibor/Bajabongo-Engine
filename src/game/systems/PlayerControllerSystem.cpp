@@ -24,7 +24,6 @@
 
 #include <box2d/box2d.h>
 #include <cmath>
-#include <cstdlib>
 
 namespace game {
 
@@ -164,14 +163,14 @@ namespace game {
                         }
 
                         // Randomize sound
-                        int r = std::rand() % 3;
+                        int r = m_context.m_random.below(3);
                         std::string soundId;
                         if (r == 0) soundId = "st1-footstep";
                         else if (r == 1) soundId = "st2-footstep";
                         else soundId = "st3-footstep-sfx";
 
                         // Randomize pitch slightly (0.9 to 1.1)
-                        float pitch = 0.9f + (static_cast<float>(std::rand() % 21) / 100.0f);
+                        float pitch = 0.9f + (static_cast<float>(m_context.m_random.below(21)) / 100.0f);
 
                         m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>({.id = soundId,
                                                                                  .volume = 40.0f,
