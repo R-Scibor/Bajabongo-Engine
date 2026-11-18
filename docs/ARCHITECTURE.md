@@ -77,6 +77,31 @@ flowchart TB
     ctx --> world
 ```
 
+## Enemy AI
+
+Gameplay AI lives under `src/game/ai/` and runs in the "Player and AI" step of the gameplay tick, before the Box2D world step. There is no pathfinding. Enemies walk in a straight line toward a patrol point or the player, then slide along walls and recover if they jam.
+
+**States.** `EnemyState` covers Idle, Patrol, Alert, Approach, Chase, Rush, Shoot, Camp, Retreat, Hide, Turret, and Dead. `EnemyDetectionSystem` sets line of sight and `lastKnownPosition`. `EnemyStateTransitions` picks the next state. `EnemyMovementSystem` and `EnemyCombatSystem` apply it. `EnemyStuckRecoverySystem` watches displacement every two seconds.
+
+**Patrol waypoints.** Archetype waypoint lists are offsets from each spawn, scaled by `mapScale`. An empty list becomes a wander box around the spawn. Absolute lists on the map object (including a Tiled `waypoints` property) still override the archetype. After `PhysicsBodyCreationSystem` flushes Collision and HalfCollision, `validateLoadedPatrolWaypoints` shape-casts the feet collider along each segment and shortens or rerolls a blocked point (or keeps the enemy in place).
+
+**Movement and unstuck.** The wall-slide ray starts at the solid feet fixture, not the sprite origin, with a lookahead of at least 48 units. `lastValidPosition` updates only after the body actually moved. If a patrolling enemy fails two stuck checks, it skips to the next waypoint. If a Chase, Approach, or Rush is stuck for two checks, the enemy sidesteps toward the most open direction for a short time. Later checks can still impulse, teleport to a last-valid or waypoint position (not while visible; a shove is used instead), or, as a last resort, kill a permanently stuck hidden enemy.
+
+### Headless diagnosis tool
+
+`baja_enemy_ai_diag` is built with the tests. It loads hideout and hospital without a window, seeds `engine::Random`, and prints stuck, teleport, and displacement totals. The Catch2 hospital regression uses the same harness (seed 1, 1800 frames).
+
+```bash
+# Default: both maps, seed 1, 30 seconds (1800 frames). Assets default to BAJA_ASSETS_DIR.
+./build/linux-ninja-debug/tests/baja_enemy_ai_diag
+
+# Explicit assets, seed, and duration
+./build/linux-ninja-debug/tests/baja_enemy_ai_diag /path/to/assets 1 30
+
+# Place the player behind a wall near the first hospital enemy and prime a chase
+./build/linux-ninja-debug/tests/baja_enemy_ai_diag /path/to/assets 1 30 chase
+```
+
 ## Related docs
 
 - [Building](BUILDING.md)
