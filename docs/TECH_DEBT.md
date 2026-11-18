@@ -27,3 +27,8 @@ No `FIXME` comments were found in `src/`.
 ## Fixes in this pass
 
 None of these markers were both trivial and safe to change without a behavior or audio risk.
+
+## Follow-ups
+
+- The empty animation-set `"player"` fallback and `GameplayState::onExit` `registry.clear()` are unchanged (see above). A filtered teardown was not applied in this pass.
+- Enemy AI has no pathfinding. Chase, patrol, rush, and retreat move in a straight line with a short wall-slide ray. Stuck recovery is reactive (impulse, teleport, shove, or kill). A headless diagnosis of wall-stuck behavior is in the cleanup log; no gameplay change was made in this pass.

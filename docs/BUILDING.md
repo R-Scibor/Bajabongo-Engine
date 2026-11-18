@@ -93,7 +93,7 @@ cmake --build --preset linux-ninja-debug --target baja_bench
 
 Other useful flags: `BAJA_PCH=ON` precompiles `src/engine/pch.h` (off by default). `BAJA_STRICT_WARNINGS` is already on in the Linux presets.
 
-Dev launches: `game --map hideout` or `game --map hospital` skip splash and menu.
+Dev launches: `game --map hideout` or `game --map hospital` skip splash and menu. `game --seed <n>` (or `--seed=n`) seeds the shared engine RNG; the process logs the seed.
 
 ## vcpkg notes
 

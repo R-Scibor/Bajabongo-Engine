@@ -119,7 +119,7 @@ cd build/linux-ninja-debug/out/game/Debug
 
 ### Testing
 
-Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) plus headless ECS system tests (damage, visibility, enemy detection, and Box2D queries), EntityFactory and MapLoader, integration loads of the shipped hideout and hospital maps, JSON robustness cases, and a fixed-dt headless simulation. They do not open a window. The suite currently has 98 cases.
+Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) plus headless ECS system tests (damage, visibility, enemy detection, and Box2D queries), EntityFactory and MapLoader, integration loads of the shipped hideout and hospital maps, JSON robustness cases, and a fixed-dt headless simulation. They also cover the shared `engine::Random` helper (deterministic seeds and ranges). They do not open a window. The suite currently has 103 cases.
 
 `BAJA_BUILD_TESTS` defaults to **OFF**. The Linux presets turn it **ON**. On Windows, pass the option when configuring:
 
@@ -192,7 +192,11 @@ game --map hideout
 game --map hospital
 ```
 
-`--map=hideout` and `--map=hospital` are accepted as well. `game --help` (or `-h`) prints usage. Any other map name is rejected. This flag is a development aid; default behavior is unchanged when it is omitted.
+`--map=hideout` and `--map=hospital` are accepted as well. `game --help` (or `-h`) prints usage. Any other map name is rejected.
+
+`--seed <n>` or `--seed=n` seeds the shared `engine::Random` generator (unsigned 32-bit). Without the flag the generator is seeded from `std::random_device`. The process always logs `RNG seed: ...` so a session can be replayed. Combine with `--map` for a repeatable smoke: `game --map hospital --seed 1`.
+
+These flags are development aids; default behavior is unchanged when they are omitted.
 
 ## Controls
 
