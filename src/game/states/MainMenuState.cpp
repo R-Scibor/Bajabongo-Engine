@@ -1,6 +1,5 @@
 #include "MainMenuState.hpp"
 
-#include <cstdlib>
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/ILogger.hpp"
 #include "engine/events/StateEvents.hpp"
@@ -143,8 +142,8 @@ namespace game {
                     color = {255, 0, 0, 255}; // Critical Red
 
                     // Shake Effect
-                    float shakeX = static_cast<float>(rand() % 5) - 2.0f;
-                    float shakeY = static_cast<float>(rand() % 5) - 2.0f;
+                    float shakeX = static_cast<float>(context.m_random.below(5)) - 2.0f;
+                    float shakeY = static_cast<float>(context.m_random.below(5)) - 2.0f;
                     drawX += shakeX;
                     drawY += shakeY;
 
