@@ -231,6 +231,7 @@ Detailed documentation for specific subsystems can be found in the `docs/` direc
 *   [**Architecture**](docs/ARCHITECTURE.md): Layers, EngineContext, data flow, and mermaid diagrams.
 *   [**Building**](docs/BUILDING.md): Windows (VS2022/CMake), Linux, vcpkg, and troubleshooting.
 *   [**Contributing**](CONTRIBUTING.md): Style, clang-format, and tests.
+*   [**Changelog**](CHANGELOG.md): Notable changes on the CMake and cleanup branches.
 *   [**Asset Pipeline**](docs/asset_pipeline.md): How to add and manage assets.
 *   [**ECS Architecture**](docs/ecs.md): Entity-Component-System patterns and usage.
 *   [**State Management**](docs/state_management.md): How the game flow is structured.
