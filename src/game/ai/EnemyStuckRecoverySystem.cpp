@@ -11,7 +11,6 @@
 #include "engine/physics/PhysicsConstants.hpp"
 #include <box2d/box2d.h>
 #include <cmath>
-#include <random>
 
 namespace game::ai {
 
@@ -99,14 +98,9 @@ namespace game::ai {
             }
         }
 
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> angleDist(0.0f, 6.28318f);
-        std::uniform_real_distribution<float> radiusDist(100.0f, 300.0f);
-
         for (int attempt = 0; attempt < 8; ++attempt) {
-            float angle = angleDist(gen);
-            float radius = radiusDist(gen);
+            float angle = mContext.m_random.real(0.0f, 6.28318f);
+            float radius = mContext.m_random.real(100.0f, 300.0f);
 
             engine::Vector2f candidate = {preferredPos.x + std::cos(angle) * radius,
                                           preferredPos.y + std::sin(angle) * radius};
@@ -140,13 +134,8 @@ namespace game::ai {
 
         // Phase 1: Random Impulse
         if (enemy.stuckCounter == 3) {
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            std::uniform_real_distribution<float> angleDist(0.0f, 6.28318f);
-            std::uniform_real_distribution<float> forceDist(100.0f, 200.0f);
-
-            float angle = angleDist(gen);
-            float force = forceDist(gen);
+            float angle = mContext.m_random.real(0.0f, 6.28318f);
+            float force = mContext.m_random.real(100.0f, 200.0f);
             b2Vec2 impulse = {std::cos(angle) * force, std::sin(angle) * force};
 
             b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, impulse, true);
