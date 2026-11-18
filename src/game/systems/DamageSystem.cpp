@@ -20,7 +20,6 @@
 #include "engine/core/ILogger.hpp"
 
 #include <entt/entt.hpp>
-#include <cstdlib>
 
 namespace game {
 
@@ -149,7 +148,7 @@ namespace game {
                          .attenuation = 2.0f});
 
                 } else if (registry.all_of<EnemyComponent>(target)) {
-                    int roll = std::rand() % 100;
+                    int roll = m_context.m_random.below(100);
                     if (roll < 5) {
                         soundId = "death_amogus";
                     } else if (roll < 10) {
