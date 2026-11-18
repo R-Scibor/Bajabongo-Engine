@@ -65,6 +65,22 @@ namespace game::ai {
                     break;
             }
 
+            // Short sidestep used when a chase jammed against a wall (see stuck recovery).
+            if (enemy.sidestepTimer > 0.0f) {
+                enemy.sidestepTimer -= dt;
+                float speed = enemy.moveSpeed;
+                if (enemy.currentState == EnemyState::Rush) {
+                    if (auto* rush = mContext.m_registry->try_get<RushBehaviorComponent>(entity)) {
+                        speed = rush->rushSpeed;
+                    }
+                }
+                const auto& dir = enemy.sidestepDirection;
+                if (dir.x != 0.0f || dir.y != 0.0f) {
+                    desiredVelocity = {dir.x * speed, dir.y * speed};
+                }
+                if (enemy.sidestepTimer < 0.0f) enemy.sidestepTimer = 0.0f;
+            }
+
             // Apply wall sliding: raycast ahead and slide along obstacles
             engine::Vector2f finalVelocity = applyWallSliding(transform.position, desiredVelocity, dt, bodyComp);
 

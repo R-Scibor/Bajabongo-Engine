@@ -31,6 +31,8 @@ namespace game {
         float stuckCheckInterval = 2.0f;
         engine::Vector2f lastCheckedPosition{0.0f, 0.0f};
         int stuckCounter = 0;
+        engine::Vector2f sidestepDirection{0.0f, 0.0f};
+        float sidestepTimer = 0.0f;
         engine::Vector2f lastValidPosition{0.0f, 0.0f};
         engine::Vector2f previousPosition{0.0f, 0.0f};
 

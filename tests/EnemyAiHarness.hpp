@@ -4,19 +4,23 @@
 #include "engine/assets/MapLoader.hpp"
 #include "engine/components/MetaComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
+#include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/ecs/ArchetypeManager.hpp"
 #include "engine/ecs/EntityFactory.hpp"
 #include "engine/ecs/HierarchySystem.hpp"
 #include "engine/physics/PhysicsBodyCreationSystem.hpp"
 #include "engine/physics/PhysicsEventSystem.hpp"
 #include "engine/physics/PhysicsSyncSystem.hpp"
+#include "engine/physics/PhysicsConstants.hpp"
 #include "engine/systems/LifetimeSystem.hpp"
 #include "game/ai/EnemyCombatSystem.hpp"
 #include "game/ai/EnemyDetectionSystem.hpp"
 #include "game/ai/EnemyMovementSystem.hpp"
+#include "game/ai/EnemyNavigation.hpp"
 #include "game/ai/EnemyStateTransitions.hpp"
 #include "game/ai/EnemyStuckRecoverySystem.hpp"
 #include "game/components/EnemyComponent.hpp"
+#include "game/components/PlayerComponent.hpp"
 #include "game/setup/GameComponentRegistry.hpp"
 #include "game/ai/PatrolWaypointValidation.hpp"
 #include "game/systems/VisibilitySystem.hpp"
@@ -25,6 +29,7 @@
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -43,6 +48,9 @@ namespace baja::test {
         int killed = 0;
         int barelyMoved = 0;
         int maxStuck = 0;
+        int pursuitStuckChecks = 0;
+        int pursuitEnemies = 0;
+        int chasePlaced = 0;
         float minDisp = 0.0f;
         float maxDisp = 0.0f;
         std::string error;
@@ -81,9 +89,76 @@ namespace baja::test {
         return count;
     }
 
+    inline bool isPursuitState(game::EnemyState state) {
+        return state == game::EnemyState::Chase || state == game::EnemyState::Approach ||
+               state == game::EnemyState::Rush;
+    }
+
+    inline void setWorldPosition(entt::registry& registry, entt::entity entity, const engine::Vector2f& pos) {
+        if (auto* transform = registry.try_get<engine::TransformComponent>(entity)) {
+            transform->position = pos;
+        }
+        if (auto* body = registry.try_get<engine::PhysicsBodyComponent>(entity); body && b2Body_IsValid(body->bodyId)) {
+            b2Body_SetTransform(body->bodyId, {pos.x, pos.y}, b2Body_GetRotation(body->bodyId));
+            b2Body_SetLinearVelocity(body->bodyId, {0.0f, 0.0f});
+            b2Body_SetAwake(body->bodyId, true);
+        }
+    }
+
+    /// Point just past the first wall along a probe from `from`, or empty if none.
+    inline bool findPointBehindWall(b2WorldId worldId, const engine::Vector2f& from, engine::Vector2f& out) {
+        const engine::Vector2f dirs[8] = {{1.0f, 0.0f},        {-1.0f, 0.0f},       {0.0f, 1.0f},
+                                          {0.0f, -1.0f},       {0.7071f, 0.7071f},  {-0.7071f, 0.7071f},
+                                          {0.7071f, -0.7071f}, {-0.7071f, -0.7071f}};
+        b2QueryFilter filter = b2DefaultQueryFilter();
+        filter.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::LowObstacle;
+        const float probe = 220.0f;
+        const float pastWall = 48.0f;
+        for (const auto& dir : dirs) {
+            b2RayResult hit = b2World_CastRayClosest(worldId, {from.x, from.y}, {dir.x * probe, dir.y * probe}, filter);
+            if (!hit.hit) continue;
+            const float dist = hit.fraction * probe;
+            if (dist < 24.0f || dist > 180.0f) continue;
+            const engine::Vector2f candidate{from.x + dir.x * (dist + pastWall), from.y + dir.y * (dist + pastWall)};
+            if (game::ai::areaBlockedByWalls(worldId, candidate, 12.0f, 8.0f)) continue;
+            // Confirm the wall still sits between the origin and the candidate.
+            const engine::Vector2f back{candidate.x - from.x, candidate.y - from.y};
+            b2RayResult confirm = b2World_CastRayClosest(worldId, {from.x, from.y}, {back.x, back.y}, filter);
+            if (!confirm.hit) continue;
+            out = candidate;
+            return true;
+        }
+        return false;
+    }
+
+    inline int primeEnemiesForChase(entt::registry& registry, entt::entity player, const engine::Vector2f& playerPos,
+                                    float radius) {
+        int primed = 0;
+        auto view = registry.view<game::EnemyComponent, engine::TransformComponent>();
+        for (auto entity : view) {
+            auto& enemy = view.get<game::EnemyComponent>(entity);
+            if (enemy.currentState == game::EnemyState::Dead) continue;
+            const auto& transform = view.get<engine::TransformComponent>(entity);
+            const float dx = transform.position.x - playerPos.x;
+            const float dy = transform.position.y - playerPos.y;
+            if (dx * dx + dy * dy > radius * radius) continue;
+            enemy.targetEntity = player;
+            enemy.lastKnownPosition = playerPos;
+            enemy.lastSeenTimer = 0.0f;
+            enemy.isAlerted = true;
+            if (!isPursuitState(enemy.currentState)) {
+                enemy.currentState = game::EnemyState::Chase;
+                enemy.stateTimer = 0.0f;
+            }
+            ++primed;
+        }
+        return primed;
+    }
+
     /// Headless hospital/hideout AI run used for the pre-fix baseline (seed 1, 1800 frames).
     inline EnemyAiRunStats runHeadlessEnemyAi(const std::filesystem::path& assets, const std::string& mapName,
-                                              std::uint32_t seed, int frames, float dt = 1.0f / 60.0f) {
+                                              std::uint32_t seed, int frames, float dt = 1.0f / 60.0f,
+                                              bool chaseBehindWall = false) {
         EnemyAiRunStats stats;
         const auto mapPath = assets / "data" / ("map_" + mapName + ".json");
         const auto archetypesPath = assets / "data" / "archetypes.json";
@@ -127,6 +202,41 @@ namespace baja::test {
         bodyCreation.update();
         game::validateLoadedPatrolWaypoints(scene.context);
 
+        entt::entity playerEntity = entt::null;
+        {
+            auto players = scene.registry->view<game::PlayerComponent, engine::TransformComponent>();
+            for (auto entity : players) {
+                playerEntity = entity;
+                break;
+            }
+        }
+
+        if (chaseBehindWall) {
+            if (playerEntity == entt::null) {
+                stats.error = "no player to place behind a wall";
+                return stats;
+            }
+            entt::entity subject = entt::null;
+            engine::Vector2f subjectPos{};
+            auto enemies = scene.registry->view<game::EnemyComponent, engine::TransformComponent>();
+            for (auto entity : enemies) {
+                subject = entity;
+                subjectPos = enemies.get<engine::TransformComponent>(entity).position;
+                break;
+            }
+            if (subject == entt::null) {
+                stats.error = "no enemy to chase the player";
+                return stats;
+            }
+            engine::Vector2f behind{};
+            if (!findPointBehindWall(scene.worldId, subjectPos, behind)) {
+                stats.error = "no wall-separated point near the first enemy";
+                return stats;
+            }
+            setWorldPosition(*scene.registry, playerEntity, behind);
+            stats.chasePlaced = primeEnemiesForChase(*scene.registry, playerEntity, behind, 700.0f);
+        }
+
         struct StartPos {
             std::uint32_t id = 0;
             engine::Vector2f pos{};
@@ -141,13 +251,30 @@ namespace baja::test {
         }
         stats.enemyCount = static_cast<int>(starts.size());
 
+        std::map<std::uint32_t, int> lastStuck;
         for (int frame = 0; frame < frames; ++frame) {
+            if (chaseBehindWall && playerEntity != entt::null) {
+                const auto& playerTransform = scene.registry->get<engine::TransformComponent>(playerEntity);
+                primeEnemiesForChase(*scene.registry, playerEntity, playerTransform.position, 700.0f);
+            }
             bodyCreation.update();
             detection.update(dt);
             state.update(dt);
             movement.update(dt);
             combat.update(dt);
             stuck.update(dt);
+            {
+                auto view = scene.registry->view<game::EnemyComponent>();
+                for (auto entity : view) {
+                    const auto& enemy = view.get<game::EnemyComponent>(entity);
+                    const auto id = entt::to_integral(entity);
+                    const int prev = lastStuck[id];
+                    if (isPursuitState(enemy.currentState) && enemy.stuckCounter > prev) {
+                        ++stats.pursuitStuckChecks;
+                    }
+                    lastStuck[id] = enemy.stuckCounter;
+                }
+            }
             b2World_Step(scene.context.m_physicsWorld, dt, 8);
             physicsEvents.update();
             scene.dispatcher->update();
@@ -182,6 +309,7 @@ namespace baja::test {
                 if (disp < 10.0f && enemy.currentState != game::EnemyState::Dead) ++stats.barelyMoved;
                 break;
             }
+            if (isPursuitState(enemy.currentState)) ++stats.pursuitEnemies;
         }
         stats.minDisp = (minDisp > 1e8f) ? 0.0f : minDisp;
         stats.maxDisp = maxDisp;

@@ -72,6 +72,35 @@ namespace game::ai {
                         }
                     }
 
+                    if ((enemy.currentState == EnemyState::Chase || enemy.currentState == EnemyState::Approach ||
+                         enemy.currentState == EnemyState::Rush) &&
+                        enemy.stuckCounter >= 2) {
+                        auto* bodyComp = mContext.m_registry->try_get<engine::PhysicsBodyComponent>(entity);
+                        engine::Vector2f dir{0.0f, 0.0f};
+                        if (bodyComp && b2Body_IsValid(bodyComp->bodyId)) {
+                            const SolidFootprint foot = solidFootprint(bodyComp->bodyId, transform.position);
+                            dir = mostOpenDirection(mContext.m_physicsWorld, foot, 80.0f);
+                        }
+                        if (dir.x == 0.0f && dir.y == 0.0f) {
+                            engine::Vector2f toTarget = enemy.lastKnownPosition - transform.position;
+                            dir = {-toTarget.y, toTarget.x};
+                            const float mag = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+                            if (mag > 0.01f) {
+                                dir = {dir.x / mag, dir.y / mag};
+                            } else {
+                                dir = {1.0f, 0.0f};
+                            }
+                        }
+                        enemy.sidestepDirection = dir;
+                        enemy.sidestepTimer = 0.75f;
+                        enemy.stuckCounter = 0;
+                        enemy.stuckCheckTimer = 0.0f;
+                        if (mLogger) {
+                            mLogger->info("Enemy {} chase sidestep ({:.2f}, {:.2f})", entt::to_integral(entity), dir.x,
+                                          dir.y);
+                        }
+                    }
+
                     if (enemy.stuckCounter >= 3) {
                         executeUnstuckBehavior(entity, enemy, transform);
                     }
