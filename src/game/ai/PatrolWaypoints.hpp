@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/math/MathAliases.hpp"
+#include "game/components/PatrolBehaviorComponent.hpp"
 
 #include <nlohmann/json.hpp>
 #include <exception>
@@ -107,6 +108,40 @@ namespace game {
             }
         }
         return false;
+    }
+
+    /// Abandon the current target and go to the next point. False if the route has
+    /// fewer than two waypoints.
+    inline bool skipToNextPatrolWaypoint(PatrolBehaviorComponent& patrol) {
+        const int count = static_cast<int>(patrol.waypoints.size());
+        if (count <= 1) return false;
+        if (patrol.currentWaypointIndex < 0 || patrol.currentWaypointIndex >= count) {
+            patrol.currentWaypointIndex = 0;
+        }
+
+        if (patrol.loopMode) {
+            patrol.currentWaypointIndex = (patrol.currentWaypointIndex + 1) % count;
+            return true;
+        }
+
+        if (patrol.reversing) {
+            if (patrol.currentWaypointIndex <= 0) {
+                patrol.reversing = false;
+                patrol.currentWaypointIndex = 1;
+            } else {
+                patrol.currentWaypointIndex--;
+                if (patrol.currentWaypointIndex == 0) patrol.reversing = false;
+            }
+        } else {
+            if (patrol.currentWaypointIndex >= count - 1) {
+                patrol.reversing = true;
+                patrol.currentWaypointIndex = count - 2;
+            } else {
+                patrol.currentWaypointIndex++;
+                if (patrol.currentWaypointIndex == count - 1) patrol.reversing = true;
+            }
+        }
+        return true;
     }
 
 } // namespace game

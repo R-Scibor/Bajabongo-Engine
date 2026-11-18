@@ -72,3 +72,35 @@ TEST_CASE("tryReadMapWaypoints reads a Tiled properties entry") {
     CHECK(out[0].x == Catch::Approx(50.0f));
     CHECK(out[1].y == Catch::Approx(80.0f));
 }
+
+TEST_CASE("skipToNextPatrolWaypoint loops around a path") {
+    game::PatrolBehaviorComponent patrol;
+    patrol.waypoints = {{0.0f, 0.0f}, {1.0f, 0.0f}, {2.0f, 0.0f}};
+    patrol.loopMode = true;
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 1);
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 2);
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 0);
+}
+
+TEST_CASE("skipToNextPatrolWaypoint ping-pongs and rejects a single point") {
+    game::PatrolBehaviorComponent patrol;
+    patrol.waypoints = {{0.0f, 0.0f}, {1.0f, 0.0f}, {2.0f, 0.0f}};
+    patrol.loopMode = false;
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 1);
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 2);
+    CHECK(patrol.reversing);
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 1);
+    REQUIRE(game::skipToNextPatrolWaypoint(patrol));
+    CHECK(patrol.currentWaypointIndex == 0);
+    CHECK_FALSE(patrol.reversing);
+
+    game::PatrolBehaviorComponent single;
+    single.waypoints = {{0.0f, 0.0f}};
+    CHECK_FALSE(game::skipToNextPatrolWaypoint(single));
+}

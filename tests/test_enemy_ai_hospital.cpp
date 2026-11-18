@@ -21,20 +21,20 @@ TEST_CASE("Hospital enemy AI (seed 1, 1800 frames) stays below the pre-fix stuck
     //   baseline (before A+B): 129 stuck, 99 moved 0.00, 24 teleports, maxStuck 12, maxDisp 1784
     //   after A+B:             175 / 124 / 36, maxStuck 3, maxDisp 859
     //   after wall validation: 178 / 93 / 39, maxStuck 3, maxDisp 602
-    // Stuck and teleport counts can rise when patrols stay local. movedZero and
-    // maxDisp improved after wall validation, so those gates were tightened
-    // with slack. The rest still fail a collapse or a return to a map-wide march.
+    //   after patrol skip:     122 / 68 / 3,  maxStuck 2, maxDisp 602, barelyMoved 0
+    // Gates were tightened with slack after the skip improved stuck, teleports,
+    // and zero-moves. They still fail a collapse or a return to a map-wide march.
     UNSCOPED_INFO("stuckChecks=" << stats.stuckChecks << " movedZero=" << stats.movedZero
                                  << " teleports=" << stats.teleports << " impulses=" << stats.impulses
                                  << " visibleImpulses=" << stats.visibleImpulses << " recovered=" << stats.recovered
                                  << " killed=" << stats.killed << " barelyMoved=" << stats.barelyMoved << " maxStuck="
                                  << stats.maxStuck << " minDisp=" << stats.minDisp << " maxDisp=" << stats.maxDisp);
 
-    CHECK(stats.stuckChecks <= 220);
-    CHECK(stats.movedZero <= 125);
-    CHECK(stats.teleports <= 55);
+    CHECK(stats.stuckChecks <= 160);
+    CHECK(stats.movedZero <= 100);
+    CHECK(stats.teleports <= 20);
     CHECK(stats.killed == 0);
-    CHECK(stats.maxStuck <= 8);
-    CHECK(stats.barelyMoved <= 5);
+    CHECK(stats.maxStuck <= 6);
+    CHECK(stats.barelyMoved <= 3);
     CHECK(stats.maxDisp < 900.0f);
 }

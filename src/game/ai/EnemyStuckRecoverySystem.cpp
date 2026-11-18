@@ -5,6 +5,7 @@
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
+#include "game/ai/PatrolWaypoints.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/PhysicsBodyComponent.hpp"
 #include "engine/components/LifetimeComponent.hpp"
@@ -55,6 +56,20 @@ namespace game::ai {
                         mLogger->warn("Enemy {} stuck check {}/6 (moved {:.2f} units in {:.1f}s)",
                                       entt::to_integral(entity), enemy.stuckCounter, distanceMoved,
                                       enemy.stuckCheckInterval);
+                    }
+
+                    if (enemy.currentState == EnemyState::Patrol && enemy.stuckCounter >= 2) {
+                        if (auto* patrol = mContext.m_registry->try_get<PatrolBehaviorComponent>(entity)) {
+                            const int previous = patrol->currentWaypointIndex;
+                            if (skipToNextPatrolWaypoint(*patrol)) {
+                                enemy.stuckCounter = 0;
+                                enemy.stuckCheckTimer = 0.0f;
+                                if (mLogger) {
+                                    mLogger->info("Enemy {} skipped blocked patrol waypoint #{} -> #{}",
+                                                  entt::to_integral(entity), previous, patrol->currentWaypointIndex);
+                                }
+                            }
+                        }
                     }
 
                     if (enemy.stuckCounter >= 3) {
