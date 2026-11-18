@@ -11,7 +11,6 @@
 #include "engine/physics/PhysicsConstants.hpp"
 #include <box2d/box2d.h>
 #include <cmath>
-#include <cstdlib>
 
 namespace game::ai {
 
@@ -129,14 +128,14 @@ namespace game::ai {
                     enemy.stepTimer = enemy.stepInterval; // Reset timer
 
                     // Randomize footstep sound variant (st1, st2, st3)
-                    int r = std::rand() % 3;
+                    int r = mContext.m_random.below(3);
                     std::string soundId;
                     if (r == 0) soundId = "st1-footstep";
                     else if (r == 1) soundId = "st2-footstep";
                     else soundId = "st3-footstep-sfx";
 
                     // Vary pitch slightly for variety (85%–105%)
-                    float pitch = 0.85f + (static_cast<float>(std::rand() % 20) / 100.0f);
+                    float pitch = 0.85f + (static_cast<float>(mContext.m_random.below(20)) / 100.0f);
 
                     // Enqueue positional audio event with lower volume than player
                     mContext.m_dispatcher->enqueue<engine::PlaySoundEvent>(
