@@ -1,5 +1,6 @@
 #include "engine/pch.h"
 #include "EnemyMovementSystem.hpp"
+#include "EnemyNavigation.hpp"
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
 #include "game/components/RushBehaviorComponent.hpp"
@@ -65,7 +66,7 @@ namespace game::ai {
             }
 
             // Apply wall sliding: raycast ahead and slide along obstacles
-            engine::Vector2f finalVelocity = applyWallSliding(transform.position, desiredVelocity, dt);
+            engine::Vector2f finalVelocity = applyWallSliding(transform.position, desiredVelocity, dt, bodyComp);
 
             // Stuck recovery nudge: if enemy is stuck, apply perpendicular force
             if (enemy.stuckCounter > 0) {
@@ -153,17 +154,18 @@ namespace game::ai {
                 enemy.stepTimer = 0.1f;
             }
 
-            // --- Last Valid Position Cache (for Retreat/Unstuck) ---
-            // If enemy is moving, cache current position as "safe position"
-            // Used by Retreat state and StuckRecovery teleport logic
-            if (velMagSq > 1.0f) {
+            // Cache a actually-occupied point only when the body moved since last frame.
+            // Commanded velocity is a poor proxy: a blocked enemy can still have a large
+            // desired speed and would then "recover" back into the jam.
+            const engine::Vector2f frameDelta = {transform.position.x - enemy.previousPosition.x,
+                                                 transform.position.y - enemy.previousPosition.y};
+            const float movedSq = frameDelta.x * frameDelta.x + frameDelta.y * frameDelta.y;
+            if (movedSq > 0.25f * 0.25f) {
+                enemy.lastValidPosition = enemy.previousPosition;
+            } else if (enemy.lastValidPosition.x == 0.0f && enemy.lastValidPosition.y == 0.0f) {
                 enemy.lastValidPosition = transform.position;
-            } else {
-                // If lastValidPosition is uninitialized (0,0), set it to current pos
-                if (enemy.lastValidPosition.x == 0.0f && enemy.lastValidPosition.y == 0.0f) {
-                    enemy.lastValidPosition = transform.position;
-                }
             }
+            enemy.previousPosition = transform.position;
         });
     }
 
@@ -324,7 +326,9 @@ namespace game::ai {
     // --- WALL SLIDING ---
     // Raycast ahead to detect walls/obstacles and slide along them smoothly
     engine::Vector2f EnemyMovementSystem::applyWallSliding(const engine::Vector2f& position,
-                                                           const engine::Vector2f& desiredVelocity, float dt) {
+                                                           const engine::Vector2f& desiredVelocity,
+                                                           [[maybe_unused]] float dt,
+                                                           const engine::PhysicsBodyComponent& bodyComp) {
         float velocityMag = std::sqrt(desiredVelocity.x * desiredVelocity.x + desiredVelocity.y * desiredVelocity.y);
         if (velocityMag < 0.01f) {
             return desiredVelocity; // Not moving, no sliding needed
@@ -333,17 +337,17 @@ namespace game::ai {
         // Normalize desired direction
         engine::Vector2f direction = {desiredVelocity.x / velocityMag, desiredVelocity.y / velocityMag};
 
-        // Raycast ahead: 2.5x the per-frame distance to anticipate collision
-        float rayLength = velocityMag * dt * 2.5f;
+        const SolidFootprint foot = solidFootprint(bodyComp.bodyId, position);
+        // Start just outside the solid fixture (often the feet box, not the sprite origin)
+        // and look ahead by a quarter-second of travel, at least 48 units.
+        const float lead = halfExtentAlong(foot, direction) + 1.0f;
+        const float rayLength = std::max(48.0f, velocityMag * 0.25f);
 
-        // Box2D query filter: check Wall, VisibilityBlocker, LowObstacle
         b2QueryFilter filter = b2DefaultQueryFilter();
         filter.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::VisibilityBlocker |
                           engine::PhysicsCategory::LowObstacle;
 
-        // Offset ray origin slightly forward to avoid self-collision with enemy's own body
-        float radiusBuffer = 16.0f;
-        b2Vec2 origin = {position.x + direction.x * radiusBuffer, position.y + direction.y * radiusBuffer};
+        b2Vec2 origin = {foot.worldCenter.x + direction.x * lead, foot.worldCenter.y + direction.y * lead};
         b2Vec2 translation = {direction.x * rayLength, direction.y * rayLength};
 
         // Cast ray (Box2D 3.0 C API)

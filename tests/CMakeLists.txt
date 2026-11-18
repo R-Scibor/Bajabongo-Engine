@@ -26,6 +26,7 @@ add_executable(baja_tests
     test_headless_simulation.cpp
     test_patrol_waypoints.cpp
     test_patrol_spawn.cpp
+    test_enemy_navigation.cpp
     ../src/game/systems/DamageSystem.cpp
     ../src/game/systems/VisibilitySystem.cpp
     ../src/game/ai/EnemyDetectionSystem.cpp

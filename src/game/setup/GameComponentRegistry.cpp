@@ -193,6 +193,7 @@ namespace game {
             if (const engine::TransformComponent* transform = registry.try_get<engine::TransformComponent>(entity)) {
                 enemy.lastValidPosition = transform->position;
                 enemy.lastCheckedPosition = transform->position;
+                enemy.previousPosition = transform->position;
             }
 
             enemy.stunTimer = 0.0f; // Ensure initialized

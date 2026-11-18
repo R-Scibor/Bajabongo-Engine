@@ -32,6 +32,7 @@ namespace game {
         engine::Vector2f lastCheckedPosition{0.0f, 0.0f};
         int stuckCounter = 0;
         engine::Vector2f lastValidPosition{0.0f, 0.0f};
+        engine::Vector2f previousPosition{0.0f, 0.0f};
 
         // Recovery
         float stunTimer = 0.0f; // Disables movement updates when > 0

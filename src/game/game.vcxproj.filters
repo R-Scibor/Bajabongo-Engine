@@ -193,6 +193,9 @@
     <ClInclude Include="ai\EnemyMovementSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ai\EnemyNavigation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ai\PatrolWaypoints.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

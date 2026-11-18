@@ -1,6 +1,7 @@
 #include "engine/pch.h"
 #include "EnemyStuckRecoverySystem.hpp"
 #include "AIUtils.hpp"
+#include "EnemyNavigation.hpp"
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "game/components/PatrolBehaviorComponent.hpp"
@@ -77,27 +78,52 @@ namespace game::ai {
 
     engine::Vector2f EnemyStuckRecoverySystem::findSafeUnstuckPosition(entt::entity entity,
                                                                        const engine::Vector2f& preferredPos) {
-        if (!AIUtils::isPositionVisibleToPlayer(mContext, preferredPos)) {
+        auto* bodyComp = mContext.m_registry->try_get<engine::PhysicsBodyComponent>(entity);
+        SolidFootprint foot;
+        if (bodyComp && b2Body_IsValid(bodyComp->bodyId)) {
+            foot = solidFootprint(bodyComp->bodyId, preferredPos);
+        }
+
+        auto isClear = [&](const engine::Vector2f& pos) {
+            return !areaBlockedByWalls(mContext.m_physicsWorld, pos, foot.halfWidth, foot.halfHeight);
+        };
+
+        if (isClear(preferredPos) && !AIUtils::isPositionVisibleToPlayer(mContext, preferredPos)) {
             return preferredPos;
         }
 
-        if (mLogger) {
+        if (mLogger && !isClear(preferredPos)) {
+            mLogger->debug("Enemy {} preferred unstuck position ({:.1f}, {:.1f}) overlaps a wall",
+                           entt::to_integral(entity), preferredPos.x, preferredPos.y);
+        } else if (mLogger) {
             mLogger->debug("Enemy {} preferred unstuck position is visible, searching for alternative",
                            entt::to_integral(entity));
         }
 
-        if (auto* patrol = mContext.m_registry->try_get<PatrolBehaviorComponent>(entity)) {
-            for (const auto& waypoint : patrol->waypoints) {
-                if (!AIUtils::isPositionVisibleToPlayer(mContext, waypoint)) {
-                    if (mLogger) {
-                        mLogger->debug("Enemy {} found safe waypoint at ({:.1f}, {:.1f})", entt::to_integral(entity),
-                                       waypoint.x, waypoint.y);
-                    }
-                    return waypoint;
+        auto firstClearWaypoint = [&](bool requireHidden) -> const engine::Vector2f* {
+            if (auto* patrol = mContext.m_registry->try_get<PatrolBehaviorComponent>(entity)) {
+                for (const auto& waypoint : patrol->waypoints) {
+                    if (!isClear(waypoint)) continue;
+                    if (requireHidden && AIUtils::isPositionVisibleToPlayer(mContext, waypoint)) continue;
+                    return &waypoint;
                 }
             }
+            return nullptr;
+        };
+
+        if (const auto* hidden = firstClearWaypoint(true)) {
+            if (mLogger) {
+                mLogger->debug("Enemy {} found safe waypoint at ({:.1f}, {:.1f})", entt::to_integral(entity), hidden->x,
+                               hidden->y);
+            }
+            return *hidden;
+        }
+        if (const auto* clearWp = firstClearWaypoint(false)) {
+            return *clearWp;
         }
 
+        engine::Vector2f firstClearRandom{0.0f, 0.0f};
+        bool haveClearRandom = false;
         for (int attempt = 0; attempt < 8; ++attempt) {
             float angle = mContext.m_random.real(0.0f, 6.28318f);
             float radius = mContext.m_random.real(100.0f, 300.0f);
@@ -105,6 +131,11 @@ namespace game::ai {
             engine::Vector2f candidate = {preferredPos.x + std::cos(angle) * radius,
                                           preferredPos.y + std::sin(angle) * radius};
 
+            if (!isClear(candidate)) continue;
+            if (!haveClearRandom) {
+                firstClearRandom = candidate;
+                haveClearRandom = true;
+            }
             if (!AIUtils::isPositionVisibleToPlayer(mContext, candidate)) {
                 if (mLogger) {
                     mLogger->debug("Enemy {} found safe random position at ({:.1f}, {:.1f}) after {} attempts",
@@ -114,8 +145,11 @@ namespace game::ai {
             }
         }
 
+        if (haveClearRandom) return firstClearRandom;
+        if (isClear(preferredPos)) return preferredPos;
+
         if (mLogger) {
-            mLogger->warn("Enemy {} could not find safe unstuck position, using preferred (visible)",
+            mLogger->warn("Enemy {} could not find a clear unstuck position, using preferred",
                           entt::to_integral(entity));
         }
         return preferredPos;
@@ -132,42 +166,65 @@ namespace game::ai {
             return;
         }
 
-        // Phase 1: Random Impulse
+        const SolidFootprint foot = solidFootprint(bodyComp->bodyId, transform.position);
+
+        auto shoveOpen = [&](float force, float stun) -> engine::Vector2f {
+            engine::Vector2f dir = mostOpenDirection(mContext.m_physicsWorld, foot, 80.0f);
+            if (dir.x == 0.0f && dir.y == 0.0f) {
+                const float angle = mContext.m_random.real(0.0f, 6.28318f);
+                dir = {std::cos(angle), std::sin(angle)};
+            }
+            b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, {dir.x * force, dir.y * force}, true);
+            enemy.stunTimer = stun;
+            return dir;
+        };
+
+        auto teleportTo = [&](const engine::Vector2f& dest) {
+            b2Body_SetTransform(bodyComp->bodyId, {dest.x, dest.y}, b2MakeRot(0.0f));
+            b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
+            b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
+            b2Body_SetAwake(bodyComp->bodyId, true);
+            enemy.lastCheckedPosition = dest;
+            enemy.lastValidPosition = dest;
+            enemy.previousPosition = dest;
+            enemy.stuckCheckTimer = 0.0f;
+            enemy.stuckCounter = 0;
+        };
+
+        const bool visible = AIUtils::isPositionVisibleToPlayer(mContext, transform.position);
+
+        // Phase 1: shove toward an open side (fall back to a random direction)
         if (enemy.stuckCounter == 3) {
-            float angle = mContext.m_random.real(0.0f, 6.28318f);
-            float force = mContext.m_random.real(100.0f, 200.0f);
-            b2Vec2 impulse = {std::cos(angle) * force, std::sin(angle) * force};
-
-            b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, impulse, true);
-
-            enemy.stunTimer = 0.2f;
-
+            const engine::Vector2f dir = shoveOpen(mContext.m_random.real(120.0f, 200.0f), 0.15f);
             if (mLogger) {
-                mLogger->info("Enemy {} unstuck attempt 1/4: random impulse (angle={:.2f}deg, force={:.1f})",
-                              entt::to_integral(entity), angle * 180.0f / 3.14159f, force);
+                mLogger->info("Enemy {} unstuck attempt 1/4: open-direction impulse ({:.2f}, {:.2f})",
+                              entt::to_integral(entity), dir.x, dir.y);
             }
             return;
         }
 
-        // Phase 2: Teleport to Last Valid Position
+        // Phase 2: last-valid teleport if hidden; if the player can see the enemy, shove instead
         else if (enemy.stuckCounter == 4) {
-            if (AIUtils::isPositionVisibleToPlayer(mContext, transform.position)) {
-                if (mLogger) mLogger->warn("Enemy {} is visible, skipping teleport", entt::to_integral(entity));
+            if (visible) {
+                const engine::Vector2f dir = shoveOpen(200.0f, 0.2f);
+                if (mLogger) {
+                    mLogger->warn("Enemy {} is visible, impulse instead of last-valid teleport ({:.2f}, {:.2f})",
+                                  entt::to_integral(entity), dir.x, dir.y);
+                }
                 return;
             }
 
             if (enemy.lastValidPosition.x != 0.0f || enemy.lastValidPosition.y != 0.0f) {
                 engine::Vector2f safePosition = findSafeUnstuckPosition(entity, enemy.lastValidPosition);
-
-                b2Body_SetTransform(bodyComp->bodyId, {safePosition.x, safePosition.y}, b2MakeRot(0.0f));
-                b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
-                b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
-                b2Body_SetAwake(bodyComp->bodyId, true);
-
-                enemy.lastCheckedPosition = safePosition;
-                enemy.stuckCheckTimer = 0.0f;
-                enemy.stuckCounter = 0;
-
+                if (areaBlockedByWalls(mContext.m_physicsWorld, safePosition, foot.halfWidth, foot.halfHeight)) {
+                    const engine::Vector2f dir = shoveOpen(200.0f, 0.2f);
+                    if (mLogger) {
+                        mLogger->warn("Enemy {} last valid is blocked, impulse instead ({:.2f}, {:.2f})",
+                                      entt::to_integral(entity), dir.x, dir.y);
+                    }
+                    return;
+                }
+                teleportTo(safePosition);
                 if (mLogger) {
                     bool wasVisible = AIUtils::isPositionVisibleToPlayer(mContext, enemy.lastValidPosition);
                     mLogger->info("Enemy {} unstuck attempt 2/4: teleport to last valid position ({:.1f}, {:.1f}) [{}]",
@@ -175,16 +232,23 @@ namespace game::ai {
                                   wasVisible ? "adjusted for visibility" : "safe");
                 }
             } else {
-                if (mLogger) mLogger->warn("Enemy {} has no last valid position, skipping", entt::to_integral(entity));
-                enemy.stuckCounter = 5;
+                const engine::Vector2f dir = shoveOpen(200.0f, 0.2f);
+                if (mLogger) {
+                    mLogger->warn("Enemy {} has no last valid position, impulse instead ({:.2f}, {:.2f})",
+                                  entt::to_integral(entity), dir.x, dir.y);
+                }
             }
             return;
         }
 
-        // Phase 3: Teleport to Nearest Waypoint
+        // Phase 3: waypoint teleport if hidden; shove when visible
         else if (enemy.stuckCounter == 5) {
-            if (AIUtils::isPositionVisibleToPlayer(mContext, transform.position)) {
-                if (mLogger) mLogger->warn("Enemy {} is visible, skipping teleport", entt::to_integral(entity));
+            if (visible) {
+                const engine::Vector2f dir = shoveOpen(250.0f, 0.25f);
+                if (mLogger) {
+                    mLogger->warn("Enemy {} is visible, impulse instead of waypoint teleport ({:.2f}, {:.2f})",
+                                  entt::to_integral(entity), dir.x, dir.y);
+                }
                 return;
             }
 
@@ -206,16 +270,16 @@ namespace game::ai {
                     }
 
                     engine::Vector2f safePosition = findSafeUnstuckPosition(entity, nearestWaypoint);
+                    if (areaBlockedByWalls(mContext.m_physicsWorld, safePosition, foot.halfWidth, foot.halfHeight)) {
+                        const engine::Vector2f dir = shoveOpen(250.0f, 0.25f);
+                        if (mLogger) {
+                            mLogger->warn("Enemy {} waypoint is blocked, impulse instead ({:.2f}, {:.2f})",
+                                          entt::to_integral(entity), dir.x, dir.y);
+                        }
+                        return;
+                    }
 
-                    b2Body_SetTransform(bodyComp->bodyId, {safePosition.x, safePosition.y}, b2MakeRot(0.0f));
-                    b2Body_SetLinearVelocity(bodyComp->bodyId, {0.0f, 0.0f});
-                    b2Body_SetAngularVelocity(bodyComp->bodyId, 0.0f);
-                    b2Body_SetAwake(bodyComp->bodyId, true);
-
-                    enemy.lastCheckedPosition = safePosition;
-                    enemy.stuckCheckTimer = 0.0f;
-                    enemy.stuckCounter = 0;
-
+                    teleportTo(safePosition);
                     enemy.currentState = EnemyState::Patrol;
                     enemy.stateTimer = 0.0f;
                     patrol->currentWaypointIndex = nearestIndex;
@@ -242,41 +306,15 @@ namespace game::ai {
         // Phase 4: Aggressive Shove or Kill
         else if (enemy.stuckCounter >= 6) {
 
-            if (AIUtils::isPositionVisibleToPlayer(mContext, transform.position)) {
+            if (visible) {
                 if (mLogger) mLogger->warn("Enemy {} is visible, attempting shove", entt::to_integral(entity));
 
-                b2Vec2 directions[4] = {{1.0f, 0.0f}, {-1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, -1.0f}};
-
-                b2Vec2 bestDir = {0.0f, 0.0f};
-                float maxDist = -1.0f;
-
-                b2QueryFilter filter = b2DefaultQueryFilter();
-                filter.maskBits = engine::PhysicsCategory::Wall | engine::PhysicsCategory::LowObstacle;
-
-                for (int i = 0; i < 4; ++i) {
-                    b2Vec2 origin = {transform.position.x, transform.position.y};
-                    b2Vec2 translation = {directions[i].x * 100.0f, directions[i].y * 100.0f};
-
-                    b2RayResult result = b2World_CastRayClosest(mContext.m_physicsWorld, origin, translation, filter);
-
-                    float dist = 100.0f;
-                    if (result.hit) {
-                        dist = result.fraction * 100.0f;
-                    }
-
-                    if (dist > maxDist) {
-                        maxDist = dist;
-                        bestDir = directions[i];
-                    }
-                }
-
-                if (maxDist > 10.0f) {
-                    float shoveForce = 1000.0f;
-                    b2Vec2 impulse = {bestDir.x * shoveForce, bestDir.y * shoveForce};
-                    b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId, impulse, true);
-
+                engine::Vector2f bestDir = mostOpenDirection(mContext.m_physicsWorld, foot, 100.0f);
+                if (bestDir.x != 0.0f || bestDir.y != 0.0f) {
+                    const float shoveForce = 1000.0f;
+                    b2Body_ApplyLinearImpulseToCenter(bodyComp->bodyId,
+                                                      {bestDir.x * shoveForce, bestDir.y * shoveForce}, true);
                     enemy.stunTimer = 0.5f;
-
                     if (mLogger) {
                         mLogger->info("Enemy {} shoved with force {:.1f} in dir ({:.1f}, {:.1f})",
                                       entt::to_integral(entity), shoveForce, bestDir.x, bestDir.y);

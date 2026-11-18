@@ -31,7 +31,7 @@ namespace game::ai {
         engine::Vector2f calculateRetreatMovement(entt::entity entity, EnemyComponent& enemy,
                                                   const engine::TransformComponent& transform);
         engine::Vector2f applyWallSliding(const engine::Vector2f& position, const engine::Vector2f& desiredVelocity,
-                                          float dt);
+                                          float dt, const engine::PhysicsBodyComponent& bodyComp);
 
         engine::EngineContext& mContext;
         std::shared_ptr<engine::ILogger> mLogger;
