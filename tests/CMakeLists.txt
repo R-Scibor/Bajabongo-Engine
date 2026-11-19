@@ -6,6 +6,7 @@ add_executable(baja_tests
     test_asset_manifest.cpp
     test_animation_state_machine.cpp
     test_weapon_ammo.cpp
+    test_muzzle_aim.cpp
     test_health.cpp
     test_state_manager.cpp
     test_map_json.cpp
