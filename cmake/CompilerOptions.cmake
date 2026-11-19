@@ -1,17 +1,15 @@
-# Mirror the shared Visual Studio 2022 (v143) compile/link flags from
-# src/engine/engine.vcxproj and src/game/game.vcxproj.
+# Shared compile/link flags for the engine, game and test targets.
+# (Originally ported from the Visual Studio 2022 project settings.)
 #
 # Shared settings (all configs, x64 and Win32):
 #   LanguageStandard        stdcpp20
-#   WarningLevel            Level3 in the vcxproj. CMake project targets
-#                           use /W4 when BAJA_STRICT_WARNINGS is on (Linux
-#                           presets already set that; Windows CMake users
-#                           can turn it on). Default MSVC stays at /W3 so
-#                           a VS .sln build is unchanged.
+#   WarningLevel            /W3 by default; /W4 when BAJA_STRICT_WARNINGS
+#                           is on (Linux presets already set that; Windows
+#                           CMake users can turn it on).
 #   SDLCheck                true            -> /sdl
 #   ConformanceMode         true            -> /permissive-
 #   AdditionalOptions       /utf-8
-#   AdditionalIncludeDirectories  $(SolutionDir)src
+#   Include directory       <repo>/src
 #   CharacterSet            Unicode         -> UNICODE, _UNICODE
 #   GenerateDebugInformation true           -> /DEBUG (linker)
 #
@@ -26,12 +24,10 @@
 #
 # Platform:
 #   WIN32 is defined only for the Win32 (x86) configurations, not x64
-#   (MSVC also predefined WIN32 anyway; we keep the explicit define
-#   only on 32-bit to mirror the vcxproj).
+#   (MSVC also predefines WIN32 anyway; the explicit define is kept
+#   only on 32-bit).
 #
-# Precompiled headers: the vcxproj creates pch.h from pch.cpp but sets
-# PrecompiledHeader=NotUsing on every other TU, so PCH is effectively
-# unused. This CMake build does the same (no target_precompile_headers).
+# Precompiled headers: off by default (see BAJA_PCH below).
 #
 # Runtime library is left at the VS/vcpkg default (/MD, /MDd), set
 # globally in the top-level CMakeLists.txt.
@@ -39,7 +35,7 @@
 # Opt-in extra warnings for this project's targets only (engine/game/tests).
 # Does not affect vcpkg dependencies. Linux presets set this ON.
 # Linux/GCC/Clang: -Wall -Wextra -Wshadow -Wconversion.
-# MSVC: /W4 (CMake only; the .vcxproj WarningLevel stays Level3).
+# MSVC: /W4.
 option(BAJA_STRICT_WARNINGS "Enable extra compiler warnings on engine/game/tests" OFF)
 
 # Opt-in ASan + UBSan for this project's targets only (engine/game/tests).
@@ -54,8 +50,7 @@ option(BAJA_SANITIZE "Enable AddressSanitizer and UndefinedBehaviorSanitizer (GC
 option(BAJA_COVERAGE "Enable gcov coverage instrumentation (GCC/Clang)" OFF)
 
 # Opt-in precompiled header for this project's targets (engine/game/tests).
-# Uses src/engine/pch.h (framework.h + EnTT). Off by default: the vcxproj
-# creates the PCH but sets PrecompiledHeader=NotUsing on every other TU.
+# Uses src/engine/pch.h (framework.h + EnTT). Off by default.
 option(BAJA_PCH "Precompile src/engine/pch.h for engine, game, and tests" OFF)
 
 function(bajabongo_apply_compiler_options target)
@@ -84,7 +79,7 @@ function(bajabongo_apply_compiler_options target)
     else()
         # Base: -Wall is a reasonable non-MSVC equivalent of /W3.
         # BAJA_STRICT_WARNINGS adds -Wextra -Wshadow -Wconversion.
-        # Not -Werror / /WX: the vcxproj does not enable TreatWarningAsError.
+        # Not -Werror / /WX: warnings are reported, not fatal.
         if(BAJA_STRICT_WARNINGS)
             target_compile_options(${target} PRIVATE
                 -Wall

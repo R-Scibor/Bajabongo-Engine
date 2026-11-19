@@ -29,10 +29,6 @@ cmake --build --preset windows-vs2022-debug
 ctest --test-dir build/windows-vs2022 -C Debug --output-on-failure
 ```
 
-### Visual Studio solution (alternative)
-
-`Bajabongo-Engine.sln` remains a supported MSVC workflow. Integrate vcpkg with Visual Studio (`vcpkg integrate install`), open the solution, pick Debug or Release (x64 recommended), and build. The debugger working directory defaults to `src/game`, which is how the classic relative asset paths resolve in this workflow. Keep the `.vcxproj` source lists in sync if you add or rename files.
-
 ## Linux (CMake + Ninja)
 
 Install Ninja, CMake 3.21 or newer, a C++20 toolchain (GCC or Clang), and typical X11 / OpenGL development packages so the SFML vcpkg port can compile. Then:
@@ -117,7 +113,7 @@ If imgui-sfml fails to compile (font atlas, `ImGuiBackendFlags_RendererHasTextur
 
 ### Assets or fonts not found
 
-Run the executable from `out/game/Debug` (or `Release`), not from the build root. Relative paths such as `../../assets` and `config/logging.ini` are resolved from that working directory. In the `.sln` workflow, the working directory is `src/game`.
+Run the executable from `out/game/Debug` (or `Release`), not from the build root. Relative paths such as `../../assets` and `config/logging.ini` are resolved from that working directory.
 
 ### Coverage or sanitizer flags in the wrong tree
 

@@ -1,15 +1,12 @@
 # Bajabongo Engine — top-level build.
 #
-# This CMake build mirrors the Visual Studio 2022 solution:
-#   - engine: static library  (src/engine/engine.vcxproj)
-#   - game:   console executable (src/game/game.vcxproj)
+# Targets:
+#   - engine: static library
+#   - game:   console executable
 #
 # Toolchain: intended to be used with vcpkg manifest mode (vcpkg.json at the
 # repo root). Use the presets in CMakePresets.json, or pass:
 #   -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
-#
-# The .sln / .vcxproj files are the Windows/MSVC source of truth and are not
-# modified by this build.
 
 cmake_minimum_required(VERSION 3.21)
 
@@ -52,8 +49,7 @@ option(BAJA_BUILD_TESTS "Build unit tests (Catch2) and enable CTest" OFF)
 
 # Third-party dependencies from vcpkg.json:
 #   sfml, spdlog, entt, box2d, nlohmann-json, imgui, imgui-sfml
-# The vcxproj does not list these as AdditionalDependencies; vcpkg's
-# MSBuild integration injects them. CMake does the same via CONFIG packages.
+# Resolved through vcpkg manifest mode as CMake CONFIG packages.
 find_package(SFML 3 CONFIG REQUIRED COMPONENTS Graphics Window Audio System)
 find_package(spdlog CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)

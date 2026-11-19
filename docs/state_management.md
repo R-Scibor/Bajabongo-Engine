@@ -179,4 +179,4 @@ void GameplayState::handleEvent(engine::EngineContext& context, const sf::Event&
 ```
 
 **5. Add to Project Files**
-Finally, add `PauseState.hpp` and `PauseState.cpp` to the `game.vcxproj` file so they are included in the build.
+Finally, add `states/PauseState.cpp` to `GAME_SOURCES` in `src/game/CMakeLists.txt` so it is included in the build.

@@ -1,6 +1,5 @@
-# Mirrors src/engine/engine.vcxproj (StaticLibrary, all 24 ClCompile sources).
-# Headers missing from the vcxproj but present on disk are listed so IDEs
-# show them; they are not required to compile.
+# Engine static library. Headers are listed so IDEs show them; they are
+# not required to compile.
 
 set(ENGINE_SOURCES
     assets/AssetManifestLoader.cpp
@@ -34,11 +33,9 @@ add_library(bajabongo::engine ALIAS engine)
 
 bajabongo_apply_compiler_options(engine)
 
-# _LIB is defined in every engine.vcxproj configuration.
 target_compile_definitions(engine PRIVATE _LIB)
 
-# Public so the game executable inherits include path and link deps,
-# matching the vcxproj ProjectReference + vcpkg integration.
+# Public so the game executable inherits include path and link deps.
 target_link_libraries(engine
     PUBLIC
         SFML::Graphics

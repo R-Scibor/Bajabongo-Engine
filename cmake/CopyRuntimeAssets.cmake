@@ -6,13 +6,6 @@
 #   assets/fonts/default.ttf  (first font attempt)
 #   config/logging.ini        (cwd-relative; lives in src/game/config)
 #
-# The Visual Studio debugger defaults the working directory to src/game,
-# which is two levels below the repo root — so ../../assets works there.
-# The default VS OutDir is $(SolutionDir)$(Platform)\$(Configuration)
-# (also two levels below the repo root), so launching the .exe from
-# x64/Debug also works for ../../assets, but NOT for config/logging.ini
-# unless the cwd is src/game.
-#
 # This helper places the CMake-built executable at:
 #   ${CMAKE_BINARY_DIR}/out/game/$<CONFIG>/game(.exe)
 # copies the assets tree to:

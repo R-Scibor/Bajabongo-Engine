@@ -1,6 +1,5 @@
-# Mirrors src/game/game.vcxproj (Application, Console subsystem, 23 ClCompile
-# sources, ProjectReference to engine). No post-build events exist in the
-# vcxproj; asset layout is handled later by cmake/CopyRuntimeAssets.cmake.
+# Game executable (Console subsystem), linked against the engine library.
+# Asset layout is handled by cmake/CopyRuntimeAssets.cmake.
 
 set(GAME_SOURCES
     ai/AIUtils.cpp
@@ -33,7 +32,6 @@ add_executable(bajabongo::game ALIAS game)
 
 bajabongo_apply_compiler_options(game)
 
-# _CONSOLE is defined in every game.vcxproj configuration.
 # SubSystem is Console (not Windows).
 target_compile_definitions(game PRIVATE _CONSOLE)
 if(MSVC)
