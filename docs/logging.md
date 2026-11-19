@@ -6,7 +6,7 @@ The Bajabongo Engine features a robust, dependency-injection-based logging syste
 
 1.  **Decoupled via Interfaces**: The system is built around two core interfaces, `ILogger` and `ILoggerManager`. This decouples the engine from any specific logging library, allowing the implementation to be swapped out without affecting the engine's source code.
 
-2.  **Dependency Injection**: Loggers are not accessed globally. Instead, the `ILoggerManager` is injected into systems during their construction. Those systems then request their own named `ILogger` instance, promoting clear and manageable dependencies.
+2.  **Dependency Injection**: Loggers are not accessed globally. Instead, the `ILoggerManager` is injected into systems during their construction (directly, or through `EngineContext::m_logManager`). Those systems then request their own named `ILogger` instance, promoting clear and manageable dependencies.
 
 3.  **Runtime Configuration**: Log verbosity is controlled externally via the `config/logging.ini` file. This allows developers to adjust the log output for different modules at runtime without needing to recompile the engine.
 
@@ -21,20 +21,20 @@ The Bajabongo Engine features a robust, dependency-injection-based logging syste
 The logging system is initialized in the application's entry point (`game.cpp`) and passed down to other systems.
 
 1.  **Initialization**: An instance of `SpdlogManager` (the concrete implementation of `ILoggerManager`) is created in `main()`.
-2.  **Injection**: A reference to the manager (`ILoggerManager&`) is passed to the `Application` and subsequently to any other systems that require logging.
-3.  **Logger Retrieval**: Each system requests its own dedicated, named logger from the manager, for example: `m_logger = logManager.GetLogger("Physics");`.
+2.  **Injection**: The manager is stored as a `std::shared_ptr<ILoggerManager>` in `EngineContext::m_logManager`. `Application`, states, and systems read it from the context; a few services (such as `SFMLInputManager`) take an `ILoggerManager&` in their constructor.
+3.  **Logger Retrieval**: Each system requests its own dedicated, named logger from the manager, for example: `m_logger = logManager.getLogger("Physics");`.
 
 ### Log Level Filtering
 
 The system uses a threshold-based filter to control log output. The level set in `config/logging.ini` determines the *minimum* severity required for a message to be displayed.
 
 **Hierarchy (from least to most severe):**
-`trace` → `debug` → `info` → `warn` → `error`
+`trace` → `debug` → `info` → `warn` → `error` → `critical`
 
 **Example:**
 If a logger's level is set to `info` (`Core = info`), it will display messages logged with `info()`, `warn()`, and `error()`, but it will ignore `trace()` and `debug()` messages.
 
-If a logger is requested that is not defined in the `.ini` file, it automatically defaults to the `info` level.
+If a logger is requested that is not defined in the `.ini` file, it automatically defaults to the `info` level. Unknown level names in the file also fall back to `info`.
 
 ## How to Use
 
@@ -57,7 +57,7 @@ public:
     PhysicsSystem(engine::ILoggerManager& logManager)
     {
         // Request a logger named "Physics"
-        m_logger = logManager.GetLogger("Physics");
+        m_logger = logManager.getLogger("Physics");
         m_logger->info("PhysicsSystem initialized.");
     }
 
