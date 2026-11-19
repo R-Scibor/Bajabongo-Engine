@@ -16,7 +16,7 @@ No `FIXME` comments were found in `src/`.
 
 - **TODO, reload sound.** A comment marks where a reload sound could be started after `startReload`. Audio paths are on hold and were not changed.
 
-- **TODO, muzzle height.** Projectile spawn uses a hardcoded `heightOffset` of `-96`. Making this configurable per weapon would be a gameplay data change, not a mechanical cleanup. Left as-is.
+- **Muzzle height (resolved).** Spawn and aim share `muzzlePivot()`; the height is per shooter (`Muzzle` component in `archetypes.json`, default `-35`). Sprites still do not rotate the barrel, so steep up/down shots start from the pivot rather than the drawn gun.
 
 ## Engine
 
