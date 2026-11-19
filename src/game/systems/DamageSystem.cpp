@@ -1,6 +1,7 @@
 #include "engine/pch.h"
 #include "DamageSystem.hpp"
 #include "DamageCollision.hpp"
+#include "DeathSounds.hpp"
 #include "game/components/DamageComponent.hpp"
 #include "game/components/ProjectileComponent.hpp"
 #include "game/components/HealthComponent.hpp"
@@ -134,36 +135,10 @@ namespace game {
                 }
 
                 if (registry.all_of<PlayerComponent>(target)) {
-                    soundId = "death_player";
-
-                    // Also play scav laugh on player death
-                    m_context.m_dispatcher->enqueue<engine::PlaySoundEvent>(
-                        {.id = "death_scav_laugh",
-                         .volume = 100.0f,
-                         .pitch = 1.0f,
-                         .loop = false,
-                         .sourceEntity = target,
-                         .position = hasPos ? std::make_optional(pos) : std::nullopt,
-                         .minDistance = 500.0f,
-                         .attenuation = 2.0f});
-
+                    soundId = death_sounds::PLAYER;
                 } else if (registry.all_of<EnemyComponent>(target)) {
-                    int roll = m_context.m_random.below(100);
-                    if (roll < 5) {
-                        soundId = "death_amogus";
-                    } else if (roll < 10) {
-                        // 5% chance
-                        soundId = "death_lego_yoda";
-                    } else if (roll < 20) {
-                        // 10% chance
-                        soundId = "death_scav";
-                    } else if (roll < 60) {
-                        // 40% chance
-                        soundId = "death_1";
-                    } else {
-                        // 40% chance
-                        soundId = "death_2";
-                    }
+                    const auto pick = m_context.m_random.below(static_cast<int>(death_sounds::ENEMY.size()));
+                    soundId = death_sounds::ENEMY[static_cast<std::size_t>(pick)];
                 }
 
                 if (!soundId.empty()) {
