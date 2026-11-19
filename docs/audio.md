@@ -9,8 +9,8 @@ The audio system is fully decoupled from gameplay logic. Systems request audio p
 ## 2. Asset Pipeline
 
 ### Directory Structure
-*   **Sound Effects**: Place short audio files (`.wav`, `.ogg`) in `assets/sounds/`.
-*   **Music**: Place long tracks (`.ogg`, `.mp3`) in `assets/music/`.
+*   **Sound Effects**: Place short audio files (`.wav`, `.ogg`, `.mp3`, `.flac`) in `assets/sounds/`.
+*   **Music**: Place long tracks (same formats) in `assets/music/`.
 
 ### Naming Conventions
 *   Filenames become IDs (minus extension).
@@ -45,16 +45,21 @@ dispatcher.enqueue<engine::PlaySoundEvent>({
 ```
 
 ### Playing Music
-Dispatch a `PlayMusicEvent` to stream background music. Only one music track can play at a time. The system handles crossfading if specified.
+Dispatch a `PlayMusicEvent` to stream background music. Only one music track can play at a time. With a `crossfadeDuration`, the previous track stops at once and the new one fades in.
 
 ```cpp
 dispatcher.enqueue<engine::PlayMusicEvent>({
     .id = "ambient_track_1",
     .volume = 50.0f,
     .loop = true,
-    .crossfadeDuration = 2.0f // Fade out old, fade in new over 2 seconds
+    .crossfadeDuration = 2.0f // Fade the new track in over 2 seconds
 });
 ```
+
+When a non-looping track ends on its own, the system enqueues a `MusicFinishedEvent` with the track id. `GameplayState` uses it to chain its playlist.
+
+### Positional Sounds
+`PlaySoundEvent` also takes an optional world `position`, with `minDistance` and `attenuation`. Sounds with a position are attenuated by distance to the listener, which `GameplayState` moves to the player with `AudioSystem::setListenerPosition`. Sounds without a position play relative to the listener at full volume. A looping sound with a `sourceEntity` is tracked per entity: its position follows the entity's transform, and a `StopSoundEvent` for that entity stops it.
 
 ### Stopping Music
 To stop the current music track:
@@ -89,7 +94,7 @@ The `AudioSystem` class (in `src/engine/audio/`) is responsible for:
 *   Listening to audio events.
 *   Managing a fixed pool of `sf::Sound` instances (default 64) to avoid allocation overhead.
 *   Managing a single `sf::Music` instance for streaming.
-*   Handling volume mixing and fading logic in its `update()` loop.
+*   Handling volume mixing, music fades, `MusicFinishedEvent`, and looping-sound positions in its `update()` loop.
 
 ### Resource Management
 *   **Sounds**: Loaded into `sf::SoundBuffer` and cached in memory by `SFMLResourceManager`.
