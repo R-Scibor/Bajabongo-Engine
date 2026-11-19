@@ -12,30 +12,34 @@ The system is split into two main areas: **Core Abstractions** and **Concrete Im
 
 ### Core Abstractions (`src/engine/core/`)
 
-These files define the "contract" for how input works within the Bajabongo Engine. They are completely platform-agnostic.
+These files define the "contract" for how input works within the Bajabongo Engine. Key and mouse codes are engine types. The one SFML type in the interface is `sf::Event`, which is forward-declared and passed to `processEvent`.
 
-*   **[`IInputManager.hpp`](../src/engine/core/IInputManager.hpp:0)**: This is the central interface for the system. It defines a set of pure virtual functions that any concrete input manager must implement.
+*   **[`IInputManager.hpp`](../src/engine/core/IInputManager.hpp)**: This is the central interface for the system. It defines a set of pure virtual functions that any concrete input manager must implement.
+    *   `processEvent(const sf::Event& event)`: Feeds a window event to the manager (used for the mouse wheel).
+    *   `update()`: Per-frame hook.
     *   `isKeyPressed(engine::KeyCode key) const`: Checks if a specific key is currently held down.
-    *   `getMousePosition() const`: Returns the current mouse cursor position as an `engine::Vector2i`.
+    *   `isMouseButtonPressed(engine::MouseCode button) const`: Checks if a mouse button is currently held down.
+    *   `getMousePosition() const`: Returns the current mouse cursor position, relative to the window, as an `engine::Vector2i`.
+    *   `consumeMouseScrollDelta()`: Returns the accumulated vertical wheel delta and resets it to zero.
 
-*   **[`input/KeyCode.hpp`](../src/engine/core/input/KeyCode.hpp:0)**: This file defines the `engine::KeyCode` enum. This is our own internal, abstract representation of all possible keyboard keys. Using our own enum ensures that the core engine never needs to know about the key codes of a specific library like `sf::Keyboard::Key`.
+*   **[`input/KeyCode.hpp`](../src/engine/core/input/KeyCode.hpp)** and **[`input/MouseCode.hpp`](../src/engine/core/input/MouseCode.hpp)**: These files define the `engine::KeyCode` and `engine::MouseCode` enums. They are our own internal, abstract representation of keyboard keys and mouse buttons. Using our own enums ensures that the core engine never needs to know about the key codes of a specific library like `sf::Keyboard::Key`.
 
 ### Concrete Implementation (`src/engine/input/`)
 
 This is the platform-specific code that implements the `IInputManager` interface. It acts as an **Adapter**, translating the engine's abstract calls into concrete calls for a specific library.
 
-*   **[`SFMLInputManager.hpp`](../src/engine/input/SFMLInputManager.hpp:0) / [`SFMLInputManager.cpp`](../src/engine/input/SFMLInputManager.cpp:0)**: This is the implementation for SFML.
+*   **[`SFMLInputManager.hpp`](../src/engine/input/SFMLInputManager.hpp) / [`SFMLInputManager.cpp`](../src/engine/input/SFMLInputManager.cpp)**: This is the implementation for SFML.
     *   It inherits from `engine::IInputManager`.
-    *   It now accepts an `ILoggerManager` in its constructor to create its own "Input" logger.
-    *   The `.cpp` file is the **only place in the engine** that should include SFML's input headers (`<SFML/Window/Keyboard.hpp>`, `<SFML/Window/Mouse.hpp>`).
-    *   It contains a mapping function (`toSFMLKey`) that translates an `engine::KeyCode` to the corresponding `sf::Keyboard::Key`.
-    *   The implemented methods call the underlying SFML functions and log input events for debugging purposes.
+    *   Its constructor takes an `ILoggerManager&` (to create its own "Input" logger) and the `sf::RenderWindow&` used for window-relative mouse positions.
+    *   The `.cpp` file is the **only place in the engine** that includes SFML's keyboard and mouse headers (`<SFML/Window/Keyboard.hpp>`, `<SFML/Window/Mouse.hpp>`).
+    *   It contains mapping functions (`toSFMLKey`, `toSFMLMouse`) that translate `engine::KeyCode` and `engine::MouseCode` to the corresponding SFML values.
+    *   Keys and buttons are polled through SFML. `processEvent` only accumulates the vertical mouse wheel delta.
 
 ## 3. Usage (Dependency Injection)
 
-To use the input system, a concrete implementation must be created at the "composition root" of the application (typically `main()`) and injected into the classes that need it.
+To use the input system, a concrete implementation is created at the "composition root" of the application (`main()` in `game.cpp`) and injected through `EngineContext`.
 
-**Example from [`game.cpp`](../src/game/game.cpp:0):**
+**Simplified from [`game.cpp`](../src/game/game.cpp):**
 
 ```cpp
 #include "engine/core/Application.hpp"
@@ -43,21 +47,30 @@ To use the input system, a concrete implementation must be created at the "compo
 #include "engine/input/SFMLInputManager.hpp" // 1. Include the concrete manager
 #include "engine/logging/SpdlogManager.hpp"
 
-int main() {
-    // ... other initializations
-    
-    SFMLRenderer renderer;
-    engine::SFMLInputManager inputManager(logManager); // 2. Create an instance, injecting the log manager
+int main(int argc, char* argv[]) {
+    auto logManager = std::make_shared<engine::SpdlogManager>("config/logging.ini");
 
-    renderer.create("Game Window", 1280, 720);
+    auto renderer = std::make_shared<engine::SFMLRenderer>();
+    renderer->create("Game Window", 1920, 1080, true);
 
-    // 3. Inject the manager into the Application via its constructor
-    Application app(renderer, renderer, logManager, inputManager);
+    // 2. Create the manager, injecting the log manager and the native window
+    auto inputManager = std::make_shared<engine::SFMLInputManager>(*logManager, renderer->getNativeRenderWindow());
 
+    // 3. Store it in the shared context
+    auto context = std::make_shared<engine::EngineContext>();
+    context->m_logManager = logManager;
+    context->m_renderer = renderer;
+    context->m_window = renderer;
+    context->m_inputManager = inputManager;
+    // ... registry, dispatcher, physics world, resource managers
+
+    auto stateManager = std::make_unique<engine::StateManager>(*context);
+    // ... register states and push the first one
+
+    engine::Application app(context, std::move(stateManager));
     app.run();
-
     return 0;
 }
 ```
 
-Any system inside the `Application` can now access the input manager through its member variable (`m_inputManager`) and check for input in a platform-agnostic way. The concrete implementation (`SFMLInputManager`) now handles its own logging for input events, so the `Application` no longer needs to.
+States and systems read the manager from `EngineContext::m_inputManager` and check input in a platform-agnostic way. `Application` forwards each polled window event to `processEvent`.
