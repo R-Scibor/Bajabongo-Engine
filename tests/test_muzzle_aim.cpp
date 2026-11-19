@@ -119,3 +119,19 @@ TEST_CASE("WeaponSystem fires a player (feet origin, MuzzleComponent) shot throu
     REQUIRE(miss >= 0.0f);
     CHECK(miss < 0.5f);
 }
+
+TEST_CASE("The first shot is not thrown off by its own recoil kick") {
+    baja::test::HeadlessScene scene;
+    const engine::Vector2f body{300.0f, 300.0f};
+    auto shooter = makeShooter(scene, body);
+    auto& weapon = scene.registry->get<game::WeaponComponent>(shooter);
+    weapon.recoilKickDeg = 3.0f;
+    weapon.spreadPerShotDeg = 2.0f;
+    weapon.maxSpreadDeg = 10.0f;
+    const float miss = fireAndMeasureMiss(scene, shooter, body, {700.0f, 300.0f});
+    REQUIRE(miss >= 0.0f);
+    CHECK(miss < 0.5f);
+    // Recoil and bloom still build up for the follow-up shots.
+    CHECK(weapon.recoilAngleOffset != 0.0f);
+    CHECK(weapon.currentSpreadDeg > 0.0f);
+}
