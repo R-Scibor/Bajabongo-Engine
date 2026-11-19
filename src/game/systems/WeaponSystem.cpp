@@ -129,9 +129,11 @@ namespace game {
                     }
                 }
 
-                applyFiringEffects(weapon, fixedDeltaTime);
-
                 spawnProjectiles(m_context, entity, weapon, bodyComp);
+
+                // Recoil and bloom affect the next shot, not the one being fired now.
+                // Applying them first pushed even a single tap off the aim point.
+                applyFiringEffects(weapon, fixedDeltaTime);
 
                 weapon.currentAmmo--;
 
