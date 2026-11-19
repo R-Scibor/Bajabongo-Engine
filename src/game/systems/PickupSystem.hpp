@@ -13,7 +13,10 @@ namespace game {
     class PickupSystem {
     public:
         explicit PickupSystem(engine::EngineContext& context);
-        ~PickupSystem() = default;
+        ~PickupSystem();
+
+        PickupSystem(const PickupSystem&) = delete;
+        PickupSystem& operator=(const PickupSystem&) = delete;
 
     private:
         void onSensorBegin(const engine::PhysicsSensorBeginEvent& event);

@@ -16,6 +16,12 @@ namespace game {
         context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().connect<&PickupSystem::onSensorBegin>(this);
     }
 
+    PickupSystem::~PickupSystem() {
+        // GameplayState owns this system and is destroyed on a state swap (hideout -> hospital).
+        // Without this the dispatcher keeps calling the freed instance on the next sensor event.
+        m_context.m_dispatcher->sink<engine::PhysicsSensorBeginEvent>().disconnect(this);
+    }
+
     void PickupSystem::onSensorBegin(const engine::PhysicsSensorBeginEvent& event) {
         auto& reg = *m_context.m_registry;
 
