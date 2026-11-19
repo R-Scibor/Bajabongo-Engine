@@ -14,6 +14,7 @@
 #include "game/components/PlayerComponent.hpp"
 #include "game/components/HealthComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/MuzzleComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
 #include "game/components/InteractableComponent.hpp"
 #include "engine/events/StateEvents.hpp"
@@ -196,12 +197,11 @@ namespace game {
 
                 b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
 
-                float dx = mouseWorldPos.x - bodyPos.x;
-                // Adjust aim origin to match weapon muzzle height to ensure accuracy
-                float dy = mouseWorldPos.y - (bodyPos.y + WEAPON_MUZZLE_HEIGHT_OFFSET);
-
-                // atan2 returns angle in radians
-                float angle = std::atan2(dy, dx);
+                // Aim from the same muzzle pivot WeaponSystem spawns from, so the shot passes
+                // through the cursor instead of running parallel above it.
+                const engine::Vector2f pivot = muzzlePivot(
+                    {bodyPos.x, bodyPos.y}, muzzleHeightOffset(registry.try_get<MuzzleComponent>(entity)));
+                float angle = aimAngleFrom(pivot, mouseWorldPos);
 
                 // Update visibility direction with smooth interpolation
                 visibility.targetViewDirection = angle;

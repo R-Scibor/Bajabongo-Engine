@@ -3,6 +3,7 @@
 #include "engine/core/math/Angle.hpp"
 #include "game/components/EnemyComponent.hpp"
 #include "game/components/WeaponComponent.hpp"
+#include "game/components/MuzzleComponent.hpp"
 #include "game/components/TurretBehaviorComponent.hpp"
 #include "game/components/SniperBehaviorComponent.hpp"
 #include "game/components/CampBehaviorComponent.hpp"
@@ -50,7 +51,9 @@ namespace game::ai {
             }
 
             // Calculate Muzzle Position
-            engine::Vector2f muzzlePos = {transform.position.x, transform.position.y + WEAPON_MUZZLE_HEIGHT_OFFSET};
+            // Same pivot WeaponSystem spawns the projectile from.
+            engine::Vector2f muzzlePos =
+                muzzlePivot(transform.position, muzzleHeightOffset(registry.try_get<MuzzleComponent>(entity)));
 
             // Calculate Target Position (Dynamic Chest Detection)
             engine::Vector2f targetPos;

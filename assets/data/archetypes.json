@@ -29,6 +29,9 @@
     "Health": {
       "maxHp": 200.0
     },
+    "Muzzle": {
+      "heightOffset": -96.0
+    },
     "WeaponInventory": {
       "weaponArchetypes": ["Pistol", "PM", "Rifle", "Shotgun"],
       "activeSlot": 0

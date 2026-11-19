@@ -33,6 +33,7 @@ add_executable(baja_tests
     test_enemy_ai_hospital.cpp
     ../src/game/systems/DamageSystem.cpp
     ../src/game/systems/PickupSystem.cpp
+    ../src/game/systems/WeaponSystem.cpp
     ../src/game/systems/VisibilitySystem.cpp
     ../src/game/ai/EnemyDetectionSystem.cpp
     ../src/game/ai/EnemyMovementSystem.cpp

@@ -27,6 +27,7 @@
 #include "game/components/CampBehaviorComponent.hpp"
 #include "game/components/TurretBehaviorComponent.hpp"
 #include "game/components/HitFlashComponent.hpp"
+#include "game/components/MuzzleComponent.hpp"
 
 #include "engine/components/TransformComponent.hpp"
 #include <entt/entt.hpp>
@@ -302,6 +303,15 @@ namespace game {
                                             }
 
                                             registry.emplace<HitFlashComponent>(entity, flash);
+                                        });
+
+        // --- 17. Rejestracja MuzzleComponent ---
+        factory.registerComponentLoader("Muzzle",
+                                        [](entt::registry& registry, entt::entity entity, const nlohmann::json& data) {
+                                            MuzzleComponent muzzle;
+                                            muzzle.heightOffset =
+                                                data.value("heightOffset", DEFAULT_MUZZLE_HEIGHT_OFFSET);
+                                            registry.emplace<MuzzleComponent>(entity, muzzle);
                                         });
 
         factory.setInstancePropertiesHandler([&context](entt::entity entity, const nlohmann::json& tiledObject) {

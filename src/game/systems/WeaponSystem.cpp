@@ -12,6 +12,7 @@
 #include "engine/components/LifetimeComponent.hpp"
 #include "game/components/ProjectileComponent.hpp"
 #include "game/components/DamageComponent.hpp"
+#include "game/components/MuzzleComponent.hpp"
 #include "engine/physics/PhysicsConstants.hpp"
 #include "engine/events/AudioEvents.hpp"
 
@@ -203,6 +204,10 @@ namespace game {
                                         const WeaponComponent& weapon, const engine::PhysicsBodyComponent& bodyComp) {
         auto& registry = *context.m_registry;
         b2Vec2 bodyPos = b2Body_GetPosition(bodyComp.bodyId);
+        // Aim angles are measured from this pivot (PlayerControllerSystem, EnemyCombatSystem),
+        // so spawning on the same pivot keeps the shot on the line to the aimed point.
+        const engine::Vector2f pivot =
+            muzzlePivot({bodyPos.x, bodyPos.y}, muzzleHeightOffset(registry.try_get<MuzzleComponent>(entity)));
 
         // Loop for multiple projectiles
         for (int i = 0; i < weapon.projectilesPerShot; ++i) {
@@ -211,13 +216,10 @@ namespace game {
             float spreadOffsetRad = spreadOffsetDeg * (engine::Pi / 180.0f);
             float finalAngle = weapon.aimAngle + weapon.recoilAngleOffset + spreadOffsetRad;
 
-            // Calculate spawn position (offset from center)
-            float spawnOffset = 60.0f;
-            float heightOffset = -96.0f; // Muzzle height adjustment TODO: Make configurable per weapon
             float cosA = std::cos(finalAngle);
             float sinA = std::sin(finalAngle);
 
-            engine::Vector2f spawnPos = {bodyPos.x + cosA * spawnOffset, bodyPos.y + sinA * spawnOffset + heightOffset};
+            engine::Vector2f spawnPos = projectileSpawnPoint(pivot, finalAngle);
 
             // Create Projectile Entity
             auto projectile = registry.create();
