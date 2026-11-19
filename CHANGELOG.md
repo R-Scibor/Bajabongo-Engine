@@ -1,14 +1,14 @@
 # Changelog
 
-All notable changes are listed here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project is not yet versioned for a public release.
+All notable changes are listed here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.1.0] - 2026-11-19
 
-Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Nothing in this list has been published as a GitHub release.
+First tagged release. A Windows x64 build and the game media pack are attached to the GitHub release.
 
 ### Added
 
-- A CMake build that mirrors the Visual Studio 2022 solution: `engine` static library, `game` executable, and presets for Windows (`windows-vs2022`, optional Ninja) and Linux (Ninja Debug/Release, plus sanitizer and coverage trees).
+- A CMake build (replacing the old Visual Studio solution): `engine` static library, `game` executable, and presets for Windows (`windows-vs2022`, optional Ninja) and Linux (Ninja Debug/Release, plus sanitizer and coverage trees).
 - vcpkg manifest mode with a pinned builtin baseline (Box2D 3.2 and the rest of the dependency set are reproducible).
 - Opt-in flags: `BAJA_BUILD_TESTS`, `BAJA_STRICT_WARNINGS`, `BAJA_SANITIZE`, `BAJA_COVERAGE`, `BAJA_PCH`, and `BAJA_BUILD_BENCH`.
 - Catch2 and CTest suite (133 cases): pure logic, headless ECS systems, EntityFactory and MapLoader, shipped hideout/hospital integration, JSON robustness, a fixed-dt headless simulation, `engine::Random` seed/range tests, spawn-relative patrol checks, feet-collider slide helpers, a check that every death and weapon sound id is in `resources.json`, and a hospital enemy-AI regression (seed 1, 1800 frames).
@@ -18,7 +18,7 @@ Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Noth
 - All loggers also write to `logs/game.log` next to the executable (truncated per run, warnings flushed at once) so a crash leaves a log on disk.
 - Dev launch flags: `game --map hideout` or `game --map hospital` to skip splash and menu, and `game --seed <n>` to seed the shared RNG.
 - Repo hygiene: `.editorconfig`, `.gitattributes` (no bulk renormalize of existing files), GitHub issue and pull request templates, and this changelog.
-- Local CI workflow (Linux Debug, ASan/UBSan, clang-tidy, Windows VS 2022 Debug plus CTest). The file is in the tree; it is unpublished until the branch is pushed.
+- CI workflow: Linux Debug, ASan/UBSan, clang-tidy, and Windows VS 2022 Debug, each with CTest.
 - Public docs: README architecture diagram, `docs/ARCHITECTURE.md`, `docs/BUILDING.md`, `docs/TECH_DEBT.md`, `CONTRIBUTING.md`, MIT `LICENSE`, and `assets/CREDITS.md`.
 - `.clang-format`, `.clang-tidy`, engine/game include decoupling check, and a `baja_header_check` target that compiles each `src/engine` header on its own.
 
@@ -42,7 +42,7 @@ Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Noth
 - `-Wextra` findings and constructor parameter shadowing / conversion warnings in project code.
 - `MapLoader` and `AssetManifestLoader` reject corrupted JSON without throwing; `EntityFactory` no longer aborts when a child archetype is missing.
 - Gameplay code no longer uses `srand` / `rand()` or per-system `mt19937` engines; all rolls go through `engine::Random`.
-- The stock `Doxyfile` and machine-specific `.vscode/c_cpp_properties.json` are no longer tracked (left on disk and gitignored). `Doxyfile.engine` / `Doxyfile.game` were not present and were not changed.
+- The stock `Doxyfile` and machine-specific `.vscode/c_cpp_properties.json` are no longer tracked.
 - Patrol waypoints from an archetype are treated as offsets from each spawn and scaled by `mapScale`, or as a wander box around the spawn when the list is empty. Absolute waypoint lists on the map object (including a Tiled `waypoints` property) still override the archetype.
 - Enemy wall-slide rays start at the solid feet fixture, not the sprite origin, with a lookahead of at least 48 units. `lastValidPosition` is cached only after the body actually moved. Stuck recovery tries an open-side impulse before teleporting, rejects wall overlaps, and shoves when the player can see the enemy instead of skipping recovery.
 - After physics bodies exist, per-spawn patrol waypoints are shape-cast (feet collider) against Collision and HalfCollision. A blocked candidate is shortened to a point before the hit, or replaced by a random clear direction; if nothing works, the enemy patrols in place.
@@ -53,4 +53,4 @@ Work landed on the local `build/cmake` and `cleanup/code-quality` branches. Noth
 
 ### Security
 
-- No credential or token changes. Asset media under `assets/textures`, `assets/sounds`, and `assets/music` remains gitignored; see `assets/CREDITS.md` before any public pack.
+- No credential or token changes. Asset media under `assets/textures`, `assets/sounds`, and `assets/music` is not tracked in git and ships as a separate zip on the release page; licenses are in `assets/CREDITS.md`.
