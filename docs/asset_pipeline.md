@@ -92,7 +92,7 @@ The `MapLoader` expects specific layers to function correctly. Ensure your Tiled
 1.  **Image Layer (Background)**:
     *   **Type**: `Image Layer`
     *   **Name**: Any
-    *   **Usage**: The background image of the level. The engine scales this by the map's `mapScale` value (default 2.0, `EngineContext::MAP_SCALE`). The texture key is the image file name without extension plus `_sprite` (for example `map_hideout.png` → `map_hideout_sprite`); `map_sprite` is used if the layer has no image.
+    *   **Usage**: The background image of the level. The engine scales this by the map's `mapScale` value (default 2.0, `EngineContext::MAP_SCALE`). The texture key is the image file name without extension plus `_sprite` (for example `map_hideout.png` becomes `map_hideout_sprite`); `map_sprite` is used if the layer has no image.
     *   **Requirements**: Must define dimensions in the JSON: `"imageheight": 1024, "imagewidth": 1024`.
 
 2.  **Map Properties (Root)**:
