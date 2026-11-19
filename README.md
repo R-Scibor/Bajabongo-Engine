@@ -1,298 +1,169 @@
 # Bajabongo Engine
 
-A modular, data-driven 2D game engine built with **C++20**, **SFML 3.1**, **EnTT**, and **Box2D 3.2**.
-
-The project is structured into two distinct parts: the **Core Engine** (`src/engine`) which provides reusable systems and abstractions, and the **Game Module** (`src/game`) which implements specific gameplay logic, acting as the composition root.
-
-## 🚀 Key Features
-
-### Core Technology
-*   **Modern C++20 Codebase**: Utilizes latest standard features for performance and safety.
-*   **Entity Component System (ECS)**: Powered by [EnTT](https://github.com/skypjack/entt) for high-performance entity management.
-*   **Physics Engine**: Integrated **Box2D 3.2** (C API) for reliable 2D physics simulation.
-*   **Rendering**: **SFML 3.1** backend with support for sprite batching, animations, and camera control.
-*   **Input System**: Abstracted input handling supporting keyboard and mouse.
-*   **Logging**: Structured, multi-sink logging using [spdlog](https://github.com/gabime/spdlog).
-
-### Engine Systems
-*   **State Management**: Stack-based Finite State Machine (Push, Pop, Swap) handling game flow (Splash -> Menu -> Gameplay).
-*   **Asset Pipeline**: JSON-based asset manifests with hot-reloading capabilities using `tools/AssetBaker.py`.
-*   **Event System**: Decoupled event dispatching for physics collisions, audio triggers, and state changes.
-*   **Animation**: Component-based animation system supporting multiple clips and state-based transitions.
-
-### Gameplay Features
-*   **AI Behavior**: Robust AI system including:
-    *   Enemy detection and state transitions (Idle, Alert, Combat).
-    *   Behavioral archetypes: Patrol, Rush, Sniper, Turret.
-    *   Pathfinding and obstacle avoidance.
-*   **Combat System**:
-    *   Weapon inventory and switching mechanics.
-    *   Projectile ballistics and hit detection.
-    *   Damage handling and visual feedback (Hit Flash).
-*   **Visibility & Fog**: Dynamic visibility system ("Fog of War") based on player line-of-sight.
-*   **Interactive Maps**: JSON-based map loading with defined spawn points, resources, and collision geometry.
-
-## 📂 Project Structure
-
-```
-Bajabongo-Engine/
-├── assets/                 # Game assets (sprites, fonts, data, shaders)
-├── cmake/                  # Compiler options, runtime layout, decoupling check
-├── docs/                   # Detailed technical documentation
-├── src/
-│   ├── engine/             # Core Engine Library (Reusable)
-│   │   ├── core/           # Application loop, DI, StateManager
-│   │   ├── ecs/            # Entity Factory, Archetypes, Systems
-│   │   ├── physics/        # Box2D integration
-│   │   ├── rendering/      # SFML wrappers, Animation
-│   │   └── ...
-│   └── game/               # Game Logic (Implementation)
-│       ├── ai/             # Enemy AI logic
-│       ├── components/     # Game-specific components
-│       ├── states/         # Game states (MainMenu, Gameplay)
-│       ├── systems/        # Gameplay systems (Damage, Weapon, Fog)
-│       └── game.cpp        # Composition Root (Main Entry)
-├── tests/                  # Catch2 unit tests (no window required)
-├── tools/                  # Python tools for asset management
-├── CMakeLists.txt
-└── CMakePresets.json
-```
-
-## 🛠️ Getting Started
-
-Full install, preset, and troubleshooting notes are in [docs/BUILDING.md](docs/BUILDING.md). A short summary follows.
-
-### Prerequisites
-*   **CMake 3.21** or newer
-*   A **C++20** compiler: **Visual Studio 2022** on Windows, or a recent GCC or Clang on Linux
-*   **vcpkg** in manifest mode (`vcpkg.json` at the repo root). Use Visual Studio's bundled vcpkg, or a standalone clone. In both cases set `VCPKG_ROOT` (the CMake presets load `$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake`).
-*   **Ninja** for the Linux presets (and the optional Windows Ninja presets)
-*   **Python 3.x** (for asset tools)
-
-Dependencies are resolved from `vcpkg.json` (SFML, EnTT, Box2D, spdlog, nlohmann-json, Dear ImGui, imgui-sfml, Catch2).
-
-### Windows (CMake + Visual Studio 2022)
-
-1.  Install Visual Studio 2022 with the "Desktop development with C++" workload.
-2.  Provide vcpkg and set `VCPKG_ROOT`:
-    *   **VS-bundled vcpkg**: install the Visual Studio "C++ vcpkg package manager" component, then point `VCPKG_ROOT` at that copy (commonly `C:\Program Files\Microsoft Visual Studio\2022\<Edition>\VC\vcpkg`).
-    *   **Standalone vcpkg**: clone [vcpkg](https://github.com/microsoft/vcpkg) and set `VCPKG_ROOT` to that directory.
-3.  From the repo root, in a Developer Command Prompt or any shell where `cmake` and `VCPKG_ROOT` are available:
-
-```bat
-cmake --preset windows-vs2022
-cmake --build --preset windows-vs2022-debug
-```
-
-Use `windows-vs2022-release` for a Release build. The executable is written to `build/windows-vs2022/out/game/Debug/game.exe` (or `Release`). Run it from that folder so the copied `../../assets` and `config/logging.ini` paths resolve.
-
-Optional single-config Ninja presets, if Ninja is on PATH: `windows-ninja-debug` and `windows-ninja-release`.
-
-### Visual Studio solution (alternative)
-
-The `Bajabongo-Engine.sln` / `.vcxproj` files remain a supported Windows/MSVC workflow:
-
-1.  Ensure **vcpkg** is installed and integrated with Visual Studio (`vcpkg integrate install`).
-2.  Open `Bajabongo-Engine.sln` in Visual Studio.
-3.  Select the **Debug** or **Release** configuration (x64 recommended).
-4.  Build the solution (F7). Visual Studio should automatically invoke vcpkg to install missing dependencies (SFML, EnTT, Box2D, Spdlog).
-5.  Run the `game` project. The Visual Studio debugger defaults the working directory to `src/game`, which is how the classic relative asset paths resolve in this workflow.
-
-### Linux (CMake + Ninja)
-
-Install Ninja, CMake 3.21+, a C++20 toolchain, and typical X11 / OpenGL development packages so the SFML vcpkg port can compile. Then:
-
-```bash
-export VCPKG_ROOT=/path/to/vcpkg
-cmake --preset linux-ninja-debug
-cmake --build --preset linux-ninja-debug
-```
-
-The Linux presets also turn on `BAJA_STRICT_WARNINGS` (`-Wall -Wextra -Wshadow -Wconversion`) and `BAJA_BUILD_TESTS`. Use `linux-ninja-release` for a Release build.
-
-The executable is written to `build/linux-ninja-debug/out/game/Debug/game` (or the Release equivalent). Run it from that folder:
-
-```bash
-cd build/linux-ninja-debug/out/game/Debug
-./game
-```
-
-### Testing
-
-Unit tests use [Catch2](https://github.com/catchorg/Catch2) and CTest. They cover pure logic (angle wrapping, vectors, AABB helpers, point-in-polygon, JSON parsing and serialization, logger.ini parsing, ammo/reload, health, and the state stack) plus headless ECS system tests (damage, visibility, enemy detection, and Box2D queries), EntityFactory and MapLoader, integration loads of the shipped hideout and hospital maps, JSON robustness cases, and a fixed-dt headless simulation. They also cover the shared `engine::Random` helper (deterministic seeds and ranges). They do not open a window. The suite currently has 103 cases.
-
-`BAJA_BUILD_TESTS` defaults to **OFF**. The Linux presets turn it **ON**. On Windows, pass the option when configuring:
-
-```bat
-cmake --preset windows-vs2022 -DBAJA_BUILD_TESTS=ON
-cmake --build --preset windows-vs2022-debug
-ctest --test-dir build/windows-vs2022 -C Debug --output-on-failure
-```
-
-On Linux, after a `linux-ninja-debug` (or release) build:
-
-```bash
-ctest --test-dir build/linux-ninja-debug --output-on-failure
-```
-
-For a local clang-tidy pass over `src/` (same checks as `.clang-tidy`), configure a build so `compile_commands.json` exists, then run:
-
-```bash
-tools/run-clang-tidy.sh build/linux-ninja-debug
-```
-
-The script adds the GCC builtin include path so Clang can find `stddef.h` when the compile database was produced by GCC, and it exits with a non-zero status if a project warning is reported.
-
-### Sanitizers
-
-On Linux, AddressSanitizer and UndefinedBehaviorSanitizer are opt-in via `BAJA_SANITIZE` (GCC/Clang only). The flags apply to engine, game, and tests, not to vcpkg dependencies. A separate build tree keeps the regular Debug build clean:
-
-```bash
-export VCPKG_ROOT=/path/to/vcpkg
-cmake --preset linux-ninja-debug-sanitize
-cmake --build --preset linux-ninja-debug-sanitize
-ASAN_OPTIONS=halt_on_error=1:abort_on_error=1:detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ctest --test-dir build/linux-ninja-debug-sanitize --output-on-failure
-```
-
-The sanitized executable is written to `build/linux-ninja-debug-sanitize/out/game/Debug/game`. For a gameplay smoke, run it with `--map hideout` or `--map hospital`. Leak detection is useful for CTest (clean process exit). A smoke that stops the game with SIGTERM is not a clean shutdown, so leave `detect_leaks=0` for those runs.
-
-The local CI workflow in `.github/workflows/ci.yml` includes Linux jobs for the regular Debug build, the sanitizer preset, and clang-tidy, plus a Windows VS 2022 Debug + CTest job. The workflow file is in the tree; it is not published until the branch is pushed.
-
-### Coverage
-
-On Linux, line and function coverage for `src/` is opt-in via `BAJA_COVERAGE` (GCC/Clang, gcov). The flags apply to engine, game, and tests, not to vcpkg dependencies. Use a separate build tree; do not combine this with `BAJA_SANITIZE`.
-
-```bash
-export VCPKG_ROOT=/path/to/vcpkg
-cmake --preset linux-ninja-debug-coverage
-cmake --build --preset linux-ninja-debug-coverage
-tools/run-coverage.sh
-```
-
-`tools/run-coverage.sh` runs CTest in that tree and writes `build/linux-ninja-debug-coverage/coverage/summary.txt` (and `summary.json`). You can pass another build directory as the first argument. `gcov` must be on `PATH`. The default report covers `src/` files exercised by the test binary. Game-only translation units are not included unless you also run the game from that build tree.
-
-### Headless benchmark
-
-An optional target `baja_bench` (off by default) times 600 fixed-dt frames of the hideout map without a window:
-
-```bash
-cmake --preset linux-ninja-release -DBAJA_BUILD_BENCH=ON
-cmake --build --preset linux-ninja-release --target baja_bench
-./build/linux-ninja-release/tests/baja_bench
-```
-
-Example measurement recorded on 18 Nov 2026 (Europe/Warsaw): `linux-ninja-release`, g++ 14.2.0, CMake 3.31.8, 8-core Intel Xeon KVM guest with 15 GiB RAM, Linux 6.12. After a warmup run, two further runs of 600 frames took 10.4 ms and 9.3 ms (about 0.016-0.017 ms/frame, 126 entities, all transforms finite). This is a single-machine sample of the headless loop, not a shipping frame-rate claim.
-
-### Dev map flag
-
-Launching `game` with no arguments starts the normal flow (splash, then menu). For local smoke tests you can skip splash and menu and load a map directly:
-
-```text
-game --map hideout
-game --map hospital
-```
-
-`--map=hideout` and `--map=hospital` are accepted as well. `game --help` (or `-h`) prints usage. Any other map name is rejected.
-
-`--seed <n>` or `--seed=n` seeds the shared `engine::Random` generator (unsigned 32-bit). Without the flag the generator is seeded from `std::random_device`. The process always logs `RNG seed: ...` so a session can be replayed. Combine with `--map` for a repeatable smoke: `game --map hospital --seed 1`.
-
-These flags are development aids; default behavior is unchanged when they are omitted.
-
-## Controls
-
-Derived from the current input handling in the game module.
-
-**Splash**
-*   Enter or Space: continue
-
-**Main menu**
-*   W / Up Arrow, S / Down Arrow: move the selection
-*   Enter or Space: confirm
-*   Escape: quit
-*   Left mouse button: click a menu entry
-
-**Map selection**
-*   Left mouse button: choose a map marker
-*   Escape: return to Hideout gameplay
-
-**Gameplay**
-*   W A S D: move
-*   Left Shift: run
-*   Mouse: face the cursor
-*   Right mouse button: aim
-*   Left mouse button: fire (while aiming)
-*   R: reload
-*   1-9: switch weapons
-*   H: use a medkit (requires a medkit, and current HP below max)
-*   E: interact (for example the Mission Table, which opens map selection)
-*   Escape: return to the previous state
-*   F1: toggle the in-game editor
-
-## 📚 Documentation
-
-Detailed documentation for specific subsystems can be found in the `docs/` directory:
-
-*   [**Architecture**](docs/ARCHITECTURE.md): Layers, EngineContext, data flow, and mermaid diagrams.
-*   [**Building**](docs/BUILDING.md): Windows (VS2022/CMake), Linux, vcpkg, and troubleshooting.
-*   [**Contributing**](CONTRIBUTING.md): Style, clang-format, and tests.
-*   [**Changelog**](CHANGELOG.md): Notable changes on the CMake and cleanup branches.
-*   [**Asset Pipeline**](docs/asset_pipeline.md): How to add and manage assets.
-*   [**ECS Architecture**](docs/ecs.md): Entity-Component-System patterns and usage.
-*   [**State Management**](docs/state_management.md): How the game flow is structured.
-*   [**Rendering & Animation**](docs/rendering_animation.md): Sprite and animation details.
-*   [**Physics System**](docs/physics.md): Box2D integration and collision handling.
-*   [**Input System**](docs/input.md): Handling user input.
-*   [**Event System**](docs/events.md): Event dispatching architecture.
-*   [**Audio System**](docs/audio.md): Audio playback and management.
-*   [**Logging**](docs/logging.md): Debugging and logging practices.
-*   [**Math Library**](docs/math.md): Vector and geometry utilities.
-*   [**Technical debt**](docs/TECH_DEBT.md): TODO, FIXME, and HACK comments still in `src/`.
-
-## 🏗️ Architecture Overview
-
-A longer public write-up is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-The engine follows **SOLID** principles, heavily utilizing **Dependency Injection (DI)**.
-*   **EngineContext**: A central container holding references to core services (Renderer, Input, Registry, PhysicsWorld).
-*   **Application Class**: Drives the main loop but delegates logic to the active `GameState`.
-*   **Separation of Concerns**: The `engine` project knows nothing about `game` logic. The `game` project ties everything together. Engine code must not include headers from `src/game`; CMake enforces this on every build via `cmake/CheckEngineDecoupling.cmake`. Game systems talk to the engine through interfaces, hooks, and configuration rather than reaching into engine internals that would create a reverse dependency.
-*   **Asset paths**: Fallback texture and font locations live in `EngineContext::AssetPathConfig`. The composition root (`src/game/game.cpp`) fills those paths in; the engine does not hardcode game assets such as `eg.png` or `default.ttf`.
+A custom 2D game engine in **C++20** (EnTT ECS, Box2D 3.2, SFML 3.1), plus a proof-of-concept top-down shooter built on it.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+![Top-down combat in the hospital map](docs/media/combat.gif)
+
+The repository has two layers:
+- **`src/engine`**: a reusable static library with the main loop, ECS, physics, rendering, audio, input, asset loading and an in-game editor.
+- **`src/game`**: a small shooter that uses the engine. It is the composition root and contains all gameplay code.
+
+The engine is the main deliverable. The game exists to drive it and is a proof of concept, not a finished product. Its art is AI-generated and its music was made with Suno; see [assets/CREDITS.md](assets/CREDITS.md).
+
+## Highlights
+
+**Engine**
+- **ECS on [EnTT](https://github.com/skypjack/entt).** Components are plain structs; systems receive a shared `EngineContext` (registry, dispatcher, physics world, services) via dependency injection.
+- **Physics with Box2D 3.2 (C API).** Bodies are created from pending components, with transform sync, sensor events for hits and pickups, and ray and shape casts for line of sight and AI.
+- **Rendering with SFML 3.1.** Sprites, a camera, clip-based animation and an animation state machine, plus a GLSL fog shader.
+- **Event dispatcher.** Cross-system signals such as physics sensor contacts, sound and music requests, and state changes go through the EnTT dispatcher.
+- **State stack.** A push-down automaton with deferred Push, Pop, Swap and Clear runs the game flow: splash → menu → hideout → map select → mission.
+- **Audio.** A pool of 64 SFML sound sources with positional attenuation, looping weapon sounds and a music player.
+- **Data-driven content.**
+  - Entities are composed from `assets/data/archetypes.json`, including parent/child entity hierarchies.
+  - Maps are Tiled JSON exports: image, collision and entity layers.
+  - All textures, sprites, animations and sounds are declared in `resources.json`.
+- **Logging.** spdlog with per-system loggers, writing to the console and to `logs/game.log`. Levels are set in `config/logging.ini`.
+- **Engine/game decoupling enforced by the build.** A CMake check fails the build if anything in `src/engine` includes a `src/game` header. A `baja_header_check` target compiles every engine header on its own.
+
+**In-game editor (F1)** with Dear ImGui:
+- Entity **Hierarchy** with delete.
+- **Inspector** with live editing of Transform, Renderable, Physics Body, Health, Weapon and Player. The game registers its own inspectors through a hook.
+- **Asset Browser** that spawns any archetype.
+- **Debug Settings**: physics wireframe, hitboxes, pause simulation.
+
+![In-game editor: hierarchy, inspector, asset browser and physics wireframe](docs/media/editor.gif)
+
+**Gameplay systems in the proof-of-concept game**
+- **Fog of war and line of sight.** A view-cone polygon is built from Box2D ray casts against wall vertices, then rendered through a fog shader. Enemies outside the player's view are hidden.
+- **Weapons.** Pistol, SMG (3-round burst), rifle (full auto) and shotgun (8 pellets). Each has ammo, reload, spread, bloom and recoil, with projectiles fired from a per-shooter muzzle point.
+- **Enemy AI.** Archetypes for patroller, rusher, sniper and turret, driven by a state machine (idle, patrol, alert, chase, rush, shoot, retreat and others). Detection uses line of sight.
+  - There is **no pathfinding**. Enemies steer straight toward a target, slide along walls, and use a stuck-recovery system with sidestep, impulse and teleport.
+- **Other.** Damage with hit flash and dead bodies, medkits, an interactable mission table, and a HUD.
+
+![Fog of war and line-of-sight visibility](docs/media/fog.gif)
+
+## Engineering
+
+- **Build.** CMake 3.21+ with presets for Windows (Visual Studio 2022, optional Ninja) and Linux (Ninja Debug and Release).
+- **Dependencies.** vcpkg manifest mode with a pinned baseline: SFML, EnTT, Box2D, spdlog, nlohmann-json, Dear ImGui, imgui-sfml and Catch2.
+- **Tests.** 133 Catch2 and CTest cases, none of which open a window. They cover:
+  - pure math and logic;
+  - headless ECS systems (damage, pickups, visibility, detection, weapons);
+  - EntityFactory and MapLoader;
+  - integration loads of both shipped maps;
+  - JSON robustness;
+  - a fixed-timestep headless simulation;
+  - a seeded enemy-AI regression on the hospital map.
+- **Sanitizers and coverage.** An ASan/UBSan preset (`linux-ninja-debug-sanitize`) and a gcov coverage preset with a summary script.
+- **Static checks.**
+  - Strict warnings: `-Wall -Wextra -Wshadow -Wconversion` on Linux, `/W4` on MSVC.
+  - `.clang-tidy` with `tools/run-clang-tidy.sh`.
+  - `.clang-format` and `.editorconfig`.
+- **Tooling.**
+  - `baja_bench`: a headless benchmark that runs 600 fixed-timestep frames.
+  - `baja_enemy_ai_diag`: a headless AI diagnosis tool that reports stuck checks and teleports per map.
+  - Deterministic runs with `--seed`.
+
+## Architecture
+
+The game builds `EngineContext`, wires services and hands control to the engine's `Application`. `Application` runs the loop and delegates to the active state. Gameplay states run engine systems (physics, render, animation, audio) alongside game systems (damage, visibility, weapons, AI, HUD, fog) on a fixed timestep.
+
+For layers, the frame order, data flow and the AI, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ```mermaid
 flowchart TB
     subgraph gameLayer [game]
-        root["game.cpp composition root"]
-        states["States: Splash, Menu, Map select, Gameplay"]
-        gameSys["Game systems: damage, visibility, weapons, AI, HUD, fog"]
+        root["game.cpp (composition root)"]
+        states["Game states: Splash, Menu, MapSelection, Gameplay"]
+        gameSys["Game systems: damage, weapons, AI, visibility, fog, HUD"]
     end
     subgraph engineLayer [engine]
-        app["Application main loop"]
+        app["Application (main loop)"]
+        sm["StateManager"]
+        istate["IGameState (interface)"]
         ctx["EngineContext"]
         engSys["Engine systems: physics, render, animation, audio, input"]
-        ecs["entt registry and dispatcher"]
+        ecs["entt registry + dispatcher"]
         world["Box2D world"]
     end
-    root --> ctx
     root --> app
-    app --> states
+    root --> sm
+    root --> ctx
+    states -. implements .-> istate
     states --> gameSys
     states --> engSys
     gameSys --> ctx
+    app --> sm
+    sm --> istate
     engSys --> ctx
     ctx --> ecs
     ctx --> world
 ```
 
-The game owns the composition root and gameplay systems. The engine owns the window, loop, and shared services. Systems receive `EngineContext` and must not introduce an engine-to-game include (enforced at build time).
+Arrows mean "depends on / uses". All dependencies point from `game` to `engine`: the engine never includes a type from `src/game/`, and the CMake targets enforce that split.
 
-## Screenshots and GIFs
+## Building
 
-> **PLACEHOLDER (Rafał will provide):** screenshots and short GIFs of the game belong in this section. Add images here when they are ready. Do not leave marketing shots out of this heading; this block is only a stand-in.
+Full instructions and troubleshooting are in [docs/BUILDING.md](docs/BUILDING.md). You need CMake 3.21+, a C++20 compiler and vcpkg, with `VCPKG_ROOT` set.
 
-_No screenshots or GIFs have been added yet._
+```bash
+# Windows (VS 2022)
+cmake --preset windows-vs2022
+cmake --build --preset windows-vs2022-debug
+
+# Linux (Ninja); tests are on by default in the Linux presets
+cmake --preset linux-ninja-debug
+cmake --build --preset linux-ninja-debug
+ctest --test-dir build/linux-ninja-debug --output-on-failure
+```
+
+Run the game from its output folder, for example `build/linux-ninja-debug/out/game/Debug/game`, so the relative `../../assets` paths resolve.
+
+**Assets.** Game media (`assets/textures`, `assets/sounds`, `assets/music`) is not tracked in git. It is distributed as a zip on the GitHub Releases page; unpack it into `assets/`. Data files, fonts and shaders are in the repository.
+
+## Controls
+
+| Action | Input |
+|---|---|
+| Move / run | `W` `A` `S` `D` / hold `Left Shift` |
+| Aim / fire | hold right mouse button, then left mouse button |
+| Reload | `R` |
+| Switch weapon | `1`–`9` |
+| Use medkit | `H` |
+| Interact (mission table) | `E` |
+| Back / previous state | `Esc` |
+| Toggle in-game editor | `F1` |
+| Menus | `W`/`S` or arrow keys, `Enter`/`Space`, mouse |
+
+## Dev flags
+
+```text
+game --map hideout|hospital   # skip splash and menu, load a map directly
+game --seed <n>               # seed the shared RNG; the seed is always logged
+game --map hospital --seed 1  # repeatable smoke run
+```
+
+## Status and known limitations
+
+- The game is a **proof of concept**: two playable maps (hideout and hospital) and a short loop.
+- **No pathfinding.** AI uses direct steering with wall-slide and stuck recovery.
+- The map loader expects the layer layout used by the shipped Tiled maps, not arbitrary Tiled files.
+- Remaining TODOs and known debt are listed in [docs/TECH_DEBT.md](docs/TECH_DEBT.md). Recent changes are in [CHANGELOG.md](CHANGELOG.md).
+
+More subsystem notes are in [docs/](docs): ECS, events, physics, rendering and animation, audio, input, logging, the asset pipeline and the state stack. Contribution rules are in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Credits
+
+- Graphics are AI-generated.
+- Music was made with [Suno](https://suno.com).
+- Sound effects are CC0 recordings from Freesound plus ElevenLabs-generated sounds.
+- The font is Bebas Neue (SIL OFL).
+
+Details and per-file sources are in [assets/CREDITS.md](assets/CREDITS.md).
 
 ## License
 
-Source code and documentation are released under the [MIT License](LICENSE).
-
-Files under `assets/` have their own terms. See [assets/CREDITS.md](assets/CREDITS.md).
+Source code and documentation are released under the [MIT License](LICENSE). Files under `assets/` have their own terms, listed in [assets/CREDITS.md](assets/CREDITS.md).
