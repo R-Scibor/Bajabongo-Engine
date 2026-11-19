@@ -36,20 +36,30 @@ embedded in the files:
 - https://suno.com/song/e478b671-a90a-4255-8120-edafae846c85
 - https://suno.com/song/0bea76b8-caa6-4f8c-b1bb-952b5cfdee40
 
-## Sounds — to be replaced
+## Sounds
 
-The following third-party death sound effects are **not cleared for
-distribution** and **must be replaced** before a public release. They are
-not credited as approved assets:
+Sound files live in `assets/sounds/`. They are not tracked in git and ship
+in the release zip. Ids match `assets/data/resources.json`.
 
-- `sounds/death_amogus.mp3`
-- `sounds/death_lego_yoda.mp3`
-- `sounds/death_scav.mp3`
+Freesound files are CC0 1.0 (public domain dedication). No attribution is
+required; authors are listed as a courtesy. Each one was trimmed, faded,
+loudness-normalized, and converted to mono so the engine can position it
+in space.
 
-A previously referenced file, `sounds/Gopniks/tarkov-scav-laughing-3.mp3`
-(`death_scav_laugh` in the manifest), was never in the tree and is not
-part of the asset set.
+| File | Source | Author | License |
+|---|---|---|---|
+| `sounds/ak_single.mp3` | [Rifle Gun Shot AK47. close recording in a shooting range.](https://freesound.org/people/felix.blume/sounds/136399/) (one shot) | felix.blume | CC0 1.0 |
+| `sounds/ak_fullauto.mp3` | [AK-47 Newgrounds Shooting Loop](https://freesound.org/people/fafasdsda/sounds/653542/) (1.7 s loop) | fafasdsda | CC0 1.0 |
+| `sounds/pistol.mp3` | [Small pistol gunshot indoors](https://freesound.org/people/acidsnowflake/sounds/402789/) | acidsnowflake | CC0 1.0 |
+| `sounds/shotgun.mp3` | [Shotgun Shot](https://freesound.org/people/LeMudCrab/sounds/163455/) | LeMudCrab | CC0 1.0 |
+| `sounds/st1-footstep.mp3`, `sounds/st2-footstep.mp3`, `sounds/st3-footstep-sfx.mp3` | [walking indoors on concrete floor 1](https://freesound.org/people/FOSSarts/sounds/740419/) (three single steps) | FOSSarts | CC0 1.0 |
+| `sounds/death_player.mp3` | [Male Death 4](https://freesound.org/people/scorpion67890/sounds/396801/) | scorpion67890 | CC0 1.0 |
+| `sounds/death_1.mp3`, `sounds/death_2.mp3` | Generated with [ElevenLabs](https://elevenlabs.io) Sound Effects | ElevenLabs (generated for this project) | ElevenLabs free-plan output: non-commercial use, credit to ElevenLabs |
+| `sounds/smg_burst.mp3` | Source unknown, original asset kept | unknown | unknown |
 
-Other short sound effects (weapons, footsteps, `death_1` / `death_2` /
-`death_player`) are included with the game data; confirm their origin
-before any commercial use if it is not already documented here.
+The earlier easter-egg death sounds (`death_amogus`, `death_lego_yoda`,
+`death_scav`, and the never-shipped `death_scav_laugh`) were removed from
+the game and the manifest.
+
+Before any commercial use, regenerate or relicense `death_1` / `death_2` on
+a paid ElevenLabs plan, and replace `smg_burst.mp3`.
