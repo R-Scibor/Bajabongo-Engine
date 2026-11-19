@@ -41,7 +41,7 @@ flowchart LR
     events --> sync["PhysicsSync"]
     sync --> vis["Visibility and tagging"]
     vis --> hier["Hierarchy"]
-    hier --> life["Lifetime"]
+    hier --> life["Lifetime and hit flash"]
     life --> anim["Animation and camera"]
 ```
 
@@ -58,24 +58,31 @@ flowchart TB
     end
     subgraph engineLayer [engine]
         app["Application main loop"]
+        sm["StateManager"]
+        istate["IGameState interface"]
         ctx["EngineContext"]
         engSys["Engine systems: physics, render, animation, audio, input"]
         ecs["entt registry and dispatcher"]
         world["Box2D world"]
         assets["MapLoader, EntityFactory, AssetManifestLoader"]
     end
-    root --> ctx
     root --> app
-    app --> states
+    root --> sm
+    root --> ctx
+    states -. implements .-> istate
     states --> gameSys
     states --> engSys
     states --> assets
     gameSys --> ctx
+    app --> sm
+    sm --> istate
     engSys --> ctx
     assets --> ctx
     ctx --> ecs
     ctx --> world
 ```
+
+Arrows mean "depends on / uses", as in the README diagram. All cross-layer arrows point from `game` to `engine`. `Application` and `StateManager` only know the `IGameState` interface; the concrete states are registered by `game.cpp`.
 
 ## Enemy AI
 
