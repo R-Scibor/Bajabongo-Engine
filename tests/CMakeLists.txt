@@ -4,6 +4,7 @@ add_executable(baja_tests
     test_wrap_angle.cpp
     test_archetypes.cpp
     test_asset_manifest.cpp
+    test_sound_manifest.cpp
     test_animation_state_machine.cpp
     test_weapon_ammo.cpp
     test_muzzle_aim.cpp
