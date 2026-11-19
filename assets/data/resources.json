@@ -1859,20 +1859,8 @@
             "path": "../../assets/sounds/death_2.mp3"
         },
         {
-            "id": "death_amogus",
-            "path": "../../assets/sounds/death_amogus.mp3"
-        },
-        {
-            "id": "death_lego_yoda",
-            "path": "../../assets/sounds/death_lego_yoda.mp3"
-        },
-        {
             "id": "death_player",
             "path": "../../assets/sounds/death_player.mp3"
-        },
-        {
-            "id": "death_scav",
-            "path": "../../assets/sounds/death_scav.mp3"
         },
         {
             "id": "pistol",
