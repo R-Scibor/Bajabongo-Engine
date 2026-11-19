@@ -384,3 +384,6 @@ vcpkg_installed/
 # Doxyfile.game if those are added later.
 Doxyfile
 .vscode/c_cpp_properties.json
+
+# Runtime log written by SpdlogManager next to the game binary.
+logs/

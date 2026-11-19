@@ -12,6 +12,8 @@ The Bajabongo Engine features a robust, dependency-injection-based logging syste
 
 4.  **High-Performance Formatted Logging**: The logger uses the `{fmt}` library for fast, type-safe, and compile-time-checked string formatting, avoiding the runtime overhead of `std::stringstream`.
 
+5.  **Log File**: Every logger writes to the console and to `logs/game.log`, relative to the working directory (`out/game/<Config>` when run from the build tree). The directory is created if missing and the file is truncated on each start. Warnings and errors are flushed at once, and everything else at least once per second, so a crash still leaves the log on disk. If the file cannot be opened, the game logs to the console only.
+
 ## How It Works
 
 ### System Integration

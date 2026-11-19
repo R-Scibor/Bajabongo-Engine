@@ -5,9 +5,14 @@
 #include <unordered_map>
 #include <memory>
 
+#include <vector>
+
 // Forward declaration
 namespace spdlog {
     class logger;
+    namespace sinks {
+        class sink;
+    }
 }
 
 namespace engine {
@@ -35,7 +40,7 @@ namespace engine {
         /**
          * @brief Retrieves or creates a named logger.
          * * If a logger with the given name exists, it is returned.
-         * * If not, a new logger is created using default settings (stdout color sink).
+         * * If not, a new logger is created using default settings (console sink plus logs/game.log).
          * @param name The subsystem name (e.g., "Physics", "AI").
          * @return Shared pointer to the ILogger interface.
          */
@@ -47,6 +52,12 @@ namespace engine {
          * * Expected format: `LoggerName=Level` (e.g., `Physics=Debug`).
          */
         void loadConfiguration(const std::string& configFilePath);
+
+        /// @brief Creates and registers a logger that writes to every shared sink.
+        std::shared_ptr<spdlog::logger> createLogger(const std::string& name);
+
+        /// @brief Console sink plus, when it could be opened, the logs/game.log file sink.
+        std::vector<std::shared_ptr<spdlog::sinks::sink>> m_sinks;
 
         /// @brief Cache of active spdlog instances, indexed by name.
         std::unordered_map<std::string, std::shared_ptr<spdlog::logger>> m_loggers;
