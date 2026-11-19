@@ -1,6 +1,6 @@
 # Technical debt (source markers)
 
-Inventory of `TODO`, `FIXME`, and `HACK` comments in `src/` as of 18 Nov 2026 (Europe/Warsaw). Public information only. A broader, older backlog also lives in [tech_debt.md](tech_debt.md).
+Inventory of `TODO`, `FIXME`, and `HACK` comments in `src/` as of 18 Nov 2026 (Europe/Warsaw). Public information only. A broader, older backlog also lives in [BACKLOG.md](BACKLOG.md).
 
 No `FIXME` comments were found in `src/`.
 
