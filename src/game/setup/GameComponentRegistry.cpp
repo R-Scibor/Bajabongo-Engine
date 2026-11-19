@@ -15,7 +15,7 @@
 #include "game/components/WeaponInventoryComponent.hpp"
 #include "game/components/PortalComponent.hpp"
 #include "game/components/VisibilityComponent.hpp"
-#include "game/components/VisibleToPlayerComponent.hpp"
+#include "engine/components/VisibleToPlayerComponent.hpp"
 #include "engine/components/WorldBoundsComponent.hpp"
 
 // AI Components
@@ -168,7 +168,7 @@ namespace game {
         // but useful if we want to force-make something visible in JSON
         factory.registerComponentLoader("VisibleToPlayer", [](entt::registry& registry, entt::entity entity,
                                                               [[maybe_unused]] const nlohmann::json& data) {
-            registry.emplace<VisibleToPlayerComponent>(entity);
+            registry.emplace<engine::VisibleToPlayerComponent>(entity);
         });
 
         // --- 7. Rejestracja WorldBoundsComponent ---

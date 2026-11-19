@@ -1,7 +1,7 @@
 #include "engine/pch.h"
 #include "MapSelectionState.hpp"
 #include "game/components/MapMarkerComponent.hpp"
-#include "game/components/VisibleToPlayerComponent.hpp"
+#include "engine/components/VisibleToPlayerComponent.hpp"
 #include "engine/components/TransformComponent.hpp"
 #include "engine/components/RenderableComponent.hpp"
 #include "engine/core/EngineContext.hpp"
@@ -41,7 +41,7 @@ namespace game {
         registry.emplace<engine::TransformComponent>(bgEntity, engine::Vector2f{0.f, 0.f});
         // Background at layer 0
         registry.emplace<engine::RenderableComponent>(bgEntity, "map_selection_screen_sprite", 0);
-        registry.emplace<game::VisibleToPlayerComponent>(bgEntity);
+        registry.emplace<engine::VisibleToPlayerComponent>(bgEntity);
 
         // --- Spawn Markers ---
         // Helper lambda
@@ -52,7 +52,7 @@ namespace game {
             registry.emplace<engine::TransformComponent>(marker, pos, 0.0f, engine::Vector2f{3.0f, 3.0f});
             // Marker at layer 1
             registry.emplace<engine::RenderableComponent>(marker, markerSprite, 1);
-            registry.emplace<game::VisibleToPlayerComponent>(marker);
+            registry.emplace<engine::VisibleToPlayerComponent>(marker);
 
             // Create Text Entity (hidden by default)
             auto textEnt = registry.create();
@@ -63,7 +63,7 @@ namespace game {
             // Text at layer 2 (on top of marker)
             auto& renderable = registry.emplace<engine::RenderableComponent>(textEnt, textSprite, 2);
             renderable.color.a = 0; // Hidden initially
-            registry.emplace<game::VisibleToPlayerComponent>(textEnt);
+            registry.emplace<engine::VisibleToPlayerComponent>(textEnt);
 
             registry.emplace<MapMarkerComponent>(marker, mapFile, name, textEnt, pos.y);
         };

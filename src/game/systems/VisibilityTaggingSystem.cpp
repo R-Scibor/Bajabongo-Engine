@@ -5,7 +5,7 @@
 #include "engine/core/math/GeometryUtils.hpp"
 #include "engine/core/ILoggerManager.hpp"
 #include "game/components/VisibilityComponent.hpp"
-#include "game/components/VisibleToPlayerComponent.hpp"
+#include "engine/components/VisibleToPlayerComponent.hpp"
 #include "game/components/PlayerComponent.hpp"
 #include <entt/entt.hpp>
 
@@ -58,14 +58,14 @@ namespace game {
 
             // Tag or untag entity
             if (isVisible) {
-                if (!registry.any_of<VisibleToPlayerComponent>(entity)) {
-                    registry.emplace<VisibleToPlayerComponent>(entity);
+                if (!registry.any_of<engine::VisibleToPlayerComponent>(entity)) {
+                    registry.emplace<engine::VisibleToPlayerComponent>(entity);
                 }
             } else {
                 // Only remove if NOT always visible
-                if (auto* vis = registry.try_get<VisibleToPlayerComponent>(entity)) {
+                if (auto* vis = registry.try_get<engine::VisibleToPlayerComponent>(entity)) {
                     if (!vis->alwaysVisible) {
-                        registry.remove<VisibleToPlayerComponent>(entity);
+                        registry.remove<engine::VisibleToPlayerComponent>(entity);
                     }
                 }
             }
