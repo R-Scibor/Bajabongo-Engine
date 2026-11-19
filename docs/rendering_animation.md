@@ -9,7 +9,7 @@ The rendering pipeline is designed to be flexible and data-driven. The core comp
 *   **Components:** Data structures attached to entities (e.g., `RenderableComponent`, `AnimationComponent`).
 *   **Systems:** Logic that processes entities based on their components (e.g., `RenderSystem`, `AnimationSystem`).
 *   **Resources:** Shared data definitions (e.g., `SpriteDesc`, `AnimationClip`).
-*   **Abstraction:** The `IRenderer` interface abstracts the underlying graphics library (SFML), allowing for potential future replacements or mocking for tests.
+*   **Abstraction:** The `IRenderer` interface abstracts the underlying graphics library (SFML) for most callers (editor, HUD, fog). `RenderSystem` itself draws through an `sf::RenderTarget` so the scene can be captured into the fog render texture.
 
 ## Rendering Components
 
@@ -18,6 +18,8 @@ To render an entity, it typically needs at least two components:
 ### 1. TransformComponent
 Defines the entity's spatial properties in the world.
 *   **position:** The `x, y` coordinates in world space.
+*   **rotation:** Rotation in radians.
+*   **scale:** Scale factor (a negative `x` flips the sprite horizontally).
 
 ### 2. RenderableComponent
 Defines how the entity should look.
@@ -34,7 +36,7 @@ Sprites are not stored directly in components. Instead, components reference spr
 Describes a static image within a texture atlas.
 *   **textureId:** The texture file identifier.
 *   **uvRect:** The region of the texture to render (`sf::IntRect`).
-*   **origin:** The pivot point of the sprite (default is top-left `0,0`).
+*   **origin:** The pivot point of the sprite in local pixels (`0,0` is top-left; characters usually use bottom-center).
 
 ### SpriteManager
 Holds a map of `std::string` -> `SpriteDesc`.
@@ -71,16 +73,16 @@ This design ensures that the `RenderSystem` doesn't need to know about animation
 
 ## Render Loop (`RenderSystem`)
 
-The `RenderSystem::update()` method performs the following steps:
+The `RenderSystem::update(sf::RenderTarget&)` method performs the following steps:
 
-1.  **Cull & Collect:** Gathers all entities with `TransformComponent` and `RenderableComponent`.
+1.  **Collect:** Gathers all entities with `TransformComponent` and `RenderableComponent`. There is no frustum culling.
 2.  **Sort:** Sorts entities first by `layer`, then by Y-position (for top-down 2D depth sorting).
-3.  **Draw:** Iterates through the sorted list, retrieving sprite data from `SpriteManager` and issuing draw calls to the `IRenderer`.
+3.  **Draw:** Iterates through the sorted list and skips entities that are neither the camera focus nor tagged `VisibleToPlayerComponent`. For the rest it retrieves sprite data from `SpriteManager` and the texture from the resource manager, then draws an `sf::Sprite` to the target.
 
 ### Debug Drawing
 The `RenderSystem` also supports a debug mode (toggleable via `setDebugDraw`). This mode visualizes:
 *   Physics bodies (colliders)
-*   Shapes (Circles, Rectangles) based on the underlying Box2D definitions.
+*   Shapes (circles, polygons, capsules) based on the underlying Box2D definitions, as green outlines.
 
 ## Interfaces
 
@@ -88,7 +90,7 @@ The `RenderSystem` also supports a debug mode (toggleable via `setDebugDraw`). T
 The engine is agnostic to the specific rendering backend. The `IRenderer` interface defines primitives:
 *   `drawSprite(...)`
 *   `drawCircle(...)`
-*   `drawRect(...)`
+*   `drawRect(...)`, `drawLine(...)`, `drawPolygon(...)`, `drawText(...)`
 *   `clear(...)`, `beginFrame()`, `endFrame()`
 
 The concrete implementation `SFMLRenderer` translates these calls into SFML commands.
