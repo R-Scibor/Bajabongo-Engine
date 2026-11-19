@@ -58,7 +58,7 @@ The **Hierarchy System** manages the parent-child relationships between entities
 
 ### Transform Synchronization
 
-The system runs every frame (after Physics/Animation, before Rendering) to update child transforms:
+The system runs every gameplay tick (after physics sync and visibility, before lifetime and animation) to update child transforms:
 
 `ChildWorldPos = ParentWorldPos + Rotate(LocalOffset * ParentScale, ParentRotation)`
 `ChildWorldRot = ParentRotation + LocalRotation`
@@ -75,6 +75,8 @@ registry.on_destroy<engine::ChildComponent>()
 
 ## Systems
 
-(List of other major ECS systems can go here as we document them)
-*   **PhysicsSystem**: Syncs Box2D bodies with TransformComponents.
-*   **RenderSystem**: Draws entities with RenderableComponents.
+Other major ECS systems:
+*   **PhysicsBodyCreationSystem** and **PhysicsSyncSystem**: Create Box2D bodies from pending components and copy body transforms into `TransformComponent`. See [Physics](physics.md).
+*   **RenderSystem**: Draws entities with `RenderableComponent`, sorted by layer and then by Y position.
+*   **AnimationStateMachineSystem** and **AnimationSystem**: Pick and play animation clips. See [Rendering and animation](rendering_animation.md).
+*   **LifetimeSystem**: Destroys entities whose `LifetimeComponent` has expired.
