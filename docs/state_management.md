@@ -58,12 +58,13 @@ public:
 The `StateManager` is the central hub for controlling the application flow. It is accessible via the `EngineContext`.
 
 ### Registering a State
-Before a state can be used, it must be registered with the `StateManager`'s factory. This is typically done once at startup in the composition root (`game.cpp`).
+Before a state can be used, it must be registered with the `StateManager`'s factory. This is done once at startup in the composition root (`game.cpp`), before the manager is moved into `Application`. `Application` then publishes it as `context.m_stateManager`.
 
 ```cpp
 // In game.cpp
-context.m_stateManager->registerState<game::MainMenuState>("MainMenu");
-context.m_stateManager->registerState<game::GameplayState>("Gameplay");
+auto stateManager = std::make_unique<engine::StateManager>(*context);
+stateManager->registerState<game::MainMenuState>("MainMenu");
+stateManager->registerState<game::GameplayState>("Gameplay");
 ```
 The template argument is the state's class name, and the string parameter is a unique identifier used to request the state.
 
@@ -127,15 +128,16 @@ namespace game {
 #include "engine/core/EngineContext.hpp"
 #include "engine/core/StateManager.hpp"
 #include "engine/core/ILogger.hpp"
+#include "engine/core/ILoggerManager.hpp"
 #include <SFML/Window/Event.hpp>
 
 namespace game {
     void PauseState::onEnter(engine::EngineContext& context) {
-        context.m_logManager->GetLogger("Game")->info("Entering PauseState.");
+        context.m_logManager->getLogger("Game")->info("Entering PauseState.");
     }
 
     void PauseState::onExit(engine::EngineContext& context) {
-        context.m_logManager->GetLogger("Game")->info("Exiting PauseState.");
+        context.m_logManager->getLogger("Game")->info("Exiting PauseState.");
     }
 
     void PauseState::handleEvent(engine::EngineContext& context, const sf::Event& event) {
@@ -159,10 +161,10 @@ namespace game {
 ```
 
 **3. Register the New State**
-In `src/game/game.cpp`, add the registration call.
+In `src/game/game.cpp`, add the registration call next to the others.
 ```cpp
 // In game.cpp, during initialization
-context.m_stateManager->registerState<game::PauseState>("Pause");
+stateManager->registerState<game::PauseState>("Pause");
 ```
 
 **4. Trigger the Transition**
